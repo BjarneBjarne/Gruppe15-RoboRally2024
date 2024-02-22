@@ -1,0 +1,85 @@
+@startuml class_diagram
+
+package "Data Layer" {
+
+    class PlayerMat {
+        - int checkpointTokens
+        - int energyReserve
+        - Card[] Cards
+    }
+
+    class Maps {
+        - HashMap<String, BoardField[][]> maps
+        + getMap(String mapName): BoardField[][]
+    }
+    enum BoardField {
+        Checkpoint
+        ConveyorBelt
+        RotatingConveyorBelt
+        PushPanel
+        Laser
+        Gear
+        Pit
+        Wall
+        EnergySpace
+        PriorityAntenna
+        Reboot
+    }
+
+    Maps <-- BoardField
+
+    interface Card
+    class ProgrammingCard
+    class SpecialProgrammingCard
+    class DamageCard
+
+    Card .u.|> ProgrammingCard
+    Card .u.|> SpecialProgrammingCard
+    Card .u.|> DamageCard
+
+    Card -u-> PlayerMat::Cards
+}
+
+package "Functionality Layer" {
+
+    class BoardLogic
+
+    class Timer
+
+    class UpgradeShop
+    UpgradeShop <-- ProgrammingCard
+    UpgradeShop <-- SpecialProgrammingCard
+    UpgradeShop <-- DamageCard
+
+    class Player
+    Player <-- PlayerMat
+
+    class GameLogic {
+        - Player[] players
+        - BoardField[][] map
+        - int turn
+    }
+
+    GameLogic <-- Player
+    GameLogic <-- Timer
+    GameLogic <-- UpgradeShop
+
+    BoardLogic <-- Maps
+    BoardLogic --> GameLogic
+
+}
+
+package "Presentation Layer" {
+    class UserInterface {
+        + Display(): void
+    }
+    UserInterface <-- GameLogic
+
+    class GameBoardFactory
+    class PlayerMatFactory
+    UserInterface <-- GameBoardFactory
+    UserInterface <-- PlayerMatFactory
+
+}
+
+@enduml
