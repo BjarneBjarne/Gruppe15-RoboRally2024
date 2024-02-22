@@ -1,0 +1,13 @@
+@startuml domain_diagram
+
+Board "1" *-- "0..*" Tile
+Board "1" -- "1" PriorityAntenna
+Player "2..6" --* Board
+Player "Current" <-- Board
+PlayerMat "1" -- "1" Player
+PlayerMat "0..5" -- "1" UpgradeCard
+UpgradeShop "1" -- "*" UpgradeCard
+Board "1" -- "1" Map
+Timer "1" -- "1" Board
+
+@enduml
