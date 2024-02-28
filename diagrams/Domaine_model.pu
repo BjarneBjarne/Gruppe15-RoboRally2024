@@ -1,4 +1,5 @@
 @startuml
+skinparam linetype ortho
 
 class Player
 class Robot
@@ -19,7 +20,7 @@ class Discard_Pile
 
 'Player relations
 Player " 1 " -- " 1 " Robot: programs
-Player " 1 " -- " 1 " PlayerMat
+Player " 1 " -u- " 1 " PlayerMat
 
 'Player mat relations'
 PlayerMat " 1 " *-- " 1 " Programming_Deck
