@@ -28,6 +28,7 @@ PlayerMat " 1 " *-- " 1 " Discard_Pile
 Programming_Deck " 1 " o-- " 1..* " Cards
 Player_Energy " 1 " o-- " 0..* " Energy_Cubes
 Discard_Pile " 1 " o-- " 1..* " Cards
+PlayerMat " 1 " -- " 0..* " Tokens 
 
 'Off board relations'
 Energy_Reserve " 1 " o-- " 0..* " Energy_Cubes
