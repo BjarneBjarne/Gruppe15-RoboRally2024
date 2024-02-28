@@ -1,4 +1,4 @@
-@startuml
+@startuml domain_diagram
 
 class Player
 class Robot
