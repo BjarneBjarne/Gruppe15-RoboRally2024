@@ -1,4 +1,4 @@
-@startuml domain_diagram
+@startuml
 
 class Player
 class Robot
@@ -16,6 +16,8 @@ class Checkpoints
 class Energy_Cubes
 class Priority_Antenna
 class Discard_Pile
+class Register
+class Installed_Upgrades
 
 'Player relations
 Player " 1 " -- " 1 " Robot: programs
@@ -29,6 +31,10 @@ Programming_Deck " 1 " o-- " 1..* " Cards
 Player_Energy " 1 " o-- " 0..* " Energy_Cubes
 Discard_Pile " 1 " o-- " 1..* " Cards
 PlayerMat " 1 " -- " 0..* " Tokens 
+PlayerMat " 1 " *-- " 5 " Register
+Register " 1 " o-- " 0..1 " Cards
+PlayerMat " 1 " *-- " 1 " Installed_Upgrades
+Installed_Upgrades " 1 " o-- " 0..3 " Cards
 
 'Off board relations'
 Energy_Reserve " 1 " o-- " 0..* " Energy_Cubes
