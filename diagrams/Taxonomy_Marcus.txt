@@ -13,7 +13,9 @@ Noun:
 - Programming Deck: Contains programming *Cards* of a *Player* 
 - Discard Pile: Contains used *Cards*
 - Checkpoints: Elements on *Game Board*, through which *Robot* must pass
-- Priority Antenna: Element on *Start Board*, deciding *Robot* priority 
+- Priority Antenna: Element on *Start Board*, deciding *Robot* priority
+- Register: Slots in which programming *Cards* are placed, which will be executed during play.
+- Installed Upgrades: Field on *Player Mat* which contains up to 3 of permanent upgrade *Cards*. 
 
 Verb:
 - Plan Robot Action
