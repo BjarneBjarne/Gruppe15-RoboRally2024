@@ -52,7 +52,7 @@ public class GameController {
         //     following the current player
         //   - the counter of moves in the game should be increased by one
         //     if the player is moved
-        if (space.getPlayer() == null) return;
+        if (space.getPlayer() != null) return;
 
         board.getCurrentPlayer().setSpace(space);
         var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer());
