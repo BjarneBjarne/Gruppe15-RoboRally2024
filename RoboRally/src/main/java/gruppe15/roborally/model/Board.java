@@ -55,6 +55,8 @@ public class Board extends Subject {
 
     private int step = 0;
 
+    private int moveCounter =0;
+
     private boolean stepMode;
 
     public Board(int width, int height, @NotNull String boardName) {
@@ -169,6 +171,21 @@ public class Board extends Subject {
         }
     }
 
+    public void setMoveCounter(int newMoveCounter){
+
+        if (moveCounter != newMoveCounter) {
+            moveCounter = newMoveCounter;
+            notifyChange();
+        }
+
+    }
+
+    public int getMoveCounter(){
+        return moveCounter;
+    }
+
+
+
     /**
      * Returns the neighbour of the given space of the board in the given heading.
      * The neighbour is returned only, if it can be reached from the given space
@@ -213,7 +230,7 @@ public class Board extends Subject {
         //      of the current move!
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
-                ", Step: " + getStep();
+                ", Step: " + getStep() +", MoveCount: "+ getMoveCounter();
 
         // TODO Task1: add a counter along with a getter and a setter, so the
         //      state of the board (game) contains the number of moves, which then can
