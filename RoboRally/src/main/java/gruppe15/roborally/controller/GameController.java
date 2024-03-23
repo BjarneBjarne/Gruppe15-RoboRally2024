@@ -205,24 +205,101 @@ public class GameController {
         }
     }
 
+    private Space corectPosition(int x, int y){
+        if( x < 0 ){
+            x = 0;
+        }
+        if(x >= board.width){
+          x = board.width-1;
+        }
+        if( y < 0 ){
+            y = 0;
+        }
+        if(y >= board.height){
+            y = board.height-1;
+        }
+        return board.getSpace(x, y);
+    }
+
+    private void moveCurrentPlayer(Player player, int fwd, int rgt){
+        Space temp = player.getSpace();
+        int x = temp.x;
+        int y = temp.y;
+        switch(player.getHeading()){
+            case NORTH:
+                y = y - fwd;
+                x = x + rgt;
+                break;
+            case SOUTH:
+                y = y + fwd;
+                x = x - rgt;
+                break;
+            case EAST:
+                x = x + fwd;
+                y = y + rgt;
+                break;
+            case WEST:
+                x = x - fwd;
+                y = y -rgt;
+                break;
+            default:
+        }
+
+        moveCurrentPlayerToSpace(corectPosition(x, y));
+    }
+
+    private void turnCurrentPlayerClockwise(Player player, int quaterRotation){
+        int playerOrientation = 0;
+        switch(player.getHeading()){
+            case SOUTH:
+                playerOrientation = 2;
+                break;
+            case EAST:
+                playerOrientation = 1;
+                break;
+            case WEST:
+                playerOrientation = 3;
+                break;
+            default:
+        }
+        quaterRotation = quaterRotation%4;
+        if( quaterRotation<0 ) quaterRotation = quaterRotation+4;
+        int newOrientation = (quaterRotation+playerOrientation)%4;
+        switch (newOrientation) {
+            case 0:
+                player.setHeading(Heading.NORTH);
+                break;
+            case 1:
+                player.setHeading(Heading.EAST);
+                break;
+            case 2:
+                player.setHeading(Heading.SOUTH);
+                break;
+            case 3:
+                player.setHeading(Heading.WEST);
+                break;
+            default:
+        }
+    }
+
     // TODO Task2
     public void moveForward(@NotNull Player player) {
-
+        moveCurrentPlayer(player, 1, 0);
     }
 
     // TODO Task2
     public void fastForward(@NotNull Player player) {
-
+        moveCurrentPlayer(player, 2, 0);
     }
 
     // TODO Task2
     public void turnRight(@NotNull Player player) {
-
+        turnCurrentPlayerClockwise(player, 1);
     }
 
     // TODO Task2
     public void turnLeft(@NotNull Player player) {
-
+        turnCurrentPlayerClockwise(player, -1);
     }
 
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
