@@ -39,10 +39,12 @@ public class GameController {
     }
 
     /**
-     * This is just some dummy controller operation to make a simple move to see something
-     * happening on the board. This method should eventually be deleted!
+     * Takes the current player of the board and sets the players position to the given space
+     * if the space is free. The current player is then set to the player following the current player.
      *
+     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
      * @param space the space to which the current player should move
+     * @return void
      */
     public void moveCurrentPlayerToSpace(@NotNull Space space)  {
         // TODO Task1: method should be implemented by the students:
