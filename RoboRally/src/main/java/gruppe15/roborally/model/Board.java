@@ -54,7 +54,7 @@ public class Board extends Subject {
     private Phase phase = INITIALISATION;
 
     private int step = 0;
-
+//The counter for how many moves have been made
     private int moveCounter =0;
 
     private boolean stepMode;
@@ -170,7 +170,7 @@ public class Board extends Subject {
             return -1;
         }
     }
-
+//A function to change the value of the movecounter, it also calls an update so the changes will be displayed
     public void setMoveCounter(int newMoveCounter){
 
         if (moveCounter != newMoveCounter) {
@@ -180,6 +180,8 @@ public class Board extends Subject {
 
     }
 
+
+    //A public function to get the movecounter
     public int getMoveCounter(){
         return moveCounter;
     }
@@ -228,6 +230,8 @@ public class Board extends Subject {
         //      which is counted up every time a player makes a move; the
         //      status line should show the current player and the number
         //      of the current move!
+
+//We have added the MoveCount + getMoveCounter() to the string so it will be displayed at the bottom getMoveCounter() is a getter that gets the current move counter
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
                 ", Step: " + getStep() +", MoveCount: "+ getMoveCounter();
