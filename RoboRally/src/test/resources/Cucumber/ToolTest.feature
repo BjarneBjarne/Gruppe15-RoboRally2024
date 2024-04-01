@@ -1,7 +1,7 @@
-Feature: Can players move by clicking the board?
+Feature: Can players move to a different space?
 Background:
 Given The application has started
-  Scenario: Move player by clicking board
+  Scenario: Move 3 players to different spaces
   When The space (x: 3, y: 3) is clicked
   Then Player 1 is in position (x: 3, y: 3)
   When The space (x: 4, y: 4) is clicked
