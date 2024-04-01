@@ -1,0 +1,12 @@
+@startuml
+
+[*] --> Menu
+Menu --> Programming : Start game
+Programming --> Ready : Finish programming
+Ready --> ExecutingAllInstructions
+Ready --> ExecutingOneInstruction
+ExecutingAllInstructions --> Programming : Finish last Instruction
+ExecutingOneInstruction --> Programming : Finish last Instruction
+ExecutingOneInstruction --> Ready : Finish one Instruction
+
+@enduml
