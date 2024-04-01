@@ -1,12 +1,19 @@
 @startuml
 
 [*] --> Menu
+Menu : User specify the parameters of the game
 Menu --> Programming : Start game
+Programming : Each player program their robot
 Programming --> Ready : Finish programming
-Ready --> ExecutingAllInstructions
-Ready --> ExecutingOneInstruction
-ExecutingAllInstructions --> Programming : Finish last Instruction
-ExecutingOneInstruction --> Programming : Finish last Instruction
-ExecutingOneInstruction --> Ready : Finish one Instruction
+Ready : All players have programmed thir robot
+Ready --> ExecutingNextInstruction
+ExecutingNextInstruction : The next instruction from each player will be executed 
+ExecutingNextInstruction --> ApllyingBordEffects
+ApllyingBordEffects : conveyerbelts and other effects will be executed
+ApllyingBordEffects --> ExecutingNextInstruction
+ApllyingBordEffects --> Programming : Finished last Instruction
+ApllyingBordEffects --> ShowingGameStatus : game is finished
+ShowingGameStatus : The game is over and the statistics will be displayed
+ShowingGameStatus --> Menu : Exit game
 
 @enduml
