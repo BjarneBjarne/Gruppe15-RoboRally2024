@@ -1,0 +1,36 @@
+{
+  "permanent": [
+    {
+      "title": "Admin Privilege",
+      "cost": 3,
+      "effect": "Once per round, you may give your robot priority for one register."
+    },
+    {
+      "title": "Corruption Wave",
+      "cost": 4,
+      "effect": "You may put SPAM damage cards you deal on top of opponents’ decks."
+    },
+    {
+      "title": "Blue Screen of Death",
+      "cost": 4,
+      "effect": "When you shoot or push an adjacent robot, you may give that player one worm damage card instead of one SPAM damage card."
+    }
+  ],
+  "temporary": [
+    {
+      "title": "Boink",
+      "cost": 1,
+      "effect": "Move to an adjacent space. Do not change direction."
+    },
+    {
+      "title": "Hack",
+      "cost": 1,
+      "effect": "Execute the programming in your current register again. This action does not replace any existing programming."
+    },
+    {
+      "title": "Energy Routine",
+      "cost": 3,
+      "effect": "Add the Energy Routine programming card to your discard pile. It is now permanently part of your deck. The Energy Routine programming card acts as an extra Power Up card in your program- ming deck."
+    }
+  ]
+}
