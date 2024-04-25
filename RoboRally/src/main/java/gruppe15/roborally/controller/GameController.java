@@ -24,6 +24,8 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 /**
  * ...
  *
@@ -154,6 +156,12 @@ public class GameController {
                 if (card != null) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
+
+                    if(card.command.isInteractive()){
+                        board.setPhase(Phase.PLAYER_INTERACTION);
+                        return;
+
+                    }
                 }
                 int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                 if (nextPlayerNumber < board.getPlayersNumber()) {
@@ -197,6 +205,8 @@ public class GameController {
                     break;
                 case FAST_FORWARD:
                     this.fastForward(player);
+                    break;
+                case OPTION_LEFT_RIGHT:
                     break;
                 default:
                     // DO NOTHING (for now)
@@ -312,6 +322,31 @@ public class GameController {
             return false;
         }
     }
+
+    public void executeCommandOptionAndContinue(Command option){
+
+        executeCommand(board.getCurrentPlayer(),option);
+
+        Player currentPlayer = board.getCurrentPlayer();
+            int step = board.getStep();
+        board.setPhase(Phase.ACTIVATION);
+
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
+        if (nextPlayerNumber < board.getPlayersNumber()) {
+            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+        } else {
+            step++;
+            if (step < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(step);
+                board.setStep(step);
+                board.setCurrentPlayer(board.getPlayer(0));
+            } else {
+                startProgrammingPhase();
+            }
+        }
+        continuePrograms();
+    }
+
 
     /**
      * A method called when no corresponding controller operation is implemented yet. This
