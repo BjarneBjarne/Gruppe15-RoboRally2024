@@ -1,6 +1,11 @@
 {
   "permanent": [
     {
+      "title": "Dual Processor",
+      "cost": 4,
+      "effect": "Once per round, you may program two cards in one register. Those cards are executed consecutively with the bottom card executing first."
+    },
+    {
       "title": "Admin Privilege",
       "cost": 3,
       "effect": "Once per round, you may give your robot priority for one register."
@@ -14,6 +19,111 @@
       "title": "Blue Screen of Death",
       "cost": 4,
       "effect": "When you shoot or push an adjacent robot, you may give that player one worm damage card instead of one SPAM damage card."
+    },
+    {
+      "title": "Crab Legs",
+      "cost": 5,
+      "effect": "When executing a Move 1 card, you may move one space forward then one space right or left, without rotating and regardless of the direction you are facing. Then move forward one additional space in the direction you are facing."
+    },
+    {
+      "title": "Brakes",
+      "cost": 3,
+      "effect": "You may treat your Move 1’s as Move 0’s."
+    },
+    {
+      "title": "Deflector Shield",
+      "cost": 2,
+      "effect": "At the beginning of a register, you may spend one energy to negate any robot lasers that would hit you that register."
+    },
+    {
+      "title": "Cache Memory",
+      "cost": 4,
+      "effect": "You may discard cards from your hand and place them on the top of your deck. Do not draw replacement cards."
+    },
+    {
+      "title": "Defrag Gizmo",
+      "cost": 5,
+      "effect": "Once during each round, you may permanently discard one damage card from your hand. Draw a replacement card from the top of your deck."
+    },
+    {
+      "title": "Double Barrel Laser",
+      "cost": 2,
+      "effect": "Deal one additional SPAM damage card to any robot you shoot."
+    },
+    {
+      "title": "Modular Chassis",
+      "cost": 1,
+      "effect": "When you push another robot, give that player this card, and take one of their installed upgrades. That player keeps this card until they use it."
+    },
+    {
+      "title": "Firewall",
+      "cost": 3,
+      "effect": "Take no SPAM damage cards when rebooting."
+    },
+    {
+      "title": "Pressor Beam",
+      "cost": 3,
+      "effect": "You may push any robot you shoot one space in the direction you are shooting."
+    },
+    {
+      "title": "Hover Unit",
+      "cost": 1,
+      "effect": "Your robot can pass over, but not land on, pits. If you end your move on a pit, you fall in. You can’t turn off Hover Unit, and you can’t hover above another robot."
+    },
+    {
+      "title": "Rail Gun",
+      "cost": 2,
+      "effect": "You may shoot through any number of walls and/or robots. Robots in the line of fire take one SPAM damage card."
+    },
+    {
+      "title": "Memory Stick",
+      "cost": 3,
+      "effect": "Draw one additional programming card at the start of each round."
+    },
+    {
+      "title": "Ramming Gear",
+      "cost": 2,
+      "effect": "Deal one SPAM damage card when you push a robot."
+    },
+    {
+      "title": "Mini Howitzer",
+      "cost": 2,
+      "effect": "Once per register, when you shoot, you may pay one energy to deal two additional SPAM damage cards and push the attacked robot one space in the direction you are shooting."
+    },
+    {
+      "title": "Rear Laser",
+      "cost": 2,
+      "effect": "Your robot may shoot backward as well as forward."
+    },
+    {
+      "title": "Scrambler",
+      "cost": 3,
+      "effect": "If you attack a robot, that player replaces the card in their next register with the top card of their deck, unless it is the final register."
+    },
+    {
+      "title": "Tractor Beam",
+      "cost": 3,
+      "effect": "When you shoot a robot, you may pull it toward you one space. Tractor beam may not be used on adjacent robots."
+    },
+    {
+      "title": "Side Arms",
+      "cost": 3,
+      "effect": "When you push a robot, you may choose to push it to the left or right instead of the direction you are facing."
+    },
+    {
+      "title": "Trojan Needler",
+      "cost": 3,
+      "effect": "When you shoot or push a robot, target robot receives damage in the form of one Trojan horse damage card instead of one SPAM damage card."
+    },
+    {
+      "title": "Teleporter",
+      "cost": 3,
+      "effect": "You may pay one energy to ignore obstacles when moving. This includes walls, pits, the priority antenna, and robots; however, you may not end your move on a wall, pit, or the priority antenna. If you move to a space with another robot, swap places with that robot."
+    },
+    {
+      "title": "Virus Module",
+      "cost": 2,
+      "effect": "When you push a robot, give that player a virus damage card."
     }
   ],
   "temporary": [
@@ -30,7 +140,72 @@
     {
       "title": "Energy Routine",
       "cost": 3,
-      "effect": "Add the Energy Routine programming card to your discard pile. It is now permanently part of your deck. The Energy Routine programming card acts as an extra Power Up card in your program- ming deck."
+      "effect": "Add the Energy Routine programming card to your discard pile. It is now permanently part of your deck. The Energy Routine programming card acts as an extra Power Up card in your programming deck."
+    },
+    {
+      "title": "Manual Sort",
+      "cost": 1,
+      "effect": "You may give your robot priority for this register. This card overrides Admin Privilege."
+    },
+    {
+      "title": "Memory Swap",
+      "cost": 1,
+      "effect": "Draw three cards. Then choose three from your hand to put on top of your deck."
+    },
+    {
+      "title": "Repeat Routine",
+      "cost": 3,
+      "effect": "Add the Repeat Routine programming card to your discard pile. It is now permanently part of your deck. The Repeat Routine programming card acts as an extra Again card in your programming deck."
+    },
+    {
+      "title": "Reboot",
+      "cost": 1,
+      "effect": "Reboot your robot, but take no damage."
+    },
+    {
+      "title": "Sandbox Routine",
+      "cost": 5,
+      "effect": "Add the Sandbox Routine programming card to your discard pile. It is now permanently part of your deck. The Sandbox Routine programming card allows you to choose one of the following actions to perform in the register where it is programmed: Move 1, 2, or 3; Back Up; Turn Left; Turn Right; U-Turn."
+    },
+    {
+      "title": "Recharge",
+      "cost": 0,
+      "effect": "Gain three energy."
+    },
+    {
+      "title": "SPAM Blocker",
+      "cost": 3,
+      "effect": "Replace each SPAM damage card in your hand with a card from the top of your deck. Immediately discard the SPAM damage cards by placing them in the SPAM damage card draw pile. If you draw new SPAM damage cards from your deck, keep them in your hand for this round."
+    },
+    {
+      "title": "Recompile",
+      "cost": 1,
+      "effect": "Discard your entire hand. Draw a new one. If you need to reshuffle your discard pile to replenish your deck, you may."
+    },
+    {
+      "title": "SPAM Folder Routine",
+      "cost": 2,
+      "effect": "Add the SPAM Folder programming card to your discard pile. It is now permanently part of your deck. The SPAM Folder programming card allows you to permanently discard one SPAM damage card from your discard pile."
+    },
+    {
+      "title": "Refresh",
+      "cost": 2,
+      "effect": "Change the programming in your current register to any of the following: Move 1, 2, or 3; Turn Left; Turn Right; U-Turn; Back Up; Again. If you’re replacing a damage card, you may permanently discard the damage card."
+    },
+    {
+      "title": "Speed Routine",
+      "cost": 3,
+      "effect": "Add the Speed Routine programming card to your discard pile. It is now permanently part of your deck. The Speed Routine programming card acts as an extra Move 3 card in your programming deck."
+    },
+    {
+      "title": "Weasel Routine",
+      "cost": 3,
+      "effect": "Add the Weasel Routine programming card to your discard pile. It is now permanently part of your deck. The Weasel Routine programming card allows you to choose one of the following actions to perform in the register where it is programmed: Turn Left, Turn Right, U-Turn."
+    },
+    {
+      "title": "Zoop",
+      "cost": 1,
+      "effect": "Rotate to face any direction."
     }
   ]
 }
