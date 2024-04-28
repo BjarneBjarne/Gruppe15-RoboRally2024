@@ -34,7 +34,7 @@ import static gruppe15.roborally.model.Heading.SOUTH;
  */
 public class Player extends Subject {
 
-    final public static int NO_REGISTERS = 5;
+    final public static int NO_OF_REGISTERS = 5;
     final public static int NO_CARDS = 8;
 
     final public Board board;
@@ -55,7 +55,7 @@ public class Player extends Subject {
 
         this.space = null;
 
-        program = new CommandCardField[NO_REGISTERS];
+        program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
             program[i] = new CommandCardField(this);
         }
