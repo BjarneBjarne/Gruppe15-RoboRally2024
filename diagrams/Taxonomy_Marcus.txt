@@ -1,0 +1,39 @@
+Noun:
+- Player: Programs *Robot* and has *Player Mat*
+- Robot: Figure which moves around on *Game Board*
+- Start board: Board containing *Tiles*, on which robots start
+- Game board: Board containing *Tiles*, through which *Robot* move
+- Energy reserve: Off board reserve containing *Energy Cubes*
+- Player energy reserve: Reserve on *Player Mat*, containing *Energy Cubes*
+- Upgrade shop: Deck containing upgrade *Cards*
+- Cards: Purchased by *Player*, to program or upgrade *Robot*
+- Tokens
+- Tiles: Elements on the *Board* on which *Robot* lands
+- Player mat: Overview of *Player Energy Reserve* and *Programming Deck*
+- Programming Deck: Contains programming *Cards* of a *Player* 
+- Discard Pile: Contains used *Cards*
+- Checkpoints: Elements on *Game Board*, through which *Robot* must pass
+- Priority Antenna: Element on *Start Board*, deciding *Robot* priority
+- Register: Slots in which programming *Cards* are placed, which will be executed during play.
+- Installed Upgrades: Field on *Player Mat* which contains up to 3 of permanent upgrade *Cards*. 
+
+Verb:
+- Plan Robot Action
+	- Move Robot
+	- Rotate Robot
+	- Recharge Robot
+	- ...
+- Fire lazer
+- Push Robot
+- Move Robot
+- Draw Card
+- Purchase Upgrade
+- Discard Card
+- Shuffle Deck
+- Determine Priority
+- Use Upgrade 
+- Collect Energy Cube
+- Refresh Shop
+- Reset Shop
+- Activate Board Element
+- Activate Register
