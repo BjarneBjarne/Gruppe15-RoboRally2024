@@ -79,8 +79,8 @@ public class PlayerView extends Tab implements ViewObserver {
         programPane = new GridPane();
         programPane.setVgap(2.0);
         programPane.setHgap(2.0);
-        programCardViews = new CardFieldView[Player.NO_REGISTERS];
-        for (int i = 0; i < Player.NO_REGISTERS; i++) {
+        programCardViews = new CardFieldView[Player.NO_OF_REGISTERS];
+        for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
             CommandCardField cardField = player.getProgramField(i);
             if (cardField != null) {
                 programCardViews[i] = new CardFieldView(gameController, cardField);
@@ -99,7 +99,7 @@ public class PlayerView extends Tab implements ViewObserver {
         executeButton.setOnAction( e-> gameController.executePrograms());
 
         stepButton = new Button("Execute Current Register");
-        stepButton.setOnAction( e-> gameController.executeStep());
+        stepButton.setOnAction( e-> gameController.executeRegisters());
 
         buttonPanel = new VBox(finishButton, executeButton, stepButton);
         buttonPanel.setAlignment(Pos.CENTER_LEFT);
@@ -137,15 +137,15 @@ public class PlayerView extends Tab implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == player.board) {
-            for (int i = 0; i < Player.NO_REGISTERS; i++) {
+            for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardFieldView cardFieldView = programCardViews[i];
                 if (cardFieldView != null) {
                     if (player.board.getPhase() == Phase.PROGRAMMING ) {
                         cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                     } else {
-                        if (i < player.board.getStep()) {
+                        if (i < player.board.getCurrentRegister()) {
                             cardFieldView.setBackground(CardFieldView.BG_DONE);
-                        } else if (i == player.board.getStep()) {
+                        } else if (i == player.board.getCurrentRegister()) {
                             if (player.board.getCurrentPlayer() == player) {
                                 cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
                             } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
@@ -163,7 +163,7 @@ public class PlayerView extends Tab implements ViewObserver {
             if (player.board.getPhase() != Phase.PLAYER_INTERACTION) {
                 if (!programPane.getChildren().contains(buttonPanel)) {
                     programPane.getChildren().remove(playerInteractionPanel);
-                    programPane.add(buttonPanel, Player.NO_REGISTERS, 0);
+                    programPane.add(buttonPanel, Player.NO_OF_REGISTERS, 0);
                 }
                 switch (player.board.getPhase()) {
                     case INITIALISATION:
@@ -197,7 +197,7 @@ public class PlayerView extends Tab implements ViewObserver {
             } else {
                 if (!programPane.getChildren().contains(playerInteractionPanel)) {
                     programPane.getChildren().remove(buttonPanel);
-                    programPane.add(playerInteractionPanel, Player.NO_REGISTERS, 0);
+                    programPane.add(playerInteractionPanel, Player.NO_OF_REGISTERS, 0);
                 }
                 playerInteractionPanel.getChildren().clear();
 
@@ -207,7 +207,7 @@ public class PlayerView extends Tab implements ViewObserver {
                     //      the player's choices of the interactive command card. The
                     //      following is just a mockup showing two options
                     Player currentPlayer = gameController.board.getCurrentPlayer();
-                    CommandCard card = currentPlayer.getProgramField(currentPlayer.board.getStep()).getCard();
+                    CommandCard card = currentPlayer.getProgramField(currentPlayer.board.getCurrentRegister()).getCard();
                     List<Command> options = card.command.getOptions();
 
                     System.out.println(options);

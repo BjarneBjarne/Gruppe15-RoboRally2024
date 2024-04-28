@@ -100,7 +100,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
     private String cardFieldRepresentation(CommandCardField cardField) {
         if (cardField.player != null) {
 
-            for (int i = 0; i < Player.NO_REGISTERS; i++) {
+            for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CommandCardField other = cardField.player.getProgramField(i);
                 if (other == cardField) {
                     return "P," + i;
@@ -124,7 +124,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
             if (strings.length == 2) {
                 int i = Integer.parseInt(strings[1]);
                 if ("P".equals(strings[0])) {
-                    if (i < Player.NO_REGISTERS) {
+                    if (i < Player.NO_OF_REGISTERS) {
                         return field.player.getProgramField(i);
                     }
                 } else if ("C".equals(strings[0])) {
