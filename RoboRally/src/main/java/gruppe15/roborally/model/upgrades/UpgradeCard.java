@@ -2,14 +2,24 @@ package gruppe15.roborally.model.upgrades;
 
 import gruppe15.roborally.model.Player;
 
-import java.util.List;
+/**
+ * This is the superclass for any upgrade card.
+ * Players will initialize the upgrade cards with themselves as owner, whenever they purchase a card.
+ * This way, any player will invoke events, but the card will only trigger, if the player invoking the event, is also the initializing owner of the card.
+ */
+public abstract class UpgradeCard {
+    public UpgradeCard(String title, int purchaseCost, int useCost, int uses) {
+        this.title = title;
+        this.purchaseCost = purchaseCost;
+        this.useCost = useCost;
+        this.uses = uses;
+    }
 
-abstract class UpgradeCard {
     protected String title;
     protected int purchaseCost;
     protected int useCost;
     protected int uses;
-    protected int currentUses;
+    protected int currentUses = uses;
 
 
     protected boolean onCooldown = false;
@@ -18,6 +28,12 @@ abstract class UpgradeCard {
     public UpgradeCard() {
 
     }
+
+    /**
+     * Initializes the card to respond to actions performed by the owner. Can "maybe" be initialized to multiple owners?
+     * @param owner The player who buys the card.
+     */
+    public abstract void initialize(Player owner);
 
     public void enable() {
         this.activatable = true;

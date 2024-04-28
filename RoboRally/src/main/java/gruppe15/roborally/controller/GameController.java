@@ -22,6 +22,7 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -172,6 +173,7 @@ public class GameController {
                     // 4. Gears
                     // 5. Board lasers
                     // 6. Robot lasters
+                    EventHandler.dealDamage(currentPlayer, null);
                     // 7. Energy spaces
                     // 8. Checkpoints
 
