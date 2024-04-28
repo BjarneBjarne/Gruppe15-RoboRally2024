@@ -24,8 +24,6 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
-
 /**
  * ...
  *
@@ -70,12 +68,12 @@ public class GameController {
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
-        board.setStep(0);
+        board.setCurrentRegister(0);
 
         for (int i = 0; i < board.getPlayersNumber(); i++) {
             Player player = board.getPlayer(i);
             if (player != null) {
-                for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setCard(null);
                     field.setVisible(true);
@@ -102,12 +100,12 @@ public class GameController {
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
         board.setCurrentPlayer(board.getPlayer(0));
-        board.setStep(0);
+        board.setCurrentRegister(0);
     }
 
     // XXX: implemented in the current version
     private void makeProgramFieldsVisible(int register) {
-        if (register >= 0 && register < Player.NO_REGISTERS) {
+        if (register >= 0 && register < Player.NO_OF_REGISTERS) {
             for (int i = 0; i < board.getPlayersNumber(); i++) {
                 Player player = board.getPlayer(i);
                 CommandCardField field = player.getProgramField(register);
@@ -120,7 +118,7 @@ public class GameController {
     private void makeProgramFieldsInvisible() {
         for (int i = 0; i < board.getPlayersNumber(); i++) {
             Player player = board.getPlayer(i);
-            for (int j = 0; j < Player.NO_REGISTERS; j++) {
+            for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                 CommandCardField field = player.getProgramField(j);
                 field.setVisible(false);
             }
@@ -134,7 +132,7 @@ public class GameController {
     }
 
     // XXX: implemented in the current version
-    public void executeStep() {
+    public void executeRegisters() {
         board.setStepMode(true);
         continuePrograms();
     }
@@ -142,17 +140,17 @@ public class GameController {
     // XXX: implemented in the current version
     private void continuePrograms() {
         do {
-            executeNextStep();
+            executeNextRegister();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
     // XXX: implemented in the current version
-    private void executeNextStep() {
+    private void executeNextRegister() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
-            int step = board.getStep();
-            if (step >= 0 && step < Player.NO_REGISTERS) {
-                CommandCard card = currentPlayer.getProgramField(step).getCard();
+            int currentRegister = board.getCurrentRegister();
+            if (currentRegister >= 0 && currentRegister < Player.NO_OF_REGISTERS) {
+                CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
                 if (card != null) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
@@ -160,17 +158,28 @@ public class GameController {
                     if(card.command.isInteractive()){
                         board.setPhase(Phase.PLAYER_INTERACTION);
                         return;
-
                     }
                 }
                 int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                 if (nextPlayerNumber < board.getPlayersNumber()) {
                     board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
                 } else {
-                    step++;
-                    if (step < Player.NO_REGISTERS) {
-                        makeProgramFieldsVisible(step);
-                        board.setStep(step);
+                    // Handle board elements (including player lasers)
+
+                    // 1. Blue conveyor belts
+                    // 2. Green conveyor belts
+                    // 3. Push panels
+                    // 4. Gears
+                    // 5. Board lasers
+                    // 6. Robot lasters
+                    // 7. Energy spaces
+                    // 8. Checkpoints
+
+                    // After board elements have activated, continue to next currentRegister
+                    currentRegister++;
+                    if (currentRegister < Player.NO_OF_REGISTERS) {
+                        makeProgramFieldsVisible(currentRegister);
+                        board.setCurrentRegister(currentRegister);
                         board.setCurrentPlayer(board.getPlayer(0));
                     } else {
                         startProgrammingPhase();
@@ -328,17 +337,17 @@ public class GameController {
         executeCommand(board.getCurrentPlayer(),option);
 
         Player currentPlayer = board.getCurrentPlayer();
-            int step = board.getStep();
+            int currentRegister = board.getCurrentRegister();
         board.setPhase(Phase.ACTIVATION);
 
         int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
         if (nextPlayerNumber < board.getPlayersNumber()) {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
-            step++;
-            if (step < Player.NO_REGISTERS) {
-                makeProgramFieldsVisible(step);
-                board.setStep(step);
+            currentRegister++;
+            if (currentRegister < Player.NO_OF_REGISTERS) {
+                makeProgramFieldsVisible(currentRegister);
+                board.setCurrentRegister(currentRegister);
                 board.setCurrentPlayer(board.getPlayer(0));
             } else {
                 startProgrammingPhase();
