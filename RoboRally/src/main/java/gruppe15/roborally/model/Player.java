@@ -22,7 +22,11 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.upgrades.*;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
 
@@ -45,8 +49,9 @@ public class Player extends Subject {
     private Space space;
     private Heading heading = SOUTH;
 
-    private CommandCardField[] program;
-    private CommandCardField[] cards;
+    private final CommandCardField[] program;
+    private final CommandCardField[] cards;
+    private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
     public Player(@NotNull Board board, String color, @NotNull String name) {
         this.board = board;
@@ -133,4 +138,8 @@ public class Player extends Subject {
         return cards[i];
     }
 
+    public void AddUpgradeCard(UpgradeCard upgradeCard) {
+        upgradeCards.add(upgradeCard);
+        upgradeCard.initialize(this);
+    }
 }
