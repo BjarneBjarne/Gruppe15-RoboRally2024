@@ -1,0 +1,50 @@
+@startuml
+|Program opened|    
+start
+
+:New game initialized;
+|Upgrade Phase|
+
+    repeat :Determine Current player;
+    repeat :Current player buys Upgrade Card;
+        :Next player becomes Current player;
+        :Refresh upgrade shop;
+    repeat while (More players?) is (yes)
+    ->no;
+
+|Programming Phase|
+    repeat
+        fork
+            :Players individually program robot;
+        fork again
+            :Any player uses upgrade card;
+        end fork
+    repeat while (All pressed 'Finish Programming'?) is (no)
+    ->yes;
+
+|Execution Phase|
+    :Determine Current player;
+    repeat
+        fork
+            :Current player robot executes action of next register;
+            :Next player becomes Current Player;
+            :Elements on board activate;
+        fork again
+            :Any player uses upgrade card;
+        end fork
+
+    if (Any player satifies win condition?) then (no)
+        
+    else (yes)
+        :Declare winner;
+        stop
+    endif
+    repeat while (More registers?) is (yes)
+    ->no;
+    repeat while (Continue game)
+    
+
+
+
+
+@enduml
