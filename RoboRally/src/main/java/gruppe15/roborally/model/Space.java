@@ -37,6 +37,7 @@ public class Space extends Subject {
     public final int y;
 
     private Player player;
+    private BoardElement boardElement;
 
     public Space(Board board, int x, int y) {
         this.board = board;
@@ -72,4 +73,37 @@ public class Space extends Subject {
         notifyChange();
     }
 
+    public BoardElement getBoardElement() {
+        return boardElement;
+    }
+
+    public void setBoardElement(BoardElement boardElement) {
+        this.boardElement = boardElement;
+    }
+
+    /**
+     * Should only be used on two spaces next to each other (not diagonally).
+     * @return Returns whether there's a wall separating the two spaces.
+     */
+    public boolean wallBetween(Space otherSpace) {
+        int dx = otherSpace.x - this.x;
+        int dy = otherSpace.y - this.y;
+
+        int x = origin.x;
+        int y = origin.y;
+        while (x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
+            Space space = boardSpaces[x][y];
+            // If there is an object on the space, break the loop.
+            if (space.getBoardElement() != null) {
+                break;
+            }
+            spacesHit.add(space);
+            // If there is a player, we still add the space, but break out of loop.
+            if (space.getPlayer() != null) {
+                break;
+            }
+            x += dx;
+            y += dy;
+        }
+    }
 }

@@ -138,8 +138,8 @@ public class Player extends Subject {
         return cards[i];
     }
 
-    public void AddUpgradeCard(UpgradeCard upgradeCard) {
+    public void buyUpgradeCard(UpgradeCard upgradeCard) {
         upgradeCards.add(upgradeCard);
-        upgradeCard.initialize(this);
+        upgradeCard.initialize(board, this);
     }
 }

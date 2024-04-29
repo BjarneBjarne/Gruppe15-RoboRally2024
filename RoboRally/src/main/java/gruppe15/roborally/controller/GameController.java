@@ -22,7 +22,6 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,14 +54,11 @@ public class GameController {
         //     following the current player
         //   - the counter of moves in the game should be increased by one
         //     if the player is moved
-        if (space.getPlayer() != null) return; // do nothing if the space is already occupied
+        if (space.getPlayer() == null && space.getBoardElement() == null) {
+            board.getCurrentPlayer().setSpace(space); // Set the current players position to the new space
+        } else if ()
 
-        board.getCurrentPlayer().setSpace(space); // Set the current players position to the new space
-        var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
-        var nextPlayerIndex = (currentPlayerIndex + 1) % board.getPlayersNumber(); // Get the index of the next player
-        board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
-       //The current move counter is set to the old movecounter+1
-        board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
+
     }
 
     // XXX: implemented in the current version
@@ -71,7 +67,7 @@ public class GameController {
         board.setCurrentPlayer(board.getPlayer(0));
         board.setCurrentRegister(0);
 
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Player player = board.getPlayer(i);
             if (player != null) {
                 for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
@@ -107,7 +103,7 @@ public class GameController {
     // XXX: implemented in the current version
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_OF_REGISTERS) {
-            for (int i = 0; i < board.getPlayersNumber(); i++) {
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
                 CommandCardField field = player.getProgramField(register);
                 field.setVisible(true);
@@ -117,7 +113,7 @@ public class GameController {
 
     // XXX: implemented in the current version
     private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Player player = board.getPlayer(i);
             for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                 CommandCardField field = player.getProgramField(j);
@@ -162,7 +158,7 @@ public class GameController {
                     }
                 }
                 int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-                if (nextPlayerNumber < board.getPlayersNumber()) {
+                if (nextPlayerNumber < board.getNoOfPlayers()) {
                     board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
                 } else {
                     // Handle board elements (including player lasers)
@@ -173,7 +169,7 @@ public class GameController {
                     // 4. Gears
                     // 5. Board lasers
                     // 6. Robot lasters
-                    EventHandler.dealDamage(currentPlayer, null);
+                    EventHandler.event_PlayerShoot(board, currentPlayer);
                     // 7. Energy spaces
                     // 8. Checkpoints
 
@@ -197,78 +193,94 @@ public class GameController {
         }
     }
 
-    // XXX: implemented in the current version
-    private void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
+    public void executeCommand(@NotNull Player player, Command command) {
+        if (player.board == board && command != null) {
             // XXX This is a very simplistic way of dealing with some basic cards and
             //     their execution. This should eventually be done in a more elegant way
             //     (this concerns the way cards are modelled as well as the way they are executed).
 
+            // Call the event handler, and let it modify the command
+            command = EventHandler.event_RegisterActivate(board, player, command);
+
             switch (command) {
                 case FORWARD:
-                    this.moveForward(player);
-                    break;
-                case RIGHT:
-                    this.turnRight(player);
-                    break;
-                case LEFT:
-                    this.turnLeft(player);
+                    setPlayerVelocity(player, 1, 0);
                     break;
                 case FAST_FORWARD:
-                    this.fastForward(player);
+                    setPlayerVelocity(player, 2, 0);
+                    break;
+                case RIGHT:
+                    turnCurrentPlayer(player, 1);
+                    break;
+                case LEFT:
+                    turnCurrentPlayer(player, -1);
                     break;
                 case OPTION_LEFT_RIGHT:
                     break;
                 default:
                     // DO NOTHING (for now)
             }
+
+            // After command is executed, set the next player:
+            var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
+            var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
+            board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
+            //The current move counter is set to the old movecounter+1
+            board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
         }
     }
 
-    private Space corectPosition(int x, int y){
-        if( x < 0 ){
-            x = 0;
+    private void setPlayerVelocity(Player player, int fwd, int rgt) {
+        // We take stepwise movement, and call moveCurrentPlayerToSpace() for each
+
+        // For each forward movement
+        for (int i = 0; i < fwd; i++) {
+            Space temp = player.getSpace();
+            int x = temp.x;
+            int y = temp.y;
+            switch(player.getHeading()){
+                case NORTH:
+                    y = y - 1;
+                    break;
+                case SOUTH:
+                    y = y + 1;
+                    break;
+                case EAST:
+                    x = x + 1;
+                    break;
+                case WEST:
+                    x = x - 1;
+                    break;
+                default:
+            }
+            moveCurrentPlayerToSpace(correctPosition(x, y));
         }
-        if(x >= board.width){
-          x = board.width-1;
+
+        // For each sideways movement
+        for (int i = 0; i < rgt; i++) {
+            Space temp = player.getSpace();
+            int x = temp.x;
+            int y = temp.y;
+            switch(player.getHeading()){
+                case NORTH:
+                    x = x + 1;
+                    break;
+                case SOUTH:
+                    x = x - 1;
+                    break;
+                case EAST:
+                    y = y + 1;
+                    break;
+                case WEST:
+                    y = y - 1;
+                    break;
+                default:
+            }
+            moveCurrentPlayerToSpace(correctPosition(x, y));
         }
-        if( y < 0 ){
-            y = 0;
-        }
-        if(y >= board.height){
-            y = board.height-1;
-        }
-        return board.getSpace(x, y);
     }
 
-    private void moveCurrentPlayer(Player player, int fwd, int rgt){
-        Space temp = player.getSpace();
-        int x = temp.x;
-        int y = temp.y;
-        switch(player.getHeading()){
-            case NORTH:
-                y = y - fwd;
-                x = x + rgt;
-                break;
-            case SOUTH:
-                y = y + fwd;
-                x = x - rgt;
-                break;
-            case EAST:
-                x = x + fwd;
-                y = y + rgt;
-                break;
-            case WEST:
-                x = x - fwd;
-                y = y -rgt;
-                break;
-            default:
-        }
-
-        moveCurrentPlayerToSpace(corectPosition(x, y));
-    }
-
-    private void turnCurrentPlayerClockwise(Player player, int quaterRotation){
+    private void turnCurrentPlayer(Player player, int quaterRotationClockwise){
         int playerOrientation = 0;
         switch(player.getHeading()){
             case SOUTH:
@@ -282,9 +294,9 @@ public class GameController {
                 break;
             default:
         }
-        quaterRotation = quaterRotation%4;
-        if( quaterRotation<0 ) quaterRotation = quaterRotation+4;
-        int newOrientation = (quaterRotation+playerOrientation)%4;
+        quaterRotationClockwise = quaterRotationClockwise%4;
+        if( quaterRotationClockwise<0 ) quaterRotationClockwise = quaterRotationClockwise+4;
+        int newOrientation = (quaterRotationClockwise+playerOrientation)%4;
         switch (newOrientation) {
             case 0:
                 player.setHeading(Heading.NORTH);
@@ -302,48 +314,16 @@ public class GameController {
         }
     }
 
-    // TODO Task2
-    public void moveForward(@NotNull Player player) {
-        moveCurrentPlayer(player, 1, 0);
-    }
-
-    // TODO Task2
-    public void fastForward(@NotNull Player player) {
-        moveCurrentPlayer(player, 2, 0);
-    }
-
-    // TODO Task2
-    public void turnRight(@NotNull Player player) {
-        turnCurrentPlayerClockwise(player, 1);
-    }
-
-    // TODO Task2
-    public void turnLeft(@NotNull Player player) {
-        turnCurrentPlayerClockwise(player, -1);
-    }
-
-    public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
-        CommandCard sourceCard = source.getCard();
-        CommandCard targetCard = target.getCard();
-        if (sourceCard != null && targetCard == null) {
-            target.setCard(sourceCard);
-            source.setCard(null);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public void executeCommandOptionAndContinue(Command option){
 
         executeCommand(board.getCurrentPlayer(),option);
 
         Player currentPlayer = board.getCurrentPlayer();
-            int currentRegister = board.getCurrentRegister();
+        int currentRegister = board.getCurrentRegister();
         board.setPhase(Phase.ACTIVATION);
 
         int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-        if (nextPlayerNumber < board.getPlayersNumber()) {
+        if (nextPlayerNumber < board.getNoOfPlayers()) {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
             currentRegister++;
@@ -358,6 +338,34 @@ public class GameController {
         continuePrograms();
     }
 
+    private Space correctPosition(int x, int y){
+        // TODO: Instead of keeping the player inside the make them reboot
+        if( x < 0 ){
+            x = 0;
+        }
+        if(x >= board.width){
+            x = board.width-1;
+        }
+        if( y < 0 ){
+            y = 0;
+        }
+        if(y >= board.height){
+            y = board.height-1;
+        }
+        return board.getSpace(x, y);
+    }
+
+    public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
+        CommandCard sourceCard = source.getCard();
+        CommandCard targetCard = target.getCard();
+        if (sourceCard != null && targetCard == null) {
+            target.setCard(sourceCard);
+            source.setCard(null);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * A method called when no corresponding controller operation is implemented yet. This
