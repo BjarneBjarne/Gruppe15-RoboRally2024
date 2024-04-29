@@ -1,10 +1,8 @@
 package gruppe15.roborally.model;
 
 import gruppe15.roborally.model.damage.Damage;
-import gruppe15.roborally.model.events.PlayerCommandListener;
-import gruppe15.roborally.model.events.PlayerShootListener;
+import gruppe15.roborally.model.events.*;
 import gruppe15.roborally.model.upgrades.EventListener;
-import gruppe15.roborally.model.events.PlayerDamageListener;
 import gruppe15.roborally.model.damage.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,20 +29,20 @@ public class EventHandler {
     }
 
     // Method for whenever a player shoots
-    public static void event_PlayerShoot(Board board, Player player) {
+    public static void event_PlayerShoot(Space[][] spaces, Player playerShooting) {
         // Get targets
-        List<Player> targets = getTargetsOnPlayerLaser(player, board.getSpaces());
+        List<Player> targets = getTargetsOnPlayerLaser(playerShooting, spaces);
 
         // Deal damage to each target
         for (Player target : targets) {
-            if (target == player) {
+            if (target == playerShooting) {
                 continue;
             }
             Damage damage = new Damage(); // List of different damage the target is going to take.
             damage.setAmount(Spam.class, 1); // Normal damage is 1 SPAM.
 
             // Get a list of all the listeners in cards of type PlayerDamageListener that is owned by the player.
-            List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(player, PlayerDamageListener.class);
+            List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(playerShooting, PlayerDamageListener.class);
             // Iterate through all the player's "damage cards" to modify the damage for each of them.
             for (PlayerDamageListener listener : playerPlayerDamageListeners) {
                 // Pass the damage to the listener and get the newly calculated damage
@@ -55,19 +53,58 @@ public class EventHandler {
             for (Map.Entry<Class<? extends DamageType>, DamageType> entry : damage.getDamageMap().entrySet()) {
                 damage.applyDamage(target);
                 // Print the damage dealt
-                System.out.println("{" + player.getName() + "} dealt " + damage.getAmount(entry.getKey()) + " " + entry.getKey().getName() + " damage to {" + target.getName() + "}");
+                System.out.println("{" + playerShooting.getName() + "} dealt " + damage.getAmount(entry.getKey()) + " " + entry.getKey().getName() + " damage to {" + target.getName() + "}");
             }
         }
     }
 
     // Method for when a register is activated
-    public static Command event_RegisterActivate(Board board, @NotNull Player player, Command command) {
-        List<PlayerCommandListener> playerCommandListeners = getPlayerCardEventListeners(player, PlayerCommandListener.class);
+    public static Command event_RegisterActivate(@NotNull Player playerActivatingRegister, Command command) {
+        List<PlayerCommandListener> playerCommandListeners = getPlayerCardEventListeners(playerActivatingRegister, PlayerCommandListener.class);
         for (PlayerCommandListener listener : playerCommandListeners) {
             command = listener.onPlayerCommand(command);
         }
         return command;
     }
+
+
+    public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection) {
+        for (Player playerToPush : playersToPush) {
+            if (playerToPush == playerPushing) {
+                continue;
+            }
+            List<PlayerPushListener> playerPushListeners = getPlayerCardEventListeners(playerPushing, PlayerPushListener.class);
+            for (PlayerPushListener listener : playerPushListeners) {
+                listener.onPush(playerToPush);
+            }
+            // Set players new position
+            playerToPush.setSpace(playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces));
+        }
+    }
+
+    /**
+     * This should only be called when a player moves without being pushed.
+     */
+    public static void event_PlayerMove(Player playerMoving, Space space) {
+        List<PlayerMoveListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerMoveListener.class);
+
+        // Handle listener logic
+        for (PlayerMoveListener listener : playerMoveListeners) {
+            space = listener.onPlayerMove(space);
+        }
+
+        // If no listeners, handle base logic
+        if (playerMoveListeners.isEmpty()) {
+            if (space.getBoardElement().getIsHole()) {
+                // TODO: Handle rebooting player since they fell down a hole.
+            }
+        }
+
+        playerMoving.setSpace(space);
+    }
+
+
+
 
 
 

@@ -24,6 +24,9 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * ...
  *
@@ -43,10 +46,10 @@ public class GameController {
      * if the space is free. The current player is then set to the player following the current player.
      *
      * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
-     * @param space the space to which the current player should move
+     * @param nextSpace the space to which the current player should move
      * @return void
      */
-    public void moveCurrentPlayerToSpace(@NotNull Space space)  {
+    public void moveCurrentPlayerToSpace(@NotNull Space nextSpace)  {
         // TODO Task1: method should be implemented by the students:
         //   - the current player should be moved to the given space
         //     (if it is free())
@@ -54,11 +57,62 @@ public class GameController {
         //     following the current player
         //   - the counter of moves in the game should be increased by one
         //     if the player is moved
-        if (space.getPlayer() == null && space.getBoardElement() == null) {
-            board.getCurrentPlayer().setSpace(space); // Set the current players position to the new space
-        } else if ()
+        Player currentPlayer = board.getCurrentPlayer();
+        Space currentSpace = currentPlayer.getSpace();
+        boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
+        boolean couldMove = false;
+        if (nextSpace.getPlayer() == null && !isWallBetween) {
+            couldMove = true;
+        } else if (!isWallBetween) { // If it isn't a wall, try push players
+            List<Player> playersToPush = new ArrayList<>();
+            Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
+            boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
+            if (couldPush) {
+                // Handle pushing players in EventHandler
+                EventHandler.event_PlayerPush(board.getSpaces(), currentPlayer, playersToPush, pushDirection);
+                couldMove = true;
+            } else {
+                // There is a wall at the end of player chain
+            }
+        } else {
+            // There is a wall between currentSpace and nextSpace
+        }
 
+        if (couldMove) {
+            // Setting the current players position to the new space in the EventHandler
+            EventHandler.event_PlayerMove(currentPlayer, nextSpace);
+        }
+    }
 
+    /**
+     * Tries to push players recursively.
+     * @param space The current space being checked.
+     * @param direction The direction we want to push.
+     * @return A list of players being pushed.
+     */
+    public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
+        Player playerOnSpace = space.getPlayer();
+        Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
+        boolean isWallBetween = space.getIsWallBetween(nextSpace);
+
+        if (nextSpace == null) {                                // Base case, player fell off monkaW
+            playersToPush.add(playerOnSpace);
+            // TODO: Handle rebooting playerOnSpace since they fell off. Or handle it differently.
+            return true;
+        }
+        if (nextSpace.getPlayer() == null && !isWallBetween) {  // Base case, no player on next space
+            playersToPush.add(playerOnSpace);
+            return true;
+        }
+        if (nextSpace.getPlayer() != null) {                    // In case more players to move
+            if (tryMovePlayerInDirection(nextSpace, direction, playersToPush)) {
+                // If all other players have moved, we also move.
+                playersToPush.add(playerOnSpace);
+                return true;
+            } return false;  // If push chain was stopped by wall
+        } else {                                                // In case of wall
+            return false;
+        }
     }
 
     // XXX: implemented in the current version
@@ -169,7 +223,7 @@ public class GameController {
                     // 4. Gears
                     // 5. Board lasers
                     // 6. Robot lasters
-                    EventHandler.event_PlayerShoot(board, currentPlayer);
+                    EventHandler.event_PlayerShoot(board.getSpaces(), currentPlayer);
                     // 7. Energy spaces
                     // 8. Checkpoints
 
@@ -200,7 +254,7 @@ public class GameController {
             //     (this concerns the way cards are modelled as well as the way they are executed).
 
             // Call the event handler, and let it modify the command
-            command = EventHandler.event_RegisterActivate(board, player, command);
+            command = EventHandler.event_RegisterActivate(player, command);
 
             switch (command) {
                 case FORWARD:
