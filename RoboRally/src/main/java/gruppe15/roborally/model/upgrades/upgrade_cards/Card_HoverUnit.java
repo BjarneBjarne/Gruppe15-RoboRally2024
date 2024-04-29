@@ -23,13 +23,11 @@ public class Card_HoverUnit extends UpgradeCard {
 
         // OnDamageDealt
         EventHandler.onEvent(PlayerMoveListener.class, (PlayerMoveListener) space -> {
-            System.out.println("Board is at register " + board.getCurrentRegister() + ".");
-            System.out.println("{" + owner.getName() + "} has a Double Barrel Laser!");
+            if (space.getBoardElement().getIsHole()) {
+                System.out.println("{" + owner.getName() + "} has a Hover Unit!");
+            }
 
-            // Modifying damage
-            damage.setAmount(Spam.class, damage.getAmount(Spam.class) + 1);
-
-            return damage;
+            return space;
         }, owner);
     }
 
