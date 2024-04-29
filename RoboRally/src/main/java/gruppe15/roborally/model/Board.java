@@ -22,6 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.events.PhaseChangeListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -100,7 +101,11 @@ public class Board extends Subject {
         }
     }
 
-    public int getPlayersNumber() {
+    public Space[][] getSpaces() {
+        return spaces;
+    }
+
+    public int getNoOfPlayers() {
         return players.size();
     }
 
@@ -130,6 +135,10 @@ public class Board extends Subject {
         }
     }
 
+    List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
+    public void setOnPhaseChange(PhaseChangeListener listener) {
+        phaseChangeListeners.add(listener);
+    }
     public Phase getPhase() {
         return phase;
     }
@@ -138,6 +147,7 @@ public class Board extends Subject {
         if (phase != this.phase) {
             this.phase = phase;
             notifyChange();
+            phaseChangeListeners.forEach(listener -> listener.onPhaseChange(phase));
         }
     }
 
