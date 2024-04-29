@@ -1,9 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Player;
+import gruppe15.roborally.model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +53,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.moveForward(current);
+        gameController.executeCommand(current, Command.FORWARD);
 
         Assertions.assertEquals(current, board.getSpace(0, 1).getPlayer(), "Player " + current.getName() + " should beSpace (0,1)!");
         Assertions.assertEquals(Heading.SOUTH, current.getHeading(), "Player 0 should be heading SOUTH!");
@@ -67,7 +65,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.fastForward(current);
+        gameController.executeCommand(current, Command.FAST_FORWARD);
 
         Assertions.assertEquals(current, board.getSpace(0, 2).getPlayer(), "Player " + current.getName() + " should beSpace (0,2)!");
         Assertions.assertEquals(Heading.SOUTH, current.getHeading(), "Player 0 should be heading SOUTH!");
@@ -79,7 +77,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.turnRight(current);
+        gameController.executeCommand(current, Command.RIGHT);
 
         Assertions.assertEquals(current, board.getSpace(0, 0).getPlayer(), "Player " + current.getName() + " should beSpace (0,0)!");
         Assertions.assertEquals(Heading.WEST, current.getHeading(), "Player 0 should be heading WEST!");
@@ -90,7 +88,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.turnLeft(current);
+        gameController.executeCommand(current, Command.LEFT);
 
         Assertions.assertEquals(current, board.getSpace(0, 0).getPlayer(), "Player " + current.getName() + " should beSpace (0,0)!");
         Assertions.assertEquals(Heading.EAST, current.getHeading(), "Player 0 should be heading EAST!");

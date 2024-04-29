@@ -23,6 +23,8 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 
+import static gruppe15.roborally.model.Heading.*;
+
 /**
  * ...
  *
@@ -37,6 +39,7 @@ public class Space extends Subject {
     public final int y;
 
     private Player player;
+    private BoardElement boardElement;
 
     public Space(Board board, int x, int y) {
         this.board = board;
@@ -72,4 +75,117 @@ public class Space extends Subject {
         notifyChange();
     }
 
+    public BoardElement getBoardElement() {
+        return boardElement;
+    }
+
+    public void setBoardElement(BoardElement boardElement) {
+        this.boardElement = boardElement;
+    }
+
+    /**
+     * Should only be used on two spaces next to each other (not diagonally).
+     * @return Returns whether there's a wall separating the two spaces.
+     */
+    public boolean getIsWallBetween(Space otherSpace) {
+        Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
+
+        boolean thisHasWall = this.getBoardElement().getHasWall();
+        boolean otherHasWall = otherSpace.getBoardElement().getHasWall();
+        Heading thisWallDirection = this.getBoardElement().getWallDirection();
+        Heading otherWallDirection = otherSpace.getBoardElement().getWallDirection();
+
+        switch (directionToOtherSpace) {
+            case EAST:
+                return (thisHasWall && thisWallDirection == EAST) || (otherHasWall && otherWallDirection == WEST);
+            case WEST:
+                return (thisHasWall && thisWallDirection == WEST) || (otherHasWall && otherWallDirection == EAST);
+            case SOUTH:
+                return (thisHasWall && thisWallDirection == SOUTH) || (otherHasWall && otherWallDirection == NORTH);
+            case NORTH:
+                return (thisHasWall && thisWallDirection == NORTH) || (otherHasWall && otherWallDirection == SOUTH);
+        }
+
+        // TODO: Make exception throw instead of if-statement.
+        // We shouldn't get to here
+        System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
+        System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
+        return false;
+    }
+
+    public Heading getDirectionToOtherSpace(Space otherSpace) {
+        int dx = otherSpace.x - this.x;
+        int dy = otherSpace.y - this.y;
+
+        // TODO: Make exceptions throws instead of if-statements.
+        if (dx == 0 && dy == 0) {
+            System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
+            System.out.println("ERROR in code. Got the same space twice. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
+            return null;
+        }
+        if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+            System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
+            System.out.println("ERROR in code. Got the same space twice. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
+            return null;
+        }
+        if (dx != 0 && dy != 0) {
+            System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
+            System.out.println("ERROR in code. Can't take diagonal spaces. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
+            return null;
+        }
+
+        // Horizontal
+        if (dx != 0) {
+            switch (dx) {
+                case 1:
+                    return EAST;
+                case -1:
+                    return WEST;
+            }
+        }
+
+        // Vertical
+        if (dy != 0) {
+            switch (dy) {
+                case 1:
+                    return SOUTH;
+                case -1:
+                    return NORTH;
+            }
+        }
+
+        // TODO: Make exception throw instead of if-statement.
+        // We shouldn't get to here
+        System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
+        System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
+        return null;
+    }
+
+    public Space getSpaceNextTo(Heading direction, Space[][] spaces) {
+        switch (direction) {
+            case SOUTH:
+                if (this.y + 1 >= spaces[x].length) {
+                    return null; // out of bounds
+                }
+                return spaces[this.x][this.y + 1];
+            case WEST:
+                if (this.x - 1 < 0) {
+                    return null; // out of bounds
+                }
+                return spaces[this.x - 1][this.y];
+            case NORTH:
+                if (this.y - 1 < 0) {
+                    return null; // out of bounds
+                }
+                return spaces[this.x][this.y - 1];
+            case EAST:
+                if (this.x + 1 >= spaces.length) {
+                    return null; // out of bounds
+                }
+                return spaces[this.x + 1][this.y];
+            default:
+                System.out.println("ERROR in Space.getSpaceNextTo()");
+                return null;
+        }
+    }
 }
