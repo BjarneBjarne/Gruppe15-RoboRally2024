@@ -207,6 +207,7 @@ public class PlayerView extends Tab implements ViewObserver {
                     //      the player's choices of the interactive command card. The
                     //      following is just a mockup showing two options
                     Player currentPlayer = gameController.board.getCurrentPlayer();
+                    System.out.println("Player turn: " + currentPlayer.getName());
                     CommandCard card = currentPlayer.getProgramField(currentPlayer.board.getCurrentRegister()).getCard();
                     List<Command> options = card.command.getOptions();
 

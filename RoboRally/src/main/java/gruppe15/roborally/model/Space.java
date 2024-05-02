@@ -22,6 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.Heading.*;
 
@@ -124,9 +125,9 @@ public class Space extends Subject {
             System.out.println("ERROR in code. Got the same space twice. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
             return null;
         }
-        if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+        if (Math.abs(dx) > 0 && Math.abs(dy) > 0) {
             System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
-            System.out.println("ERROR in code. Got the same space twice. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
+            System.out.println("ERROR in code. Spaces too far apart. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
             return null;
         }
         if (dx != 0 && dy != 0) {
