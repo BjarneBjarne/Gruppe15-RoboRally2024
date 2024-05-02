@@ -203,40 +203,22 @@ public class GameController {
             if (currentRegister >= 0 && currentRegister < Player.NO_OF_REGISTERS) {
                 CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
                 if (card != null) {
+
                     Command command = card.command;
-                    executeCommand(currentPlayer, command);
 
                     if(card.command.isInteractive()){
+                        System.out.println("check");
                         board.setPhase(Phase.PLAYER_INTERACTION);
                         return;
                     }
-                }
-                int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-                if (nextPlayerNumber < board.getNoOfPlayers()) {
-                    board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-                } else {
-                    // Handle board elements (including player lasers)
+                    executeCommand(currentPlayer, command);
 
-                    // 1. Blue conveyor belts
-                    // 2. Green conveyor belts
-                    // 3. Push panels
-                    // 4. Gears
-                    // 5. Board lasers
-                    // 6. Robot lasters
-                    EventHandler.event_PlayerShoot(board.getSpaces(), currentPlayer);
-                    // 7. Energy spaces
-                    // 8. Checkpoints
 
-                    // After board elements have activated, continue to next currentRegister
-                    currentRegister++;
-                    if (currentRegister < Player.NO_OF_REGISTERS) {
-                        makeProgramFieldsVisible(currentRegister);
-                        board.setCurrentRegister(currentRegister);
-                        board.setCurrentPlayer(board.getPlayer(0));
-                    } else {
-                        startProgrammingPhase();
-                    }
+
+
                 }
+                changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
+
             } else {
                 // this should not happen
                 assert false;
@@ -245,6 +227,40 @@ public class GameController {
             // this should not happen
             assert false;
         }
+    }
+
+    public void changeToNextRegisterAndHandleBoardElements(Player currentPlayer,int currentRegister){
+
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
+        if (nextPlayerNumber < board.getNoOfPlayers()) {
+            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+        } else {
+            handleBoardElements(currentPlayer);
+            currentRegister++;
+            if (currentRegister < Player.NO_OF_REGISTERS) {
+                makeProgramFieldsVisible(currentRegister);
+                board.setCurrentRegister(currentRegister);
+                board.setCurrentPlayer(board.getPlayer(0));
+            } else {
+                startProgrammingPhase();
+            }
+        }
+    }
+
+    public void handleBoardElements(Player currentPlayer) {
+        // Handle board elements (including player lasers)
+
+        // 1. Blue conveyor belts
+        // 2. Green conveyor belts
+        // 3. Push panels
+        // 4. Gears
+        // 5. Board lasers
+        // 6. Robot lasters
+        EventHandler.event_PlayerShoot(board.getSpaces(), currentPlayer);
+        // 7. Energy spaces
+        // 8. Checkpoints
+
+        // After board elements have activated, continue to next currentRegister
     }
 
     public void executeCommand(@NotNull Player player, Command command) {
@@ -278,7 +294,7 @@ public class GameController {
             // After command is executed, set the next player:
             var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
             var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
-            board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
+            //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
             //The current move counter is set to the old movecounter+1
             board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
         }
@@ -376,20 +392,11 @@ public class GameController {
         int currentRegister = board.getCurrentRegister();
         board.setPhase(Phase.ACTIVATION);
 
-        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-        if (nextPlayerNumber < board.getNoOfPlayers()) {
-            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-        } else {
-            currentRegister++;
-            if (currentRegister < Player.NO_OF_REGISTERS) {
-                makeProgramFieldsVisible(currentRegister);
-                board.setCurrentRegister(currentRegister);
-                board.setCurrentPlayer(board.getPlayer(0));
-            } else {
-                startProgrammingPhase();
-            }
-        }
+        changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
+
+        if(!board.isStepMode()){
         continuePrograms();
+        }
     }
 
     private Space correctPosition(int x, int y){
