@@ -79,6 +79,7 @@ public class EventHandler {
             }
             // Set players new position
             playerToPush.setSpace(playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces));
+            // TODO: Make playerOnSpace (fall off / reboot)
         }
     }
 
