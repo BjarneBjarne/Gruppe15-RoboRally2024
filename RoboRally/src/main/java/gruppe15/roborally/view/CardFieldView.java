@@ -46,8 +46,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
     // programs which can copy/paste Strings.
     final public static  DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
 
-    final public static int CARDFIELD_WIDTH = 65;
-    final public static int CARDFIELD_HEIGHT = 100;
+    final public static int CARDFIELD_WIDTH = 50;
+    final public static int CARDFIELD_HEIGHT = 75;
 
     final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
