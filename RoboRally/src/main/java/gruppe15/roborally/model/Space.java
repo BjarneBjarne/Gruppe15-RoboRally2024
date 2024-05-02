@@ -51,7 +51,11 @@ public class Space extends Subject {
     }
 
     public Player getPlayer() {
-        return player;
+        if (player != null) {
+            return player;
+        } else {
+            return null;
+        }
     }
 
     public void setPlayer(Player player) {

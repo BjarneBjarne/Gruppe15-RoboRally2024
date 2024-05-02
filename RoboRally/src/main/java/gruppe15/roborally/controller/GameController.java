@@ -100,13 +100,9 @@ public class GameController {
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
 
-        System.out.println("space: " + space.x + ", " + space.y);
-        System.out.println("nextSpace: " + nextSpace.x + ", " + nextSpace.y);
-
         if (nextSpace == null) {                                // Base case, player fell off monkaW
-            System.out.println("Next space null! Player " + playerOnSpace == null ? "no_player" : playerOnSpace.getName() + " should fall off.");
+            System.out.println("Next space null! Player " + (playerOnSpace == null ? "no_player" : playerOnSpace.getName()) + " should fall off.");
             playersToPush.add(playerOnSpace);
-            // TODO: Make playerOnSpace (fall off / reboot)
             return true;
         }
         boolean isWallBetween = space.getIsWallBetween(nextSpace);
