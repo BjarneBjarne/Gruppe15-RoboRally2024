@@ -49,7 +49,7 @@ public class GameController {
      * @param nextSpace the space to which the current player should move
      * @return void
      */
-    public void moveCurrentPlayerToSpace(Space nextSpace)  {
+    public void moveCurrentPlayerToSpace(Space nextSpace) {
         // TODO Task1: method should be implemented by the students:
         //   - the current player should be moved to the given space
         //     (if it is free())
