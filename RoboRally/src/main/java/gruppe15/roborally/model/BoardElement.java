@@ -4,7 +4,7 @@ package gruppe15.roborally.model;
  * Placeholder BoardElement class.
  * TODO: Implement BoardElement class
  */
-public abstract class BoardElement {
+public class BoardElement {
     private final boolean hasWall;
     private final boolean isHole;
     private final Heading wallDirection;
