@@ -22,7 +22,11 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.controller.ConveyorBelt;
 import gruppe15.roborally.model.events.PhaseChangeListener;
+import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.scene.image.Image;
+
 import javafx.geometry.Point2D;
 import org.jetbrains.annotations.NotNull;
 
@@ -80,21 +84,30 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, new BoardElement("startField.png"), true);
+                spaces[x][y] = new Space(this, x, y, null, ImageUtils.getImageFromName("startField.png"), true);
             }
-            spaces[0][4] = new Space(this, 0, 4, new BoardElement("antenna.png"), true);
+            spaces[0][4] = new Space(this, 0, 4, null, ImageUtils.getImageFromName("antenna.png"), true);
         }
 
         // Fill the rest of the board with empty spaces
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                Space newSpace;
+                Space space;
                 if (x < 3) {
-                    newSpace = new Space(this, x, y, null, true);
+                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("emptyStart.png"), true);
                 } else {
-                    newSpace = new Space(this, x, y);
-                }
-                if (spaces[x][y] == null) spaces[x][y] = newSpace;
+                    if (y == 3) {
+                        Heading heading = Heading.WEST;
+                        Image image = ImageUtils.getImageFromName("green.png");
+                        image = ImageUtils.getRotatedImageByHeading(image, heading);
+                        space = new Space(this, x, y, null, image, false);
+                        space.getActions().add(new ConveyorBelt(heading));
+                    } else {
+                        Image image = ImageUtils.getImageFromName("empty.png");
+                        space = new Space(this, x, y, null, image, false);
+                    }
+                    }
+                if (spaces[x][y] == null) spaces[x][y] = space;
             }
         }
         this.stepMode = false;
@@ -240,15 +253,23 @@ public class Board extends Subject {
         int y = space.y;
         switch (heading) {
             case SOUTH:
+                if (y + 1 > space.board.height - 1) 
+                    return null;
                 y = (y + 1) % height;
                 break;
             case WEST:
+                if (x - 1 < 0) 
+                    return null;
                 x = (x + width - 1) % width;
                 break;
             case NORTH:
+                if (y - 1 < 0) 
+                    return null;
                 y = (y + height - 1) % height;
                 break;
             case EAST:
+                if (x + 1 > space.board.width - 1) 
+                    return null;
                 x = (x + 1) % width;
                 break;
         }
