@@ -79,6 +79,7 @@ public class EventHandler {
             }
             // Set players new position
             playerToPush.setSpace(playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces));
+            // TODO: Make playerOnSpace (fall off / reboot)
         }
     }
 
@@ -95,7 +96,8 @@ public class EventHandler {
 
         // If no listeners, handle base logic
         if (playerMoveListeners.isEmpty()) {
-            if (space.getBoardElement().getIsHole()) {
+            BoardElement spaceBoardElement = space.getBoardElement();
+            if (spaceBoardElement != null && spaceBoardElement.getIsHole()) {
                 // TODO: Handle rebooting player since they fell down a hole.
             }
         }
