@@ -23,6 +23,7 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.events.PhaseChangeListener;
+import javafx.geometry.Point2D;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -65,17 +66,43 @@ public class Board extends Subject {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
+        if (boardName.equals("defaultboard")) {
+
+        } else if (boardName.equals("dizzy_highway")) {
+            Point2D[] startFieldPoints = {
+                    new Point2D(1,1),
+                    new Point2D(0, 3),
+                    new Point2D(1, 4),
+                    new Point2D(1, 5),
+                    new Point2D(0, 6),
+                    new Point2D(1, 8)
+            };
+            for (Point2D startFieldPoint : startFieldPoints) {
+                int x = (int) startFieldPoint.getX();
+                int y = (int) startFieldPoint.getY();
+                spaces[x][y] = new Space(this, x, y, new BoardElement("startField.png"), true);
+            }
+            spaces[0][4] = new Space(this, 0, 4, new BoardElement("antenna.png"), true);
+        }
+
+        // Fill the rest of the board with empty spaces
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                Space space = new Space(this, x, y);
-                spaces[x][y] = space;
+                Space newSpace;
+                if (x < 3) {
+                    newSpace = new Space(this, x, y, null, true);
+                } else {
+                    newSpace = new Space(this, x, y);
+                }
+                if (spaces[x][y] == null) spaces[x][y] = newSpace;
             }
         }
         this.stepMode = false;
     }
 
     public Board(int width, int height) {
-        this(width, height, "defaultboard");
+        //this(width, height, "defaultboard");
+        this(width, height, "dizzy_highway");
     }
 
     public Integer getGameId() {
