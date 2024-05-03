@@ -27,6 +27,7 @@ import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Phase;
 import gruppe15.roborally.model.Space;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -62,6 +63,8 @@ public class BoardView extends VBox implements ViewObserver {
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersView);
         this.getChildren().add(statusLabel);
+        this.setAlignment(Pos.CENTER);
+        mainBoardPane.setAlignment(Pos.CENTER);
 
         spaces = new SpaceView[board.width][board.height];
 
