@@ -309,7 +309,7 @@ public class GameController {
     }
 
     private void setPlayerVelocity(Player player, int fwd, int rgt) {
-        // We take stepwise movement, and call moveCurrentPlayerToSpace() for each
+        // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
 
         // For each forward movement
         for (int i = 0; i < fwd; i++) {
