@@ -33,11 +33,21 @@ public class CommandCardField extends Subject {
 
     final public Player player;
 
+    final public int index;
+
     private CommandCard card;
 
     private boolean visible;
 
     public CommandCardField(Player player) {
+        index = 0;
+        this.player = player;
+        this.card = null;
+        this.visible = true;
+    }
+
+    public CommandCardField(Player player, int i) {
+        index = i;
         this.player = player;
         this.card = null;
         this.visible = true;
