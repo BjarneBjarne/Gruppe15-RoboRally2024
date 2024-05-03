@@ -218,7 +218,7 @@ public class GameController {
                     }
 
                     executeCommand(currentPlayer, command);
-
+                    currentPlayer.getSpace().getActions().forEach(action -> action.doAction(this, currentPlayer.getSpace()));
 
                 }
                 changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
