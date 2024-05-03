@@ -218,8 +218,6 @@ public class GameController {
                     }
 
                     executeCommand(currentPlayer, command);
-                    currentPlayer.getSpace().getActions().forEach(action -> action.doAction(this, currentPlayer.getSpace()));
-
                 }
                 changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
 
@@ -256,6 +254,7 @@ public class GameController {
 
         // 1. Blue conveyor belts
         // 2. Green conveyor belts
+        currentPlayer.getSpace().getActions().forEach(action -> action.doAction(this, currentPlayer.getSpace()));
         // 3. Push panels
         // 4. Gears
         // 5. Board lasers

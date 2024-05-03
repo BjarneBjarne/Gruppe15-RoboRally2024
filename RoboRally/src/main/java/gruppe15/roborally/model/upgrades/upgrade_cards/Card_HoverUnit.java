@@ -4,8 +4,7 @@ import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Phase;
 import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.damage.Spam;
-import gruppe15.roborally.model.events.PlayerDamageListener;
+import gruppe15.roborally.model.boardelements.Hole;
 import gruppe15.roborally.model.events.PlayerMoveListener;
 import gruppe15.roborally.model.upgrades.UpgradeCard;
 
@@ -23,7 +22,7 @@ public class Card_HoverUnit extends UpgradeCard {
 
         // OnDamageDealt
         EventHandler.onEvent(PlayerMoveListener.class, (PlayerMoveListener) space -> {
-            if (space.getBoardElement().getIsHole()) {
+            if (space.getBoardElement().getClass() ) {
                 System.out.println("{" + owner.getName() + "} has a Hover Unit!");
             }
 

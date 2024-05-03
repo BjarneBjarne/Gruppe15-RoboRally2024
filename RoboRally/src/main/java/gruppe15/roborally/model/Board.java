@@ -22,7 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.controller.ConveyorBelt;
+import gruppe15.roborally.model.boardelements.ConveyorBelt;
 import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
@@ -84,9 +84,9 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, null, ImageUtils.getImageFromName("startField.png"), true);
+                spaces[x][y] = new Space(this, x, y, null, ImageUtils.getImageFromName("startField.png"));
             }
-            spaces[0][4] = new Space(this, 0, 4, null, ImageUtils.getImageFromName("antenna.png"), true);
+            spaces[0][4] = new Space(this, 0, 4, null, ImageUtils.getImageFromName("antenna.png"));
         }
 
         // Fill the rest of the board with empty spaces
@@ -94,17 +94,16 @@ public class Board extends Subject {
             for(int y = 0; y < height; y++) {
                 Space space;
                 if (x < 3) {
-                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("emptyStart.png"), true);
+                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("emptyStart.png"));
                 } else {
                     if (y == 3) {
                         Heading heading = Heading.WEST;
                         Image image = ImageUtils.getImageFromName("green.png");
                         image = ImageUtils.getRotatedImageByHeading(image, heading);
-                        space = new Space(this, x, y, null, image, false);
-                        space.getActions().add(new ConveyorBelt(heading));
+                        space = new Space(this, x, y, new ConveyorBelt(heading), image);
                     } else {
                         Image image = ImageUtils.getImageFromName("empty.png");
-                        space = new Space(this, x, y, null, image, false);
+                        space = new Space(this, x, y, null, image);
                     }
                     }
                 if (spaces[x][y] == null) spaces[x][y] = space;

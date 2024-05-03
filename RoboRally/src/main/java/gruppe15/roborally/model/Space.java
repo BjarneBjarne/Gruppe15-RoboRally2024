@@ -23,13 +23,13 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.FieldAction;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.scene.image.Image;
-
-import static gruppe15.roborally.model.Heading.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static gruppe15.roborally.model.Heading.*;
 
 /**
  * ...
@@ -50,16 +50,11 @@ public class Space extends Subject {
 
     private List<FieldAction> actions = new ArrayList<>();
 
-    public Space(Board board, int x, int y) {
-        this(board, x, y, null, null, false);
-    }
-
-    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, boolean isOnStartBoard) {
+    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
-        //this.boardElement = new BoardElement(false, false, NORTH);
         this.boardElement = boardElement;
         this.backgroundImage = backgroundImage;
     }
@@ -86,10 +81,6 @@ public class Space extends Subject {
             }
             notifyChange();
         }
-    }
-
-    public List<FieldAction> getActions() {
-        return actions;
     }
 
     void playerChanged() {

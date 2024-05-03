@@ -19,9 +19,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package gruppe15.roborally.controller;
+package gruppe15.roborally.model.boardelements;
 
-import gruppe15.roborally.model.Board;
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
@@ -33,11 +33,12 @@ import org.jetbrains.annotations.NotNull;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class ConveyorBelt extends FieldAction {
+public class ConveyorBelt extends BoardElement {
 
     private Heading heading;
 
     public ConveyorBelt(Heading heading) {
+        super("green.png");
         this.heading = heading;
     }
 
