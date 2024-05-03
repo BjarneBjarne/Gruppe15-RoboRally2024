@@ -304,11 +304,6 @@ public class GameController {
                     // DO NOTHING (for now)
             }
 
-            // After command is executed, set the next player:
-            var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
-            var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
-            //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
-            //The current move counter is set to the old movecounter+1
             board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
         }
     }
