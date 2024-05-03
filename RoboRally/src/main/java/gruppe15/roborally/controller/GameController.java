@@ -451,6 +451,7 @@ public class GameController {
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
         CommandCard sourceCard = source.getCard();
         CommandCard targetCard = target.getCard();
+        if(sourceCard.command != null && sourceCard.command == Command.AGAIN && target.index == 1) return false;
         if (sourceCard != null && targetCard == null) {
             target.setCard(sourceCard);
             source.setCard(null);
