@@ -264,7 +264,7 @@ public class GameController {
                     setPlayerVelocity(player, 2, 0);
                     break;
                 case VARY_FAST_FORWARD:
-                    //TODO
+                    setPlayerVelocity(player, 3, 0);
                     break;
                 case RIGHT:
                     turnCurrentPlayer(player, 1);
@@ -273,10 +273,10 @@ public class GameController {
                     turnCurrentPlayer(player, -1);
                     break;
                 case U_TURN:
-                    //TODO
+                    turnCurrentPlayer(player, 2);
                     break;
                 case BACKWARD:
-                    //TODO
+                    setPlayerVelocity(player, -1, 0);
                     break;
                 case AGAIN:
                     //TODO
