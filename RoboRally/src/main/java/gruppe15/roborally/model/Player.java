@@ -172,26 +172,47 @@ public class Player extends Subject {
         for(int i = 0; i < 20; i++) {
             programmingDeck.add(new CommandCard(commands[index.remove(0)]));
         }
+        programmingDeck.add(null);
     }
 
+    private void shuffleDiscardedIntoDeck(){
+        List<CommandCard> temp = new ArrayList<>(programmingDeck);
+        programmingDeck.clear();
+        Collections.shuffle(temp);
+        programmingDeck.addAll(temp);
+        programmingDeck.add(null);
+    }
     private void discard(CommandCard card){
         programmingDeck.add(new CommandCard(card.command));
     }
 
     private CommandCard drawFromDeck(){
-        return new CommandCard(programmingDeck.remove().command);
+        CommandCard temp = programmingDeck.remove();
+        if(temp == null) return null;
+        return new CommandCard(temp.command);
     }
 
     public void drawHand(){
         for(CommandCardField c: cards){
             if(c.getCard() == null){
-                c.setCard(drawFromDeck());
+                CommandCard temp = drawFromDeck();
+                if(temp == null){
+                    shuffleDiscardedIntoDeck();
+                    temp = drawFromDeck();
+                }
+                c.setCard(temp);
             }
         }
     }
 
-    public void discardAllRegisters(){
+    public void discardAll(){
         for(CommandCardField c: program){
+            if(c.getCard() != null){
+                discard(c.getCard());
+                c.setCard(null);
+            }
+        }
+        for(CommandCardField c: cards){
             if(c.getCard() != null){
                 discard(c.getCard());
                 c.setCard(null);
