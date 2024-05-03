@@ -25,8 +25,9 @@ public class Laser {
         int y = origin.y;
         while (x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
             Space space = boardSpaces[x][y];
-            // If there is an object on the space, break the loop.
-            if (space.getBoardElement() != null) {
+            // If next space is out of bounds or there is a wall between this and the next space, break the loop.
+            Space nextSpace = space.getSpaceNextTo(direction, boardSpaces);
+            if (nextSpace == null || space.getIsWallBetween(nextSpace)) {
                 break;
             }
             spacesHit.add(space);

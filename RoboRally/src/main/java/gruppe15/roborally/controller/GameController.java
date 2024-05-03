@@ -49,7 +49,7 @@ public class GameController {
      * @param nextSpace the space to which the current player should move
      * @return void
      */
-    public void moveCurrentPlayerToSpace(@NotNull Space nextSpace)  {
+    public void moveCurrentPlayerToSpace(Space nextSpace) {
         // TODO Task1: method should be implemented by the students:
         //   - the current player should be moved to the given space
         //     (if it is free())
@@ -59,6 +59,12 @@ public class GameController {
         //     if the player is moved
         Player currentPlayer = board.getCurrentPlayer();
         Space currentSpace = currentPlayer.getSpace();
+        if (nextSpace == null) {
+            // TODO: Make currentPlayer (fall off / reboot)
+            System.out.println("Next space null! Player " + currentPlayer.getName() + " should fall off.");
+            // Should call: EventHandler.event_PlayerReboot(currentPlayer);
+            return;
+        }
         boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
         boolean couldMove = false;
         if (nextSpace.getPlayer() == null && !isWallBetween) {
@@ -93,14 +99,14 @@ public class GameController {
     public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
-        boolean isWallBetween = space.getIsWallBetween(nextSpace);
 
         if (nextSpace == null) {                                // Base case, player fell off monkaW
+            System.out.println("Next space null! Player " + (playerOnSpace == null ? "no_player" : playerOnSpace.getName()) + " should fall off.");
             playersToPush.add(playerOnSpace);
-            // TODO: Handle rebooting playerOnSpace since they fell off. Or handle it differently.
             return true;
         }
-        if (nextSpace.getPlayer() == null && !isWallBetween) {  // Base case, no player on next space
+        boolean isWallBetween = space.getIsWallBetween(nextSpace);
+        if (nextSpace.getPlayer() == null && !isWallBetween) {  // Base case, no player on next space and no wall between
             playersToPush.add(playerOnSpace);
             return true;
         }
@@ -204,39 +210,19 @@ public class GameController {
                 CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
                 if (card != null) {
                     Command command = card.command;
-                    executeCommand(currentPlayer, command);
 
                     if(card.command.isInteractive()){
+                        System.out.println("check");
                         board.setPhase(Phase.PLAYER_INTERACTION);
                         return;
                     }
-                }
-                int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-                if (nextPlayerNumber < board.getNoOfPlayers()) {
-                    board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-                } else {
-                    // Handle board elements (including player lasers)
 
-                    // 1. Blue conveyor belts
-                    // 2. Green conveyor belts
-                    // 3. Push panels
-                    // 4. Gears
-                    // 5. Board lasers
-                    // 6. Robot lasters
-                    EventHandler.event_PlayerShoot(board.getSpaces(), currentPlayer);
-                    // 7. Energy spaces
-                    // 8. Checkpoints
+                    executeCommand(currentPlayer, command);
 
-                    // After board elements have activated, continue to next currentRegister
-                    currentRegister++;
-                    if (currentRegister < Player.NO_OF_REGISTERS) {
-                        makeProgramFieldsVisible(currentRegister);
-                        board.setCurrentRegister(currentRegister);
-                        board.setCurrentPlayer(board.getPlayer(0));
-                    } else {
-                        startProgrammingPhase();
-                    }
+
                 }
+                changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
+
             } else {
                 // this should not happen
                 assert false;
@@ -245,6 +231,40 @@ public class GameController {
             // this should not happen
             assert false;
         }
+    }
+
+    public void changeToNextRegisterAndHandleBoardElements(Player currentPlayer,int currentRegister){
+
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
+        if (nextPlayerNumber < board.getNoOfPlayers()) {
+            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+        } else {
+            handleBoardElements(currentPlayer);
+            currentRegister++;
+            if (currentRegister < Player.NO_OF_REGISTERS) {
+                makeProgramFieldsVisible(currentRegister);
+                board.setCurrentRegister(currentRegister);
+                board.setCurrentPlayer(board.getPlayer(0));
+            } else {
+                startProgrammingPhase();
+            }
+        }
+    }
+
+    public void handleBoardElements(Player currentPlayer) {
+        // Handle board elements (including player lasers)
+
+        // 1. Blue conveyor belts
+        // 2. Green conveyor belts
+        // 3. Push panels
+        // 4. Gears
+        // 5. Board lasers
+        // 6. Robot lasters
+        EventHandler.event_PlayerShoot(board.getSpaces(), currentPlayer);
+        // 7. Energy spaces
+        // 8. Checkpoints
+
+        // After board elements have activated, continue to next currentRegister
     }
 
     public void executeCommand(@NotNull Player player, Command command) {
@@ -293,7 +313,7 @@ public class GameController {
             // After command is executed, set the next player:
             var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
             var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
-            board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
+            //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
             //The current move counter is set to the old movecounter+1
             board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
         }
@@ -322,7 +342,7 @@ public class GameController {
                     break;
                 default:
             }
-            moveCurrentPlayerToSpace(correctPosition(x, y));
+            moveCurrentPlayerToSpace(board.getSpace(x, y));
         }
 
         // For each sideways movement
@@ -345,7 +365,7 @@ public class GameController {
                     break;
                 default:
             }
-            moveCurrentPlayerToSpace(correctPosition(x, y));
+            moveCurrentPlayerToSpace(board.getSpace(x, y));
         }
     }
 
@@ -384,27 +404,17 @@ public class GameController {
     }
 
     public void executeCommandOptionAndContinue(Command option){
-
         executeCommand(board.getCurrentPlayer(),option);
 
         Player currentPlayer = board.getCurrentPlayer();
         int currentRegister = board.getCurrentRegister();
         board.setPhase(Phase.ACTIVATION);
 
-        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-        if (nextPlayerNumber < board.getNoOfPlayers()) {
-            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-        } else {
-            currentRegister++;
-            if (currentRegister < Player.NO_OF_REGISTERS) {
-                makeProgramFieldsVisible(currentRegister);
-                board.setCurrentRegister(currentRegister);
-                board.setCurrentPlayer(board.getPlayer(0));
-            } else {
-                startProgrammingPhase();
-            }
-        }
+        changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
+
+        if(!board.isStepMode()){
         continuePrograms();
+        }
     }
 
     private Space correctPosition(int x, int y){
