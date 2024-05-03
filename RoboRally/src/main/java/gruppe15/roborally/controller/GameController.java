@@ -147,7 +147,7 @@ public class GameController {
     // XXX: implemented in the current version
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
+        int random = (int) (Math.random() * 9);
         return new CommandCard(commands[random]);
     }
 
@@ -299,7 +299,19 @@ public class GameController {
                     setPlayerVelocity(player, -1, 0);
                     break;
                 case AGAIN:
-                    //TODO
+                    switch (player.getLastCmd()){
+                        case AGAIN:
+                            //TODO
+                            break;
+                        case DAMAGE:
+                            //TODO
+                            break;
+                        case UPGRADE:
+                            //TODO
+                            break;
+                        default:
+                            executeCommand(player, player.getLastCmd());
+                    }
                     break;
                 case POWER_UP:
                     //TODO
@@ -309,6 +321,8 @@ public class GameController {
                 default:
                     // DO NOTHING (for now)
             }
+
+            player.setLastCmd(command);
 
             // After command is executed, set the next player:
             var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player

@@ -49,6 +49,8 @@ public class Player extends Subject {
     private Space space;
     private Heading heading = SOUTH;
 
+    private Command lastCmd;
+
     private final CommandCardField[] program;
     private final CommandCardField[] cards;
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
@@ -69,6 +71,14 @@ public class Player extends Subject {
         for (int i = 0; i < cards.length; i++) {
             cards[i] = new CommandCardField(this);
         }
+    }
+
+    public void setLastCmd(Command lastCmd) {
+        this.lastCmd = lastCmd;
+    }
+
+    public Command getLastCmd(){
+        return lastCmd;
     }
 
     public String getName() {
