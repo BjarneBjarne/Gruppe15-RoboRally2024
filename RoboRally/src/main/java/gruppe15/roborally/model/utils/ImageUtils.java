@@ -1,9 +1,8 @@
 package gruppe15.roborally.model.utils;
 
-import gruppe15.roborally.model.BoardElement;
+import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.Heading;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;

@@ -1,5 +1,6 @@
 package gruppe15.roborally.model;
 
+import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.damage.Damage;
 import gruppe15.roborally.model.events.*;
 import gruppe15.roborally.model.upgrades.EventListener;
