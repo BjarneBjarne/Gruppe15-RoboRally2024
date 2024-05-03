@@ -22,6 +22,9 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import javafx.scene.image.Image;
+
+import java.util.Objects;
 
 import static gruppe15.roborally.model.Heading.*;
 
@@ -39,15 +42,21 @@ public class Space extends Subject {
     public final int y;
 
     private Player player;
-    private BoardElement boardElement;
+    private final BoardElement boardElement;
+    private final Image image;
 
     public Space(Board board, int x, int y) {
+        this(board, x, y, null);
+    }
+
+    public Space(Board board, int x, int y, BoardElement boardElement) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
         //this.boardElement = new BoardElement(false, false, NORTH);
-        this.boardElement = null;
+        this.boardElement = boardElement;
+        image = getInitializedSpaceImage();
     }
 
     public Player getPlayer() {
@@ -85,21 +94,35 @@ public class Space extends Subject {
         return boardElement;
     }
 
-    public void setBoardElement(BoardElement boardElement) {
-        this.boardElement = boardElement;
-    }
-
     /**
      * Should only be used on two spaces next to each other (not diagonally).
      * @return Returns whether there's a wall separating the two spaces.
      */
     public boolean getIsWallBetween(Space otherSpace) {
+        if (otherSpace == null) {
+            System.out.println("ERROR in code. otherSpace is null. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
+            return false;
+        }
+
         Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
 
-        boolean thisHasWall = this.getBoardElement().getHasWall();
-        boolean otherHasWall = otherSpace.getBoardElement().getHasWall();
-        Heading thisWallDirection = this.getBoardElement().getWallDirection();
-        Heading otherWallDirection = otherSpace.getBoardElement().getWallDirection();
+        boolean thisHasWall;
+        Heading thisWallDirection = NORTH;
+        if (this.getBoardElement() != null) {
+            thisHasWall = this.getBoardElement().getHasWall();
+            thisWallDirection = this.getBoardElement().getWallDirection();
+        } else {
+            thisHasWall = false;
+        }
+
+        boolean otherHasWall;
+        Heading otherWallDirection = NORTH;
+        if (otherSpace.getBoardElement() != null) {
+            otherHasWall = otherSpace.getBoardElement().getHasWall();
+            otherWallDirection = otherSpace.getBoardElement().getWallDirection();
+        } else {
+            otherHasWall = false;
+        }
 
         switch (directionToOtherSpace) {
             case EAST:
@@ -110,13 +133,13 @@ public class Space extends Subject {
                 return (thisHasWall && thisWallDirection == SOUTH) || (otherHasWall && otherWallDirection == NORTH);
             case NORTH:
                 return (thisHasWall && thisWallDirection == NORTH) || (otherHasWall && otherWallDirection == SOUTH);
+            default:
+                return false;
         }
 
-        // TODO: Make exception throw instead of if-statement.
-        // We shouldn't get to here
-        System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
-        System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
-        return false;
+        //System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
+        //System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
+        //return false;
     }
 
     public Heading getDirectionToOtherSpace(Space otherSpace) {
@@ -127,17 +150,17 @@ public class Space extends Subject {
         if (dx == 0 && dy == 0) {
             System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
             System.out.println("ERROR in code. Got the same space twice. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
-            return null;
+            return NORTH;
         }
         if (Math.abs(dx) > 0 && Math.abs(dy) > 0) {
             System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
             System.out.println("ERROR in code. Spaces too far apart. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
-            return null;
+            return NORTH;
         }
         if (dx != 0 && dy != 0) {
             System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
             System.out.println("ERROR in code. Can't take diagonal spaces. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
-            return null;
+            return NORTH;
         }
 
         // Horizontal
@@ -164,7 +187,7 @@ public class Space extends Subject {
         // We shouldn't get to here
         System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
         System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
-        return null;
+        return NORTH;
     }
 
     public Space getSpaceNextTo(Heading direction, Space[][] spaces) {
@@ -193,5 +216,23 @@ public class Space extends Subject {
                 System.out.println("ERROR in Space.getSpaceNextTo()");
                 return null;
         }
+    }
+
+    private Image getInitializedSpaceImage() {
+        String imagePath;
+        if (boardElement == null) {
+            imagePath = "/gruppe15/roborally/images/empty.png";
+            try {
+                return new Image(Objects.requireNonNull(Space.class.getResourceAsStream(imagePath)));
+            } catch (Exception e) {
+                System.out.println("Error importing image with path: " + imagePath);
+                return null;
+            }
+        } else {
+            return boardElement.getImage();
+        }
+    }
+    public Image getImage() {
+        return image;
     }
 }

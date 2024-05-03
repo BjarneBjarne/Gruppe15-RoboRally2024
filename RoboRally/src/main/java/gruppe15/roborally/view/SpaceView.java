@@ -24,13 +24,11 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
-import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  * ...
@@ -40,11 +38,10 @@ import java.util.Objects;
  */
 public class SpaceView extends StackPane implements ViewObserver {
 
-    final public static int SPACE_HEIGHT = 50; // 60; // 75;
-    final public static int SPACE_WIDTH = 50;  // 60; // 75;
-
     public final Space space;
-
+    public final static int SPACE_HEIGHT = 50; // 60; // 75;
+    public final static int SPACE_WIDTH = 50;  // 60; // 75;
+    private final ImageView imageView = new ImageView();
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -58,11 +55,16 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
 
-        if ((space.x + space.y) % 2 == 0) {
+        imageView.setFitWidth(SPACE_WIDTH + 1);
+        imageView.setFitHeight(SPACE_HEIGHT);
+        imageView.setImage(space.getImage());
+        this.getChildren().add(imageView);
+
+        /*if ((space.x + space.y) % 2 == 0) {
             this.setStyle("-fx-background-color: white;");
         } else {
             this.setStyle("-fx-background-color: black;");
-        }
+        }*/
 
         // updatePlayer();
 
@@ -73,6 +75,7 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private void updatePlayer() {
         this.getChildren().clear();
+        this.getChildren().add(imageView);
 
         Player player = space.getPlayer();
         if (player != null) {
@@ -87,19 +90,6 @@ public class SpaceView extends StackPane implements ViewObserver {
 
             arrow.setRotate((90*player.getHeading().ordinal())%360);
             this.getChildren().add(arrow);
-        }
-    }
-
-    private Image getSpaceImage() {
-        if (space.getBoardElement() == null) {
-            return image_cardBack;
-        }
-        String imagePath = "/machineprog2/kortspilgui/art/" + suit + value + ".png";
-        try {
-            return new Image(Objects.requireNonNull(Card.class.getResourceAsStream(imagePath)));
-        } catch (Exception e) {
-            System.out.println("Error importing card image with path: " + imagePath);
-            return null;
         }
     }
 
