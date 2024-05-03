@@ -24,6 +24,8 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.boardelements.ConveyorBelt;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -198,9 +200,16 @@ public class GameController {
 
     // XXX: implemented in the current version
     private void continuePrograms() {
-        do {
-            executeNextRegister();
-        } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
+        executeNextRegister();
+
+        if (board.getPhase() == Phase.ACTIVATION && !board.isStepMode()) {
+            PauseTransition pause = new PauseTransition(Duration.millis(500));
+            pause.setOnFinished(event -> {
+                // After the delay, we recursively call continuePrograms again.
+                continuePrograms();
+            });
+            pause.play();
+        }
     }
 
     // XXX: implemented in the current version

@@ -22,7 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.upgrades.UpgradeCard;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
