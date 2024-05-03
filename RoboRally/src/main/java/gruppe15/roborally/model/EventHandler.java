@@ -105,6 +105,13 @@ public class EventHandler {
         }
 
         playerMoving.setSpace(space);
+
+        try {
+            System.out.println("Pauser kort");
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.out.println("InterruptedException: " + e.getMessage());
+        }
     }
 
 

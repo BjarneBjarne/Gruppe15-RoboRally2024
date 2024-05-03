@@ -23,12 +23,12 @@ package gruppe15.roborally.controller;
 
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
-
 import gruppe15.roborally.RoboRally;
-
 import gruppe15.roborally.model.Board;
+import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
-
+import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.boardelements.SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -36,6 +36,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -79,10 +80,31 @@ public class AppController implements Observer {
             Board board = new Board(13,10);
             gameController = new GameController(board);
             int no = result.get();
+
+            List<Space> spawnPoints = new ArrayList<>();
+            Space[][] spaces = board.getSpaces();
+            for (int x = 0; x < spaces.length; x++) {
+                for (int y = 0; y < spaces[x].length; y++) {
+                    Space space = spaces[x][y];
+                    if (space.getBoardElement() instanceof SpawnPoint) {
+                        spawnPoints.add(space);
+                    }
+                }
+            }
             for (int i = 0; i < no; i++) {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+                player.setHeading(Heading.EAST);
                 board.addPlayer(player);
-                player.setSpace(board.getSpace(i % board.width, i));
+                if (spawnPoints.isEmpty()) {
+                    player.setSpace(board.getSpace(i % board.width, i));
+                } else {
+                    for (Space spawnPoint : spawnPoints) {
+                        if (spawnPoint.getPlayer() == null) {
+                            player.setSpace(spawnPoint);
+                        }
+                    }
+                }
+
             }
 
             // XXX: the line below is commented out in the current version
