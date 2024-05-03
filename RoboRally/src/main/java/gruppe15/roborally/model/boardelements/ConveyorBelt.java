@@ -21,7 +21,6 @@
  */
 package gruppe15.roborally.model.boardelements;
 
-import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
@@ -38,7 +37,7 @@ public class ConveyorBelt extends BoardElement {
     private Heading heading;
 
     public ConveyorBelt(Heading heading) {
-        super("green.png");
+        super("green.png", heading);
         this.heading = heading;
     }
 
@@ -51,10 +50,10 @@ public class ConveyorBelt extends BoardElement {
     }
 
     @Override
-    public boolean doAction(@NotNull GameController gameController, @NotNull Space space) {
+    public boolean doAction(@NotNull Space space, @NotNull Space[][] spaces) {
         Player player = space.getPlayer();
         if (player != null) {
-            Space toSpace = gameController.board.getNeighbour(space, heading);
+            Space toSpace = space.getSpaceNextTo(heading, spaces);
             if (toSpace == null)
                 return false;
             if (toSpace.getPlayer() == null) {

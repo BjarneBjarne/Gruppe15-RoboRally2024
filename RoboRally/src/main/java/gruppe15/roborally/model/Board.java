@@ -22,12 +22,13 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.boardelements.Antenna;
 import gruppe15.roborally.model.boardelements.ConveyorBelt;
+import gruppe15.roborally.model.boardelements.SpawnPoint;
 import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
-import javafx.scene.image.Image;
-
 import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class Board extends Subject {
     private Phase phase = INITIALISATION;
 
     private int currentRegister = 0;
-//The counter for how many moves have been made
+    //The counter for how many moves have been made
     private int moveCounter =0;
 
     private boolean stepMode;
@@ -70,9 +71,17 @@ public class Board extends Subject {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
+
+        // Setup spaces
         if (boardName.equals("defaultboard")) {
 
         } else if (boardName.equals("dizzy_highway")) {
+
+            // Start board spaces
+            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
+            // Antenna
+            spaces[0][4] = new Space(this, 0, 4, new Antenna(), backgroundStart);
+            // SpawnPoint points
             Point2D[] startFieldPoints = {
                     new Point2D(1,1),
                     new Point2D(0, 3),
@@ -84,31 +93,36 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, null, ImageUtils.getImageFromName("startField.png"));
+                spaces[x][y] = new Space(this, x, y, new SpawnPoint(), backgroundStart);
             }
-            spaces[0][4] = new Space(this, 0, 4, null, ImageUtils.getImageFromName("antenna.png"));
+            // Fill the rest with empty spaces
+            for (int x = 0; x < 3; x++) {
+                for(int y = 0; y < height; y++) {
+                    if (spaces[x][y] != null) {
+                        continue;
+                    }
+                    spaces[x][y] = new Space(this, x, y, null, backgroundStart);
+                }
+            }
+
+
+            // Main board
+            Image background = ImageUtils.getImageFromName("empty.png");
+            // Conveyor belts
+            for (int x = 3; x < width; x++) {
+                spaces[x][3] = new Space(this, x, 3, new ConveyorBelt(Heading.WEST), background);
+            }
+            // Fill the rest of the board with empty spaces
+            for (int x = 3; x < width; x++) {
+                for(int y = 0; y < height; y++) {
+                    if (spaces[x][y] != null) {
+                        continue;
+                    }
+                    spaces[x][y] = new Space(this, x, y, null, background);
+                }
+            }
         }
 
-        // Fill the rest of the board with empty spaces
-        for (int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-                Space space;
-                if (x < 3) {
-                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("emptyStart.png"));
-                } else {
-                    if (y == 3) {
-                        Heading heading = Heading.WEST;
-                        Image image = ImageUtils.getImageFromName("green.png");
-                        image = ImageUtils.getRotatedImageByHeading(image, heading);
-                        space = new Space(this, x, y, new ConveyorBelt(heading), image);
-                    } else {
-                        Image image = ImageUtils.getImageFromName("empty.png");
-                        space = new Space(this, x, y, null, image);
-                    }
-                    }
-                if (spaces[x][y] == null) spaces[x][y] = space;
-            }
-        }
         this.stepMode = false;
     }
 
@@ -219,7 +233,7 @@ public class Board extends Subject {
             return -1;
         }
     }
-//A function to change the value of the movecounter, it also calls an update so the changes will be displayed
+    //A function to change the value of the movecounter, it also calls an update so the changes will be displayed
     public void setMoveCounter(int newMoveCounter){
 
         if (moveCounter != newMoveCounter) {
@@ -252,22 +266,22 @@ public class Board extends Subject {
         int y = space.y;
         switch (heading) {
             case SOUTH:
-                if (y + 1 > space.board.height - 1) 
+                if (y + 1 > space.board.height - 1)
                     return null;
                 y = (y + 1) % height;
                 break;
             case WEST:
-                if (x - 1 < 0) 
+                if (x - 1 < 0)
                     return null;
                 x = (x + width - 1) % width;
                 break;
             case NORTH:
-                if (y - 1 < 0) 
+                if (y - 1 < 0)
                     return null;
                 y = (y + height - 1) % height;
                 break;
             case EAST:
-                if (x + 1 > space.board.width - 1) 
+                if (x + 1 > space.board.width - 1)
                     return null;
                 x = (x + 1) % width;
                 break;
@@ -295,7 +309,7 @@ public class Board extends Subject {
 
         // TODO Task1: add a counter along with a getter and a setter, so the
         //      state of the board (game) contains the number of moves, which then can
-        //      be used to extend the status message 
+        //      be used to extend the status message
     }
 
 

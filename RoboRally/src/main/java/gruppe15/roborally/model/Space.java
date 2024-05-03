@@ -22,7 +22,6 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.controller.FieldAction;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.scene.image.Image;
 
@@ -47,8 +46,6 @@ public class Space extends Subject {
     private Player player;
     private final BoardElement boardElement;
     private final Image backgroundImage;
-
-    private List<FieldAction> actions = new ArrayList<>();
 
     public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage) {
         this.board = board;
@@ -107,32 +104,32 @@ public class Space extends Subject {
         Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
 
         boolean thisHasWall;
-        Heading thisWallDirection = NORTH;
+        List<Heading> thisWallDirections = new ArrayList<>();
         if (this.getBoardElement() != null) {
             thisHasWall = this.getBoardElement().getHasWall();
-            thisWallDirection = this.getBoardElement().getWallDirection();
+            thisWallDirections = this.getBoardElement().getWallDirections();
         } else {
             thisHasWall = false;
         }
 
         boolean otherHasWall;
-        Heading otherWallDirection = NORTH;
+        List<Heading> otherWallDirections = new ArrayList<>();
         if (otherSpace.getBoardElement() != null) {
             otherHasWall = otherSpace.getBoardElement().getHasWall();
-            otherWallDirection = otherSpace.getBoardElement().getWallDirection();
+            otherWallDirections = otherSpace.getBoardElement().getWallDirections();
         } else {
             otherHasWall = false;
         }
 
         switch (directionToOtherSpace) {
             case EAST:
-                return (thisHasWall && thisWallDirection == EAST) || (otherHasWall && otherWallDirection == WEST);
+                return (thisHasWall && thisWallDirections.contains(EAST)) || (otherHasWall && otherWallDirections.contains(WEST));
             case WEST:
-                return (thisHasWall && thisWallDirection == WEST) || (otherHasWall && otherWallDirection == EAST);
+                return (thisHasWall && thisWallDirections.contains(WEST)) || (otherHasWall && otherWallDirections.contains(EAST));
             case SOUTH:
-                return (thisHasWall && thisWallDirection == SOUTH) || (otherHasWall && otherWallDirection == NORTH);
+                return (thisHasWall && thisWallDirections.contains(SOUTH)) || (otherHasWall && otherWallDirections.contains(NORTH));
             case NORTH:
-                return (thisHasWall && thisWallDirection == NORTH) || (otherHasWall && otherWallDirection == SOUTH);
+                return (thisHasWall && thisWallDirections.contains(NORTH)) || (otherHasWall && otherWallDirections.contains(SOUTH));
             default:
                 return false;
         }
