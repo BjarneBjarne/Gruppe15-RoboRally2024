@@ -322,6 +322,13 @@ public class GameController {
     private void setPlayerVelocity(Player player, int fwd, int rgt) {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each
 
+        int move = 1;
+        boolean negative = (fwd<0);
+        if(negative){
+            fwd = -fwd;
+            move = -1;
+        }
+
         // For each forward movement
         for (int i = 0; i < fwd; i++) {
             Space temp = player.getSpace();
@@ -329,20 +336,27 @@ public class GameController {
             int y = temp.y;
             switch(player.getHeading()){
                 case NORTH:
-                    y = y - 1;
+                    y = y - move;
                     break;
                 case SOUTH:
-                    y = y + 1;
+                    y = y + move;
                     break;
                 case EAST:
-                    x = x + 1;
+                    x = x + move;
                     break;
                 case WEST:
-                    x = x - 1;
+                    x = x - move;
                     break;
                 default:
             }
             moveCurrentPlayerToSpace(board.getSpace(x, y));
+        }
+
+        move = 1;
+        negative = (rgt<0);
+        if(negative){
+            rgt = -rgt;
+            move = -1;
         }
 
         // For each sideways movement
@@ -352,16 +366,16 @@ public class GameController {
             int y = temp.y;
             switch(player.getHeading()){
                 case NORTH:
-                    x = x + 1;
+                    x = x + move;
                     break;
                 case SOUTH:
-                    x = x - 1;
+                    x = x - move;
                     break;
                 case EAST:
-                    y = y + 1;
+                    y = y + move;
                     break;
                 case WEST:
-                    y = y - 1;
+                    y = y - move;
                     break;
                 default:
             }
