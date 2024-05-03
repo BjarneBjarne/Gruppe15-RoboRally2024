@@ -48,14 +48,22 @@ public class Space extends Subject {
         this(board, x, y, null);
     }
 
-    public Space(Board board, int x, int y, BoardElement boardElement) {
+    public Space(Board board, int x, int y, BoardElement boardElement, boolean isOnStartBoard) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
         //this.boardElement = new BoardElement(false, false, NORTH);
         this.boardElement = boardElement;
-        backgroundImage = ImageUtils.getImageFromName("empty.png");
+        if (isOnStartBoard) {
+            backgroundImage = ImageUtils.getImageFromName("emptyStart.png");
+        } else {
+            backgroundImage = ImageUtils.getImageFromName("empty.png");
+        }
+    }
+
+    public Space(Board board, int x, int y, BoardElement boardElement) {
+        this(board, x, y, boardElement, false);
     }
 
     public Player getPlayer() {
