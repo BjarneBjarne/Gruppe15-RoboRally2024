@@ -24,10 +24,13 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 /**
  * ...
@@ -84,6 +87,19 @@ public class SpaceView extends StackPane implements ViewObserver {
 
             arrow.setRotate((90*player.getHeading().ordinal())%360);
             this.getChildren().add(arrow);
+        }
+    }
+
+    private Image getSpaceImage() {
+        if (space.getBoardElement() == null) {
+            return image_cardBack;
+        }
+        String imagePath = "/machineprog2/kortspilgui/art/" + suit + value + ".png";
+        try {
+            return new Image(Objects.requireNonNull(Card.class.getResourceAsStream(imagePath)));
+        } catch (Exception e) {
+            System.out.println("Error importing card image with path: " + imagePath);
+            return null;
         }
     }
 

@@ -22,7 +22,6 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.Heading.*;
 
@@ -47,7 +46,8 @@ public class Space extends Subject {
         this.x = x;
         this.y = y;
         player = null;
-        this.boardElement = new BoardElement(false, false, NORTH);
+        //this.boardElement = new BoardElement(false, false, NORTH);
+        this.boardElement = null;
     }
 
     public Player getPlayer() {
