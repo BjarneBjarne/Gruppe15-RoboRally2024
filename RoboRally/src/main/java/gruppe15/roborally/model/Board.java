@@ -103,7 +103,7 @@ public class Board extends Subject {
                     Image image = ImageUtils.getImageFromName("empty.png");
                     space = new Space(this, x, y, null, image, false);
                 }
-                spaces[x][y] = space;
+                if (spaces[x][y] == null) spaces[x][y] = space;
             }
         }
         this.stepMode = false;
