@@ -22,9 +22,8 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
-
-import java.util.Objects;
 
 import static gruppe15.roborally.model.Heading.*;
 
@@ -43,7 +42,7 @@ public class Space extends Subject {
 
     private Player player;
     private final BoardElement boardElement;
-    private final Image image;
+    private final Image backgroundImage;
 
     public Space(Board board, int x, int y) {
         this(board, x, y, null);
@@ -56,7 +55,7 @@ public class Space extends Subject {
         player = null;
         //this.boardElement = new BoardElement(false, false, NORTH);
         this.boardElement = boardElement;
-        image = getInitializedSpaceImage();
+        backgroundImage = ImageUtils.getImageFromName("empty.png");
     }
 
     public Player getPlayer() {
@@ -217,22 +216,7 @@ public class Space extends Subject {
                 return null;
         }
     }
-
-    private Image getInitializedSpaceImage() {
-        String imagePath;
-        if (boardElement == null) {
-            imagePath = "/gruppe15/roborally/images/empty.png";
-            try {
-                return new Image(Objects.requireNonNull(Space.class.getResourceAsStream(imagePath)));
-            } catch (Exception e) {
-                System.out.println("Error importing image with path: " + imagePath);
-                return null;
-            }
-        } else {
-            return boardElement.getImage();
-        }
-    }
     public Image getImage() {
-        return image;
+        return backgroundImage;
     }
 }

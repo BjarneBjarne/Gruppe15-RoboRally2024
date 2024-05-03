@@ -1,8 +1,7 @@
 package gruppe15.roborally.model;
 
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
-
-import java.util.Objects;
 
 /**
  * Placeholder BoardElement class.
@@ -25,7 +24,7 @@ public class BoardElement {
         this.hasWall = hasWall;
         this.isHole = isHole;
         this.wallDirection = wallDirection;
-        this.image = getImageFromName(imageName);
+        this.image = ImageUtils.getImageFromName(imageName);
     }
 
     public boolean getHasWall() {
@@ -36,16 +35,6 @@ public class BoardElement {
     }
     public Heading getWallDirection() {
         return wallDirection;
-    }
-
-    private Image getImageFromName(String imageName) {
-        String imagePath = "/gruppe15/roborally/images/" + imageName;
-        try {
-            return new Image(Objects.requireNonNull(BoardElement.class.getResourceAsStream(imagePath)));
-        } catch (Exception e) {
-            System.out.println("Error importing image with path: " + imagePath);
-            return null;
-        }
     }
     public Image getImage() {
         return image;
