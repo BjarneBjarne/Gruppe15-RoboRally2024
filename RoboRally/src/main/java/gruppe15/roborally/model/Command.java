@@ -45,7 +45,8 @@ public enum Command {
     AGAIN("Again"),
     POWER_UP("Power Up"),
 
-
+    DAMAGE("Damage"),
+    UPGRADE("Upgrade"),
     OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
     DO_NOTHING("Do Nothing");
 
