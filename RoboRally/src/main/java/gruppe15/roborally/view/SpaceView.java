@@ -55,7 +55,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
 
-        imageView.setFitWidth(SPACE_WIDTH + 1);
+        imageView.setFitWidth(SPACE_WIDTH);
         imageView.setFitHeight(SPACE_HEIGHT);
         imageView.setImage(space.getImage());
         this.getChildren().add(imageView);
