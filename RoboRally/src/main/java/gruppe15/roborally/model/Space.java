@@ -51,10 +51,10 @@ public class Space extends Subject {
     private List<FieldAction> actions = new ArrayList<>();
 
     public Space(Board board, int x, int y) {
-        this(board, x, y, null, null);
+        this(board, x, y, null, null, false);
     }
 
-    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage) {
+    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, boolean isOnStartBoard) {
         this.board = board;
         this.x = x;
         this.y = y;
