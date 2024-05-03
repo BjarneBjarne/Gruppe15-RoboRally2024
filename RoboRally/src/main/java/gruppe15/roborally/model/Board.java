@@ -22,7 +22,11 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.controller.ConveyorBelt;
 import gruppe15.roborally.model.events.PhaseChangeListener;
+import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.scene.image.Image;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -67,7 +71,17 @@ public class Board extends Subject {
         spaces = new Space[width][height];
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                Space space = new Space(this, x, y);
+                Space space;
+                if (y == 3) {
+                    Heading heading = Heading.WEST;
+                    Image image = ImageUtils.getImageFromName("green.png");
+                    image = ImageUtils.getRotatedImageByHeading(image, heading);
+                    space = new Space(this, x, y, null, image);
+                    space.getActions().add(new ConveyorBelt(heading));
+                } else {
+                    Image image = ImageUtils.getImageFromName("empty.png");
+                    space = new Space(this, x, y, null, image);
+                }
                 spaces[x][y] = space;
             }
         }
@@ -213,15 +227,23 @@ public class Board extends Subject {
         int y = space.y;
         switch (heading) {
             case SOUTH:
+                if (y + 1 > space.board.height - 1) 
+                    return null;
                 y = (y + 1) % height;
                 break;
             case WEST:
+                if (x - 1 < 0) 
+                    return null;
                 x = (x + width - 1) % width;
                 break;
             case NORTH:
+                if (y - 1 < 0) 
+                    return null;
                 y = (y + height - 1) % height;
                 break;
             case EAST:
+                if (x + 1 > space.board.width - 1) 
+                    return null;
                 x = (x + 1) % width;
                 break;
         }
