@@ -22,6 +22,8 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.boardelements.ConveyorBelt;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -251,10 +253,18 @@ public class GameController {
 
     public void handleBoardElements(Player currentPlayer) {
         // Handle board elements (including player lasers)
+        Space[][] spaces = board.getSpaces();
 
         // 1. Blue conveyor belts
         // 2. Green conveyor belts
-        currentPlayer.getSpace().getActions().forEach(action -> action.doAction(this, currentPlayer.getSpace()));
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                BoardElement boardElement = spaces[x][y].getBoardElement();
+                if (boardElement instanceof ConveyorBelt) {
+                    boardElement.doAction(spaces[x][y], spaces);
+                }
+            }
+        }
         // 3. Push panels
         // 4. Gears
         // 5. Board lasers

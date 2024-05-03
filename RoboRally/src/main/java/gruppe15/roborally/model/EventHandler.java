@@ -1,6 +1,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.boardelements.Hole;
 import gruppe15.roborally.model.damage.Damage;
 import gruppe15.roborally.model.events.*;
 import gruppe15.roborally.model.upgrades.EventListener;
@@ -98,7 +99,7 @@ public class EventHandler {
         // If no listeners, handle base logic
         if (playerMoveListeners.isEmpty()) {
             BoardElement spaceBoardElement = space.getBoardElement();
-            if (spaceBoardElement != null && spaceBoardElement.getIsHole()) {
+            if (spaceBoardElement instanceof Hole) {
                 // TODO: Handle rebooting player since they fell down a hole.
             }
         }

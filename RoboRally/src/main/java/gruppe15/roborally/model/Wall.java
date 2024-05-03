@@ -1,4 +1,4 @@
-package gruppe15.roborally.model.boardelements;
+package gruppe15.roborally.model;
 
 import gruppe15.roborally.model.Heading;
 

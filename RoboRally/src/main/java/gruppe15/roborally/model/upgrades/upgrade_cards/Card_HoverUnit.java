@@ -22,7 +22,7 @@ public class Card_HoverUnit extends UpgradeCard {
 
         // OnDamageDealt
         EventHandler.onEvent(PlayerMoveListener.class, (PlayerMoveListener) space -> {
-            if (space.getBoardElement().getClass() ) {
+            if (space.getBoardElement() != null && space.getBoardElement() instanceof Hole) {
                 System.out.println("{" + owner.getName() + "} has a Hover Unit!");
             }
 
