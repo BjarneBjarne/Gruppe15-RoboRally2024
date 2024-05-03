@@ -81,6 +81,7 @@ public class AppController implements Observer {
             gameController = new GameController(board);
             int no = result.get();
 
+            // Find spawns
             List<Space> spawnPoints = new ArrayList<>();
             Space[][] spaces = board.getSpaces();
             for (int x = 0; x < spaces.length; x++) {
@@ -91,10 +92,13 @@ public class AppController implements Observer {
                     }
                 }
             }
+            // Add players
             for (int i = 0; i < no; i++) {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
                 player.setHeading(Heading.EAST);
                 board.addPlayer(player);
+
+                // Set player spawn
                 if (spawnPoints.isEmpty()) {
                     player.setSpace(board.getSpace(i % board.width, i));
                 } else {
@@ -104,7 +108,6 @@ public class AppController implements Observer {
                         }
                     }
                 }
-
             }
 
             // XXX: the line below is commented out in the current version

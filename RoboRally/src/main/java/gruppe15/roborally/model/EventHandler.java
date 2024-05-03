@@ -3,9 +3,10 @@ package gruppe15.roborally.model;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.boardelements.Hole;
 import gruppe15.roborally.model.damage.Damage;
+import gruppe15.roborally.model.damage.DamageType;
+import gruppe15.roborally.model.damage.Spam;
 import gruppe15.roborally.model.events.*;
 import gruppe15.roborally.model.upgrades.EventListener;
-import gruppe15.roborally.model.damage.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -105,13 +106,6 @@ public class EventHandler {
         }
 
         playerMoving.setSpace(space);
-
-        try {
-            System.out.println("Pauser kort");
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            System.out.println("InterruptedException: " + e.getMessage());
-        }
     }
 
 
