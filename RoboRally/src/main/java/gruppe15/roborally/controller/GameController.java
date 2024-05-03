@@ -130,7 +130,7 @@ public class GameController {
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Player player = board.getPlayer(i);
             if (player != null) {
-                player.discardAllRegisters();
+                player.discardAll();
                 for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
                     field.setVisible(true);
