@@ -94,7 +94,7 @@ public class Board extends Subject {
             for(int y = 0; y < height; y++) {
                 Space space;
                 if (x < 3) {
-                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("startField.png"), true);
+                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("emptyStart.png"), true);
                 } else {
                     if (y == 3) {
                         Heading heading = Heading.WEST;
