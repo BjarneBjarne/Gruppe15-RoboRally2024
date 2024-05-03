@@ -93,16 +93,20 @@ public class Board extends Subject {
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
                 Space space;
-                if (y == 3) {
-                    Heading heading = Heading.WEST;
-                    Image image = ImageUtils.getImageFromName("green.png");
-                    image = ImageUtils.getRotatedImageByHeading(image, heading);
-                    space = new Space(this, x, y, null, image, false);
-                    space.getActions().add(new ConveyorBelt(heading));
+                if (x < 3) {
+                    space = new Space(this, x, y, null, ImageUtils.getImageFromName("startField.png"), true);
                 } else {
-                    Image image = ImageUtils.getImageFromName("empty.png");
-                    space = new Space(this, x, y, null, image, false);
-                }
+                    if (y == 3) {
+                        Heading heading = Heading.WEST;
+                        Image image = ImageUtils.getImageFromName("green.png");
+                        image = ImageUtils.getRotatedImageByHeading(image, heading);
+                        space = new Space(this, x, y, null, image, false);
+                        space.getActions().add(new ConveyorBelt(heading));
+                    } else {
+                        Image image = ImageUtils.getImageFromName("empty.png");
+                        space = new Space(this, x, y, null, image, false);
+                    }
+                    }
                 if (spaces[x][y] == null) spaces[x][y] = space;
             }
         }
