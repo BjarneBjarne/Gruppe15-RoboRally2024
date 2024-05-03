@@ -26,6 +26,7 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -64,6 +65,7 @@ public class RoboRally extends Application {
         RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
         boardRoot = new BorderPane();
         VBox vbox = new VBox(menuBar, boardRoot);
+        vbox.setAlignment(Pos.CENTER);
         vbox.setMinWidth(MIN_APP_WIDTH);
         Scene primaryScene = new Scene(vbox);
 
