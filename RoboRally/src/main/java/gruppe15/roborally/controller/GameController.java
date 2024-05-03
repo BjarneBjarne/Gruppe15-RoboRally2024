@@ -300,9 +300,6 @@ public class GameController {
                     break;
                 case AGAIN:
                     switch (player.getLastCmd()){
-                        case AGAIN:
-                            //TODO
-                            break;
                         case DAMAGE:
                             //TODO
                             break;
@@ -322,7 +319,7 @@ public class GameController {
                     // DO NOTHING (for now)
             }
 
-            player.setLastCmd(command);
+            if(command != Command.AGAIN) player.setLastCmd(command);
 
             // After command is executed, set the next player:
             var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
