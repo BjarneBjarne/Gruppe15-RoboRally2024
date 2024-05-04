@@ -46,14 +46,20 @@ public class Space extends Subject {
     private Player player;
     private final BoardElement boardElement;
     private final Image backgroundImage;
+    private final List<Heading> walls;
 
-    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage) {
+    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, List<Heading> walls) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
         this.boardElement = boardElement;
         this.backgroundImage = backgroundImage;
+        if (walls == null) {
+            this.walls = new ArrayList<>();
+        } else {
+            this.walls = walls;
+        }
     }
 
     public Player getPlayer() {
@@ -91,6 +97,13 @@ public class Space extends Subject {
         return boardElement;
     }
 
+    public boolean getHasWall() {
+        return !walls.isEmpty();
+    }
+    public List<Heading> getWalls() {
+        return walls;
+    }
+
     /**
      * Should only be used on two spaces next to each other (not diagonally).
      * @return Returns whether there's a wall separating the two spaces.
@@ -103,33 +116,17 @@ public class Space extends Subject {
 
         Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
 
-        boolean thisHasWall;
-        List<Heading> thisWallDirections = new ArrayList<>();
-        if (this.getBoardElement() != null) {
-            thisHasWall = this.getBoardElement().getHasWall();
-            thisWallDirections = this.getBoardElement().getWallDirections();
-        } else {
-            thisHasWall = false;
-        }
-
-        boolean otherHasWall;
-        List<Heading> otherWallDirections = new ArrayList<>();
-        if (otherSpace.getBoardElement() != null) {
-            otherHasWall = otherSpace.getBoardElement().getHasWall();
-            otherWallDirections = otherSpace.getBoardElement().getWallDirections();
-        } else {
-            otherHasWall = false;
-        }
+        List<Heading> otherWallDirections = otherSpace.getWalls();
 
         switch (directionToOtherSpace) {
             case EAST:
-                return (thisHasWall && thisWallDirections.contains(EAST)) || (otherHasWall && otherWallDirections.contains(WEST));
+                return (walls.contains(EAST) || otherWallDirections.contains(WEST));
             case WEST:
-                return (thisHasWall && thisWallDirections.contains(WEST)) || (otherHasWall && otherWallDirections.contains(EAST));
+                return (walls.contains(WEST) || otherWallDirections.contains(EAST));
             case SOUTH:
-                return (thisHasWall && thisWallDirections.contains(SOUTH)) || (otherHasWall && otherWallDirections.contains(NORTH));
+                return (walls.contains(SOUTH) || otherWallDirections.contains(NORTH));
             case NORTH:
-                return (thisHasWall && thisWallDirections.contains(NORTH)) || (otherHasWall && otherWallDirections.contains(SOUTH));
+                return (walls.contains(NORTH) || otherWallDirections.contains(SOUTH));
             default:
                 return false;
         }
