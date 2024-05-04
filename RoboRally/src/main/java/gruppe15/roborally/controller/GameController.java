@@ -22,15 +22,17 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.boardelements.Antenna;
+import gruppe15.roborally.model.boardelements.BE_Antenna;
+import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
+import gruppe15.roborally.model.boardelements.BE_Laser;
 import gruppe15.roborally.model.boardelements.BoardElement;
-import gruppe15.roborally.model.boardelements.ConveyorBelt;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -41,7 +43,12 @@ import java.util.List;
  */
 public class GameController {
 
-    final public Board board;
+    public final Board board;
+    private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
+    private final int nextRegisterDelay = 250; // In milliseconds.
+    private final boolean WITH_ACTION_DELAY = true;
+    private final boolean WITH_ACTION_MESSAGE = true;
+
 
     public GameController(@NotNull Board board) {
         this.board = board;
@@ -198,22 +205,31 @@ public class GameController {
 
     // XXX: implemented in the current version
     public void executeRegisters() {
-
         board.setStepMode(true);
         continuePrograms();
     }
 
     // XXX: implemented in the current version
     private void continuePrograms() {
-        executeNextRegister();
-
-        if (board.getPhase() == Phase.ACTIVATION && !board.isStepMode()) {
-            PauseTransition pause = new PauseTransition(Duration.millis(500));
-            pause.setOnFinished(event -> {
-                // After the delay, we recursively call continuePrograms again.
-                continuePrograms();
-            });
-            pause.play();
+        if (!actionQueue.isEmpty()) {
+            // Handle the next action
+            ActionWithDelay nextAction = actionQueue.removeFirst();
+            nextAction.getAction(WITH_ACTION_MESSAGE).run();
+            Duration delay = nextAction.getDelay();
+            PauseTransition pause = new PauseTransition(delay);
+            pause.setOnFinished(event -> continuePrograms()); // Continue programs (& actions)
+            if (WITH_ACTION_DELAY) {
+                pause.play();
+            }
+        } else {
+            // When no actions remain in the queue
+            executeNextRegister();
+            if (board.getPhase() == Phase.ACTIVATION && !board.isStepMode()) {
+                // If necessary, add a delay before executing the next register
+                PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
+                pause.setOnFinished(event -> continuePrograms());
+                pause.play();
+            }
         }
     }
 
@@ -267,7 +283,7 @@ public class GameController {
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
                 BoardElement boardElement = spaces[x][y].getBoardElement();
-                if (boardElement instanceof Antenna) {
+                if (boardElement instanceof BE_Antenna) {
                     return  spaces[x][y];
                 }
             }
@@ -314,7 +330,7 @@ public class GameController {
         if (!board.getPriorityList().isEmpty()) {
             board.setCurrentPlayer(board.getPriorityList().remove(0));
         } else {
-            handleBoardElements(currentPlayer);
+            handleBoardElements();
             currentRegister++;
             if (currentRegister < Player.NO_OF_REGISTERS) {
                 makeProgramFieldsVisible(currentRegister);
@@ -330,61 +346,146 @@ public class GameController {
         }
     }
 
-    public void handleBoardElements(Player currentPlayer) {
-        // Handle board elements (including player lasers)
+
+
+
+
+
+
+
+
+
+    public void handleBoardElements() {
         Space[][] spaces = board.getSpaces();
 
         // 1. Blue conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (int x = 0; x < spaces.length; x++) {
+                for (int y = 0; y < spaces[x].length; y++) {
+                    BoardElement boardElement = spaces[x][y].getBoardElement();
+                    if (boardElement instanceof BE_ConveyorBelt) {
+                        boardElement.doAction(spaces[x][y], spaces, actionQueue);
+                    }
+                }
+            }
+        }, Duration.millis(100), "Blue conveyor belts"));
+
         // 2. Green conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (int x = 0; x < spaces.length; x++) {
+                for (int y = 0; y < spaces[x].length; y++) {
+                    BoardElement boardElement = spaces[x][y].getBoardElement();
+                    if (boardElement instanceof BE_ConveyorBelt) {
+                        boardElement.doAction(spaces[x][y], spaces, actionQueue);
+                    }
+                }
+            }
+        }, Duration.millis(100), "Green conveyor belts"));
+
+        // 3. Push panels
+        actionQueue.addLast(new ActionWithDelay(() -> {
+
+        }, Duration.millis(100), "Push panels"));
+
+        // 4. Gears
+        actionQueue.addLast(new ActionWithDelay(() -> {
+
+        }, Duration.millis(100), "Gears"));
+
+        // 5. Board lasers
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
                 BoardElement boardElement = spaces[x][y].getBoardElement();
-                if (boardElement instanceof ConveyorBelt) {
-                    boardElement.doAction(spaces[x][y], spaces);
+                if (boardElement instanceof BE_Laser) {
+                    boardElement.doAction(spaces[x][y], spaces, actionQueue);
                 }
             }
         }
-        // 3. Push panels
-        // 4. Gears
-        // 5. Board lasers
-        // 6. Robot lasters
-        EventHandler.event_PlayerShoot(board.getSpaces(), currentPlayer);
-        // 7. Energy spaces
-        // 8. Checkpoints
 
-        // After board elements have activated, continue to next currentRegister
+        // Clearing the last board laser.
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (int x = 0; x < spaces.length; x++) {
+                for (int y = 0; y < spaces[x].length; y++) {
+                    spaces[x][y].clearLasersOnSpace();
+                }
+            }
+        }, Duration.millis(0)));
+
+        // 6. Robot lasers
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+            EventHandler.event_PlayerShoot(board.getSpaces(), board.getPlayer(i), actionQueue);
+        }
+
+        // Clearing the last robots laser.
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (int x = 0; x < spaces.length; x++) {
+                for (int y = 0; y < spaces[x].length; y++) {
+                    spaces[x][y].clearLasersOnSpace();
+                }
+            }
+        }, Duration.millis(0)));
+
+        // 7. Energy spaces
+        actionQueue.addLast(new ActionWithDelay(() -> {
+
+        }, Duration.millis(100), "Energy spaces"));
+
+        // 8. Checkpoints
+        actionQueue.addLast(new ActionWithDelay(() -> {
+
+        }, Duration.millis(100), "Checkpoints"));
     }
+
+
+
+
+
+
+
+
+
+
 
     public void executeCommand(@NotNull Player player, Command command) {
         if (player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
+            // Enqueue the command into the action queue
 
-            // Call the event handler, and let it modify the command
-            command = EventHandler.event_RegisterActivate(player, command);
-
-            switch (command) {
-                case FORWARD:
-                    setPlayerVelocity(player, 1, 0);
-                    break;
-                case FAST_FORWARD:
-                    setPlayerVelocity(player, 2, 0);
-                    break;
-                case RIGHT:
-                    turnCurrentPlayer(player, 1);
-                    break;
-                case LEFT:
-                    turnCurrentPlayer(player, -1);
-                    break;
-                case OPTION_LEFT_RIGHT:
-                    break;
-                default:
-                    // DO NOTHING (for now)
-            }
-
-            board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
+            // If the action queue is empty, start executing the next action/command
+            /*if (actionQueue.isEmpty()) {
+                actionQueue.add(() -> executeSingleCommand(player, command));
+                executeNextAction(actionQueue, actionDelay);
+            }*/
         }
+    }
+
+    private void executeSingleCommand(Player player, Command command) {
+        // XXX This is a very simplistic way of dealing with some basic cards and
+        //     their execution. This should eventually be done in a more elegant way
+        //     (this concerns the way cards are modelled as well as the way they are executed).
+
+        // Call the event handler, and let it modify the command
+        command = EventHandler.event_RegisterActivate(player, command);
+
+        switch (command) {
+            case FORWARD:
+                setPlayerVelocity(player, 1, 0);
+                break;
+            case FAST_FORWARD:
+                setPlayerVelocity(player, 2, 0);
+                break;
+            case RIGHT:
+                turnCurrentPlayer(player, 1);
+                break;
+            case LEFT:
+                turnCurrentPlayer(player, -1);
+                break;
+            case OPTION_LEFT_RIGHT:
+                break;
+            default:
+                // DO NOTHING (for now)
+        }
+
+        board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
     }
 
     private void setPlayerVelocity(Player player, int fwd, int rgt) {

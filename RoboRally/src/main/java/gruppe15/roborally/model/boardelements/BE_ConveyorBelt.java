@@ -21,10 +21,13 @@
  */
 package gruppe15.roborally.model.boardelements;
 
+import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
 
 /**
  * ...
@@ -32,12 +35,12 @@ import org.jetbrains.annotations.NotNull;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class ConveyorBelt extends BoardElement {
+public class BE_ConveyorBelt extends BoardElement {
 
     private Heading heading;
 
-    public ConveyorBelt(Heading heading) {
-        super("green.png");
+    public BE_ConveyorBelt(Heading heading) {
+        super("green.png", heading);
         this.heading = heading;
     }
 
@@ -50,7 +53,7 @@ public class ConveyorBelt extends BoardElement {
     }
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Space[][] spaces) {
+    public boolean doAction(@NotNull Space space, @NotNull Space[][] spaces, LinkedList<ActionWithDelay> actionQueue) {
         Player player = space.getPlayer();
         if (player != null) {
             Space toSpace = space.getSpaceNextTo(heading, spaces);

@@ -28,7 +28,7 @@ import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.boardelements.SpawnPoint;
+import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -84,7 +84,7 @@ public class AppController implements Observer {
             for (int x = 0; x < spaces.length; x++) {
                 for (int y = 0; y < spaces[x].length; y++) {
                     Space space = spaces[x][y];
-                    if (space.getBoardElement() instanceof SpawnPoint) {
+                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
                         spawnPoints.add(space);
                     }
                 }
