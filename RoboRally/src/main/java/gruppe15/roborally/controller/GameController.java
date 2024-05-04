@@ -214,6 +214,7 @@ public class GameController {
                     if(card.command.isInteractive()){
                         System.out.println("check");
                         board.setPhase(Phase.PLAYER_INTERACTION);
+                        executeCommand(currentPlayer, command);
                         return;
                     }
 
