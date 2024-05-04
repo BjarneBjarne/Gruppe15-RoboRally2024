@@ -231,19 +231,23 @@ public class GameController {
             if(priorityList.get(i).getPriority() > priorityList.get(i+1).getPriority() )
             {
 
+
+
                 Collections.swap(priorityList,i,i+1);
 
                 i=-1;
+                }
 
-            }
 
-//Todo implement tiebreaker
+
+
         }
 
-for (int i =0;i<priorityList.size();i++){
-    System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
-
-}
+//for (int i =0;i<priorityList.size();i++){
+//    System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
+//
+//}
+        //Todo implement  real tiebreaker
 
 
         return priorityList;
