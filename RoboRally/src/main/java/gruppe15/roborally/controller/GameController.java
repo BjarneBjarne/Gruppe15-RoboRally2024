@@ -22,6 +22,7 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.boardelements.Antenna;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.boardelements.ConveyorBelt;
 import javafx.animation.PauseTransition;
@@ -29,6 +30,7 @@ import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -194,6 +196,7 @@ public class GameController {
 
     // XXX: implemented in the current version
     public void executeRegisters() {
+
         board.setStepMode(true);
         continuePrograms();
     }
@@ -210,6 +213,58 @@ public class GameController {
             });
             pause.play();
         }
+    }
+
+    public ArrayList<Player> determineAllPriority(){
+
+        Space antenna = findAntenna();
+        ArrayList<Player> priorityList = new ArrayList<>();
+        for(int i = 0;i<board.getNoOfPlayers();i++){
+            board.getPlayer(i).setPriority(determinePlayerPriority(board.getPlayer(i),antenna));
+            priorityList.add(board.getPlayer(i));
+        }
+
+        //sorting list
+        for (int i = 0;i<priorityList.size()-1;i++){
+            if(priorityList.get(i+1).getPriority() > priorityList.get(i).getPriority())
+            {
+
+                Collections.swap(priorityList,i+1,i);
+
+                i=0;
+
+            }
+
+            System.out.println("test");
+//Todo implement tiebreaker
+        }
+
+        return priorityList;
+
+    }
+
+    public Integer determinePlayerPriority(Player player,Space antenna){
+
+        int x = antenna.x - player.getSpace().x;
+        int y = antenna.y - player.getSpace().y;
+
+        return Math.abs(x) + Math.abs(y);
+    }
+    public Space findAntenna(){
+        Space[][] spaces = board.getSpaces();
+
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                BoardElement boardElement = spaces[x][y].getBoardElement();
+                if (boardElement instanceof Antenna) {
+                    return  spaces[x][y];
+                }
+            }
+        }
+        System.out.println("Err: No Priority antenna found");
+        return null;
+
+
     }
 
     // XXX: implemented in the current version
