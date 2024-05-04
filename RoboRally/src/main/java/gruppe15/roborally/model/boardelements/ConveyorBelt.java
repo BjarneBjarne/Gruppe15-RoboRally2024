@@ -37,7 +37,7 @@ public class ConveyorBelt extends BoardElement {
     private Heading heading;
 
     public ConveyorBelt(Heading heading) {
-        super("green.png", heading);
+        super("green.png");
         this.heading = heading;
     }
 
