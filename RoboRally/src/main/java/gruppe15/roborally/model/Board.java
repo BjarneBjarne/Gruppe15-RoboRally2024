@@ -80,7 +80,7 @@ public class Board extends Subject {
             // Start board spaces
             Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
             // Antenna
-            spaces[0][4] = new Space(this, 0, 4, new Antenna(), backgroundStart);
+            spaces[0][4] = new Space(this, 0, 4, new Antenna(), backgroundStart, null);
             // SpawnPoint points
             Point2D[] startFieldPoints = {
                     new Point2D(1,1),
@@ -93,7 +93,7 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, new SpawnPoint(), backgroundStart);
+                spaces[x][y] = new Space(this, x, y, new SpawnPoint(), backgroundStart, null);
             }
             // Fill the rest with empty spaces
             for (int x = 0; x < 3; x++) {
@@ -101,7 +101,7 @@ public class Board extends Subject {
                     if (spaces[x][y] != null) {
                         continue;
                     }
-                    spaces[x][y] = new Space(this, x, y, null, backgroundStart);
+                    spaces[x][y] = new Space(this, x, y, null, backgroundStart, null);
                 }
             }
 
@@ -110,7 +110,7 @@ public class Board extends Subject {
             Image background = ImageUtils.getImageFromName("empty.png");
             // Conveyor belts
             for (int x = 3; x < width; x++) {
-                spaces[x][3] = new Space(this, x, 3, new ConveyorBelt(Heading.WEST), background);
+                spaces[x][3] = new Space(this, x, 3, new ConveyorBelt(Heading.WEST), background, null);
             }
             // Fill the rest of the board with empty spaces
             for (int x = 3; x < width; x++) {
@@ -118,7 +118,7 @@ public class Board extends Subject {
                     if (spaces[x][y] != null) {
                         continue;
                     }
-                    spaces[x][y] = new Space(this, x, y, null, background);
+                    spaces[x][y] = new Space(this, x, y, null, background, null);
                 }
             }
         }
