@@ -22,6 +22,7 @@
 package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import javafx.scene.image.ImageView;
@@ -66,6 +67,10 @@ public class SpaceView extends StackPane implements ViewObserver {
             boardElementImageView.setFitHeight(SPACE_HEIGHT);
             boardElementImageView.setImage(space.getBoardElement().getImage());
             this.getChildren().add(boardElementImageView);
+        }
+
+        for (Heading wall : space.getWalls()) {
+            
         }
 
         /*if ((space.x + space.y) % 2 == 0) {
