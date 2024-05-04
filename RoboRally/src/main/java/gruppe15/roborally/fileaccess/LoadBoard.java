@@ -35,6 +35,7 @@ import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BoardElement;
 
 import java.io.*;
+import java.util.Scanner;
 
 /**
  * ...
@@ -54,12 +55,12 @@ public class LoadBoard {
 
         ClassLoader classLoader = LoadBoard.class.getClassLoader();
         String filename = "RoboRally/src/main/resources/gruppe15/roborally/saveGames/" + boardname + "." + JSON_EXT;
-        InputStream inputStream = new ByteArrayInputStream(filename.getBytes());
+        // InputStream inputStream = new ByteArrayInputStream(filename.getBytes());
         //InputStream inputStream = classLoader.getResourceAsStream(BOARDSFOLDER + "/" + boardname + "." + JSON_EXT);
-        if (inputStream == null) {
-            // TODO these constants should be defined somewhere
-            return null;
-        }
+        // if (inputStream == null) {
+        //     // TODO these constants should be defined somewhere
+        //     return null;
+        // }
 
 		// In simple cases, we can create a Gson object with new Gson():
         GsonBuilder simpleBuilder = new GsonBuilder().
@@ -69,11 +70,19 @@ public class LoadBoard {
 
 		Board result;
 		// FileReader fileReader = null;
-        JsonReader reader = null;
+        // JsonReader reader = null;
 		try {
 			// fileReader = new FileReader(filename);
-			reader = gson.newJsonReader(new InputStreamReader(inputStream));
-			BoardTemplate template = gson.fromJson(reader, BoardTemplate.class);
+			// reader = gson.newJsonReader(new InputStreamReader(inputStream));
+			// BoardTemplate template = gson.fromJson(reader, BoardTemplate.class);
+            File file = new File(filename);
+            Scanner scanner = new Scanner(file);
+            String testJson = "";
+            while (scanner.hasNextLine()) {
+                testJson += scanner.nextLine();
+            }
+
+            BoardTemplate template = gson.fromJson(testJson, BoardTemplate.class);
 
 			result = new Board(template.width, template.height);
 			for (SpaceTemplate spaceTemplate: template.spaces) {
@@ -83,20 +92,21 @@ public class LoadBoard {
                     space.getWalls().addAll(spaceTemplate.walls);
                 }
             }
-			reader.close();
+            scanner.close();
+			// reader.close();
 			return result;
 		} catch (IOException e1) {
-            if (reader != null) {
-                try {
-                    reader.close();
-                    inputStream = null;
-                } catch (IOException e2) {}
-            }
-            if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e2) {}
-			}
+            // if (reader != null) {
+            //     try {
+            //         reader.close();
+            //         inputStream = null;
+            //     } catch (IOException e2) {}
+            // }
+            // if (inputStream != null) {
+			// 	try {
+			// 		inputStream.close();
+			// 	} catch (IOException e2) {}
+			// }
 		}
 		return null;
     }
