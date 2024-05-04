@@ -8,6 +8,7 @@ public class Antenna extends BoardElement {
         super("antenna.png");
     }
 
+
     @Override
     public boolean doAction(@NotNull Space space, @NotNull Space[][] spaces) {
         return false;
