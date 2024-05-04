@@ -125,7 +125,7 @@ public class AppController implements Observer {
 
     public void loadGame() {
         Board newBoard = LoadBoard.loadBoard("First_test");
-        System.out.println(newBoard.getCurrentPlayer().getName());
+        System.out.println(newBoard.width);
         if (gameController == null) {
             newGame();
         }
