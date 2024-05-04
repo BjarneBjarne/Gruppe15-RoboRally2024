@@ -25,6 +25,8 @@ import gruppe15.observer.Subject;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.boardelements.BE_EnergySpace;
+import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -49,6 +51,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     public final static int SPACE_WIDTH = 50;  // 60; // 75;
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
+    private final ImageView energyCubeImageView = new ImageView();
     private final List<ImageView> laserImageViews = new ArrayList<>();
     private final List<ImageView> wallImageViews = new ArrayList<>();
 
@@ -69,11 +72,18 @@ public class SpaceView extends StackPane implements ViewObserver {
         backgroundImageView.setImage(space.getImage());
         this.getChildren().add(backgroundImageView);
 
-        if (space.getBoardElement() != null) {
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
             boardElementImageView.setFitWidth(SPACE_WIDTH);
             boardElementImageView.setFitHeight(SPACE_HEIGHT);
-            boardElementImageView.setImage(space.getBoardElement().getImage());
+            boardElementImageView.setImage(boardElement.getImage());
             this.getChildren().add(boardElementImageView);
+
+            if (boardElement instanceof BE_EnergySpace) {
+                energyCubeImageView.setFitWidth(SPACE_WIDTH);
+                energyCubeImageView.setFitHeight(SPACE_HEIGHT);
+                energyCubeImageView.setImage(ImageUtils.getImageFromName("energyCube.png"));
+            }
         }
 
         Image wallImage = ImageUtils.getImageFromName("wall.png");
@@ -110,8 +120,16 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(laserImageView);
         }
 
-        if (space.getBoardElement() != null) {
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
             this.getChildren().add(boardElementImageView);
+
+            if (boardElement instanceof BE_EnergySpace) {
+                BE_EnergySpace energySpace = (BE_EnergySpace)boardElement;
+                if (energySpace.getHasEnergyCube()) {
+                    this.getChildren().add(energyCubeImageView);
+                }
+            }
         }
         for (ImageView wall : wallImageViews) {
             this.getChildren().add(wall);

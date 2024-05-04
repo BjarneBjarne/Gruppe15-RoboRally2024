@@ -10,16 +10,17 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BE_Laser extends BoardElement {
+public class BE_BoardLaser extends BoardElement {
     private final Heading direction;
-    public BE_Laser(Heading direction) {
+    public BE_BoardLaser(Heading direction) {
         super("laserStart.png", direction);
         this.direction = direction;
     }
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Space[][] spaces, LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
         actionQueue.addLast(new ActionWithDelay(() -> {
+            Space[][] spaces = board.getSpaces();
             // Clearing lasers in between board lasers
             for (int x = 0; x < spaces.length; x++) {
                 for (int y = 0; y < spaces[x].length; y++) {

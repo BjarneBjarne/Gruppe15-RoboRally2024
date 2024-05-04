@@ -24,7 +24,7 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_Antenna;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
-import gruppe15.roborally.model.boardelements.BE_Laser;
+import gruppe15.roborally.model.boardelements.BE_BoardLaser;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
@@ -364,7 +364,7 @@ public class GameController {
                 for (int y = 0; y < spaces[x].length; y++) {
                     BoardElement boardElement = spaces[x][y].getBoardElement();
                     if (boardElement instanceof BE_ConveyorBelt) {
-                        boardElement.doAction(spaces[x][y], spaces, actionQueue);
+                        boardElement.doAction(spaces[x][y], board, actionQueue);
                     }
                 }
             }
@@ -376,7 +376,7 @@ public class GameController {
                 for (int y = 0; y < spaces[x].length; y++) {
                     BoardElement boardElement = spaces[x][y].getBoardElement();
                     if (boardElement instanceof BE_ConveyorBelt) {
-                        boardElement.doAction(spaces[x][y], spaces, actionQueue);
+                        boardElement.doAction(spaces[x][y], board, actionQueue);
                     }
                 }
             }
@@ -396,8 +396,8 @@ public class GameController {
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
                 BoardElement boardElement = spaces[x][y].getBoardElement();
-                if (boardElement instanceof BE_Laser) {
-                    boardElement.doAction(spaces[x][y], spaces, actionQueue);
+                if (boardElement instanceof BE_BoardLaser) {
+                    boardElement.doAction(spaces[x][y], board, actionQueue);
                 }
             }
         }
