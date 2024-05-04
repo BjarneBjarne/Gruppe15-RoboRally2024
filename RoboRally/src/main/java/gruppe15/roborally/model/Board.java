@@ -22,9 +22,9 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.boardelements.Antenna;
-import gruppe15.roborally.model.boardelements.ConveyorBelt;
-import gruppe15.roborally.model.boardelements.SpawnPoint;
+import gruppe15.roborally.model.boardelements.BE_Antenna;
+import gruppe15.roborally.model.boardelements.BE_Laser;
+import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.Point2D;
@@ -34,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gruppe15.roborally.model.Heading.*;
+import static gruppe15.roborally.model.Heading.WEST;
 import static gruppe15.roborally.model.Phase.INITIALISATION;
 
 /**
@@ -69,7 +71,6 @@ public class Board extends Subject {
     private ArrayList<Player> priorityList = new ArrayList<>();
 
 
-
     public Board(int width, int height, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
@@ -80,12 +81,9 @@ public class Board extends Subject {
         if (boardName.equals("defaultboard")) {
 
         } else if (boardName.equals("dizzy_highway")) {
-
-            // Start board spaces
-            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
-            // Antenna
-            spaces[0][4] = new Space(this, 0, 4, new Antenna(), backgroundStart, null);
-            // SpawnPoint points
+            // BE_Antenna
+            spaces[0][4] = new Space(this, 0, 4, new BE_Antenna());
+            // BE_SpawnPoint points
             Point2D[] startFieldPoints = {
                     new Point2D(1,1),
                     new Point2D(0, 3),
@@ -97,32 +95,60 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, new SpawnPoint(), backgroundStart, null);
-            }
-            // Fill the rest with empty spaces
-            for (int x = 0; x < 3; x++) {
-                for(int y = 0; y < height; y++) {
-                    if (spaces[x][y] != null) {
-                        continue;
-                    }
-                    spaces[x][y] = new Space(this, x, y, null, backgroundStart, null);
-                }
+                spaces[x][y] = new Space(this, x, y, new BE_SpawnPoint());
             }
 
-
-            // Main board
-            Image background = ImageUtils.getImageFromName("empty.png");
             // Conveyor belts
             for (int x = 3; x < width; x++) {
-                spaces[x][3] = new Space(this, x, 3, new ConveyorBelt(Heading.WEST), background, null);
+                //spaces[x][3] = new Space(this, x, 3, new BE_ConveyorBelt(Heading.WEST), background, null);
             }
-            // Fill the rest of the board with empty spaces
-            for (int x = 3; x < width; x++) {
+
+            // Board lasers
+            spaces[6][4] = new Space(this, 6, 4, new BE_Laser(NORTH));
+            spaces[9][5] = new Space(this, 9, 5, new BE_Laser(SOUTH));
+            spaces[8][3] = new Space(this, 8, 3, new BE_Laser(EAST));
+            spaces[7][6] = new Space(this, 7, 6, new BE_Laser(WEST));
+
+            // Walls
+            //Heading[][] walls = new Heading[this.width][this.height];
+            List<Heading>[][] walls = new ArrayList[this.width][this.height];
+            for (int x = 0; x < this.width; x++) {
+                for (int y = 0; y < this.height; y++) {
+                    walls[x][y] = new ArrayList<>();
+                }
+            }
+            walls[1][2].add(NORTH);
+            walls[6][3].add(NORTH);
+            walls[9][5].add(NORTH);
+            walls[1][7].add(SOUTH);
+            walls[6][4].add(SOUTH);
+            walls[9][6].add(SOUTH);
+            walls[2][4].add(EAST);
+            walls[2][5].add(EAST);
+            walls[7][6].add(EAST);
+            walls[9][3].add(EAST);
+            walls[6][6].add(WEST);
+            walls[8][3].add(WEST);
+
+            // Fill the rest of the spaces with empty spaces and set background images
+            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
+            Image background = ImageUtils.getImageFromName("empty.png");
+            for (int x = 0; x < width; x++) {
                 for(int y = 0; y < height; y++) {
-                    if (spaces[x][y] != null) {
-                        continue;
+                    // Add empty space
+                    if (spaces[x][y] == null) {
+                        spaces[x][y] = new Space(this, x, y, null);
                     }
-                    spaces[x][y] = new Space(this, x, y, null, background, null);
+                    // Set background image
+                    if (x < 3) {
+                        spaces[x][y].setBackgroundImage(backgroundStart);
+                    } else {
+                        spaces[x][y].setBackgroundImage(background);
+                    }
+                    // Add walls if any
+                    for (Heading wall : walls[x][y]) {
+                        spaces[x][y].addWall(wall);
+                    }
                 }
             }
         }
@@ -320,6 +346,4 @@ public class Board extends Subject {
         //      state of the board (game) contains the number of moves, which then can
         //      be used to extend the status message
     }
-
-
 }

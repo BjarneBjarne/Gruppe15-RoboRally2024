@@ -45,21 +45,27 @@ public class Space extends Subject {
 
     private Player player;
     private final BoardElement boardElement;
-    private final Image backgroundImage;
-    private final List<Heading> walls;
+    private Image backgroundImage;
+    private final List<Heading> walls = new ArrayList<>();
+    private final List<Heading> lasersOnSpace = new ArrayList<>();
 
-    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, List<Heading> walls) {
+    public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
         this.boardElement = boardElement;
-        this.backgroundImage = backgroundImage;
-        if (walls == null) {
-            this.walls = new ArrayList<>();
-        } else {
-            this.walls = walls;
+        if (walls != null) {
+            this.walls.addAll(walls);
         }
+    }
+
+    public Space(Board board, int x, int y, BoardElement boardElement) {
+        this(board, x, y, boardElement, null);
+    }
+
+    public void setBackgroundImage(Image backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     public Player getPlayer() {
@@ -97,11 +103,30 @@ public class Space extends Subject {
         return boardElement;
     }
 
-    public boolean getHasWall() {
+    public boolean hasWall() {
         return !walls.isEmpty();
     }
     public List<Heading> getWalls() {
         return walls;
+    }
+    public void addWall(Heading wall) {
+        this.walls.add(wall);
+    }
+    public void addWalls(List<Heading> walls) {
+        this.walls.addAll(walls);
+    }
+
+    // For SpaceView, so it can update the laser image on this space.
+    public void addLaserOnSpace(Heading laser) {
+        this.lasersOnSpace.add(laser);
+        notifyChange();
+    }
+    public void clearLasersOnSpace() {
+        this.lasersOnSpace.clear();
+        notifyChange();
+    }
+    public List<Heading> getLasersOnSpace() {
+        return this.lasersOnSpace;
     }
 
     /**
