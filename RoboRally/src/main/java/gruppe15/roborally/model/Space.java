@@ -44,8 +44,8 @@ public class Space extends Subject {
     public final int y;
 
     private Player player;
-    private final BoardElement boardElement;
-    private final Image backgroundImage;
+    private BoardElement boardElement;
+    transient private final Image backgroundImage;
     private final List<Heading> walls;
 
     public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, List<Heading> walls) {
@@ -95,6 +95,14 @@ public class Space extends Subject {
 
     public BoardElement getBoardElement() {
         return boardElement;
+    }
+
+    public void setBoardElement(BoardElement boardElement) {
+        if (this.boardElement != boardElement) {
+            // this should actually not happen
+            this.boardElement = boardElement;
+            notifyChange();
+        }
     }
 
     public boolean getHasWall() {
