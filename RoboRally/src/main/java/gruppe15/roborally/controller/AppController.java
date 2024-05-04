@@ -36,10 +36,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * ...
@@ -99,6 +96,7 @@ public class AppController implements Observer {
                 board.addPlayer(player);
 
                 // Set player spawn
+                Collections.shuffle(spawnPoints);
                 if (spawnPoints.isEmpty()) {
                     player.setSpace(board.getSpace(i % board.width, i));
                 } else {
