@@ -66,6 +66,8 @@ public class Board extends Subject {
 
     private boolean stepMode;
 
+    private ArrayList<Player> priorityList = new ArrayList<>();
+
 
 
     public Board(int width, int height, @NotNull String boardName) {
@@ -177,6 +179,11 @@ public class Board extends Subject {
         } else {
             return null;
         }
+    }
+
+
+    public ArrayList<Player> getPriorityList() {
+       return priorityList;
     }
 
     public Player getCurrentPlayer() {

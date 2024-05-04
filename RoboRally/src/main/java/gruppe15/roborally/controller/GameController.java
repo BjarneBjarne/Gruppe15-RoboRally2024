@@ -162,7 +162,9 @@ public class GameController {
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
-        board.setCurrentPlayer(board.getPlayer(0));
+        board.getPriorityList().clear();
+        board.getPriorityList().addAll(determineAllPriority());
+        board.setCurrentPlayer(board.getPriorityList().remove(0));
         board.setCurrentRegister(0);
     }
 
@@ -226,18 +228,23 @@ public class GameController {
 
         //sorting list
         for (int i = 0;i<priorityList.size()-1;i++){
-            if(priorityList.get(i+1).getPriority() > priorityList.get(i).getPriority())
+            if(priorityList.get(i).getPriority() > priorityList.get(i+1).getPriority() )
             {
 
-                Collections.swap(priorityList,i+1,i);
+                Collections.swap(priorityList,i,i+1);
 
-                i=0;
+                i=-1;
 
             }
 
-            System.out.println("test");
 //Todo implement tiebreaker
         }
+
+for (int i =0;i<priorityList.size();i++){
+    System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
+
+}
+
 
         return priorityList;
 
@@ -299,16 +306,20 @@ public class GameController {
 
     public void changeToNextRegisterAndHandleBoardElements(Player currentPlayer,int currentRegister){
 
-        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-        if (nextPlayerNumber < board.getNoOfPlayers()) {
-            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+
+        if (!board.getPriorityList().isEmpty()) {
+            board.setCurrentPlayer(board.getPriorityList().remove(0));
         } else {
             handleBoardElements(currentPlayer);
             currentRegister++;
             if (currentRegister < Player.NO_OF_REGISTERS) {
                 makeProgramFieldsVisible(currentRegister);
                 board.setCurrentRegister(currentRegister);
-                board.setCurrentPlayer(board.getPlayer(0));
+                board.getPriorityList().clear();
+                board.getPriorityList().addAll(determineAllPriority());
+
+                board.setCurrentPlayer(board.getPriorityList().remove(0));
+
             } else {
                 startProgrammingPhase();
             }
