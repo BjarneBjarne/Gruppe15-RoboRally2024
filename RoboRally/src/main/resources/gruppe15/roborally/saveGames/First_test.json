@@ -1,0 +1,179 @@
+{
+  "width": 13,
+  "height": 10,
+  "spaces": [
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.SpawnPoint",
+        "INSTANCE": {}
+      },
+      "x": 0,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.Antenna",
+        "INSTANCE": {}
+      },
+      "x": 0,
+      "y": 4
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.SpawnPoint",
+        "INSTANCE": {}
+      },
+      "x": 0,
+      "y": 6
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.SpawnPoint",
+        "INSTANCE": {}
+      },
+      "x": 1,
+      "y": 1
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.SpawnPoint",
+        "INSTANCE": {}
+      },
+      "x": 1,
+      "y": 4
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.SpawnPoint",
+        "INSTANCE": {}
+      },
+      "x": 1,
+      "y": 5
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.SpawnPoint",
+        "INSTANCE": {}
+      },
+      "x": 1,
+      "y": 8
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 3,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 4,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 5,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 6,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 7,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 8,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 9,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 10,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 11,
+      "y": 3
+    },
+    {
+      "walls": [],
+      "boardElement": {
+        "CLASSNAME": "gruppe15.roborally.model.boardelements.ConveyorBelt",
+        "INSTANCE": {
+          "heading": "WEST"
+        }
+      },
+      "x": 12,
+      "y": 3
+    }
+  ]
+}

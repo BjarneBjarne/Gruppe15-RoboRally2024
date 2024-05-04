@@ -24,6 +24,7 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.fileaccess.LoadBoard;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
@@ -119,12 +120,12 @@ public class AppController implements Observer {
     }
 
     public void saveGame() {
-        // XXX needs to be implemented eventually
+        LoadBoard.saveBoard(gameController.board, "First_test");
     }
 
     public void loadGame() {
-        // XXX needs to be implemented eventually
-        // for now, we just create a new game
+        Board newBoard = LoadBoard.loadBoard("First_test");
+        System.out.println(newBoard.getCurrentPlayer().getName());
         if (gameController == null) {
             newGame();
         }
