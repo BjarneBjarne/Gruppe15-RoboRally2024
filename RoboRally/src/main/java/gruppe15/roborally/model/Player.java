@@ -51,6 +51,8 @@ public class Player extends Subject {
 
     private final CommandCardField[] program;
     private final CommandCardField[] cards;
+
+    private  int priority = 0;
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
     public Player(@NotNull Board board, String color, @NotNull String name) {
@@ -84,6 +86,10 @@ public class Player extends Subject {
             }
         }
     }
+
+    public int getPriority() {return priority;}
+    public void setPriority(int priority) {this.priority=priority;}
+
 
     public String getColor() {
         return color;
