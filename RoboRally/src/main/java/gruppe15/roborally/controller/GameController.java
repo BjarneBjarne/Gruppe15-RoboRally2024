@@ -326,7 +326,6 @@ public class GameController {
 
     public void changeToNextRegisterAndHandleBoardElements(Player currentPlayer,int currentRegister){
 
-
         if (!board.getPriorityList().isEmpty()) {
             board.setCurrentPlayer(board.getPriorityList().remove(0));
         } else {
@@ -345,15 +344,6 @@ public class GameController {
             }
         }
     }
-
-
-
-
-
-
-
-
-
 
     public void handleBoardElements() {
         Space[][] spaces = board.getSpaces();
@@ -436,56 +426,40 @@ public class GameController {
         }, Duration.millis(100), "Checkpoints"));
     }
 
-
-
-
-
-
-
-
-
-
-
     public void executeCommand(@NotNull Player player, Command command) {
         if (player.board == board && command != null) {
-            // Enqueue the command into the action queue
+            // XXX This is a very simplistic way of dealing with some basic cards and
+            //     their execution. This should eventually be done in a more elegant way
+            //     (this concerns the way cards are modelled as well as the way they are executed).
 
-            // If the action queue is empty, start executing the next action/command
-            /*if (actionQueue.isEmpty()) {
-                actionQueue.add(() -> executeSingleCommand(player, command));
-                executeNextAction(actionQueue, actionDelay);
-            }*/
+            // Call the event handler, and let it modify the command
+            command = EventHandler.event_RegisterActivate(player, command);
+            Command finalCommand = command;
+
+            actionQueue.addLast(new ActionWithDelay(() -> {
+                switch (finalCommand) {
+                    case FORWARD:
+                        setPlayerVelocity(player, 1, 0);
+                        break;
+                    case FAST_FORWARD:
+                        setPlayerVelocity(player, 2, 0);
+                        break;
+                    case RIGHT:
+                        turnCurrentPlayer(player, 1);
+                        break;
+                    case LEFT:
+                        turnCurrentPlayer(player, -1);
+                        break;
+                    case OPTION_LEFT_RIGHT:
+                        break;
+                    default:
+                        // DO NOTHING (for now)
+                }
+
+                board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
+            }, Duration.millis(100), "Player movement"));
+
         }
-    }
-
-    private void executeSingleCommand(Player player, Command command) {
-        // XXX This is a very simplistic way of dealing with some basic cards and
-        //     their execution. This should eventually be done in a more elegant way
-        //     (this concerns the way cards are modelled as well as the way they are executed).
-
-        // Call the event handler, and let it modify the command
-        command = EventHandler.event_RegisterActivate(player, command);
-
-        switch (command) {
-            case FORWARD:
-                setPlayerVelocity(player, 1, 0);
-                break;
-            case FAST_FORWARD:
-                setPlayerVelocity(player, 2, 0);
-                break;
-            case RIGHT:
-                turnCurrentPlayer(player, 1);
-                break;
-            case LEFT:
-                turnCurrentPlayer(player, -1);
-                break;
-            case OPTION_LEFT_RIGHT:
-                break;
-            default:
-                // DO NOTHING (for now)
-        }
-
-        board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
     }
 
     private void setPlayerVelocity(Player player, int fwd, int rgt) {
