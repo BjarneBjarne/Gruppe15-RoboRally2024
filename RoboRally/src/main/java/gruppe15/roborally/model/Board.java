@@ -22,9 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.boardelements.BE_Antenna;
-import gruppe15.roborally.model.boardelements.BE_Laser;
-import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
+import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.Point2D;
@@ -82,7 +80,7 @@ public class Board extends Subject {
 
         } else if (boardName.equals("dizzy_highway")) {
             // BE_Antenna
-            spaces[0][4] = new Space(this, 0, 4, new BE_Antenna());
+            addSpace(0, 4, new BE_Antenna(), spaces);
             // BE_SpawnPoint points
             Point2D[] startFieldPoints = {
                     new Point2D(1,1),
@@ -95,19 +93,43 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, new BE_SpawnPoint());
+                addSpace(x, y, new BE_SpawnPoint(), spaces);
             }
+
+            // Energy spaces
+            addSpace(12, 0, new BE_EnergySpace(), spaces);
+            addSpace(5, 2, new BE_EnergySpace(), spaces);
+            addSpace(8, 4, new BE_EnergySpace(), spaces);
+            addSpace(7, 5, new BE_EnergySpace(), spaces);
+            addSpace(10, 7, new BE_EnergySpace(), spaces);
+            addSpace(3, 9, new BE_EnergySpace(), spaces);
 
             // Conveyor belts
-            for (int x = 3; x < width; x++) {
-                //spaces[x][3] = new Space(this, x, 3, new BE_ConveyorBelt(Heading.WEST), background, null);
+            addSpace(2, 0, new BE_ConveyorBelt(EAST, 1), spaces);
+            addSpace(2, 9, new BE_ConveyorBelt(EAST, 1), spaces);
+
+            for (int i = 3; i <= 10; i++) {
+                addSpace(i, 8, new BE_ConveyorBelt(EAST, 2), spaces);
             }
+            for (int i = 2; i <= 9; i++) {
+                addSpace(11, i, new BE_ConveyorBelt(NORTH, 2), spaces);
+            }
+            for (int i = 5; i <= 12; i++) {
+                addSpace(i, 1, new BE_ConveyorBelt(WEST, 2), spaces);
+            }
+            for (int i = 0; i <= 7; i++) {
+                addSpace(4, i, new BE_ConveyorBelt(SOUTH, 2), spaces);
+            }
+            addSpace(3, 7, new BE_ConveyorBelt(EAST, 2), spaces);
+            addSpace(10, 9, new BE_ConveyorBelt(NORTH, 2), spaces);
+            addSpace(12, 2, new BE_ConveyorBelt(WEST, 2), spaces);
+            addSpace(5, 0, new BE_ConveyorBelt(SOUTH, 2), spaces);
 
             // Board lasers
-            spaces[6][4] = new Space(this, 6, 4, new BE_Laser(NORTH));
-            spaces[9][5] = new Space(this, 9, 5, new BE_Laser(SOUTH));
-            spaces[8][3] = new Space(this, 8, 3, new BE_Laser(EAST));
-            spaces[7][6] = new Space(this, 7, 6, new BE_Laser(WEST));
+            addSpace(6, 4, new BE_BoardLaser(NORTH), spaces);
+            addSpace(9, 5, new BE_BoardLaser(SOUTH), spaces);
+            addSpace(8, 3, new BE_BoardLaser(EAST), spaces);
+            addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
 
             // Walls
             //Heading[][] walls = new Heading[this.width][this.height];
@@ -137,7 +159,7 @@ public class Board extends Subject {
                 for(int y = 0; y < height; y++) {
                     // Add empty space
                     if (spaces[x][y] == null) {
-                        spaces[x][y] = new Space(this, x, y, null);
+                        addSpace(x, y, null, spaces);
                     }
                     // Set background image
                     if (x < 3) {
@@ -151,9 +173,20 @@ public class Board extends Subject {
                     }
                 }
             }
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt) {
+                        spaces[x][y].getBoardElement().calculateImage(x, y, spaces);
+                    }
+                }
+            }
         }
 
         this.stepMode = false;
+    }
+
+    private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
+        spaces[x][y] = new Space(this, x, y, boardElement);
     }
 
     public Board(int width, int height) {
