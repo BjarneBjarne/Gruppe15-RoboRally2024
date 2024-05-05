@@ -29,8 +29,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static gruppe15.roborally.model.Heading.*;
 import static gruppe15.roborally.model.Heading.WEST;
@@ -66,7 +65,7 @@ public class Board extends Subject {
 
     private boolean stepMode;
 
-    private ArrayList<Player> priorityList = new ArrayList<>();
+    private final Queue<Player> priorityList = new ArrayDeque<>();
 
 
     public Board(int width, int height, @NotNull String boardName) {
@@ -240,8 +239,7 @@ public class Board extends Subject {
         }
     }
 
-
-    public ArrayList<Player> getPriorityList() {
+    public Queue<Player> getPriorityList() {
        return priorityList;
     }
 
@@ -252,8 +250,8 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
-            notifyChange();
         }
+        notifyChange();
     }
 
     List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
@@ -310,7 +308,6 @@ public class Board extends Subject {
         }
 
     }
-
 
     //A public function to get the movecounter
     public int getMoveCounter(){
@@ -378,5 +375,46 @@ public class Board extends Subject {
         // TODO Task1: add a counter along with a getter and a setter, so the
         //      state of the board (game) contains the number of moves, which then can
         //      be used to extend the status message
+    }
+
+    public void updatePriorityList() {
+        priorityList.clear();
+        Space antenna = findAntenna();
+        ArrayList<Player> newPriorityList = new ArrayList<>();
+        for(int i = 0; i < getNoOfPlayers(); i++){
+            Player player = getPlayer(i);
+            player.setPriority(determinePlayerPriority(player, antenna));
+            newPriorityList.add(player);
+        }
+        //sorting list
+        for (int i = 0; i < newPriorityList.size() - 1; i++){
+            if(newPriorityList.get(i).getPriority() > newPriorityList.get(i + 1).getPriority()) {
+                Collections.swap(newPriorityList, i, i + 1);
+                i = -1;
+            }
+        }
+        /*for (int i =0;i<priorityList.size();i++){
+            System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
+        }*/
+        //TODO: Implement real tiebreaker
+        priorityList.addAll(newPriorityList);
+    }
+
+    public Integer determinePlayerPriority(Player player,Space antenna) {
+        int x = antenna.x - player.getSpace().x;
+        int y = antenna.y - player.getSpace().y;
+        return Math.abs(x) + Math.abs(y);
+    }
+    public Space findAntenna() {
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                BoardElement boardElement = spaces[x][y].getBoardElement();
+                if (boardElement instanceof BE_Antenna) {
+                    return  spaces[x][y];
+                }
+            }
+        }
+        System.out.println("Err: No Priority antenna found");
+        return null;
     }
 }
