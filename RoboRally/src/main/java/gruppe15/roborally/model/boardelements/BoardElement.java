@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * TODO: Implement BoardElement class
  */
 public abstract class BoardElement {
-    transient private final Image image;
+    transient private Image image;
 
     public BoardElement(Image image, Heading direction) {
         this.image = ImageUtils.getRotatedImageByHeading(image, direction);
@@ -27,5 +27,9 @@ public abstract class BoardElement {
 
     public Image getImage() {
         return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

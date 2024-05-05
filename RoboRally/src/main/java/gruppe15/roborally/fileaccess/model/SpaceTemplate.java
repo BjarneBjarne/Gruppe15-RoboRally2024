@@ -37,7 +37,9 @@ import gruppe15.roborally.model.boardelements.BoardElement;
 public class SpaceTemplate {
 
     public List<Heading> walls = new ArrayList<>();
-    public BoardElement boardElement; 
+    public BoardElement boardElement;
+    public String elementImage;
+    public String backgroundImage; 
     //public List<FieldAction> actions = new ArrayList<>();
 
     public int x;
