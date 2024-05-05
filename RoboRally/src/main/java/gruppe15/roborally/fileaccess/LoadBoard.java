@@ -28,11 +28,14 @@ import com.google.gson.stream.JsonWriter;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.fileaccess.model.BoardTemplate;
+import gruppe15.roborally.fileaccess.model.PlayerTemplate;
 import gruppe15.roborally.fileaccess.model.SpaceTemplate;
 // import gruppe15.roborally.controller.FieldAction;
 import gruppe15.roborally.model.Board;
+import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.utils.ImageUtils;
 
 import java.io.*;
 import java.util.Scanner;
@@ -89,7 +92,11 @@ public class LoadBoard {
 			    Space space = result.getSpace(spaceTemplate.x, spaceTemplate.y);
 			    if (space != null) {
                     space.setBoardElement(spaceTemplate.boardElement);
+                    space.setImage(ImageUtils.base64ToImage(spaceTemplate.backgroundImage));
                     space.getWalls().addAll(spaceTemplate.walls);
+                    if (spaceTemplate.elementImage != null) {
+                        space.getBoardElement().setImage(ImageUtils.base64ToImage(spaceTemplate.elementImage));
+                    }
                 }
             }
             scanner.close();
@@ -111,10 +118,44 @@ public class LoadBoard {
 		return null;
     }
 
+    private static PlayerTemplate savePlayer(Player player){
+        PlayerTemplate playerTemplate = new PlayerTemplate();
+        playerTemplate.name = player.getName();
+        playerTemplate.color = player.getColor();
+        playerTemplate.priority = player.getPriority();
+        playerTemplate.program = player.getProgram();
+        playerTemplate.cards = player.getCards();
+        playerTemplate.space = player.getSpace();
+        return playerTemplate;
+    }
+
+    private static void loadPlayer(PlayerTemplate playerTemplate, Player player, Board board){
+        player.setName(playerTemplate.name);
+        player.setColor(playerTemplate.color);
+        player.setPriority(playerTemplate.priority);
+        for(int i = 0; i < playerTemplate.program.length; i++){
+            player.getProgramField(i).setCard(playerTemplate.program[i].getCard());
+            player.getProgramField(i).setVisible(playerTemplate.program[i].isVisible());
+        }
+        for(int i = 0; i < playerTemplate.cards.length; i++){
+            player.getCardField(i).setCard(playerTemplate.cards[i].getCard());
+            player.getCardField(i).setVisible(playerTemplate.cards[i].isVisible());
+        }
+        int x = playerTemplate.space.x;
+        int y = playerTemplate.space.y;
+        player.setSpace(board.getSpace(x, y));
+        board.getSpace(x, y).setPlayer(player);
+    }
+
     public static void saveBoard(Board board, String name) {
         BoardTemplate template = new BoardTemplate();
         template.width = board.width;
         template.height = board.height;
+        template.players = new PlayerTemplate[board.getPlayers().size()];
+        for(int i = 0; i < board.getPlayers().size(); i++){
+            template.players[i] = savePlayer(board.getPlayers().get(i));
+        };
+        template.currentPlayer = savePlayer(board.getCurrentPlayer());
 
         for (int i=0; i<board.width; i++) {
             for (int j=0; j<board.height; j++) {
@@ -123,9 +164,12 @@ public class LoadBoard {
                     SpaceTemplate spaceTemplate = new SpaceTemplate();
                     spaceTemplate.x = space.x;
                     spaceTemplate.y = space.y;
-                    //spaceTemplate.actions.addAll(space.getActions());
                     spaceTemplate.boardElement = space.getBoardElement();
                     spaceTemplate.walls.addAll(space.getWalls());
+                    spaceTemplate.backgroundImage = ImageUtils.imageToBase64(space.getImage());
+                    System.out.println(spaceTemplate.backgroundImage);
+                    if (space.getBoardElement() != null)
+                        spaceTemplate.elementImage = ImageUtils.imageToBase64(space.getBoardElement().getImage());
                     template.spaces.add(spaceTemplate);
                 }
             }

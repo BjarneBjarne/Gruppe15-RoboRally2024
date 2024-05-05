@@ -61,7 +61,7 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void newGame() {
+    public void newGame(Board board) {
         ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
@@ -78,7 +78,7 @@ public class AppController implements Observer {
 
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
-            Board board = new Board(13,10);
+            if(board == null) board = new Board(13,10);
             gameController = new GameController(board);
             int no = result.get();
 
@@ -126,9 +126,10 @@ public class AppController implements Observer {
     public void loadGame() {
         Board newBoard = LoadBoard.loadBoard("First_test");
         System.out.println(newBoard.width);
-        if (gameController == null) {
-            newGame();
-        }
+        newGame(newBoard);
+        // if (gameController == null) {
+        //     newGame();
+        // }
     }
 
     /**

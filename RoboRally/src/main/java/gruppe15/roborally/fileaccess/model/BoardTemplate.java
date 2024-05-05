@@ -35,6 +35,8 @@ public class BoardTemplate {
 
     public int width;
     public int height;
+    public PlayerTemplate[] players;
+    public PlayerTemplate currentPlayer;
 
     public List<SpaceTemplate> spaces = new ArrayList<>();
 

@@ -45,7 +45,7 @@ public class Space extends Subject {
 
     private Player player;
     private BoardElement boardElement;
-    transient private final Image backgroundImage;
+    transient private Image backgroundImage;
     private final List<Heading> walls;
 
     public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, List<Heading> walls) {
@@ -221,5 +221,10 @@ public class Space extends Subject {
     }
     public Image getImage() {
         return backgroundImage;
+    }
+
+    public void setImage(Image image) {
+        this.backgroundImage = image;
+        notifyChange();
     }
 }
