@@ -24,6 +24,7 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_BoardLaser;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
+import gruppe15.roborally.model.boardelements.BE_EnergySpace;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
@@ -45,7 +46,7 @@ public class GameController {
     private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
     private final int nextRegisterDelay = 1000; // In milliseconds.
     private final boolean WITH_ACTION_DELAY = true;
-    private final boolean WITH_ACTION_MESSAGE = true;
+    private final boolean WITH_ACTION_MESSAGE = false;
     private boolean turnPlaying = false;
     public boolean getIsTurnPlaying() {
         return turnPlaying;
@@ -74,6 +75,9 @@ public class GameController {
         //   - the counter of moves in the game should be increased by one
         //     if the player is moved
         Space currentSpace = player.getSpace();
+        if (currentSpace == null) {
+            return;
+        }
         if (nextSpace == null) {
             // TODO: Make player (fall off / reboot)
             System.out.println("Next space null! Player " + player.getName() + " should fall off.");
@@ -112,6 +116,7 @@ public class GameController {
      * @return A list of players being pushed.
      */
     public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
+
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
 
@@ -216,7 +221,6 @@ public class GameController {
      */
     private void handlePlayerRegister() {
         turnPlaying = true;
-        System.out.println("Activating " + board.getCurrentPlayer().getName() + "!");
         // Handle the players command on the current register. This will queue any command on the register.
         handlePlayerCommand(board.getCurrentPlayer());
         // Begin handling the actions.
@@ -237,12 +241,13 @@ public class GameController {
         }
         // When player command is executed, check if there are more player turns this register.
         if (!board.getPriorityList().isEmpty()) {
-            // There are more players in the priorityList. Continue to next player.
             turnPlaying = false;
+            // There are more players in the priorityList. Continue to next player.
             // Take player from the queue
             board.setCurrentPlayer(board.getPriorityList().poll());
             handlePlayerRegister();
         } else {
+            turnPlaying = false;
             // priorityList is empty, therefore we end the register.
             handleEndOfRegister();
         }
@@ -264,11 +269,11 @@ public class GameController {
         // Set next register
         currentRegister++;
         if (currentRegister < Player.NO_OF_REGISTERS) {
+            turnPlaying = false;
             // If there are more registers, set the currentRegister and continue to the next player.
             makeProgramFieldsVisible(currentRegister);
             board.setCurrentRegister(currentRegister);
             board.updatePriorityList();
-            turnPlaying = false;
             // Take player from the queue
             board.setCurrentPlayer(board.getPriorityList().poll());
             if (!board.isStepMode()) {
@@ -358,7 +363,7 @@ public class GameController {
                 }
 
                 board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
-            }, Duration.millis(500), "Player movement: " + player.getName()));
+            }, Duration.millis(250), "Player movement: " + player.getName()));
         }
     }
 
@@ -448,47 +453,68 @@ public class GameController {
 
     public void queueBoardElementsAndRobotLasers() {
         Space[][] spaces = board.getSpaces();
-        // 1. Blue conveyor belts
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                Space playerSpace = board.getPlayer(i).getSpace();
-                BoardElement boardElement = playerSpace.getBoardElement();
-                if (boardElement instanceof BE_ConveyorBelt) {
-                    if (((BE_ConveyorBelt)boardElement).getStrength() == 2) {
-                        boardElement.doAction(playerSpace, board, actionQueue);
-                    }
-                }
-            }
-        }, Duration.millis(500), "Blue conveyor belts"));
-        // 2. Green conveyor belts
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                Space playerSpace = board.getPlayer(i).getSpace();
-                BoardElement boardElement = playerSpace.getBoardElement();
-                if (boardElement instanceof BE_ConveyorBelt) {
-                    if (((BE_ConveyorBelt)boardElement).getStrength() == 1) {
-                        boardElement.doAction(playerSpace, board, actionQueue);
-                    }
-                }
-            }
-        }, Duration.millis(500), "Green conveyor belts"));
-        // 3. Push panels
-        actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(500), "Push panels"));
-        // 4. Gears
-        actionQueue.addLast(new ActionWithDelay(() -> {
-
-        }, Duration.millis(500), "Gears"));
-        // 5. Board lasers
-        for (int x = 0; x < spaces.length; x++) {
-            for (int y = 0; y < spaces[x].length; y++) {
-                BoardElement boardElement = spaces[x][y].getBoardElement();
-                if (boardElement instanceof BE_BoardLaser) {
-                    boardElement.doAction(spaces[x][y], board, actionQueue);
+        // First we gather some information about the board.
+        List<Space> greenConveyorBeltSpaces = new ArrayList<>();
+        List<Space> blueConveyorBeltSpaces = new ArrayList<>();
+        List<Space> energySpaces = new ArrayList<>();
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+            Space playerSpace = board.getPlayer(i).getSpace();
+            BoardElement boardElement = playerSpace.getBoardElement();
+            if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
+                if (conveyorBelt.getStrength() == 1) {
+                    greenConveyorBeltSpaces.add(playerSpace);
+                } else {
+                    blueConveyorBeltSpaces.add(playerSpace);
                 }
+            } else if (boardElement instanceof BE_EnergySpace) {
+                energySpaces.add(playerSpace);
             }
         }
+
+        // 1. Blue conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space conveyorBeltSpace : blueConveyorBeltSpaces) {
+                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, board, actionQueue);
+            }
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Player player = board.getPlayer(i);
+                player.goToTemporarySpace();
+            }
+        }, Duration.millis(250), "Blue conveyor belts"));
+
+        // 2. Green conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space conveyorBeltSpace : greenConveyorBeltSpaces) {
+                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, board, actionQueue);
+            }
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Player player = board.getPlayer(i);
+                player.goToTemporarySpace();
+            }
+        }, Duration.millis(250), "Green conveyor belts"));
+
+        // 3. Push panels
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            // TODO: Implement Push panels
+        }, Duration.millis(0), ""));
+        // 4. Gears
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            // TODO: Implement Gears
+        }, Duration.millis(0), ""));
+
+        // 5. Board lasers
+        actionQueue.addLast(new ActionWithDelay(() -> { // Shooting all board lasers at the same time
+            for (int x = 0; x < spaces.length; x++) {
+                for (int y = 0; y < spaces[x].length; y++) {
+                    BoardElement boardElement = spaces[x][y].getBoardElement();
+                    if (boardElement instanceof BE_BoardLaser) {
+                        boardElement.doAction(spaces[x][y], board, actionQueue);
+                    }
+                }
+            }
+        }, Duration.millis(250), "Board laser"));
+
         // Clearing the last board laser.
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (int x = 0; x < spaces.length; x++) {
@@ -497,6 +523,7 @@ public class GameController {
                 }
             }
         }, Duration.millis(0)));
+
         // 6. Robot lasers
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             EventHandler.event_PlayerShoot(board.getSpaces(), board.getPlayer(i), actionQueue);
@@ -509,13 +536,17 @@ public class GameController {
                 }
             }
         }, Duration.millis(0)));
+
         // 7. Energy spaces
         actionQueue.addLast(new ActionWithDelay(() -> {
-        }, Duration.millis(500), "Energy spaces"));
+            for (Space energySpace : energySpaces) {
+                energySpace.getBoardElement().doAction(energySpace, board, actionQueue);
+            }
+        }, Duration.millis(250), "Energy spaces"));
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
-
-        }, Duration.millis(500), "Checkpoints"));
+            // TODO: Implement Checkpoints
+        }, Duration.millis(0), ""));
     }
 
     private Space correctPosition(int x, int y){

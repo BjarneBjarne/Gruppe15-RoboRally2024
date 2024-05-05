@@ -19,20 +19,12 @@ public class BE_BoardLaser extends BoardElement {
 
     @Override
     public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            Space[][] spaces = board.getSpaces();
-            // Clearing lasers in between board lasers
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    spaces[x][y].clearLasersOnSpace();
-                }
-            }
-            Laser laser = new Laser(space, direction);
-            // Start the laser iteration asynchronously
-            laser.startLaser(spaces).run();
-            // Once the laser iteration is complete, calculate the damage
-            calculateDamage(space, laser, actionQueue);
-        }, Duration.millis(50), "Board laser"));
+        Space[][] spaces = board.getSpaces();
+        Laser laser = new Laser(space, direction);
+        // Start the laser iteration asynchronously
+        laser.startLaser(spaces).run();
+        // Once the laser iteration is complete, calculate the damage
+        calculateDamage(space, laser, actionQueue);
         return true;
     }
 
@@ -51,8 +43,8 @@ public class BE_BoardLaser extends BoardElement {
             for (Player playerHit : playersHit) {
                 actionQueue.addFirst(new ActionWithDelay(() -> {
                     damage.applyDamage(playerHit);
-                    System.out.println(playerHit.getName() + " hit by laser!");
-                }, Duration.millis(1000)));
+                    System.out.println(playerHit.getName() + " hit by board laser!");
+                }, Duration.millis(500)));
             }
         } catch (InterruptedException e) {
             // Handle InterruptedException

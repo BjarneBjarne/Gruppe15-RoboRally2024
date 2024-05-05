@@ -108,19 +108,21 @@ public class EventHandler {
 
                     // Apply damage to the target player
                     for (Map.Entry<Class<? extends DamageType>, DamageType> entry : damage.getDamageMap().entrySet()) {
-                        damage.applyDamage(target);
-                        Damage finalDamage = damage;
-                        actionQueue.addFirst(new ActionWithDelay(() -> {
-                            // Print the damage dealt
-                            System.out.println("{" + playerShooting.getName() + "} dealt " + finalDamage.getAmount(entry.getKey()) + " " + entry.getKey().getName() + " damage to {" + target.getName() + "}");
-                        }, Duration.millis(500)));
+                        if (entry.getValue().getAmount() > 0) {
+                            damage.applyDamage(target);
+                            Damage finalDamage = damage;
+                            actionQueue.addFirst(new ActionWithDelay(() -> {
+                                // Print the damage dealt
+                                System.out.println("{" + playerShooting.getName() + "} dealt " + finalDamage.getAmount(entry.getKey()) + " " + entry.getValue().getAmount() + " damage to {" + target.getName() + "}");
+                            }, Duration.millis(500)));
+                        }
                     }
                 }
             } catch (InterruptedException e) {
                 // Handle InterruptedException
                 System.out.println("Player laser interrupted: " + e.getMessage());
             }
-        }, Duration.millis(50), "Player laser"));
+        }, Duration.millis(250), "Player laser"));
     }
     private static List<Player> calculatePlayersHit(Laser laser) throws InterruptedException {
         List<Player> playersHit = new ArrayList<>();
