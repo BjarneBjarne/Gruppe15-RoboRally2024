@@ -47,8 +47,8 @@ import java.util.List;
 public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
-    public final static int SPACE_HEIGHT = 50; // 60; // 75;
-    public final static int SPACE_WIDTH = 50;  // 60; // 75;
+    public final static int SPACE_HEIGHT = 75; // 60; // 75;
+    public final static int SPACE_WIDTH = 75;  // 60; // 75;
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
     private final ImageView energyCubeImageView = new ImageView();
@@ -113,6 +113,17 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.getChildren().clear();
         this.getChildren().add(backgroundImageView);
 
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
+            this.getChildren().add(boardElementImageView);
+
+            if (boardElement instanceof BE_EnergySpace energySpace) {
+                if (energySpace.getHasEnergyCube()) {
+                    this.getChildren().add(energyCubeImageView);
+                }
+            }
+        }
+
         this.laserImageViews.clear();
         for (Heading laser : space.getLasersOnSpace()) {
             ImageView laserImageView = newLaserImageView(laser);
@@ -120,17 +131,6 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(laserImageView);
         }
 
-        BoardElement boardElement = space.getBoardElement();
-        if (boardElement != null) {
-            this.getChildren().add(boardElementImageView);
-
-            if (boardElement instanceof BE_EnergySpace) {
-                BE_EnergySpace energySpace = (BE_EnergySpace)boardElement;
-                if (energySpace.getHasEnergyCube()) {
-                    this.getChildren().add(energyCubeImageView);
-                }
-            }
-        }
         for (ImageView wall : wallImageViews) {
             this.getChildren().add(wall);
         }

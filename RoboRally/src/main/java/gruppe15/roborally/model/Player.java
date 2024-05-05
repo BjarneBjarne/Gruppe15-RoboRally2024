@@ -47,6 +47,7 @@ public class Player extends Subject {
     private String color;
 
     private Space space;
+    private Space temporarySpace = null;
     private Heading heading = SOUTH;
 
     private final CommandCardField[] program;
@@ -120,6 +121,22 @@ public class Player extends Subject {
                 space.setPlayer(this);
             }
             notifyChange();
+        }
+    }
+
+    public Space getTemporarySpace() {
+        return temporarySpace;
+    }
+    public void setTemporarySpace(Space space) {
+        this.temporarySpace = space;
+    }
+    public void goToTemporarySpace() {
+        if (temporarySpace != null && temporarySpace.getPlayer() == null) {
+            // Surpass the setSpace() checks.
+            this.space.setPlayer(null);
+            this.space = temporarySpace;
+            this.space.setPlayer(this);
+            this.temporarySpace = null;
         }
     }
 
