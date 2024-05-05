@@ -24,7 +24,6 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Phase;
 import gruppe15.roborally.model.Space;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -80,8 +79,8 @@ public class BoardView extends VBox implements ViewObserver {
             }
         }
 
-        /*board.attach(this);
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+        board.attach(this);
+        /*for (int i = 0; i < board.getNoOfPlayers(); i++) {
             board.getPlayer(i).attach(this);
         }*/
         update(board);
@@ -90,7 +89,6 @@ public class BoardView extends VBox implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == board) {
-            Phase phase = board.getPhase();
             statusLabel.setText(board.getStatusMessage());
         }
     }
@@ -114,7 +112,7 @@ public class BoardView extends VBox implements ViewObserver {
                 Board board = space.board;
 
                 if (board == gameController.board) {
-                    gameController.moveCurrentPlayerToSpace(space);
+                    gameController.movePlayerToSpace(board.getCurrentPlayer(), space);
                     event.consume();
                 }
             }
