@@ -97,6 +97,10 @@ public class BE_ConveyorBelt extends BoardElement {
         return heading;
     }
 
+    public int getStrength() {
+        return strength;
+    }
+
     public void setHeading(Heading heading) {
         this.heading = heading;
     }

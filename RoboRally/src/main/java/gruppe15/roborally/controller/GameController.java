@@ -334,29 +334,32 @@ public class GameController {
                 Space playerSpace = board.getPlayer(i).getSpace();
                 BoardElement boardElement = playerSpace.getBoardElement();
                 if (boardElement instanceof BE_ConveyorBelt) {
-                    boardElement.doAction(playerSpace, board, actionQueue);
-                }
-            }
-        }, Duration.millis(0), "Blue conveyor belts"));
-        // 2. Green conveyor belts
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    BoardElement boardElement = spaces[x][y].getBoardElement();
-                    if (boardElement instanceof BE_ConveyorBelt) {
-                        boardElement.doAction(spaces[x][y], board, actionQueue);
+                    if (((BE_ConveyorBelt)boardElement).getStrength() == 2) {
+                        boardElement.doAction(playerSpace, board, actionQueue);
                     }
                 }
             }
-        }, Duration.millis(0), "Green conveyor belts"));
+        }, Duration.millis(500), "Blue conveyor belts"));
+        // 2. Green conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Space playerSpace = board.getPlayer(i).getSpace();
+                BoardElement boardElement = playerSpace.getBoardElement();
+                if (boardElement instanceof BE_ConveyorBelt) {
+                    if (((BE_ConveyorBelt)boardElement).getStrength() == 1) {
+                        boardElement.doAction(playerSpace, board, actionQueue);
+                    }
+                }
+            }
+        }, Duration.millis(500), "Green conveyor belts"));
         // 3. Push panels
         actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(0), "Push panels"));
+        }, Duration.millis(500), "Push panels"));
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(0), "Gears"));
+        }, Duration.millis(500), "Gears"));
         // 5. Board lasers
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
@@ -388,11 +391,11 @@ public class GameController {
         }, Duration.millis(0)));
         // 7. Energy spaces
         actionQueue.addLast(new ActionWithDelay(() -> {
-        }, Duration.millis(0), "Energy spaces"));
+        }, Duration.millis(500), "Energy spaces"));
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(0), "Checkpoints"));
+        }, Duration.millis(500), "Checkpoints"));
     }
 
     public void executeCommand(@NotNull Player player, Command command) {
@@ -425,7 +428,7 @@ public class GameController {
                 }
 
                 board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
-            }, Duration.millis(0), "Player movement: " + player.getName()));
+            }, Duration.millis(500), "Player movement: " + player.getName()));
         }
     }
 
