@@ -37,10 +37,10 @@ public class Laser {
         int y = origin.y;
 
         // Start one space in front of the owner
-        if (owner != null) {
+        /*if (owner != null) {
             x += dx;
             y += dy;
-        }
+        }*/
 
         while (x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
             Space space = boardSpaces[x][y];

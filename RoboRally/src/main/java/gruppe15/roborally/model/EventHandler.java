@@ -113,14 +113,14 @@ public class EventHandler {
                         actionQueue.addFirst(new ActionWithDelay(() -> {
                             // Print the damage dealt
                             System.out.println("{" + playerShooting.getName() + "} dealt " + finalDamage.getAmount(entry.getKey()) + " " + entry.getKey().getName() + " damage to {" + target.getName() + "}");
-                        }, Duration.millis(1000)));
+                        }, Duration.millis(500)));
                     }
                 }
             } catch (InterruptedException e) {
                 // Handle InterruptedException
                 System.out.println("Player laser interrupted: " + e.getMessage());
             }
-        }, Duration.millis(350), "Player laser"));
+        }, Duration.millis(50), "Player laser"));
     }
     private static List<Player> calculatePlayersHit(Laser laser) throws InterruptedException {
         List<Player> playersHit = new ArrayList<>();

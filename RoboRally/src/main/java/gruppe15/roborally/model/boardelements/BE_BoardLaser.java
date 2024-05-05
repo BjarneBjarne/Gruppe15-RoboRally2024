@@ -32,7 +32,7 @@ public class BE_BoardLaser extends BoardElement {
             laser.startLaser(spaces).run();
             // Once the laser iteration is complete, calculate the damage
             calculateDamage(space, laser, actionQueue);
-        }, Duration.millis(350), "Board laser"));
+        }, Duration.millis(50), "Board laser"));
         return true;
     }
 

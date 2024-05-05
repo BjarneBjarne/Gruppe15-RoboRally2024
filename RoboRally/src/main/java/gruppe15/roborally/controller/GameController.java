@@ -45,7 +45,7 @@ public class GameController {
 
     public final Board board;
     private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
-    private final int nextRegisterDelay = 250; // In milliseconds.
+    private final int nextRegisterDelay = 1000; // In milliseconds.
     private final boolean WITH_ACTION_DELAY = true;
     private final boolean WITH_ACTION_MESSAGE = true;
 
@@ -58,11 +58,12 @@ public class GameController {
      * Takes the current player of the board and sets the players position to the given space
      * if the space is free. The current player is then set to the player following the current player.
      *
-     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * @param player
      * @param nextSpace the space to which the current player should move
      * @return void
+     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
-    public void moveCurrentPlayerToSpace(Space nextSpace) {
+    public void movePlayerToSpace(Player player, Space nextSpace) {
         // TODO Task1: method should be implemented by the students:
         //   - the current player should be moved to the given space
         //     (if it is free())
@@ -70,12 +71,11 @@ public class GameController {
         //     following the current player
         //   - the counter of moves in the game should be increased by one
         //     if the player is moved
-        Player currentPlayer = board.getCurrentPlayer();
-        Space currentSpace = currentPlayer.getSpace();
+        Space currentSpace = player.getSpace();
         if (nextSpace == null) {
-            // TODO: Make currentPlayer (fall off / reboot)
-            System.out.println("Next space null! Player " + currentPlayer.getName() + " should fall off.");
-            // Should call: EventHandler.event_PlayerReboot(currentPlayer);
+            // TODO: Make player (fall off / reboot)
+            System.out.println("Next space null! Player " + player.getName() + " should fall off.");
+            // Should call: EventHandler.event_PlayerReboot(player);
             return;
         }
         boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
@@ -88,7 +88,7 @@ public class GameController {
             boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
             if (couldPush) {
                 // Handle pushing players in EventHandler
-                EventHandler.event_PlayerPush(board.getSpaces(), currentPlayer, playersToPush, pushDirection);
+                EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
                 couldMove = true;
             } else {
                 // There is a wall at the end of player chain
@@ -99,7 +99,7 @@ public class GameController {
 
         if (couldMove) {
             // Setting the current players position to the new space in the EventHandler
-            EventHandler.event_PlayerMove(currentPlayer, nextSpace);
+            EventHandler.event_PlayerMove(player, nextSpace);
         }
     }
 
@@ -136,6 +136,7 @@ public class GameController {
 
     // XXX: implemented in the current version
     public void startProgrammingPhase() {
+        System.out.println("Programming phase");
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
         board.setCurrentRegister(0);
@@ -211,75 +212,58 @@ public class GameController {
 
     // XXX: implemented in the current version
     private void continuePrograms() {
+        if (board.getPhase() == Phase.ACTIVATION) {
+            // Execute the logic for this register. This includes adding "Actions" to the queue.
+            if (actionQueue.isEmpty()) {
+                executeRegister();
+                continueActions();
+            }
+        }
+    }
+
+    private void continueActions() {
         if (!actionQueue.isEmpty()) {
             // Handle the next action
             ActionWithDelay nextAction = actionQueue.removeFirst();
             nextAction.getAction(WITH_ACTION_MESSAGE).run();
             Duration delay = nextAction.getDelay();
             PauseTransition pause = new PauseTransition(delay);
-            pause.setOnFinished(event -> continuePrograms()); // Continue programs (& actions)
+            pause.setOnFinished(event -> continueActions()); // Continue programs (& actions)
             if (WITH_ACTION_DELAY) {
-                pause.play();
-            }
-        } else {
-            // When no actions remain in the queue
-            executeNextRegister();
-            if (board.getPhase() == Phase.ACTIVATION && !board.isStepMode()) {
-                // If necessary, add a delay before executing the next register
-                PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
-                pause.setOnFinished(event -> continuePrograms());
                 pause.play();
             }
         }
     }
 
     public ArrayList<Player> determineAllPriority(){
-
         Space antenna = findAntenna();
         ArrayList<Player> priorityList = new ArrayList<>();
         for(int i = 0;i<board.getNoOfPlayers();i++){
             board.getPlayer(i).setPriority(determinePlayerPriority(board.getPlayer(i),antenna));
             priorityList.add(board.getPlayer(i));
         }
-
         //sorting list
         for (int i = 0;i<priorityList.size()-1;i++){
             if(priorityList.get(i).getPriority() > priorityList.get(i+1).getPriority() )
             {
-
-
-
                 Collections.swap(priorityList,i,i+1);
-
                 i=-1;
-                }
-
-
-
-
+            }
         }
-
-//for (int i =0;i<priorityList.size();i++){
-//    System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
-//
-//}
-        //Todo implement  real tiebreaker
-
-
+        /*for (int i =0;i<priorityList.size();i++){
+            System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
+        }*/
+        //TODO: Implement real tiebreaker
         return priorityList;
-
     }
 
     public Integer determinePlayerPriority(Player player,Space antenna){
-
         int x = antenna.x - player.getSpace().x;
         int y = antenna.y - player.getSpace().y;
-
         return Math.abs(x) + Math.abs(y);
     }
     public Space findAntenna(){
         Space[][] spaces = board.getSpaces();
-
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
                 BoardElement boardElement = spaces[x][y].getBoardElement();
@@ -290,12 +274,10 @@ public class GameController {
         }
         System.out.println("Err: No Priority antenna found");
         return null;
-
-
     }
 
     // XXX: implemented in the current version
-    private void executeNextRegister() {
+    private void executeRegister() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
             int currentRegister = board.getCurrentRegister();
@@ -303,17 +285,14 @@ public class GameController {
                 CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
                 if (card != null) {
                     Command command = card.command;
-
                     if(card.command.isInteractive()){
-                        System.out.println("check");
+                        //System.out.println("check");
                         board.setPhase(Phase.PLAYER_INTERACTION);
                         return;
                     }
-
                     executeCommand(currentPlayer, command);
                 }
                 changeToNextRegisterAndHandleBoardElements(currentPlayer,currentRegister);
-
             } else {
                 // this should not happen
                 assert false;
@@ -325,7 +304,6 @@ public class GameController {
     }
 
     public void changeToNextRegisterAndHandleBoardElements(Player currentPlayer,int currentRegister){
-
         if (!board.getPriorityList().isEmpty()) {
             board.setCurrentPlayer(board.getPriorityList().remove(0));
         } else {
@@ -340,6 +318,9 @@ public class GameController {
                 board.setCurrentPlayer(board.getPriorityList().remove(0));
 
             } else {
+                PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
+                pause.setOnFinished(event -> continuePrograms());
+                pause.play();
                 startProgrammingPhase();
             }
         }
@@ -347,19 +328,16 @@ public class GameController {
 
     public void handleBoardElements() {
         Space[][] spaces = board.getSpaces();
-
         // 1. Blue conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    BoardElement boardElement = spaces[x][y].getBoardElement();
-                    if (boardElement instanceof BE_ConveyorBelt) {
-                        boardElement.doAction(spaces[x][y], board, actionQueue);
-                    }
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Space playerSpace = board.getPlayer(i).getSpace();
+                BoardElement boardElement = playerSpace.getBoardElement();
+                if (boardElement instanceof BE_ConveyorBelt) {
+                    boardElement.doAction(playerSpace, board, actionQueue);
                 }
             }
-        }, Duration.millis(100), "Blue conveyor belts"));
-
+        }, Duration.millis(0), "Blue conveyor belts"));
         // 2. Green conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (int x = 0; x < spaces.length; x++) {
@@ -370,18 +348,15 @@ public class GameController {
                     }
                 }
             }
-        }, Duration.millis(100), "Green conveyor belts"));
-
+        }, Duration.millis(0), "Green conveyor belts"));
         // 3. Push panels
         actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(100), "Push panels"));
-
+        }, Duration.millis(0), "Push panels"));
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(100), "Gears"));
-
+        }, Duration.millis(0), "Gears"));
         // 5. Board lasers
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
@@ -391,7 +366,6 @@ public class GameController {
                 }
             }
         }
-
         // Clearing the last board laser.
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (int x = 0; x < spaces.length; x++) {
@@ -400,12 +374,10 @@ public class GameController {
                 }
             }
         }, Duration.millis(0)));
-
         // 6. Robot lasers
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             EventHandler.event_PlayerShoot(board.getSpaces(), board.getPlayer(i), actionQueue);
         }
-
         // Clearing the last robots laser.
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (int x = 0; x < spaces.length; x++) {
@@ -414,16 +386,13 @@ public class GameController {
                 }
             }
         }, Duration.millis(0)));
-
         // 7. Energy spaces
         actionQueue.addLast(new ActionWithDelay(() -> {
-
-        }, Duration.millis(100), "Energy spaces"));
-
+        }, Duration.millis(0), "Energy spaces"));
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
 
-        }, Duration.millis(100), "Checkpoints"));
+        }, Duration.millis(0), "Checkpoints"));
     }
 
     public void executeCommand(@NotNull Player player, Command command) {
@@ -431,12 +400,11 @@ public class GameController {
             // XXX This is a very simplistic way of dealing with some basic cards and
             //     their execution. This should eventually be done in a more elegant way
             //     (this concerns the way cards are modelled as well as the way they are executed).
-
             // Call the event handler, and let it modify the command
             command = EventHandler.event_RegisterActivate(player, command);
             Command finalCommand = command;
 
-            actionQueue.addLast(new ActionWithDelay(() -> {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
                 switch (finalCommand) {
                     case FORWARD:
                         setPlayerVelocity(player, 1, 0);
@@ -445,10 +413,10 @@ public class GameController {
                         setPlayerVelocity(player, 2, 0);
                         break;
                     case RIGHT:
-                        turnCurrentPlayer(player, 1);
+                        turnPlayer(player, 1);
                         break;
                     case LEFT:
-                        turnCurrentPlayer(player, -1);
+                        turnPlayer(player, -1);
                         break;
                     case OPTION_LEFT_RIGHT:
                         break;
@@ -457,8 +425,7 @@ public class GameController {
                 }
 
                 board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
-            }, Duration.millis(100), "Player movement"));
-
+            }, Duration.millis(0), "Player movement: " + player.getName()));
         }
     }
 
@@ -485,7 +452,7 @@ public class GameController {
                     break;
                 default:
             }
-            moveCurrentPlayerToSpace(board.getSpace(x, y));
+            movePlayerToSpace(player, board.getSpace(x, y));
         }
 
         // For each sideways movement
@@ -508,11 +475,11 @@ public class GameController {
                     break;
                 default:
             }
-            moveCurrentPlayerToSpace(board.getSpace(x, y));
+            movePlayerToSpace(player, board.getSpace(x, y));
         }
     }
 
-    private void turnCurrentPlayer(Player player, int quaterRotationClockwise){
+    private void turnPlayer(Player player, int quaterRotationClockwise){
         int playerOrientation = 0;
         switch(player.getHeading()){
             case SOUTH:
@@ -547,7 +514,7 @@ public class GameController {
     }
 
     public void executeCommandOptionAndContinue(Command option){
-        executeCommand(board.getCurrentPlayer(),option);
+        executeCommand(board.getCurrentPlayer(), option);
 
         Player currentPlayer = board.getCurrentPlayer();
         int currentRegister = board.getCurrentRegister();
