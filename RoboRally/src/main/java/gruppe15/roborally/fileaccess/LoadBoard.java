@@ -53,19 +53,7 @@ public class LoadBoard {
     private static final String DEFAULTBOARD = "defaultboard";
     private static final String JSON_EXT = "json";
 
-    public static Board loadBoard(String boardname) {
-        if (boardname == null) {
-            boardname = DEFAULTBOARD;
-        }
-
-        ClassLoader classLoader = LoadBoard.class.getClassLoader();
-        String filename = "RoboRally/src/main/resources/gruppe15/roborally/saveGames/" + boardname + "." + JSON_EXT;
-        // InputStream inputStream = new ByteArrayInputStream(filename.getBytes());
-        //InputStream inputStream = classLoader.getResourceAsStream(BOARDSFOLDER + "/" + boardname + "." + JSON_EXT);
-        // if (inputStream == null) {
-        //     // TODO these constants should be defined somewhere
-        //     return null;
-        // }
+    public static Board loadBoard(File loadedFile) {
 
 		// In simple cases, we can create a Gson object with new Gson():
         GsonBuilder simpleBuilder = new GsonBuilder().
@@ -74,14 +62,9 @@ public class LoadBoard {
         Gson gson = simpleBuilder.create();
 
 		Board result;
-		// FileReader fileReader = null;
-        // JsonReader reader = null;
+
 		try {
-			// fileReader = new FileReader(filename);
-			// reader = gson.newJsonReader(new InputStreamReader(inputStream));
-			// BoardTemplate template = gson.fromJson(reader, BoardTemplate.class);
-            File file = new File(filename);
-            Scanner scanner = new Scanner(file);
+            Scanner scanner = new Scanner(loadedFile);
             String testJson = "";
             while (scanner.hasNextLine()) {
                 testJson += scanner.nextLine();
@@ -109,7 +92,6 @@ public class LoadBoard {
                 }
             }
             scanner.close();
-			// reader.close();
 			return result;
 		} catch (IOException e1) {
             // if (reader != null) {
