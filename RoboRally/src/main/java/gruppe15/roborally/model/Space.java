@@ -38,15 +38,15 @@ import static gruppe15.roborally.model.Heading.*;
  */
 public class Space extends Subject {
 
-    public final Board board;
+    transient public final Board board;
 
     public final int x;
     public final int y;
 
-    private Player player;
-    private BoardElement boardElement;
+    transient private Player player;
+    transient private BoardElement boardElement;
     transient private Image backgroundImage;
-    private final List<Heading> walls;
+    transient private final List<Heading> walls;
 
     public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, List<Heading> walls) {
         this.board = board;

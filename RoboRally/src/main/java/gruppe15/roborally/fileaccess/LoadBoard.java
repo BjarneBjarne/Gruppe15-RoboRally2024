@@ -32,6 +32,8 @@ import gruppe15.roborally.fileaccess.model.PlayerTemplate;
 import gruppe15.roborally.fileaccess.model.SpaceTemplate;
 // import gruppe15.roborally.controller.FieldAction;
 import gruppe15.roborally.model.Board;
+import gruppe15.roborally.model.Command;
+import gruppe15.roborally.model.CommandCard;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BoardElement;
@@ -99,6 +101,13 @@ public class LoadBoard {
                     }
                 }
             }
+            for(int i = 0; i < template.players.length; i++){
+                Player player = loadPlayer(template.players[i], result);
+                result.getPlayers().add(player);
+                if(player.getName() == template.currentPlayer){
+                    result.setCurrentPlayer(player);
+                }
+            }
             scanner.close();
 			// reader.close();
 			return result;
@@ -123,28 +132,33 @@ public class LoadBoard {
         playerTemplate.name = player.getName();
         playerTemplate.color = player.getColor();
         playerTemplate.priority = player.getPriority();
-        playerTemplate.program = player.getProgram();
-        playerTemplate.cards = player.getCards();
+        playerTemplate.cards = new Command[player.getCards().length];
+        for(int i = 0; i < player.getCards().length; i++){
+            playerTemplate.cards[i] = player.getCardField(i).getCard().getCommand();
+        }
         playerTemplate.space = player.getSpace();
         return playerTemplate;
     }
 
-    private static void loadPlayer(PlayerTemplate playerTemplate, Player player, Board board){
-        player.setName(playerTemplate.name);
-        player.setColor(playerTemplate.color);
+    private static Player loadPlayer(PlayerTemplate playerTemplate, Board board){
+        Player player = new Player(board, playerTemplate.color, playerTemplate.name);
         player.setPriority(playerTemplate.priority);
-        for(int i = 0; i < playerTemplate.program.length; i++){
-            player.getProgramField(i).setCard(playerTemplate.program[i].getCard());
-            player.getProgramField(i).setVisible(playerTemplate.program[i].isVisible());
-        }
         for(int i = 0; i < playerTemplate.cards.length; i++){
-            player.getCardField(i).setCard(playerTemplate.cards[i].getCard());
-            player.getCardField(i).setVisible(playerTemplate.cards[i].isVisible());
+            player.getCardField(i).setCard(new CommandCard(playerTemplate.cards[i]));
         }
         int x = playerTemplate.space.x;
         int y = playerTemplate.space.y;
         player.setSpace(board.getSpace(x, y));
         board.getSpace(x, y).setPlayer(player);
+        return player;
+    }
+
+    public static void serializePlayers(PlayerTemplate[] players){
+        Gson gson = new GsonBuilder().
+            excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).
+            create();
+        String playersToJson = gson.toJson(players);
+        System.out.println(playersToJson);
     }
 
     public static void saveBoard(Board board, String name) {
@@ -155,7 +169,7 @@ public class LoadBoard {
         for(int i = 0; i < board.getPlayers().size(); i++){
             template.players[i] = savePlayer(board.getPlayers().get(i));
         };
-        template.currentPlayer = savePlayer(board.getCurrentPlayer());
+        template.currentPlayer = board.getCurrentPlayer().getName();
 
         for (int i=0; i<board.width; i++) {
             for (int j=0; j<board.height; j++) {
