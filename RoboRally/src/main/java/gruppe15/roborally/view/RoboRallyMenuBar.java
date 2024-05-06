@@ -71,6 +71,7 @@ public class RoboRallyMenuBar extends MenuBar {
 
         saveGame = new MenuItem("Save Game");
         saveGame.setOnAction( e -> {
+            
             TextInputDialog filenameInput = new TextInputDialog();
             filenameInput.setHeaderText("Enter filename");
             filenameInput.setTitle("Save Game");

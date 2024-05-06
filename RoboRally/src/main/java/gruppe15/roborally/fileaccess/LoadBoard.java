@@ -23,14 +23,11 @@ package gruppe15.roborally.fileaccess;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.fileaccess.model.BoardTemplate;
 import gruppe15.roborally.fileaccess.model.PlayerTemplate;
 import gruppe15.roborally.fileaccess.model.SpaceTemplate;
-// import gruppe15.roborally.controller.FieldAction;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Command;
 import gruppe15.roborally.model.CommandCard;
@@ -76,13 +73,14 @@ public class LoadBoard {
 			    Space space = result.getSpace(spaceTemplate.x, spaceTemplate.y);
 			    if (space != null) {
                     space.setBoardElement(spaceTemplate.boardElement);
-                    space.setImage(ImageUtils.base64ToImage(spaceTemplate.backgroundImage));
+                    space.setBackgroundImage(ImageUtils.base64ToImage(spaceTemplate.backgroundImage));
                     space.getWalls().addAll(spaceTemplate.walls);
                     if (spaceTemplate.elementImage != null) {
                         space.getBoardElement().setImage(ImageUtils.base64ToImage(spaceTemplate.elementImage));
                     }
                 }
             }
+            
             for(int i = 0; i < template.players.length; i++){
                 Player player = loadPlayer(template.players[i], result);
                 result.getPlayers().add(player);
@@ -156,22 +154,18 @@ public class LoadBoard {
         for (int i=0; i<board.width; i++) {
             for (int j=0; j<board.height; j++) {
                 Space space = board.getSpace(i,j);
-                if (!space.getWalls().isEmpty() || !(space.getBoardElement() == null)) {
                     SpaceTemplate spaceTemplate = new SpaceTemplate();
                     spaceTemplate.x = space.x;
                     spaceTemplate.y = space.y;
                     spaceTemplate.boardElement = space.getBoardElement();
                     spaceTemplate.walls.addAll(space.getWalls());
                     spaceTemplate.backgroundImage = ImageUtils.imageToBase64(space.getImage());
-                    System.out.println(spaceTemplate.backgroundImage);
                     if (space.getBoardElement() != null)
                         spaceTemplate.elementImage = ImageUtils.imageToBase64(space.getBoardElement().getImage());
                     template.spaces.add(spaceTemplate);
-                }
             }
         }
 
-        ClassLoader classLoader = LoadBoard.class.getClassLoader();
         // TODO: this is not very defensive, and will result in a NullPointerException
         //       when the folder "resources" does not exist! But, it does not need
         //       the file "simpleCards.json" to exist!

@@ -16,6 +16,8 @@ public class PlayerTemplate {
     public Space space;
     public Heading heading;
 
+    public int energyCubes;
+
     public Command[] cards;
 
     public  int priority;
