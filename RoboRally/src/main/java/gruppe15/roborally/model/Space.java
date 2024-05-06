@@ -47,19 +47,26 @@ public class Space extends Subject {
     transient private BoardElement boardElement;
     transient private Image backgroundImage;
     transient private final List<Heading> walls;
+    private final List<Heading> lasersOnSpace = new ArrayList<>();
 
-    public Space(Board board, int x, int y, BoardElement boardElement, Image backgroundImage, List<Heading> walls) {
+
+    public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
         this.boardElement = boardElement;
-        this.backgroundImage = backgroundImage;
-        if (walls == null) {
-            this.walls = new ArrayList<>();
-        } else {
-            this.walls = walls;
+        if (walls != null) {
+            this.walls.addAll(walls);
         }
+    }
+
+    public Space(Board board, int x, int y, BoardElement boardElement) {
+        this(board, x, y, boardElement, null);
+    }
+
+    public void setBackgroundImage(Image backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 
     public Player getPlayer() {
@@ -97,6 +104,10 @@ public class Space extends Subject {
         return boardElement;
     }
 
+    public boolean hasWall() {
+        return !walls.isEmpty();
+    }
+
     public void setBoardElement(BoardElement boardElement) {
         if (this.boardElement != boardElement) {
             // this should actually not happen
@@ -104,12 +115,28 @@ public class Space extends Subject {
             notifyChange();
         }
     }
-
-    public boolean getHasWall() {
-        return !walls.isEmpty();
-    }
+        
     public List<Heading> getWalls() {
         return walls;
+    }
+    public void addWall(Heading wall) {
+        this.walls.add(wall);
+    }
+    public void addWalls(List<Heading> walls) {
+        this.walls.addAll(walls);
+    }
+
+    // For SpaceView, so it can update the laser image on this space.
+    public void addLaserOnSpace(Heading laser) {
+        this.lasersOnSpace.add(laser);
+        notifyChange();
+    }
+    public void clearLasersOnSpace() {
+        this.lasersOnSpace.clear();
+        notifyChange();
+    }
+    public List<Heading> getLasersOnSpace() {
+        return this.lasersOnSpace;
     }
 
     /**
