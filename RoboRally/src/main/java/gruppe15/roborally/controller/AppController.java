@@ -37,6 +37,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -119,12 +120,15 @@ public class AppController implements Observer {
         }
     }
 
-    public void saveGame() {
-        LoadBoard.saveBoard(gameController.board, "First_test");
+    public void saveGame(String filename) {
+        if(filename == null){
+            filename = "default_save";
+        }
+        LoadBoard.saveBoard(gameController.board, filename);
     }
 
-    public void loadGame() {
-        Board newBoard = LoadBoard.loadBoard("First_test");
+    public void loadGame(File loadedFile) {
+        Board newBoard = LoadBoard.loadBoard(loadedFile);
         System.out.println(newBoard.width);
         gameController = new GameController(newBoard);
         gameController.startProgrammingPhase();
@@ -148,7 +152,7 @@ public class AppController implements Observer {
         if (gameController != null) {
 
             // here we save the game (without asking the user).
-            saveGame();
+            saveGame("Exit_save");
 
             gameController = null;
             roboRally.createBoardView(null);
