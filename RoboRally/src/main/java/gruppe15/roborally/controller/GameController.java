@@ -354,13 +354,13 @@ public class GameController {
                         setPlayerVelocity(player, 3, 0);
                         break;
                     case RIGHT:
-                        turnCurrentPlayer(player, 1);
+                        turnPlayer(player, 1);
                         break;
                     case LEFT:
-                        turnCurrentPlayer(player, -1);
+                        turnPlayer(player, -1);
                         break;
                     case U_TURN:
-                        turnCurrentPlayer(player, 2);
+                        turnPlayer(player, 2);
                         break;
                     case BACKWARD:
                         setPlayerVelocity(player, -1, 0);
@@ -371,10 +371,10 @@ public class GameController {
                                 //TODO
                                 break;
                             case UPGRADE:
-                                //TODO
+                                player.addEnergyCube();
                                 break;
                             default:
-                                executeCommand(player, player.getLastCmd());
+                                queuePlayerCommand(player, player.getLastCmd());
                         }
                         break;
                     case POWER_UP:
@@ -384,9 +384,11 @@ public class GameController {
                         break;
                     default:
                         // DO NOTHING (for now)
+                        System.out.println("Can't find command: " + finalCommand.displayName);
+                        break;
                 }
 
-                if(command != Command.AGAIN) player.setLastCmd(command);
+                if(finalCommand != Command.AGAIN) player.setLastCmd(finalCommand);
 
                 // After command is executed, set the next player:
                 var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
