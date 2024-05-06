@@ -35,15 +35,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+
 import org.jetbrains.annotations.NotNull;
 
 
 import java.util.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * ...
@@ -134,8 +134,9 @@ public class AppController implements Observer {
         Board newBoard = LoadBoard.loadBoard(loadedFile);
         System.out.println(newBoard.width);
         gameController = new GameController(newBoard);
+        
         gameController.startProgrammingPhase();
-
+        
         roboRally.createBoardView(gameController);
         // if (gameController == null) {
         //     newGame();

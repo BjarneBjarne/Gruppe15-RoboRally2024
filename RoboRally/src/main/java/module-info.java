@@ -6,6 +6,7 @@ module gruppe15.roborally {
     requires guava;
     requires java.desktop;
     requires javafx.swing;
+    requires javafx.graphics;
 
     opens gruppe15.roborally.model to com.google.gson; 
     opens gruppe15.roborally.controller to com.google.gson;
