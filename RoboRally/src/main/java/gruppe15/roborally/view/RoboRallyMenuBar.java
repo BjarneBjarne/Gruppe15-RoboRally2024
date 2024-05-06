@@ -21,17 +21,10 @@
  */
 package gruppe15.roborally.view;
 
-import java.io.File;
-import java.util.Optional;
-
 import gruppe15.roborally.controller.AppController;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 
 /**
  * ...
@@ -70,27 +63,11 @@ public class RoboRallyMenuBar extends MenuBar {
         controlMenu.getItems().add(stopGame);
 
         saveGame = new MenuItem("Save Game");
-        saveGame.setOnAction( e -> {
-            TextInputDialog filenameInput = new TextInputDialog();
-            filenameInput.setHeaderText("Enter filename");
-            filenameInput.setTitle("Save Game");
-            Optional<String> filename = filenameInput.showAndWait();
-            String strFilename = filename.get().replace(' ', '_');
-            this.appController.saveGame(strFilename);
-        });
+        saveGame.setOnAction( e -> this.appController.saveGame());
         controlMenu.getItems().add(saveGame);
 
         loadGame = new MenuItem("Load Game");
-        loadGame.setOnAction( e -> {
-            FileChooser loader = new FileChooser();
-            loader.setTitle("Load Game");
-            loader.getExtensionFilters().addAll(
-                new ExtensionFilter("Json Files", "*.json"));
-            File drc = new File("RoboRally/src/main/resources/gruppe15/roborally/saveGames");
-            loader.setInitialDirectory(drc);
-            File loadedFile = loader.showOpenDialog(getContextMenu());
-            if(loadedFile != null) this.appController.loadGame(loadedFile);
-        });
+        loadGame.setOnAction( e -> this.appController.loadGame());
         controlMenu.getItems().add(loadGame);
 
         exitApp = new MenuItem("Exit");

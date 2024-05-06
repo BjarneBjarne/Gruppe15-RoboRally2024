@@ -355,10 +355,6 @@ public class Board extends Subject {
         return getSpace(x, y);
     }
 
-    public List<Player> getPlayers() {
-        return players;
-    }
-
     public String getStatusMessage() {
         // This is actually a view aspect, but for making the first task easy for
         // the students, this method gives a string representation of the current

@@ -16,8 +16,7 @@ import java.util.LinkedList;
  */
 public abstract class BoardElement {
     private String imageName = "";
-   
-    transient private Image image;
+    private Image image;
 
     public BoardElement(String imageName, Heading direction) {
         setImage(imageName, direction);
@@ -50,9 +49,5 @@ public abstract class BoardElement {
 
     public Image getImage() {
         return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
     }
 }
