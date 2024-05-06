@@ -76,7 +76,14 @@ public class Board extends Subject {
 
         // Setup spaces
         if (boardName.equals("defaultboard")) {
-
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    // Add empty space
+                    if (spaces[x][y] == null) {
+                        addSpace(x, y, null, spaces);
+                    }
+                }
+            }
         } else if (boardName.equals("dizzy_highway")) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
