@@ -38,17 +38,16 @@ import static gruppe15.roborally.model.Heading.*;
  */
 public class Space extends Subject {
 
-    transient public final Board board;
+    public final Board board;
 
     public final int x;
     public final int y;
 
-    transient private Player player;
-    transient private BoardElement boardElement;
-    transient private Image backgroundImage;
-    transient private final List<Heading> walls;
+    private Player player;
+    private final BoardElement boardElement;
+    private Image backgroundImage;
+    private final List<Heading> walls = new ArrayList<>();
     private final List<Heading> lasersOnSpace = new ArrayList<>();
-
 
     public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
         this.board = board;
@@ -107,15 +106,6 @@ public class Space extends Subject {
     public boolean hasWall() {
         return !walls.isEmpty();
     }
-
-    public void setBoardElement(BoardElement boardElement) {
-        if (this.boardElement != boardElement) {
-            // this should actually not happen
-            this.boardElement = boardElement;
-            notifyChange();
-        }
-    }
-        
     public List<Heading> getWalls() {
         return walls;
     }
@@ -248,10 +238,5 @@ public class Space extends Subject {
     }
     public Image getImage() {
         return backgroundImage;
-    }
-
-    public void setImage(Image image) {
-        this.backgroundImage = image;
-        notifyChange();
     }
 }

@@ -31,7 +31,7 @@ import gruppe15.observer.Subject;
  */
 public class CommandCardField extends Subject {
 
-    transient final public Player player;
+    final public Player player;
 
     final public int index;
 

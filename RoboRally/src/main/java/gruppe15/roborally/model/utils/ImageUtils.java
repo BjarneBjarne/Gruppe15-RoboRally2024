@@ -2,24 +2,12 @@ package gruppe15.roborally.model.utils;
 
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.Heading;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
-import com.google.gson.Gson;
-// import javafx.embed.swing.SwingFXUtils;
-
-// import javax.imageio.ImageIO;
-import java.util.Base64;
-
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Objects;
-
-import javax.imageio.ImageIO;
 
 public class ImageUtils {
     /**
@@ -37,53 +25,6 @@ public class ImageUtils {
             return null;
         }
     }
-
-    /**
-     * @param image The image to be converted to a base64 string.
-     * @return Returns the base64 string of the image.
-     */
-    public static String imageToBase64(Image image) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", byteArrayOutputStream);
-            return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
-        } catch (Exception e) {
-            System.out.println("Error converting image to base64");
-            return null;
-        }
-    }
-
-    /**
-     * @param base64String The base64 string to be converted to an image.
-     * @return Returns the image of the base64 string.
-     */
-    public static Image base64ToImage(String base64String) {
-        try {
-            if (base64String == null) {
-                System.out.println("Base64 string is null");
-                return null;
-            }
-            
-            byte[] imageData = Base64.getDecoder().decode(base64String);
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(imageData);
-            return SwingFXUtils.toFXImage(ImageIO.read(inputStream), null);
-        } catch (Exception e) {
-            System.out.println("Error converting base64 to image");
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    // public static Image base64ToImage(String base64String) {
-    //     try {
-    //         return SwingFXUtils.toFXImage(ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(base64String))), null);
-    //         //return new Image(new String(Base64.getDecoder().decode(base64String)));
-    //     } catch (Exception e) {
-    //         System.out.println("Error converting base64 to image");
-    //         e.printStackTrace();
-    //         return null;
-    //     }
-    // }
 
     public static Image getRotatedImageByHeading(Image image, Heading heading) {
         ImageView imageView = new ImageView(image);
