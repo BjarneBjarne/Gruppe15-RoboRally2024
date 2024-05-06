@@ -59,7 +59,6 @@ public class Player extends Subject {
 
 
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
-    private  int priority = 0;
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
 
@@ -180,6 +179,7 @@ public class Player extends Subject {
 
     public void addEnergyCube() {
         energyCubes++;
+    }
 
     public CommandCardField[] getProgram() {
         return program;
