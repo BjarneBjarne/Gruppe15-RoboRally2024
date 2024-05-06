@@ -19,10 +19,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package gruppe15.roborally.model;
+package gruppe15.roborally.fileaccess.model;
 
-import gruppe15.observer.Subject;
-import org.jetbrains.annotations.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * ...
@@ -30,21 +31,13 @@ import org.jetbrains.annotations.NotNull;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class CommandCard extends Subject {
+public class BoardTemplate {
 
-    final public Command command;
+    public int width;
+    public int height;
+    public PlayerTemplate[] players;
+    public String currentPlayer;
 
-    public CommandCard(@NotNull Command command) {
-        this.command = command;
-    }
-
-    public String getName() {
-        return command.displayName;
-    }
-
-    public Command getCommand(){
-        return command;
-    }
-
+    public List<SpaceTemplate> spaces = new ArrayList<>();
 
 }

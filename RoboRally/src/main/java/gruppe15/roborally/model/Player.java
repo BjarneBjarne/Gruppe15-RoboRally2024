@@ -37,10 +37,10 @@ import static gruppe15.roborally.model.Heading.SOUTH;
  */
 public class Player extends Subject {
 
-    final public static int NO_OF_REGISTERS = 5;
-    final public static int NO_CARDS = 8;
+    transient final public static int NO_OF_REGISTERS = 5;
+    transient final public static int NO_CARDS = 8;
 
-    final public Board board;
+    transient final public Board board;
 
     private String name;
     private String color;
@@ -57,8 +57,11 @@ public class Player extends Subject {
 
     private int priority = 0;
 
+
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
-    private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
+    private  int priority = 0;
+    transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
+
 
     public Player(@NotNull Board board, String color, @NotNull String name) {
         this.board = board;
@@ -177,6 +180,14 @@ public class Player extends Subject {
 
     public void addEnergyCube() {
         energyCubes++;
+
+    public CommandCardField[] getProgram() {
+        return program;
+    }
+
+    public CommandCardField[] getCards() {
+        return cards;
+
     }
 
     public void buyUpgradeCard(UpgradeCard upgradeCard) {
