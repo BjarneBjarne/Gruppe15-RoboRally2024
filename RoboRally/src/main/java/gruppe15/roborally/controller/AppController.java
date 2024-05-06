@@ -24,6 +24,7 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.fileaccess.LoadBoard;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
@@ -36,7 +37,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
+
 import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * ...
@@ -116,16 +123,23 @@ public class AppController implements Observer {
         }
     }
 
-    public void saveGame() {
-        // XXX needs to be implemented eventually
+    public void saveGame(String filename) {
+        if(filename == null){
+            filename = "default_save";
+        }
+        LoadBoard.saveBoard(gameController.board, filename);
     }
 
-    public void loadGame() {
-        // XXX needs to be implemented eventually
-        // for now, we just create a new game
-        if (gameController == null) {
-            newGame();
-        }
+    public void loadGame(File loadedFile) {
+        Board newBoard = LoadBoard.loadBoard(loadedFile);
+        System.out.println(newBoard.width);
+        gameController = new GameController(newBoard);
+        gameController.startProgrammingPhase();
+
+        roboRally.createBoardView(gameController);
+        // if (gameController == null) {
+        //     newGame();
+        // }
     }
 
     /**
@@ -141,7 +155,7 @@ public class AppController implements Observer {
         if (gameController != null) {
 
             // here we save the game (without asking the user).
-            saveGame();
+            saveGame("Exit_save");
 
             gameController = null;
             roboRally.createBoardView(null);
