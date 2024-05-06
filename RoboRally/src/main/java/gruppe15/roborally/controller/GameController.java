@@ -152,14 +152,14 @@ public class GameController {
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Player player = board.getPlayer(i);
             if (player != null) {
+                player.discardAll();
                 for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                     CommandCardField field = player.getProgramField(j);
-                    field.setCard(null);
                     field.setVisible(true);
                 }
+                player.drawHand();
                 for (int j = 0; j < Player.NO_CARDS; j++) {
                     CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
                     field.setVisible(true);
                 }
             }
@@ -169,7 +169,7 @@ public class GameController {
     // XXX: implemented in the current version
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
+        int random = (int) (Math.random() * 9);
         return new CommandCard(commands[random]);
     }
 
@@ -350,11 +350,35 @@ public class GameController {
                     case FAST_FORWARD:
                         setPlayerVelocity(player, 2, 0);
                         break;
+                    case VARY_FAST_FORWARD:
+                        setPlayerVelocity(player, 3, 0);
+                        break;
                     case RIGHT:
-                        turnPlayer(player, 1);
+                        turnCurrentPlayer(player, 1);
                         break;
                     case LEFT:
-                        turnPlayer(player, -1);
+                        turnCurrentPlayer(player, -1);
+                        break;
+                    case U_TURN:
+                        turnCurrentPlayer(player, 2);
+                        break;
+                    case BACKWARD:
+                        setPlayerVelocity(player, -1, 0);
+                        break;
+                    case AGAIN:
+                        switch (player.getLastCmd()){
+                            case DAMAGE:
+                                //TODO
+                                break;
+                            case UPGRADE:
+                                //TODO
+                                break;
+                            default:
+                                executeCommand(player, player.getLastCmd());
+                        }
+                        break;
+                    case POWER_UP:
+                        //TODO
                         break;
                     case OPTION_LEFT_RIGHT:
                         break;
@@ -362,6 +386,13 @@ public class GameController {
                         // DO NOTHING (for now)
                 }
 
+                if(command != Command.AGAIN) player.setLastCmd(command);
+
+                // After command is executed, set the next player:
+                var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
+                var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
+                //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
+                //The current move counter is set to the old movecounter+1
                 board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
             }, Duration.millis(250), "Player movement: " + player.getName()));
         }
@@ -370,6 +401,13 @@ public class GameController {
     private void setPlayerVelocity(Player player, int fwd, int rgt) {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
 
+        int move = 1;
+        boolean negative = (fwd<0);
+        if(negative){
+            fwd = -fwd;
+            move = -1;
+        }
+
         // For each forward movement
         for (int i = 0; i < fwd; i++) {
             Space temp = player.getSpace();
@@ -377,20 +415,27 @@ public class GameController {
             int y = temp.y;
             switch(player.getHeading()){
                 case NORTH:
-                    y = y - 1;
+                    y = y - move;
                     break;
                 case SOUTH:
-                    y = y + 1;
+                    y = y + move;
                     break;
                 case EAST:
-                    x = x + 1;
+                    x = x + move;
                     break;
                 case WEST:
-                    x = x - 1;
+                    x = x - move;
                     break;
                 default:
             }
             movePlayerToSpace(player, board.getSpace(x, y));
+        }
+
+        move = 1;
+        negative = (rgt<0);
+        if(negative){
+            rgt = -rgt;
+            move = -1;
         }
 
         // For each sideways movement
@@ -400,16 +445,16 @@ public class GameController {
             int y = temp.y;
             switch(player.getHeading()){
                 case NORTH:
-                    x = x + 1;
+                    x = x + move;
                     break;
                 case SOUTH:
-                    x = x - 1;
+                    x = x - move;
                     break;
                 case EAST:
-                    y = y + 1;
+                    y = y + move;
                     break;
                 case WEST:
-                    y = y - 1;
+                    y = y - move;
                     break;
                 default:
             }
@@ -569,6 +614,7 @@ public class GameController {
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
         CommandCard sourceCard = source.getCard();
         CommandCard targetCard = target.getCard();
+        if(sourceCard.command != null && sourceCard.command == Command.AGAIN && target.index == 1) return false;
         if (sourceCard != null && targetCard == null) {
             target.setCard(sourceCard);
             source.setCard(null);

@@ -22,11 +22,10 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrades.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
 
@@ -50,11 +49,15 @@ public class Player extends Subject {
     private Space temporarySpace = null;
     private Heading heading = SOUTH;
 
+    private Command lastCmd;
+
     private final CommandCardField[] program;
     private final CommandCardField[] cards;
     private int energyCubes = 0;
 
     private int priority = 0;
+
+    private Queue<CommandCard> programmingDeck = new LinkedList<>();
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
     public Player(@NotNull Board board, String color, @NotNull String name) {
@@ -66,13 +69,23 @@ public class Player extends Subject {
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
-            program[i] = new CommandCardField(this);
+            program[i] = new CommandCardField(this,i+1);
         }
 
         cards = new CommandCardField[NO_CARDS];
         for (int i = 0; i < cards.length; i++) {
             cards[i] = new CommandCardField(this);
         }
+
+        setProgrammingDeckToDefoult();
+    }
+
+    public void setLastCmd(Command lastCmd) {
+        this.lastCmd = lastCmd;
+    }
+
+    public Command getLastCmd(){
+        return lastCmd;
     }
 
     public String getName() {
@@ -169,5 +182,69 @@ public class Player extends Subject {
     public void buyUpgradeCard(UpgradeCard upgradeCard) {
         upgradeCards.add(upgradeCard);
         upgradeCard.initialize(board, this);
+    }
+
+    public void setProgrammingDeckToDefoult(){
+        List<Integer> index = new ArrayList<Integer>();
+        for(int i = 0; i < 20; i++){
+            if(i<9){
+                index.add(i);
+            }else if(i<18){
+                index.add(i-9);
+            }else{
+                index.add(i-18);
+            }
+        }
+        Collections.shuffle(index);
+        Command[] commands = Command.values();
+        for(int i = 0; i < 20; i++) {
+            programmingDeck.add(new CommandCard(commands[index.remove(0)]));
+        }
+        programmingDeck.add(null);
+    }
+
+    private void shuffleDiscardedIntoDeck(){
+        List<CommandCard> temp = new ArrayList<>(programmingDeck);
+        programmingDeck.clear();
+        Collections.shuffle(temp);
+        programmingDeck.addAll(temp);
+        programmingDeck.add(null);
+    }
+    private void discard(CommandCard card){
+        programmingDeck.add(new CommandCard(card.command));
+    }
+
+    private CommandCard drawFromDeck(){
+        CommandCard temp = programmingDeck.remove();
+        if(temp == null) return null;
+        return new CommandCard(temp.command);
+    }
+
+    public void drawHand(){
+        for(CommandCardField c: cards){
+            if(c.getCard() == null){
+                CommandCard temp = drawFromDeck();
+                if(temp == null){
+                    shuffleDiscardedIntoDeck();
+                    temp = drawFromDeck();
+                }
+                c.setCard(temp);
+            }
+        }
+    }
+
+    public void discardAll(){
+        for(CommandCardField c: program){
+            if(c.getCard() != null){
+                discard(c.getCard());
+                c.setCard(null);
+            }
+        }
+        for(CommandCardField c: cards){
+            if(c.getCard() != null){
+                discard(c.getCard());
+                c.setCard(null);
+            }
+        }
     }
 }
