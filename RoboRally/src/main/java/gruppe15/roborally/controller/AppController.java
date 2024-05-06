@@ -29,7 +29,7 @@ import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.boardelements.SpawnPoint;
+import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -37,6 +37,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
+
+import java.util.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,7 +91,7 @@ public class AppController implements Observer {
             for (int x = 0; x < spaces.length; x++) {
                 for (int y = 0; y < spaces[x].length; y++) {
                     Space space = spaces[x][y];
-                    if (space.getBoardElement() instanceof SpawnPoint) {
+                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
                         spawnPoints.add(space);
                     }
                 }
@@ -101,6 +103,7 @@ public class AppController implements Observer {
                 board.addPlayer(player);
 
                 // Set player spawn
+                Collections.shuffle(spawnPoints);
                 if (spawnPoints.isEmpty()) {
                     player.setSpace(board.getSpace(i % board.width, i));
                 } else {

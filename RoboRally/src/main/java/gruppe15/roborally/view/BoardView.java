@@ -24,11 +24,12 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Phase;
 import gruppe15.roborally.model.Space;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -68,7 +69,7 @@ public class BoardView extends VBox implements ViewObserver {
 
         spaces = new SpaceView[board.width][board.height];
 
-        spaceEventHandler = new SpaceEventHandler(gameController);
+        spaceEventHandler = new SpaceEventHandler(gameController, this);
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -77,11 +78,12 @@ public class BoardView extends VBox implements ViewObserver {
                 spaces[x][y] = spaceView;
                 mainBoardPane.add(spaceView, x, y);
                 spaceView.setOnMouseClicked(spaceEventHandler);
+                spaceView.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
             }
         }
 
-        /*board.attach(this);
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+        board.attach(this);
+        /*for (int i = 0; i < board.getNoOfPlayers(); i++) {
             board.getPlayer(i).attach(this);
         }*/
         update(board);
@@ -90,7 +92,6 @@ public class BoardView extends VBox implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == board) {
-            Phase phase = board.getPhase();
             statusLabel.setText(board.getStatusMessage());
         }
     }
@@ -98,11 +99,13 @@ public class BoardView extends VBox implements ViewObserver {
     // XXX this handler and its uses should eventually be deleted! This is just to help test the
     //     behaviour of the game by being able to explicitly move the players on the board!
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
-
         final public GameController gameController;
+        final private BoardView boardView;
+        private int playerToSet = 0;
 
-        public SpaceEventHandler(@NotNull GameController gameController) {
+        public SpaceEventHandler(@NotNull GameController gameController, @NotNull BoardView boardView) {
             this.gameController = gameController;
+            this.boardView = boardView;
         }
 
         @Override
@@ -114,11 +117,42 @@ public class BoardView extends VBox implements ViewObserver {
                 Board board = space.board;
 
                 if (board == gameController.board) {
-                    gameController.moveCurrentPlayerToSpace(space);
+                    if (event.isShiftDown()) {
+                        space.setPlayer(board.getPlayer(1));
+                    } else {
+                        space.setPlayer(board.getPlayer(0));
+                    }
+
                     event.consume();
                 }
             }
         }
+
+        public void keyPressed(KeyEvent event) { // NOt working
+            switch (event.getCode()) {
+                case KeyCode.F1:
+                    playerToSet = 0;
+                    break;
+                case KeyCode.F2:
+                    playerToSet = 1;
+                    break;
+                case KeyCode.F3:
+                    playerToSet = 2;
+                    break;
+                case KeyCode.F4:
+                    playerToSet = 3;
+                    break;
+            }
+        }
+    }
+
+    private class KeyEventHandler  {
+        final private BoardView boardView;
+
+        public KeyEventHandler(@NotNull BoardView boardView) {
+            this.boardView = boardView;
+        }
+
 
     }
 

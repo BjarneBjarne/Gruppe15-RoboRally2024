@@ -22,18 +22,17 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.boardelements.Antenna;
-import gruppe15.roborally.model.boardelements.ConveyorBelt;
-import gruppe15.roborally.model.boardelements.SpawnPoint;
+import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import static gruppe15.roborally.model.Heading.*;
+import static gruppe15.roborally.model.Heading.WEST;
 import static gruppe15.roborally.model.Phase.INITIALISATION;
 
 /**
@@ -66,6 +65,7 @@ public class Board extends Subject {
 
     private boolean stepMode;
 
+    private final Queue<Player> priorityList = new ArrayDeque<>();
 
 
     public Board(int width, int height, @NotNull String boardName) {
@@ -78,12 +78,9 @@ public class Board extends Subject {
         if (boardName.equals("defaultboard")) {
 
         } else if (boardName.equals("dizzy_highway")) {
-
-            // Start board spaces
-            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
-            // Antenna
-            spaces[0][4] = new Space(this, 0, 4, new Antenna(), backgroundStart, null);
-            // SpawnPoint points
+            // BE_Antenna
+            addSpace(0, 4, new BE_Antenna(), spaces);
+            // BE_SpawnPoint points
             Point2D[] startFieldPoints = {
                     new Point2D(1,1),
                     new Point2D(0, 3),
@@ -95,37 +92,100 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                spaces[x][y] = new Space(this, x, y, new SpawnPoint(), backgroundStart, null);
+                addSpace(x, y, new BE_SpawnPoint(), spaces);
             }
-            // Fill the rest with empty spaces
-            for (int x = 0; x < 3; x++) {
-                for(int y = 0; y < height; y++) {
-                    if (spaces[x][y] != null) {
-                        continue;
-                    }
-                    spaces[x][y] = new Space(this, x, y, null, backgroundStart, null);
+
+            // Energy spaces
+            addSpace(12, 0, new BE_EnergySpace(), spaces);
+            addSpace(5, 2, new BE_EnergySpace(), spaces);
+            addSpace(8, 4, new BE_EnergySpace(), spaces);
+            addSpace(7, 5, new BE_EnergySpace(), spaces);
+            addSpace(10, 7, new BE_EnergySpace(), spaces);
+            addSpace(3, 9, new BE_EnergySpace(), spaces);
+
+            // Conveyor belts
+            addSpace(2, 0, new BE_ConveyorBelt(EAST, 1), spaces);
+            addSpace(2, 9, new BE_ConveyorBelt(EAST, 1), spaces);
+
+            for (int i = 3; i <= 10; i++) {
+                addSpace(i, 8, new BE_ConveyorBelt(EAST, 2), spaces);
+            }
+            for (int i = 2; i <= 9; i++) {
+                addSpace(11, i, new BE_ConveyorBelt(NORTH, 2), spaces);
+            }
+            for (int i = 5; i <= 12; i++) {
+                addSpace(i, 1, new BE_ConveyorBelt(WEST, 2), spaces);
+            }
+            for (int i = 0; i <= 7; i++) {
+                addSpace(4, i, new BE_ConveyorBelt(SOUTH, 2), spaces);
+            }
+            addSpace(3, 7, new BE_ConveyorBelt(EAST, 2), spaces);
+            addSpace(10, 9, new BE_ConveyorBelt(NORTH, 2), spaces);
+            addSpace(12, 2, new BE_ConveyorBelt(WEST, 2), spaces);
+            addSpace(5, 0, new BE_ConveyorBelt(SOUTH, 2), spaces);
+
+            // Board lasers
+            addSpace(6, 4, new BE_BoardLaser(NORTH), spaces);
+            addSpace(9, 5, new BE_BoardLaser(SOUTH), spaces);
+            addSpace(8, 3, new BE_BoardLaser(EAST), spaces);
+            addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
+
+            // Walls
+            //Heading[][] walls = new Heading[this.width][this.height];
+            List<Heading>[][] walls = new ArrayList[this.width][this.height];
+            for (int x = 0; x < this.width; x++) {
+                for (int y = 0; y < this.height; y++) {
+                    walls[x][y] = new ArrayList<>();
                 }
             }
+            walls[1][2].add(NORTH);
+            walls[6][3].add(NORTH);
+            walls[9][5].add(NORTH);
+            walls[1][7].add(SOUTH);
+            walls[6][4].add(SOUTH);
+            walls[9][6].add(SOUTH);
+            walls[2][4].add(EAST);
+            walls[2][5].add(EAST);
+            walls[7][6].add(EAST);
+            walls[9][3].add(EAST);
+            walls[6][6].add(WEST);
+            walls[8][3].add(WEST);
 
-
-            // Main board
+            // Fill the rest of the spaces with empty spaces and set background images
+            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
             Image background = ImageUtils.getImageFromName("empty.png");
-            // Conveyor belts
-            for (int x = 3; x < width; x++) {
-                spaces[x][3] = new Space(this, x, 3, new ConveyorBelt(Heading.WEST), background, null);
-            }
-            // Fill the rest of the board with empty spaces
-            for (int x = 3; x < width; x++) {
+            for (int x = 0; x < width; x++) {
                 for(int y = 0; y < height; y++) {
-                    if (spaces[x][y] != null) {
-                        continue;
+                    // Add empty space
+                    if (spaces[x][y] == null) {
+                        addSpace(x, y, null, spaces);
                     }
-                    spaces[x][y] = new Space(this, x, y, null, background, null);
+                    // Set background image
+                    if (x < 3) {
+                        spaces[x][y].setBackgroundImage(backgroundStart);
+                    } else {
+                        spaces[x][y].setBackgroundImage(background);
+                    }
+                    // Add walls if any
+                    for (Heading wall : walls[x][y]) {
+                        spaces[x][y].addWall(wall);
+                    }
+                }
+            }
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt) {
+                        spaces[x][y].getBoardElement().calculateImage(x, y, spaces);
+                    }
                 }
             }
         }
 
         this.stepMode = false;
+    }
+
+    private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
+        spaces[x][y] = new Space(this, x, y, boardElement);
     }
 
     public Board(int width, int height) {
@@ -179,6 +239,10 @@ public class Board extends Subject {
         }
     }
 
+    public Queue<Player> getPriorityList() {
+       return priorityList;
+    }
+
     public Player getCurrentPlayer() {
         return current;
     }
@@ -186,8 +250,8 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
-            notifyChange();
         }
+        notifyChange();
     }
 
     List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
@@ -244,7 +308,6 @@ public class Board extends Subject {
         }
 
     }
-
 
     //A public function to get the movecounter
     public int getMoveCounter(){
@@ -318,5 +381,44 @@ public class Board extends Subject {
         //      be used to extend the status message
     }
 
+    public void updatePriorityList() {
+        priorityList.clear();
+        Space antenna = findAntenna();
+        ArrayList<Player> newPriorityList = new ArrayList<>();
+        for(int i = 0; i < getNoOfPlayers(); i++){
+            Player player = getPlayer(i);
+            player.setPriority(determinePlayerPriority(player, antenna));
+            newPriorityList.add(player);
+        }
+        //sorting list
+        for (int i = 0; i < newPriorityList.size() - 1; i++){
+            if(newPriorityList.get(i).getPriority() > newPriorityList.get(i + 1).getPriority()) {
+                Collections.swap(newPriorityList, i, i + 1);
+                i = -1;
+            }
+        }
+        /*for (int i =0;i<priorityList.size();i++){
+            System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
+        }*/
+        //TODO: Implement real tiebreaker
+        priorityList.addAll(newPriorityList);
+    }
 
+    public Integer determinePlayerPriority(Player player,Space antenna) {
+        int x = antenna.x - player.getSpace().x;
+        int y = antenna.y - player.getSpace().y;
+        return Math.abs(x) + Math.abs(y);
+    }
+    public Space findAntenna() {
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                BoardElement boardElement = spaces[x][y].getBoardElement();
+                if (boardElement instanceof BE_Antenna) {
+                    return  spaces[x][y];
+                }
+            }
+        }
+        System.out.println("Err: No Priority antenna found");
+        return null;
+    }
 }

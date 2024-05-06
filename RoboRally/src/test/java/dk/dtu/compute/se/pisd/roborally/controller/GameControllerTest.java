@@ -40,7 +40,7 @@ class GameControllerTest {
 
 
 
-        gameController.moveCurrentPlayerToSpace(board.getSpace(0, 4));
+        gameController.movePlayerToSpace(, board.getSpace(0, 4));
 
         Assertions.assertEquals(player1, board.getSpace(0, 4).getPlayer(), "Player " + player1.getName() + " should beSpace (0,4)!");
         Assertions.assertNull(board.getSpace(0, 0).getPlayer(), "Space (0,0) should be empty!");
@@ -53,7 +53,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.executeCommand(current, Command.FORWARD);
+        gameController.queuePlayerCommand(current, Command.FORWARD);
 
         Assertions.assertEquals(current, board.getSpace(0, 1).getPlayer(), "Player " + current.getName() + " should beSpace (0,1)!");
         Assertions.assertEquals(Heading.SOUTH, current.getHeading(), "Player 0 should be heading SOUTH!");
@@ -65,7 +65,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.executeCommand(current, Command.FAST_FORWARD);
+        gameController.queuePlayerCommand(current, Command.FAST_FORWARD);
 
         Assertions.assertEquals(current, board.getSpace(0, 2).getPlayer(), "Player " + current.getName() + " should beSpace (0,2)!");
         Assertions.assertEquals(Heading.SOUTH, current.getHeading(), "Player 0 should be heading SOUTH!");
@@ -77,7 +77,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.executeCommand(current, Command.RIGHT);
+        gameController.queuePlayerCommand(current, Command.RIGHT);
 
         Assertions.assertEquals(current, board.getSpace(0, 0).getPlayer(), "Player " + current.getName() + " should beSpace (0,0)!");
         Assertions.assertEquals(Heading.WEST, current.getHeading(), "Player 0 should be heading WEST!");
@@ -88,7 +88,7 @@ class GameControllerTest {
         Board board = gameController.board;
         Player current = board.getCurrentPlayer();
 
-        gameController.executeCommand(current, Command.LEFT);
+        gameController.queuePlayerCommand(current, Command.LEFT);
 
         Assertions.assertEquals(current, board.getSpace(0, 0).getPlayer(), "Player " + current.getName() + " should beSpace (0,0)!");
         Assertions.assertEquals(Heading.EAST, current.getHeading(), "Player 0 should be heading EAST!");

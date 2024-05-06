@@ -99,7 +99,7 @@ public class PlayerView extends Tab implements ViewObserver {
         executeButton.setOnAction( e-> gameController.executePrograms());
 
         stepButton = new Button("Execute Current Register");
-        stepButton.setOnAction( e-> gameController.executeRegisters());
+        stepButton.setOnAction( e-> gameController.executeNextPlayerTurn());
 
         buttonPanel = new VBox(finishButton, executeButton, stepButton);
         buttonPanel.setAlignment(Pos.CENTER_LEFT);
@@ -146,10 +146,10 @@ public class PlayerView extends Tab implements ViewObserver {
                         if (i < player.board.getCurrentRegister()) {
                             cardFieldView.setBackground(CardFieldView.BG_DONE);
                         } else if (i == player.board.getCurrentRegister()) {
-                            if (player.board.getCurrentPlayer() == player) {
-                                cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
-                            } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
+                            if (gameController.getIsTurnPlaying()) {
                                 cardFieldView.setBackground(CardFieldView.BG_DONE);
+                            } else if (player.board.getCurrentPlayer() == player) {
+                                cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
                             } else {
                                 cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                             }
@@ -182,8 +182,8 @@ public class PlayerView extends Tab implements ViewObserver {
 
                     case ACTIVATION:
                         finishButton.setDisable(true);
-                        executeButton.setDisable(false);
-                        stepButton.setDisable(false);
+                        executeButton.setDisable(gameController.getIsTurnPlaying());
+                        stepButton.setDisable(gameController.getIsTurnPlaying());
                         break;
 
 
