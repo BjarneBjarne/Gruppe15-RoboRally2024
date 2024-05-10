@@ -81,6 +81,7 @@ public class GameController {
             System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
             return;
         }
+
         boolean couldMove = false;
         if (nextSpace != null) {
             boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
