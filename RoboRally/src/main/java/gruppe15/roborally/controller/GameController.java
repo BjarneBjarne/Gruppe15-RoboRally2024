@@ -77,37 +77,35 @@ public class GameController {
         //     if the player is moved
         Space currentSpace = player.getSpace();
         if (currentSpace == null) {
+            System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
             return;
         }
-        if (nextSpace == null) {
-            // TODO: Make player (fall off / reboot)
-            System.out.println("Next space null! Player " + player.getName() + " should fall off.");
-            // Should call: EventHandler.event_PlayerReboot(player);
-            return;
-        }
-        boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
         boolean couldMove = false;
-        if (nextSpace.getPlayer() == null && !isWallBetween) {
-            couldMove = true;
-        } else if (!isWallBetween) { // If it isn't a wall, try push players
-            List<Player> playersToPush = new ArrayList<>();
-            Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
-            boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
-            if (couldPush) {
-                // Handle pushing players in EventHandler
-                EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
+        if (nextSpace != null) {
+            boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
+            if (nextSpace.getPlayer() == null && !isWallBetween) {
                 couldMove = true;
+            } else if (!isWallBetween) { // If it isn't a wall, try push players
+                List<Player> playersToPush = new ArrayList<>();
+                Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
+                boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
+                if (couldPush) {
+                    // Handle pushing players in EventHandler
+                    EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
+                    couldMove = true;
+                } else {
+                    // There is a wall at the end of player chain
+                }
             } else {
-                // There is a wall at the end of player chain
+                // There is a wall between currentSpace and nextSpace
             }
-        } else {
-            // There is a wall between currentSpace and nextSpace
         }
 
-        if (couldMove) {
-            // Setting the current players position to the new space in the EventHandler
-            EventHandler.event_PlayerMove(player, nextSpace);
+        if (!couldMove) {
+            nextSpace = currentSpace;
         }
+        // Setting the players position to nextSpace in the EventHandler
+        EventHandler.event_PlayerMove(player, nextSpace);
     }
 
     /**
