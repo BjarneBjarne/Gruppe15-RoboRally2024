@@ -83,30 +83,32 @@ public class GameController {
             return;
         }
 
-        boolean couldMove = false;
+        boolean couldMove = true;
         if (nextSpace != null) {
             boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
-            if (nextSpace.getPlayer() == null && !isWallBetween) {
-                couldMove = true;
-            } else if (!isWallBetween) { // If it isn't a wall, try push players
-                List<Player> playersToPush = new ArrayList<>();
-                Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
-                boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
-                if (couldPush) {
-                    // Handle pushing players in EventHandler
-                    EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
-                    couldMove = true;
-                } else {
-                    // There is a wall at the end of player chain
+            if (!isWallBetween) { // If it isn't a wall
+                if (nextSpace.getPlayer() != null) { // If there is a player on the nextSpace
+                    List<Player> playersToPush = new ArrayList<>();
+                    Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
+                    boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
+                    if (couldPush) {
+                        // Handle pushing players in EventHandler
+                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
+                    } else {
+                        // There is a wall at the end of player chain
+                        couldMove = false;
+                    }
                 }
             } else {
                 // There is a wall between currentSpace and nextSpace
+                couldMove = false;
             }
         }
 
         if (!couldMove) {
             nextSpace = currentSpace;
         }
+
         // Setting the players position to nextSpace in the EventHandler
         EventHandler.event_PlayerMove(player, nextSpace, this);
     }
@@ -407,21 +409,17 @@ public class GameController {
     }
 
     private void startPlayerMovement(Player player) {
-        Velocity playerVelocity = player.getVelocity();
-        int fwd = playerVelocity.getForward();
-        int rgt = playerVelocity.getRight();
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
-        player.setVelocity(new Velocity(fwd, rgt));
+        Velocity playerVelocity = player.getVelocity();
 
         int move = 1;
-        boolean negative = (fwd<0);
+        boolean negative = (playerVelocity.forward < 0);
         if(negative){
-            fwd = -fwd;
+            playerVelocity.forward = -playerVelocity.forward;
             move = -1;
         }
-
         // For each forward movement
-        for (int i = 0; i < fwd; i++) {
+        while (playerVelocity.forward > 0) {
             Space temp = player.getSpace();
             int x = temp.x;
             int y = temp.y;
@@ -440,18 +438,20 @@ public class GameController {
                     break;
                 default:
             }
-            movePlayerToSpace(player, board.getSpace(x, y));
+            playerVelocity.forward--;
+            if (!player.getIsRebooting()) {
+                movePlayerToSpace(player, board.getSpace(x, y));
+            }
         }
 
         move = 1;
-        negative = (rgt<0);
+        negative = (playerVelocity.right < 0);
         if(negative){
-            rgt = -rgt;
+            playerVelocity.right = -playerVelocity.right;
             move = -1;
         }
-
         // For each sideways movement
-        for (int i = 0; i < rgt; i++) {
+        while (playerVelocity.right > 0) {
             Space temp = player.getSpace();
             int x = temp.x;
             int y = temp.y;
@@ -470,7 +470,10 @@ public class GameController {
                     break;
                 default:
             }
-            movePlayerToSpace(player, board.getSpace(x, y));
+            playerVelocity.right--;
+            if (!player.getIsRebooting()) {
+                movePlayerToSpace(player, board.getSpace(x, y));
+            }
         }
     }
 
@@ -510,16 +513,18 @@ public class GameController {
 
     public void queueBoardElementsAndRobotLasers() {
         Space[][] spaces = board.getSpaces();
-
         // First we gather some information about the board.
         List<Space> greenConveyorBeltSpaces = new ArrayList<>();
         List<Space> blueConveyorBeltSpaces = new ArrayList<>();
         List<Space> energySpaces = new ArrayList<>();
         List<Space> checkpoints = new ArrayList<>();
         List<Space> gears = new ArrayList<>();
-        List<Space> pushpanels = new ArrayList<>();
+        List<Space> pushPanels = new ArrayList<>();
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Space playerSpace = board.getPlayer(i).getSpace();
+            if (playerSpace == null) {
+                continue;
+            }
             BoardElement boardElement = playerSpace.getBoardElement();
             if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
                 if (conveyorBelt.getStrength() == 1) {
@@ -534,10 +539,9 @@ public class GameController {
             } else if (boardElement instanceof BE_Gear) {
                 gears.add(playerSpace);
             } else if (boardElement instanceof BE_PushPanel) {
-                pushpanels.add(playerSpace);
+                pushPanels.add(playerSpace);
             }
         }
-        
 
         // 1. Blue conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
@@ -563,10 +567,11 @@ public class GameController {
 
         // 3. Push panels
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space pushPanel : pushpanels) {
+            for (Space pushPanel : pushPanels) {
                 pushPanel.getBoardElement().doAction(pushPanel, this, actionQueue);
             }
         }, Duration.millis(0), ""));
+
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space gearSpace : gears) {
@@ -586,40 +591,36 @@ public class GameController {
             }
         }, Duration.millis(250), "Board laser"));
 
-        // Clearing the last board laser.
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    spaces[x][y].clearLasersOnSpace();
-                }
-            }
-        }, Duration.millis(0)));
-
         // 6. Robot lasers
+        addClearLasers(spaces);
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             EventHandler.event_PlayerShoot(board.getSpaces(), board.getPlayer(i), actionQueue);
         }
-        // Clearing the last robots laser.
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    spaces[x][y].clearLasersOnSpace();
-                }
-            }
-        }, Duration.millis(0)));
 
         // 7. Energy spaces
+        addClearLasers(spaces);
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space energySpace : energySpaces) {
                 energySpace.getBoardElement().doAction(energySpace, this, actionQueue);
             }
         }, Duration.millis(250), "Energy spaces"));
+
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space checkpoint : checkpoints) {
                 checkpoint.getBoardElement().doAction(checkpoint, this, actionQueue);
             }
         }, Duration.millis(0), ""));
+    }
+
+    private void addClearLasers(Space[][] spaces) {
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space[] space : spaces) {
+                for (Space value : space) {
+                    value.clearLasersOnSpace();
+                }
+            }
+        }, Duration.millis(0)));
     }
 
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {

@@ -187,7 +187,7 @@ public class EventHandler {
      */
     public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
         List<PlayerMoveListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerMoveListener.class);
-        boolean shouldReboot = playerMoving.getSpace() == null || playerMoving.getSpace().getBoardElement() instanceof BE_Hole; // If player is out of bounds or on a hole
+        boolean shouldReboot = (space == null || playerMoving.getSpace().getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
 
         // Handle listener logic
         for (PlayerMoveListener listener : playerMoveListeners) {
@@ -210,15 +210,22 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    private static void event_PlayerReboot(Player playerMoving, GameController gc) {
-        playerMoving.setIsRebooting(true);
-
-        Pair<Space, BE_Reboot> rebootSpace = gc.board.findReboot();
+    private static void event_PlayerReboot(Player player, GameController gc) {
+        player.setIsRebooting(true);
+        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(player.getSpace());
+        Space[][] subBoard = gc.board.getSubBoards().get(subBoardIndex);
+        Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(subBoard);
+        Space rebootSpace;
+        if (rebootSpaceFinder != null) {
+            rebootSpace = rebootSpaceFinder.getKey();
+        } else {
+            rebootSpace = player.getSpawnPoint();
+        }
         List<Player> playersToPush = new ArrayList<>();
-        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace.getKey(), rebootSpace.getValue().getDirection(), playersToPush);
+        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
         if (couldPush) {
-            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getValue().getDirection());
-            playerMoving.setSpace(rebootSpace.getKey());
+            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection());
+            player.setSpace(rebootSpace);
         } else {
             // There is a wall at the end of player chain
             System.out.println("ERROR: Can't place player on reboot.");

@@ -12,10 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class BE_BoardLaser extends BoardElement {
-    private final Heading direction;
     public BE_BoardLaser(Heading direction) {
         super("laserStart.png", direction);
-        this.direction = direction;
     }
 
     @Override

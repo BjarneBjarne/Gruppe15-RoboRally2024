@@ -100,11 +100,11 @@ public class AppController implements Observer {
                 // Set player spawn
                 Collections.shuffle(spawnPoints);
                 if (spawnPoints.isEmpty()) {
-                    player.setSpace(board.getSpace(i % board.width, i));
+                    player.setSpawn(board.getSpace(i % board.width, i));
                 } else {
                     for (Space spawnPoint : spawnPoints) {
                         if (spawnPoint.getPlayer() == null) {
-                            player.setSpace(spawnPoint);
+                            player.setSpawn(spawnPoint);
                         }
                     }
                 }
