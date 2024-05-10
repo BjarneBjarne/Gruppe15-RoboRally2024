@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import org.jetbrains.annotations.NotNull;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
@@ -22,7 +23,7 @@ public class BE_Gear extends BoardElement {
     }
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Player player = space.getPlayer();
         if (player == null)
             return false;
