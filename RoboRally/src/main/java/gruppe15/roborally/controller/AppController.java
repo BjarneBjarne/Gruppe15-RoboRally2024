@@ -30,10 +30,12 @@ import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.input.MouseEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -179,4 +181,10 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
+    public void newGameButton(MouseEvent event) {
+    }
+
+    public void testAction(ActionEvent actionEvent) {
+
+    }
 }

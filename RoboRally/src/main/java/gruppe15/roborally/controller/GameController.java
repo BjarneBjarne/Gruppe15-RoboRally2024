@@ -108,7 +108,7 @@ public class GameController {
             nextSpace = currentSpace;
         }
         // Setting the players position to nextSpace in the EventHandler
-        EventHandler.event_PlayerMove(player, nextSpace);
+        EventHandler.event_PlayerMove(player, nextSpace, this);
     }
 
     /**
@@ -118,11 +118,10 @@ public class GameController {
      * @return A list of players being pushed.
      */
     public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
-
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
 
-        if (nextSpace == null) {                                // Base case, player fell off monkaW
+        if (nextSpace == null) {                                // Base case, player fell off LULW
             System.out.println("Next space null! Player " + (playerOnSpace == null ? "no_player" : playerOnSpace.getName()) + " should fall off.");
             playersToPush.add(playerOnSpace);
             return true;
@@ -223,8 +222,11 @@ public class GameController {
      */
     private void handlePlayerRegister() {
         turnPlaying = true;
-        // Handle the players command on the current register. This will queue any command on the register.
-        handlePlayerCommand(board.getCurrentPlayer());
+        Player currentPlayer = board.getCurrentPlayer();
+        if (!currentPlayer.getIsRebooting()) {
+            // Handle the players command on the current register. This will queue any command on the register.
+            handlePlayerCommand(currentPlayer);
+        }
         // Begin handling the actions.
         handlePlayerActions();
     }
@@ -243,13 +245,11 @@ public class GameController {
         }
         // When player command is executed, check if there are more player turns this register.
         if (!board.getPriorityList().isEmpty()) {
-            turnPlaying = false;
             // There are more players in the priorityList. Continue to next player.
             // Take player from the queue
             board.setCurrentPlayer(board.getPriorityList().poll());
             handlePlayerRegister();
         } else {
-            turnPlaying = false;
             // priorityList is empty, therefore we end the register.
             handleEndOfRegister();
         }
@@ -283,6 +283,10 @@ public class GameController {
             }
         } else {
             // If all registers are done, we start the programming phase. TODO: When the Upgrade Phase is implemented, we should go to the Upgrade Phase here.
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                board.getPlayer(i).setIsRebooting(false);
+            }
+            turnPlaying = false;
             PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
             pause.setOnFinished(event -> startProgrammingPhase());  // Small delay before ending activation phase for dramatic effect ;-).
             pause.play();
@@ -342,13 +346,16 @@ public class GameController {
             actionQueue.addFirst(new ActionWithDelay(() -> {
                 switch (finalCommand) {
                     case FORWARD:
-                        setPlayerVelocity(player, 1, 0);
+                        player.setVelocity(new Velocity(1, 0));
+                        startPlayerMovement(player);
                         break;
                     case FAST_FORWARD:
-                        setPlayerVelocity(player, 2, 0);
+                        player.setVelocity(new Velocity(2, 0));
+                        startPlayerMovement(player);
                         break;
                     case VARY_FAST_FORWARD:
-                        setPlayerVelocity(player, 3, 0);
+                        player.setVelocity(new Velocity(3, 0));
+                        startPlayerMovement(player);
                         break;
                     case RIGHT:
                         turnPlayer(player, 1);
@@ -360,7 +367,8 @@ public class GameController {
                         turnPlayer(player, 2);
                         break;
                     case BACKWARD:
-                        setPlayerVelocity(player, -1, 0);
+                        player.setVelocity(new Velocity(-1, 0));
+                        startPlayerMovement(player);
                         break;
                     case AGAIN:
                         switch (player.getLastCmd()){
@@ -398,8 +406,12 @@ public class GameController {
         }
     }
 
-    private void setPlayerVelocity(Player player, int fwd, int rgt) {
+    private void startPlayerMovement(Player player) {
+        Velocity playerVelocity = player.getVelocity();
+        int fwd = playerVelocity.getForward();
+        int rgt = playerVelocity.getRight();
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
+        player.setVelocity(new Velocity(fwd, rgt));
 
         int move = 1;
         boolean negative = (fwd<0);

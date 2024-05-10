@@ -27,6 +27,7 @@ import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -95,7 +96,7 @@ public class Board extends Subject {
                 addSpace(x, y, new BE_SpawnPoint(), spaces);
             }
             // BE_Reboot
-            addSpace(7, 3, new BE_Reboot(), spaces);
+            addSpace(7, 3, new BE_Reboot(SOUTH), spaces);
 
             // Energy spaces
             addSpace(12, 0, new BE_EnergySpace(), spaces);
@@ -433,6 +434,18 @@ public class Board extends Subject {
             }
         }
         System.out.println("Err: No Priority antenna found");
+        return null;
+    }
+
+    public Pair<Space, BE_Reboot> findReboot() {
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                if (spaces[x][y].getBoardElement() instanceof BE_Reboot reboot) {
+                    return new Pair<>(spaces[x][y], reboot);
+                }
+            }
+        }
+        System.out.println("Err: No reboot space found");
         return null;
     }
 }
