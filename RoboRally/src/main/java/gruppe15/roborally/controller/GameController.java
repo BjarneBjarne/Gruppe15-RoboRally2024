@@ -27,6 +27,7 @@ import gruppe15.roborally.model.boardelements.BE_Checkpoint;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
 import gruppe15.roborally.model.boardelements.BE_Gear;
+import gruppe15.roborally.model.boardelements.BE_PushPanel;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
@@ -504,6 +505,7 @@ public class GameController {
         List<Space> energySpaces = new ArrayList<>();
         List<Space> checkpoints = new ArrayList<>();
         List<Space> gears = new ArrayList<>();
+        List<Space> pushpanels = new ArrayList<>();
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Space playerSpace = board.getPlayer(i).getSpace();
             BoardElement boardElement = playerSpace.getBoardElement();
@@ -519,6 +521,8 @@ public class GameController {
                 checkpoints.add(playerSpace);
             } else if (boardElement instanceof BE_Gear) {
                 gears.add(playerSpace);
+            } else if (boardElement instanceof BE_PushPanel) {
+                pushpanels.add(playerSpace);
             }
         }
         
@@ -547,7 +551,9 @@ public class GameController {
 
         // 3. Push panels
         actionQueue.addLast(new ActionWithDelay(() -> {
-            // TODO: Implement Push panels
+            for (Space pushPanel : pushpanels) {
+                pushPanel.getBoardElement().doAction(pushPanel, this, actionQueue);
+            }
         }, Duration.millis(0), ""));
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {

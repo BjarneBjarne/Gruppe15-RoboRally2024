@@ -142,6 +142,12 @@ public class Board extends Subject {
             addSpace(0, 0, new BE_Gear("Left"), spaces);
             addSpace(2, 2, new BE_Gear("Right"), spaces);
 
+            // Pushpanels
+            addSpace(10, 0, new BE_PushPanel("24", SOUTH), spaces);
+            addSpace(11, 0, new BE_PushPanel("135", SOUTH), spaces);
+            addSpace(7, 7, new BE_PushPanel("24", NORTH), spaces);
+            addSpace(12, 5, new BE_PushPanel("135", WEST), spaces);
+
             // Walls
             //Heading[][] walls = new Heading[this.width][this.height];
             List<Heading>[][] walls = new ArrayList[this.width][this.height];
