@@ -99,7 +99,7 @@ public class PlayerView extends Tab implements ViewObserver {
         executeButton.setOnAction( e-> gameController.executePrograms());
 
         stepButton = new Button("Execute Current Register");
-        stepButton.setOnAction( e-> gameController.executeNextPlayerTurn());
+        stepButton.setOnAction( e-> gameController.executeRegister());
 
         buttonPanel = new VBox(finishButton, executeButton, stepButton);
         buttonPanel.setAlignment(Pos.CENTER_LEFT);
