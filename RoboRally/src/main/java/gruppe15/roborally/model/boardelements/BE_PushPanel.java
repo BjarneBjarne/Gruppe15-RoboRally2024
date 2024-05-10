@@ -12,9 +12,9 @@ import gruppe15.roborally.model.Space;
 public class BE_PushPanel extends BoardElement {
 
     public final int[] pushRegisters;
-    public final Heading heading;
 
-    public BE_PushPanel(String type, Heading heading) {
+    public BE_PushPanel(String type, Heading direction) {
+        super(direction);
         if (type != "24" && type != "135")
             throw new IllegalArgumentException("Invalid direction: " + type);
         if (type == "24") {
@@ -24,8 +24,7 @@ public class BE_PushPanel extends BoardElement {
         } else {
             throw new IllegalArgumentException("Invalid direction: " + type);
         }
-        this.heading = heading;
-        setImage("push" + type + ".png", heading.next().next());
+        setImage("push" + type + ".png", direction.next().next());
 
     }
 
@@ -45,7 +44,7 @@ public class BE_PushPanel extends BoardElement {
             return false;
         int currentRegister = gameController.board.getCurrentRegister();
         if (contains(pushRegisters, currentRegister + 1)) {
-            gameController.movePlayerToSpace(player, space.getSpaceNextTo(heading, gameController.board.getSpaces()));
+            gameController.movePlayerToSpace(player, space.getSpaceNextTo(direction, gameController.board.getSpaces()));
         }
         return true;
     }

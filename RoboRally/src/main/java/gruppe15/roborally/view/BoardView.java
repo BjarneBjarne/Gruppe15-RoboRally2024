@@ -172,18 +172,20 @@ public class BoardView extends VBox implements ViewObserver {
                 Space space = spaceView.space;
                 Board board = space.board;
 
-                if (board == gameController.board && space.getBoardElement() instanceof BE_SpawnPoint) {
-                    directionOptionsPane.setDisable(false);
-                    directionOptionsPane.setVisible(true);
-                    directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
-                    directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
+                if (board == gameController.board) {
+                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                        directionOptionsPane.setDisable(false);
+                        directionOptionsPane.setVisible(true);
+                        directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
+                        directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
 
-                    if (event.isShiftDown()) {
-                        space.setPlayer(board.getPlayer(1));
-                    } else if (event.isControlDown()) {
-                        space.setPlayer(board.getPlayer(0));
+                    } else {
+                        if (event.isShiftDown()) {
+                            space.setPlayer(board.getPlayer(1));
+                        } else if (event.isControlDown()) {
+                            space.setPlayer(board.getPlayer(0));
+                        }
                     }
-
                     event.consume();
                 }
             }

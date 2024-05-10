@@ -1,22 +1,21 @@
 package gruppe15.roborally.model.boardelements;
 
-import java.util.LinkedList;
-
-import org.jetbrains.annotations.NotNull;
-
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
-import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
+import java.util.Objects;
 
 public class BE_Gear extends BoardElement {
 
     private final String direction;
 
     public BE_Gear(String direction) {
-        if (direction != "Right" && direction != "Left")
+        if (!Objects.equals(direction, "Right") && !Objects.equals(direction, "Left"))
             throw new IllegalArgumentException("Invalid direction: " + direction);
         this.direction = direction;
         setImage("gear" + this.direction + ".png");
@@ -28,9 +27,9 @@ public class BE_Gear extends BoardElement {
         if (player == null)
             return false;
         Heading newHeading;
-        if (this.direction == "Right")
+        if (Objects.equals(this.direction, "Right"))
             newHeading = player.getHeading().next();
-        else if (this.direction == "Left")
+        else if (Objects.equals(this.direction, "Left"))
             newHeading = player.getHeading().prev();
         else
             return false;
