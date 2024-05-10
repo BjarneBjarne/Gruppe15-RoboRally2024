@@ -133,7 +133,7 @@ public class Board extends Subject {
             addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
 
             // Checkpoints
-            addSpace(7, 0, new BE_Checkpoint(1), spaces);
+            addSpace(12, 3, new BE_Checkpoint(1), spaces);
             addSpace(10, 4, new BE_Checkpoint(2), spaces);
             addSpace(3, 3, new BE_Checkpoint(3), spaces);
             addSpace(5, 7, new BE_Checkpoint(4), spaces);
