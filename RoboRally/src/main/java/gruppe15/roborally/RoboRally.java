@@ -70,10 +70,10 @@ public class RoboRally extends Application {
         // when the user creates a new game or loads a game
         RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
         boardRoot = new BorderPane();
-        VBox vbox = new VBox(boardRoot);
+        VBox vbox = new VBox(menuBar,boardRoot);
         vbox.setAlignment(Pos.CENTER);
         vbox.setMinWidth(MIN_APP_WIDTH);
-        createMainMenu();
+        createMainMenu(appController);
         Scene primaryScene = new Scene(vbox);
 
         stage.setScene(primaryScene);
@@ -88,12 +88,12 @@ public class RoboRally extends Application {
         
     }
 
-    public void createMainMenu() {
+    public void createMainMenu(AppController appController) {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
         
         // create and add view for new board
-        VBox mainMenu = new MainMenuView().getMainMenu();
+        VBox mainMenu = new MainMenuView().initialize(appController).getMainMenu();
         boardRoot.setCenter(mainMenu);
 
         // stage.sizeToScene();
@@ -124,10 +124,6 @@ public class RoboRally extends Application {
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public void newGame(ActionEvent event){
-        System.out.println("New Game");
     }
 
 }
