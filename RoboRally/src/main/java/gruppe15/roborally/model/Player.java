@@ -54,7 +54,7 @@ public class Player extends Subject {
     private final CommandCardField[] program;
     private final CommandCardField[] cards;
     private int energyCubes = 0;
-
+    private int checkpoints = 0;
     private int priority = 0;
 
 
@@ -79,6 +79,14 @@ public class Player extends Subject {
         }
 
         setProgrammingDeckToDefoult();
+    }
+
+    public int getCheckpoints() {
+        return checkpoints;
+    }
+
+    public void setCheckpoints(int checkpoints) {
+        this.checkpoints = checkpoints;
     }
 
     public void setLastCmd(Command lastCmd) {
