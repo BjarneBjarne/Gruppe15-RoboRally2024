@@ -27,6 +27,7 @@ import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -61,11 +62,12 @@ public class Board extends Subject {
 
     private int currentRegister = 0;
     //The counter for how many moves have been made
-    private int moveCounter =0;
+    private int moveCounter = 0;
 
     private boolean stepMode;
 
     private final Queue<Player> priorityList = new ArrayDeque<>();
+    private List<Space[][]> subBoards;
 
 
     public Board(int width, int height, @NotNull String boardName) {
@@ -75,9 +77,7 @@ public class Board extends Subject {
         spaces = new Space[width][height];
 
         // Setup spaces
-        if (boardName.equals("defaultboard")) {
-
-        } else if (boardName.equals("dizzy_highway")) {
+        if (boardName.equals("dizzy_highway")) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
             // BE_SpawnPoint points
@@ -92,10 +92,10 @@ public class Board extends Subject {
             for (Point2D startFieldPoint : startFieldPoints) {
                 int x = (int) startFieldPoint.getX();
                 int y = (int) startFieldPoint.getY();
-                addSpace(x, y, new BE_SpawnPoint(), spaces);
+                addSpace(x, y, new BE_SpawnPoint(EAST), spaces);
             }
             // BE_Reboot
-            addSpace(7, 3, new BE_Reboot(), spaces);
+            addSpace(7, 3, new BE_Reboot(SOUTH), spaces);
 
             // Energy spaces
             addSpace(12, 0, new BE_EnergySpace(), spaces);
@@ -138,6 +138,16 @@ public class Board extends Subject {
             addSpace(3, 3, new BE_Checkpoint(3), spaces);
             addSpace(5, 7, new BE_Checkpoint(4), spaces);
 
+            // Gears
+            addSpace(0, 0, new BE_Gear("Left"), spaces);
+            addSpace(2, 2, new BE_Gear("Right"), spaces);
+
+            // Pushpanels
+            addSpace(10, 0, new BE_PushPanel("24", SOUTH), spaces);
+            addSpace(11, 0, new BE_PushPanel("135", SOUTH), spaces);
+            addSpace(7, 7, new BE_PushPanel("24", NORTH), spaces);
+            addSpace(12, 5, new BE_PushPanel("135", WEST), spaces);
+
             // Walls
             //Heading[][] walls = new Heading[this.width][this.height];
             List<Heading>[][] walls = new ArrayList[this.width][this.height];
@@ -162,6 +172,9 @@ public class Board extends Subject {
             // Fill the rest of the spaces with empty spaces and set background images
             Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
             Image background = ImageUtils.getImageFromName("empty.png");
+            this.subBoards = new ArrayList<>();
+            Space[][] startBoard = new Space[width][height];
+            Space[][] mainBoard = new Space[width][height];
             for (int x = 0; x < width; x++) {
                 for(int y = 0; y < height; y++) {
                     // Add empty space
@@ -171,8 +184,10 @@ public class Board extends Subject {
                     // Set background image
                     if (x < 3) {
                         spaces[x][y].setBackgroundImage(backgroundStart);
+                        startBoard[x][y] = spaces[x][y];
                     } else {
                         spaces[x][y].setBackgroundImage(background);
+                        mainBoard[x][y] = spaces[x][y];
                     }
                     // Add walls if any
                     for (Heading wall : walls[x][y]) {
@@ -180,6 +195,8 @@ public class Board extends Subject {
                     }
                 }
             }
+            this.subBoards.add(startBoard);
+            this.subBoards.add(mainBoard);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt) {
@@ -423,6 +440,38 @@ public class Board extends Subject {
             }
         }
         System.out.println("Err: No Priority antenna found");
+        return null;
+    }
+
+    public List<Space[][]> getSubBoards() {
+        return this.subBoards;
+    }
+    public int getSubBoardIndexOfSpace(Space space) {
+        for (int i = 0; i < this.subBoards.size(); i++) {
+            for (Space[] subBoardColumn : this.subBoards.get(i)) {
+                for (Space subBoardSpace : subBoardColumn) {
+                    if (subBoardSpace == space && subBoardSpace != null) {
+                        return i;
+                    }
+                }
+            }
+        }
+        System.out.println("ERROR: Can't find space in sub boards.");
+        return -1;
+    }
+    public Pair<Space, BE_Reboot> findRebootInSubBoard(Space[][] subBoardSpaces) {
+        for (Space[] subBoardColumn : subBoardSpaces) {
+            for (Space subBoardSpace : subBoardColumn) {
+                if (subBoardSpace == null)  {
+                    continue;
+                }
+                if (subBoardSpace.getBoardElement() instanceof BE_Reboot reboot) {
+                    return new Pair<>(subBoardSpace, reboot);
+                } else if (subBoardSpace.getBoardElement() instanceof BE_SpawnPoint) {
+                    return null;
+                }
+            }
+        }
         return null;
     }
 }
