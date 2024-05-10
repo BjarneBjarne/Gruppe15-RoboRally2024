@@ -311,11 +311,6 @@ public class GameController {
                 CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
                 if (card != null) {
                     Command command = card.command;
-                    if(card.command.isInteractive()){
-                        //System.out.println("check");
-                        board.setPhase(Phase.PLAYER_INTERACTION);
-                        return;
-                    }
                     queuePlayerCommand(currentPlayer, command);
                 }
             } else {
@@ -382,6 +377,7 @@ public class GameController {
                         //TODO
                         break;
                     case OPTION_LEFT_RIGHT:
+                        board.setPhase(Phase.PLAYER_INTERACTION);
                         break;
                     default:
                         // DO NOTHING (for now)
