@@ -622,23 +622,6 @@ public class GameController {
         }, Duration.millis(0), ""));
     }
 
-    private Space correctPosition(int x, int y){
-        // TODO: Instead of keeping the player inside the make them reboot
-        if( x < 0 ){
-            x = 0;
-        }
-        if(x >= board.width){
-            x = board.width-1;
-        }
-        if( y < 0 ){
-            y = 0;
-        }
-        if(y >= board.height){
-            y = board.height-1;
-        }
-        return board.getSpace(x, y);
-    }
-
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
         CommandCard sourceCard = source.getCard();
         CommandCard targetCard = target.getCard();
