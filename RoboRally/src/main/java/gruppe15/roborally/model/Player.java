@@ -56,6 +56,9 @@ public class Player extends Subject {
     private int energyCubes = 0;
     private int checkpoints = 0;
     private int priority = 0;
+    private Velocity velocity;
+    private boolean rebooting = false;
+    private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
 
 
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
@@ -65,7 +68,6 @@ public class Player extends Subject {
         this.board = board;
         this.name = name;
         this.color = color;
-
         this.space = null;
 
         program = new CommandCardField[NO_OF_REGISTERS];
@@ -127,6 +129,15 @@ public class Player extends Subject {
         }
     }
 
+    public void setSpawn(Space space) {
+        setSpace(space);
+        this.spawnPoint = space;
+    }
+    public Space getSpawnPoint() {
+        return this.spawnPoint;
+    }
+
+
     public Space getSpace() {
         return space;
     }
@@ -162,6 +173,13 @@ public class Player extends Subject {
         }
     }
 
+    public void setVelocity(Velocity velocity) {
+        this.velocity = velocity;
+    }
+    public Velocity getVelocity() {
+        return velocity;
+    }
+
     public Heading getHeading() {
         return heading;
     }
@@ -174,6 +192,13 @@ public class Player extends Subject {
                 space.playerChanged();
             }
         }
+    }
+
+    public void setIsRebooting(boolean isRebooting) {
+        this.rebooting = isRebooting;
+    }
+    public boolean getIsRebooting() {
+        return this.rebooting;
     }
 
     public CommandCardField getProgramField(int i) {

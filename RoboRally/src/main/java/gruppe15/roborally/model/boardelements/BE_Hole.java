@@ -1,6 +1,7 @@
 package gruppe15.roborally.model.boardelements;
 
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Space;
@@ -17,7 +18,7 @@ public class BE_Hole extends BoardElement {
     }
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         return false;
     }
 }

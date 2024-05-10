@@ -21,7 +21,7 @@ public class Card_DoubleBarrelLaser extends UpgradeCardPermanent {
         // Defining effects on events
 
         // OnDamageDealt
-        EventHandler.onEvent(PlayerDamageListener.class, (PlayerDamageListener) damage -> {
+        EventHandler.onEvent((PlayerDamageListener) damage -> {
             System.out.println("Board is at register " + board.getCurrentRegister() + ".");
             System.out.println("{" + owner.getName() + "} has a Double Barrel Laser!");
 
