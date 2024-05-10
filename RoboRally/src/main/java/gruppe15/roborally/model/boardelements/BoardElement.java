@@ -1,5 +1,6 @@
 package gruppe15.roborally.model.boardelements;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
@@ -45,7 +46,7 @@ public abstract class BoardElement {
 
     public void calculateImage(int x, int y, Space[][] spaces){}
 
-    public abstract boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue);
+    public abstract boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue);
 
     public Image getImage() {
         return image;

@@ -21,6 +21,7 @@
  */
 package gruppe15.roborally.model.boardelements;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -110,9 +111,9 @@ public class BE_ConveyorBelt extends BoardElement {
     }
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         // First we make a copy of the board to simulate it
-        Space[][] boardSpaces = board.getSpaces();
+        Space[][] boardSpaces = gameController.board.getSpaces();
         SimulatedSpace[][] simulatedSpaces = new SimulatedSpace[boardSpaces.length][boardSpaces[0].length];
         for (int x = 0; x < boardSpaces.length; x++) {
             for (int y = 0; y < boardSpaces[x].length; y++) {
