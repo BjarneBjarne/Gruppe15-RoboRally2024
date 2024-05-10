@@ -24,10 +24,14 @@ package gruppe15.roborally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.view.BoardView;
+import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -44,6 +48,8 @@ public class RoboRally extends Application {
 
     private Stage stage;
     private BorderPane boardRoot;
+
+  
     // private RoboRallyMenuBar menuBar;
 
     // private AppController appController;
@@ -64,9 +70,10 @@ public class RoboRally extends Application {
         // when the user creates a new game or loads a game
         RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
         boardRoot = new BorderPane();
-        VBox vbox = new VBox(menuBar, boardRoot);
+        VBox vbox = new VBox(boardRoot);
         vbox.setAlignment(Pos.CENTER);
         vbox.setMinWidth(MIN_APP_WIDTH);
+        createMainMenu();
         Scene primaryScene = new Scene(vbox);
 
         stage.setScene(primaryScene);
@@ -78,6 +85,18 @@ public class RoboRally extends Application {
         stage.setResizable(false);
         stage.sizeToScene();
         stage.show();
+        
+    }
+
+    public void createMainMenu() {
+        // if present, remove old BoardView
+        boardRoot.getChildren().clear();
+        
+        // create and add view for new board
+        VBox mainMenu = new MainMenuView().getMainMenu();
+        boardRoot.setCenter(mainMenu);
+
+        // stage.sizeToScene();
     }
 
     public void createBoardView(GameController gameController) {
@@ -105,6 +124,10 @@ public class RoboRally extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void newGame(ActionEvent event){
+        System.out.println("New Game");
     }
 
 }

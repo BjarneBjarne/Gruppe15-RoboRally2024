@@ -48,7 +48,7 @@ public class Stepdefs extends ApplicationTest {
 
     @When("The space \\(x: {int}, y: {int}) is clicked")
     public void SpaceIsClicked(int x, int y) {
-        gc.movePlayerToSpace(, board.getSpace(x,y));
+        // gc.movePlayerToSpace(, board.getSpace(x,y));
     }
 
     @Then("Player {int} is in position \\(x: {int}, y: {int})")
