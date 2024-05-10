@@ -1,20 +1,15 @@
 package gruppe15.roborally.view;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-
-import gruppe15.roborally.RoboRally;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.layout.VBox;
 
+import java.io.IOException;
+
 public class MainMenuView {
-    
-    @FXML
-    VBox mainMenu;
+
+    private VBox mainMenu;
 
     public MainMenuView() {
         initialize();
@@ -32,13 +27,14 @@ public class MainMenuView {
         System.out.println("New Game");
     }
 
-    @FXML
     public void initialize() {
         try {
-            FXMLLoader loader = new FXMLLoader(MainMenuView.class.getResource("mainMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(MainMenuView.class.getResource("MainMenu.fxml"));
+            System.out.println(loader.getLocation());
             mainMenu = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("wutDUHELL " + e.getMessage());
+            //e.printStackTrace();
         }
     }
 }

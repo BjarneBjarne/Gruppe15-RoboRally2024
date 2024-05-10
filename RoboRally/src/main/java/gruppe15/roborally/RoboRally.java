@@ -30,7 +30,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -74,7 +73,6 @@ public class RoboRally extends Application {
         VBox vbox = new VBox(menuBar, boardRoot);
         vbox.setAlignment(Pos.CENTER);
         vbox.setMinWidth(MIN_APP_WIDTH);
-        createMainMenu();
         Scene primaryScene = new Scene(vbox);
 
         stage.setScene(primaryScene);
@@ -87,6 +85,7 @@ public class RoboRally extends Application {
         stage.sizeToScene();
         stage.show();
 
+        createMainMenu();
     }
 
     public void createMainMenu() {
@@ -96,8 +95,6 @@ public class RoboRally extends Application {
         // create and add view for new board
         VBox mainMenu = new MainMenuView().getMainMenu();
         boardRoot.setCenter(mainMenu);
-
-        // stage.sizeToScene();
     }
 
     public void createBoardView(GameController gameController) {
@@ -132,9 +129,4 @@ public class RoboRally extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
-    public void newGame(ActionEvent event){
-        System.out.println("New Game");
-    }
-
 }
