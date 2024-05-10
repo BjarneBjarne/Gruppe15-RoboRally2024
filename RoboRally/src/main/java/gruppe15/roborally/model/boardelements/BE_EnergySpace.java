@@ -1,5 +1,6 @@
 package gruppe15.roborally.model.boardelements;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Player;
@@ -19,14 +20,14 @@ public class BE_EnergySpace extends BoardElement {
     }
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Player player = space.getPlayer();
         if (player != null) {
             if (hasEnergyCube) {
                 hasEnergyCube = false;
                 player.addEnergyCube();
             }
-            if (board.getCurrentRegister() == 5) {
+            if (gameController.board.getCurrentRegister() == 5) {
                 player.addEnergyCube();
             }
         }

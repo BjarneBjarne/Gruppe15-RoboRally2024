@@ -21,6 +21,7 @@
  */
 package gruppe15.roborally.model.boardelements;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,12 +38,10 @@ import static gruppe15.roborally.model.Heading.*;
  *
  */
 public class BE_ConveyorBelt extends BoardElement {
+    private final int strength;
 
-    private Heading heading;
-    private int strength;
-
-    public BE_ConveyorBelt(Heading heading, int strength) {
-        this.heading = heading;
+    public BE_ConveyorBelt(Heading direction, int strength) {
+        super(direction);
         if (strength < 1) { // Strength has to be at least 1.
             strength = 1;
         }
@@ -62,10 +61,10 @@ public class BE_ConveyorBelt extends BoardElement {
         Space space = spaces[x][y];
 
         for (int i = 0; i < 4; i++) {
-            Heading relativeDirection = Heading.values()[(heading.ordinal() + i) % 4];
+            Heading relativeDirection = Heading.values()[(direction.ordinal() + i) % 4];
             Space neighborSpace = space.getSpaceNextTo(relativeDirection, spaces);
             if (i == 0 || (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt)) {
-                if (i == 0 || ((BE_ConveyorBelt) neighborSpace.getBoardElement()).getHeading().opposite() == relativeDirection) {
+                if (i == 0 || ((BE_ConveyorBelt) neighborSpace.getBoardElement()).getDirection().opposite() == relativeDirection) {
                     relativeNeighbors[i] = true;
                     noOfNeighbors++;
                 }
@@ -94,25 +93,19 @@ public class BE_ConveyorBelt extends BoardElement {
         }
         imageNameBuilder.append(".png");
         //System.out.println("Image: " + imageNameBuilder + " at '" + x + ", " + y + "' pointing " + heading + ", has " + noOfNeighbors + " neighbors!");
-        setImage(imageNameBuilder.toString(), heading);
-    }
-
-    public Heading getHeading() {
-        return heading;
+        setImage(imageNameBuilder.toString(), direction);
     }
 
     public int getStrength() {
         return strength;
     }
 
-    public void setHeading(Heading heading) {
-        this.heading = heading;
-    }
+
 
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull Board board, LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         // First we make a copy of the board to simulate it
-        Space[][] boardSpaces = board.getSpaces();
+        Space[][] boardSpaces = gameController.board.getSpaces();
         SimulatedSpace[][] simulatedSpaces = new SimulatedSpace[boardSpaces.length][boardSpaces[0].length];
         for (int x = 0; x < boardSpaces.length; x++) {
             for (int y = 0; y < boardSpaces[x].length; y++) {
@@ -121,7 +114,7 @@ public class BE_ConveyorBelt extends BoardElement {
                 simulatedSpaces[x][y] = simulatedSpace;
                 if (originalSpace.getBoardElement() instanceof BE_ConveyorBelt belt && belt.strength == this.strength) {
                     simulatedSpace.isSameType = true;
-                    simulatedSpace.heading = belt.getHeading();
+                    simulatedSpace.heading = belt.getDirection();
                 }
                 Player playerOnSpace = originalSpace.getPlayer();
                 if (playerOnSpace != null) {
@@ -142,12 +135,12 @@ public class BE_ConveyorBelt extends BoardElement {
             if (canMoveOnce(toSpace, simulatedSpaces, new ArrayList<>())) {
                 // If we get here, it means we can move the player once.
                 BE_ConveyorBelt currentConveyorBelt = ((BE_ConveyorBelt)currentSpace.getBoardElement());
-                Space nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.heading, boardSpaces);
+                Space nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.direction, boardSpaces);
                 // Rotate the robot.
                 if (nextSpace.getBoardElement() instanceof BE_ConveyorBelt nextBelt) {
-                    if (nextBelt.heading != currentConveyorBelt.heading) {
-                        int clockwiseOrdinal = (currentConveyorBelt.heading.ordinal() + 1) % Heading.values().length;
-                        if (nextBelt.heading.ordinal() == clockwiseOrdinal) {
+                    if (nextBelt.direction != currentConveyorBelt.direction) {
+                        int clockwiseOrdinal = (currentConveyorBelt.direction.ordinal() + 1) % Heading.values().length;
+                        if (nextBelt.direction.ordinal() == clockwiseOrdinal) {
                             player.setHeading(player.getHeading().next());
                         } else {
                             player.setHeading(player.getHeading().prev());

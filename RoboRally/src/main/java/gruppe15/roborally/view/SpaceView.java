@@ -26,10 +26,12 @@ import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
+import gruppe15.roborally.model.boardelements.BE_Reboot;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -47,13 +49,14 @@ import java.util.List;
 public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
-    public final static int SPACE_HEIGHT = 50; // 60; // 75;
-    public final static int SPACE_WIDTH = 50;  // 60; // 75;
+    public final static int SPACE_HEIGHT = 75; // 60; // 75;
+    public final static int SPACE_WIDTH = 75;  // 60; // 75;
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
     private final ImageView energyCubeImageView = new ImageView();
     private final List<ImageView> laserImageViews = new ArrayList<>();
     private final List<ImageView> wallImageViews = new ArrayList<>();
+    private GridPane directionOptionsPane = null;
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -74,8 +77,14 @@ public class SpaceView extends StackPane implements ViewObserver {
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
-            boardElementImageView.setFitWidth(SPACE_WIDTH);
-            boardElementImageView.setFitHeight(SPACE_HEIGHT);
+            if (boardElement instanceof BE_Reboot) {
+                boardElementImageView.setFitWidth(SPACE_WIDTH * 0.75);
+                boardElementImageView.setFitHeight(SPACE_HEIGHT * 0.75);
+            } else {
+                boardElementImageView.setFitWidth(SPACE_WIDTH);
+                boardElementImageView.setFitHeight(SPACE_HEIGHT);
+            }
+
             boardElementImageView.setImage(boardElement.getImage());
             this.getChildren().add(boardElementImageView);
 
@@ -111,7 +120,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         update(space);
     }
 
-    private void updatePlayer() {
+    private void updateSpace() {
         this.getChildren().clear();
         this.getChildren().add(backgroundImageView);
 
@@ -164,8 +173,16 @@ public class SpaceView extends StackPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
-            updatePlayer();
+            updateSpace();
         }
     }
 
+    public void setDirectionOptionsPane(GridPane directionOptionsPane) {
+        this.directionOptionsPane = directionOptionsPane;
+        System.out.println("Set space: " + space.x + ", " + space.y + " to choose.");
+    }
+
+    public void removeDirectionOptionsPane() {
+        this.directionOptionsPane = null;
+    }
 }

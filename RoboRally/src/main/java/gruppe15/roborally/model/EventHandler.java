@@ -1,16 +1,15 @@
 package gruppe15.roborally.model;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.boardelements.BE_Hole;
-import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.boardelements.BE_Reboot;
 import gruppe15.roborally.model.damage.Damage;
 import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.damage.Spam;
-import gruppe15.roborally.model.events.PlayerCommandListener;
-import gruppe15.roborally.model.events.PlayerDamageListener;
-import gruppe15.roborally.model.events.PlayerMoveListener;
-import gruppe15.roborally.model.events.PlayerPushListener;
-import gruppe15.roborally.model.upgrades.EventListener;
+import gruppe15.roborally.model.events.EventListener;
+import gruppe15.roborally.model.events.*;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -32,16 +31,15 @@ public class EventHandler {
     /**
      * Generic hashmap for EventListeners/Cards.
      */
-    private static final Map<Class<? extends EventListener>, Map<EventListener, Player>> listeners = new HashMap<>();
+    private static final Map<EventListener, Player> listeners = new HashMap<>();
 
     /**
      * Subscription method for EventListeners/Cards.
-     * @param listenerType
      * @param listener
      * @param owner
      */
-    public static void onEvent(Class<? extends EventListener> listenerType, EventListener listener, Player owner) {
-        listeners.computeIfAbsent(listenerType, k -> new HashMap<>()).put(listener, owner);
+    public static void onEvent(EventListener listener, Player owner) {
+        listeners.put(listener, owner);
     }
 
     /**
@@ -54,9 +52,8 @@ public class EventHandler {
      */
     private static <T extends EventListener> List<T> getPlayerCardEventListeners(Player player, Class<T> eventListenerType) {
         List<T> playerEventListeners = new ArrayList<>();
-        Map<EventListener, Player> eventListeners = listeners.getOrDefault(eventListenerType, Collections.emptyMap());
         // Iterate through all cards/listeners
-        for (Map.Entry<EventListener, Player> entry : eventListeners.entrySet()) {
+        for (Map.Entry<EventListener, Player> entry : listeners.entrySet()) {
             EventListener listener = entry.getKey();
             Player owner = entry.getValue();
             // Check if the player is the owner of the card and the listener is of the specified type
@@ -69,7 +66,6 @@ public class EventHandler {
 
 
 
-
     /**
      * Method for whenever a player shoots.
      * @param spaces
@@ -78,6 +74,9 @@ public class EventHandler {
      */
     public static void event_PlayerShoot(Space[][] spaces, Player playerShooting, LinkedList<ActionWithDelay> actionQueue) {
         actionQueue.addLast(new ActionWithDelay(() -> {
+            if (playerShooting.getIsRebooting()) {
+                return;
+            }
             // Clearing lasers in between player lasers
             for (int x = 0; x < spaces.length; x++) {
                 for (int y = 0; y < spaces[x].length; y++) {
@@ -168,9 +167,11 @@ public class EventHandler {
             if (playerToPush == playerPushing) {
                 continue;
             }
-            List<PlayerPushListener> playerPushListeners = getPlayerCardEventListeners(playerPushing, PlayerPushListener.class);
-            for (PlayerPushListener listener : playerPushListeners) {
-                listener.onPush(playerToPush);
+            if (playerPushing != null) {
+                List<PlayerPushListener> playerPushListeners = getPlayerCardEventListeners(playerPushing, PlayerPushListener.class);
+                for (PlayerPushListener listener : playerPushListeners) {
+                    listener.onPush(playerToPush);
+                }
             }
             // Set players new position
             playerToPush.setSpace(playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces));
@@ -184,23 +185,51 @@ public class EventHandler {
     /**
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
-    public static void event_PlayerMove(Player playerMoving, Space space) {
+    public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
         List<PlayerMoveListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerMoveListener.class);
+        boolean shouldReboot = (space == null || playerMoving.getSpace().getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
 
         // Handle listener logic
         for (PlayerMoveListener listener : playerMoveListeners) {
-            space = listener.onPlayerMove(space);
+            Pair<Space, Boolean> movePair = listener.onPlayerMove(space, shouldReboot);
+            space = movePair.getKey();
+            shouldReboot = movePair.getValue();
         }
 
-        // If no listeners, handle base logic
-        if (playerMoveListeners.isEmpty()) {
-            BoardElement spaceBoardElement = space.getBoardElement();
-            if (spaceBoardElement instanceof BE_Hole) {
-                // TODO: Handle rebooting player since they fell down a hole.
-            }
+        if (shouldReboot) {
+            event_PlayerReboot(playerMoving, gc);
+        } else {
+            playerMoving.setSpace(space);
         }
-
-        playerMoving.setSpace(space);
     }
 
+
+
+
+
+    /**
+     * Method for when a player is rebooted.
+     */
+    private static void event_PlayerReboot(Player player, GameController gc) {
+        player.setIsRebooting(true);
+        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(player.getSpace());
+        Space[][] subBoard = gc.board.getSubBoards().get(subBoardIndex);
+        Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(subBoard);
+        Space rebootSpace;
+        if (rebootSpaceFinder != null) {
+            rebootSpace = rebootSpaceFinder.getKey();
+        } else {
+            rebootSpace = player.getSpawnPoint();
+        }
+        List<Player> playersToPush = new ArrayList<>();
+        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+        if (couldPush) {
+            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection());
+            player.setSpace(rebootSpace);
+        } else {
+            // There is a wall at the end of player chain
+            System.out.println("ERROR: Can't place player on reboot.");
+            // TODO: Find any space to put player, in case this happens
+        }
+    }
 }
