@@ -96,8 +96,6 @@ public class Board extends Subject {
             }
             // BE_Reboot
             addSpace(7, 3, new BE_Reboot(), spaces);
-            // Checkpoint
-            addSpace(12, 3, new BE_Checkpoint(), spaces);
 
             // Energy spaces
             addSpace(12, 0, new BE_EnergySpace(), spaces);

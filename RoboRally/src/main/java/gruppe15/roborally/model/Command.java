@@ -44,10 +44,10 @@ public enum Command {
     BACKWARD("Bwd"),
     AGAIN("Again"),
     POWER_UP("Power Up"),
+    OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
 
     DAMAGE("Damage"),
     UPGRADE("Upgrade"),
-    OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
     DO_NOTHING("Do Nothing");
 
     final public String displayName;

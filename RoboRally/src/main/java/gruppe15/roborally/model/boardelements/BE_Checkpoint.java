@@ -1,13 +1,12 @@
 package gruppe15.roborally.model.boardelements;
 
-import java.util.LinkedList;
-
-import org.jetbrains.annotations.NotNull;
-
 import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
 
 public class BE_Checkpoint extends BoardElement {
 
@@ -28,7 +27,7 @@ public class BE_Checkpoint extends BoardElement {
         if (player == null)
             return false;
         if (player.getCheckpoints() == number - 1) {
-            player.setCheckpoints(number);
+            player.setCheckpoint(number);
             System.out.println(player.getName() + " has reached checkpoint " + number);
         }
         return true;
