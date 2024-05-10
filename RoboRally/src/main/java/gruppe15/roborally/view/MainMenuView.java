@@ -11,12 +11,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 public class MainMenuView {
     
     @FXML
-    VBox mainMenu;
+    AnchorPane mainMenu;
     @FXML
     Button newGame;
     @FXML
@@ -27,7 +28,7 @@ public class MainMenuView {
     Button exit;
     AppController appController;
 
-    public VBox getMainMenu() {
+    public AnchorPane getMainMenu() {
         if(mainMenu == null){
             System.out.println("MainMenu is null");
         }
