@@ -57,6 +57,7 @@ public class Player extends Subject {
 
     private int priority = 0;
 
+
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
