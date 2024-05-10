@@ -138,6 +138,10 @@ public class Board extends Subject {
             addSpace(3, 3, new BE_Checkpoint(3), spaces);
             addSpace(5, 7, new BE_Checkpoint(4), spaces);
 
+            // Gears
+            addSpace(0, 0, new BE_Gear("Left"), spaces);
+            addSpace(2, 2, new BE_Gear("Right"), spaces);
+
             // Walls
             //Heading[][] walls = new Heading[this.width][this.height];
             List<Heading>[][] walls = new ArrayList[this.width][this.height];
