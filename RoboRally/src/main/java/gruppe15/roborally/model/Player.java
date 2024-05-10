@@ -56,6 +56,8 @@ public class Player extends Subject {
     private int energyCubes = 0;
     private int checkpoints = 0;
     private int priority = 0;
+    private Velocity velocity;
+    private boolean rebooting = false;
 
 
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
@@ -162,6 +164,13 @@ public class Player extends Subject {
         }
     }
 
+    public void setVelocity(Velocity velocity) {
+        this.velocity = velocity;
+    }
+    public Velocity getVelocity() {
+        return velocity;
+    }
+
     public Heading getHeading() {
         return heading;
     }
@@ -174,6 +183,13 @@ public class Player extends Subject {
                 space.playerChanged();
             }
         }
+    }
+
+    public void setIsRebooting(boolean isRebooting) {
+        this.rebooting = isRebooting;
+    }
+    public boolean getIsRebooting() {
+        return this.rebooting;
     }
 
     public CommandCardField getProgramField(int i) {
