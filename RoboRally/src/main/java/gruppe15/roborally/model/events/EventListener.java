@@ -1,4 +1,4 @@
-package gruppe15.roborally.model.upgrades;
+package gruppe15.roborally.model.events;
 
 /**
  * A tagging interface that all event listener interfaces must extend.
