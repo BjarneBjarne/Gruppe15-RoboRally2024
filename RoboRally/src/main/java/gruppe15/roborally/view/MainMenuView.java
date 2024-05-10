@@ -1,19 +1,31 @@
 package gruppe15.roborally.view;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.controller.AppController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-
 public class MainMenuView {
-
-    private VBox mainMenu;
-
-    public MainMenuView() {
-        initialize();
-    }
+    
+    @FXML
+    VBox mainMenu;
+    @FXML
+    Button newGame;
+    @FXML
+    Button loadGame;
+    @FXML
+    Button help;
+    @FXML
+    Button exit;
+    AppController appController;
 
     public VBox getMainMenu() {
         if(mainMenu == null){
@@ -22,19 +34,24 @@ public class MainMenuView {
         return mainMenu;
     }
 
-    @FXML
-    public void newGame(ActionEvent event){
-        System.out.println("New Game");
-    }
 
-    public void initialize() {
+    @FXML
+    public MainMenuView initialize(AppController appController) {
+        this.appController = appController;
         try {
-            FXMLLoader loader = new FXMLLoader(MainMenuView.class.getResource("MainMenu.fxml"));
-            System.out.println(loader.getLocation());
+            FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("mainMenu.fxml"));
             mainMenu = loader.load();
         } catch (IOException e) {
-            System.out.println("wutDUHELL " + e.getMessage());
-            //e.printStackTrace();
+            e.printStackTrace();
         }
+        newGame = (Button) mainMenu.lookup("#newGame");
+        newGame.setOnAction(e -> appController.newGame());
+        loadGame = (Button) mainMenu.lookup("#loadGame");
+        loadGame.setOnAction(e -> appController.loadGame());
+        help = (Button) mainMenu.lookup("#help");
+        // help.setOnAction(e -> appController.help());
+        exit = (Button) mainMenu.lookup("#exit");
+        exit.setOnAction(e -> appController.exit());
+        return this;
     }
 }
