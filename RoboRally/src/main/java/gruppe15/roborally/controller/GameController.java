@@ -212,7 +212,7 @@ public class GameController {
     }
 
     // XXX: implemented in the current version
-    public void executeNextPlayerTurn() {
+    public void executeRegister() {
         board.setStepMode(true);
         handlePlayerRegister();
     }
@@ -374,7 +374,7 @@ public class GameController {
                         }
                         break;
                     case POWER_UP:
-                        //TODO
+                        player.addEnergyCube();
                         break;
                     case OPTION_LEFT_RIGHT:
                         board.setPhase(Phase.PLAYER_INTERACTION);
