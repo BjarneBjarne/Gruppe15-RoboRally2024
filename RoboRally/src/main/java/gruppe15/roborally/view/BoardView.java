@@ -168,7 +168,6 @@ public class BoardView extends VBox implements ViewObserver {
             // Object source = event.getSource();
             SpaceView spaceView = getSpacesAtMouse(event).getFirst();
             if (spaceView != null) {
-                System.out.println(spaceView.space.x + ", " + spaceView.space.y);
                 //SpaceView spaceView = (SpaceView) source;
                 Space space = spaceView.space;
                 Board board = space.board;
@@ -178,8 +177,6 @@ public class BoardView extends VBox implements ViewObserver {
                     directionOptionsPane.setVisible(true);
                     directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
                     directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
-                    //directionOptionsPane.setAlignment(Pos.CENTER);
-                    //System.out.println(directionOptionsPane.getChildren().size());
 
                     if (event.isShiftDown()) {
                         space.setPlayer(board.getPlayer(1));
