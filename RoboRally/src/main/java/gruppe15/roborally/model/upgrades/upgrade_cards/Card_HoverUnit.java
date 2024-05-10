@@ -1,12 +1,10 @@
 package gruppe15.roborally.model.upgrades.upgrade_cards;
 
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.EventHandler;
-import gruppe15.roborally.model.Phase;
-import gruppe15.roborally.model.Player;
+import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_Hole;
 import gruppe15.roborally.model.events.PlayerMoveListener;
 import gruppe15.roborally.model.upgrades.UpgradeCard;
+import javafx.util.Pair;
 
 public class Card_HoverUnit extends UpgradeCard {
 
@@ -21,12 +19,13 @@ public class Card_HoverUnit extends UpgradeCard {
         // Defining effects on events
 
         // OnDamageDealt
-        EventHandler.onEvent(PlayerMoveListener.class, (PlayerMoveListener) space -> {
+        EventHandler.onEvent((PlayerMoveListener) (space, shouldReboot) -> {
             if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
+                //if (owner.)
                 System.out.println("{" + owner.getName() + "} has a Hover Unit!");
             }
 
-            return space;
+            return new Pair<>(space, shouldReboot);
         }, owner);
     }
 

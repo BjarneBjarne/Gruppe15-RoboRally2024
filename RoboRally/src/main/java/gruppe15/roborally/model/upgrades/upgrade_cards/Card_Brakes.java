@@ -17,7 +17,7 @@ public class Card_Brakes extends UpgradeCardPermanent {
         // Defining effects on events
 
         // OnMoveStart
-        EventHandler.onEvent(PlayerCommandListener.class, (PlayerCommandListener) command -> {
+        EventHandler.onEvent((PlayerCommandListener) command -> {
             System.out.println("{" + owner.getName() + "} moved!");
             if (command == Command.FORWARD) {
                 return Command.DO_NOTHING;
