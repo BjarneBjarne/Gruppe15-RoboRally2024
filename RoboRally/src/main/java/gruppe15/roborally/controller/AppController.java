@@ -30,6 +30,7 @@ import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
