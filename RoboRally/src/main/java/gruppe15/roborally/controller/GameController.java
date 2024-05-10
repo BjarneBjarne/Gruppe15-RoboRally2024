@@ -23,6 +23,7 @@ package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_BoardLaser;
+import gruppe15.roborally.model.boardelements.BE_Checkpoint;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
 import gruppe15.roborally.model.boardelements.BoardElement;
@@ -505,6 +506,7 @@ public class GameController {
         List<Space> greenConveyorBeltSpaces = new ArrayList<>();
         List<Space> blueConveyorBeltSpaces = new ArrayList<>();
         List<Space> energySpaces = new ArrayList<>();
+        List<Space> checkpoints = new ArrayList<>();
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Space playerSpace = board.getPlayer(i).getSpace();
             BoardElement boardElement = playerSpace.getBoardElement();
@@ -516,8 +518,11 @@ public class GameController {
                 }
             } else if (boardElement instanceof BE_EnergySpace) {
                 energySpaces.add(playerSpace);
+            } else if (boardElement instanceof BE_Checkpoint) {
+                checkpoints.add(playerSpace);
             }
         }
+        
 
         // 1. Blue conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
@@ -592,7 +597,9 @@ public class GameController {
         }, Duration.millis(250), "Energy spaces"));
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
-            // TODO: Implement Checkpoints
+            for (Space checkpoint : checkpoints) {
+                checkpoint.getBoardElement().doAction(checkpoint, board, actionQueue);
+            }
         }, Duration.millis(0), ""));
     }
 
