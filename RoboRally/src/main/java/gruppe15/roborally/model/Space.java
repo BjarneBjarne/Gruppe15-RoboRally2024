@@ -99,6 +99,10 @@ public class Space extends Subject {
         notifyChange();
     }
 
+    public void clicked() {
+        notifyChange();
+    }
+
     public BoardElement getBoardElement() {
         return boardElement;
     }

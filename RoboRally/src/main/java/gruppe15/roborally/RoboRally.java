@@ -26,11 +26,15 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 /**
  * ...
@@ -41,8 +45,10 @@ import javafx.stage.Stage;
 public class RoboRally extends Application {
 
     private static final int MIN_APP_WIDTH = 600;
+    public GridPane directionOptionsPane;
     private Stage stage;
     private BorderPane boardRoot;
+    private BoardView boardView;
     // private RoboRallyMenuBar menuBar;
 
     // private AppController appController;
@@ -85,7 +91,13 @@ public class RoboRally extends Application {
 
         if (gameController != null) {
             // create and add view for new board
-            BoardView boardView = new BoardView(gameController);
+            FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
+            try {
+                directionOptionsPane = fxmlLoader.load();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+            boardView = new BoardView(gameController, directionOptionsPane);
             boardRoot.setCenter(boardView);
         }
 
@@ -105,5 +117,4 @@ public class RoboRally extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
 }

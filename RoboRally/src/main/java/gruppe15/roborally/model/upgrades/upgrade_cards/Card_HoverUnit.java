@@ -15,16 +15,16 @@ public class Card_HoverUnit extends UpgradeCard {
     @Override
     public void initialize(Board board, Player owner) {
         super.initialize(board, owner);
-
         // Defining effects on events
-
         // OnDamageDealt
         EventHandler.onEvent((PlayerMoveListener) (space, shouldReboot) -> {
             if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
-                //if (owner.)
-                System.out.println("{" + owner.getName() + "} has a Hover Unit!");
+                Velocity playerVel = owner.getVelocity();
+                if (Math.abs(playerVel.getForward() + playerVel.getRight()) > 0) {
+                    System.out.println("{" + owner.getName() + "} has a Hover Unit!");
+                    shouldReboot = false;
+                }
             }
-
             return new Pair<>(space, shouldReboot);
         }, owner);
     }
