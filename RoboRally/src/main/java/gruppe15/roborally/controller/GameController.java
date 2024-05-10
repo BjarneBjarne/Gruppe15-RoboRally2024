@@ -526,7 +526,7 @@ public class GameController {
         // 1. Blue conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space conveyorBeltSpace : blueConveyorBeltSpaces) {
-                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, board, actionQueue);
+                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
             }
             for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
@@ -537,7 +537,7 @@ public class GameController {
         // 2. Green conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space conveyorBeltSpace : greenConveyorBeltSpaces) {
-                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, board, actionQueue);
+                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
             }
             for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
@@ -552,7 +552,7 @@ public class GameController {
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space gearSpace : gears) {
-                gearSpace.getBoardElement().doAction(gearSpace, board, actionQueue);
+                gearSpace.getBoardElement().doAction(gearSpace, this, actionQueue);
             }
         }, Duration.millis(0), ""));
 
@@ -562,7 +562,7 @@ public class GameController {
                 for (int y = 0; y < spaces[x].length; y++) {
                     BoardElement boardElement = spaces[x][y].getBoardElement();
                     if (boardElement instanceof BE_BoardLaser) {
-                        boardElement.doAction(spaces[x][y], board, actionQueue);
+                        boardElement.doAction(spaces[x][y], this, actionQueue);
                     }
                 }
             }
@@ -593,13 +593,13 @@ public class GameController {
         // 7. Energy spaces
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space energySpace : energySpaces) {
-                energySpace.getBoardElement().doAction(energySpace, board, actionQueue);
+                energySpace.getBoardElement().doAction(energySpace, this, actionQueue);
             }
         }, Duration.millis(250), "Energy spaces"));
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space checkpoint : checkpoints) {
-                checkpoint.getBoardElement().doAction(checkpoint, board, actionQueue);
+                checkpoint.getBoardElement().doAction(checkpoint, this, actionQueue);
             }
         }, Duration.millis(0), ""));
     }
