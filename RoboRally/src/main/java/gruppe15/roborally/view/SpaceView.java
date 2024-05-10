@@ -47,8 +47,8 @@ import java.util.List;
 public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
-    public final static int SPACE_HEIGHT = 75; // 60; // 75;
-    public final static int SPACE_WIDTH = 75;  // 60; // 75;
+    public final static int SPACE_HEIGHT = 100; // 60; // 75;
+    public final static int SPACE_WIDTH = 100;  // 60; // 75;
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
     private final ImageView energyCubeImageView = new ImageView();
@@ -83,6 +83,8 @@ public class SpaceView extends StackPane implements ViewObserver {
                 energyCubeImageView.setFitWidth(SPACE_WIDTH);
                 energyCubeImageView.setFitHeight(SPACE_HEIGHT);
                 energyCubeImageView.setImage(ImageUtils.getImageFromName("energyCube.png"));
+                energyCubeImageView.xProperty();
+                energyCubeImageView.setLayoutY(10);
             }
         }
 
