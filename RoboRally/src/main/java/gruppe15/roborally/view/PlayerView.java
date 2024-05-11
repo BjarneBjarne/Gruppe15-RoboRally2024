@@ -170,7 +170,7 @@ public class PlayerView extends Tab implements ViewObserver {
                         finishButton.setDisable(true);
                         // XXX just to make sure that there is a way for the player to get
                         //     from the initialization phase to the programming phase somehow!
-                        executeButton.setDisable(false);
+                        executeButton.setDisable(true);
                         stepButton.setDisable(true);
                         break;
 
