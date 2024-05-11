@@ -23,6 +23,8 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -59,16 +61,18 @@ public class Player extends Subject {
     private Velocity velocity;
     private boolean rebooting = false;
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
+    private Image image;
 
 
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
-    public Player(@NotNull Board board, String color, @NotNull String name) {
+    public Player(@NotNull Board board, String color, @NotNull String name, @NotNull String imageName) {
         this.board = board;
         this.name = name;
         this.color = color;
         this.space = null;
+        this.image = ImageUtils.getImageFromName(imageName);
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -81,6 +85,10 @@ public class Player extends Subject {
         }
 
         setProgrammingDeckToDefoult();
+    }
+
+    public Image getImage() {
+        return this.image;
     }
 
     public int getCheckpoints() {
