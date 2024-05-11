@@ -99,21 +99,21 @@ public class AppController implements Observer {
                 board.addPlayer(player);
 
                 // Set player spawn
-                Collections.shuffle(spawnPoints);
-                if (spawnPoints.isEmpty()) {
-                    player.setSpawn(board.getSpace(i % board.width, i));
-                } else {
-                    for (Space spawnPoint : spawnPoints) {
-                        if (spawnPoint.getPlayer() == null) {
-                            player.setSpawn(spawnPoint);
-                        }
-                    }
-                }
+                // Collections.shuffle(spawnPoints);
+                // if (spawnPoints.isEmpty()) {
+                //     player.setSpawn(board.getSpace(i % board.width, i));
+                // } else {
+                //     for (Space spawnPoint : spawnPoints) {
+                //         if (spawnPoint.getPlayer() == null) {
+                //             player.setSpawn(spawnPoint);
+                //         }
+                //     }
+                // }
             }
 
             // XXX: the line below is commented out in the current version
-            // board.setCurrentPlayer(board.getPlayer(0));
-            gameController.startProgrammingPhase();
+            board.setCurrentPlayer(board.getPlayer(0));
+            // gameController.startProgrammingPhase();
 
             roboRally.createBoardView(gameController);
         }

@@ -318,6 +318,8 @@ public class Board extends Subject {
     }
 
     public int getPlayerNumber(@NotNull Player player) {
+        if (player == null)
+            return -1; 
         if (player.board == this) {
             return players.indexOf(player);
         } else {
@@ -426,8 +428,11 @@ public class Board extends Subject {
     }
 
     public Integer determinePlayerPriority(Player player,Space antenna) {
-        int x = antenna.x - player.getSpace().x;
-        int y = antenna.y - player.getSpace().y;
+        Space space = player.getSpace();
+        if (space == null) 
+            return -1;
+        int x = antenna.x - space.x;
+        int y = antenna.y - space.y;
         return Math.abs(x) + Math.abs(y);
     }
     public Space findAntenna() {
