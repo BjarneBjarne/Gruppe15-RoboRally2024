@@ -25,15 +25,11 @@ import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
-import gruppe15.roborally.view.RoboRallyMenuBar;
 import gruppe15.roborally.view.SetupView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -107,7 +103,7 @@ public class RoboRally extends Application {
 
     public void createSetupMenue(AppController appController){
         boardRoot.getChildren().clear();
-        AnchorPane mainMenu = new SetupView().initialize(appController).getSetupmenue();
+        AnchorPane mainMenu = new SetupView().initialize(appController).getSetupMenu();
         boardRoot.setCenter(mainMenu);
 
     }
