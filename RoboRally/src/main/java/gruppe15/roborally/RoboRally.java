@@ -91,7 +91,6 @@ public class RoboRally extends Application {
         stage.setResizable(false);
         stage.sizeToScene();
         stage.show();
-
     }
 
     public void createMainMenu(AppController appController) {
