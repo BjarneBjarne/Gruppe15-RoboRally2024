@@ -24,11 +24,13 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -64,7 +66,16 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     private GameController gameController;
 
+    private ImageView grafics;
+
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
+
+        grafics = new ImageView();
+        grafics.setMouseTransparent(true);
+        grafics.setFitHeight(CARDFIELD_HEIGHT);
+        grafics.setFitWidth(CARDFIELD_WIDTH);
+        this.getChildren().add(grafics);
+
         this.gameController = gameController;
         this.field = field;
 
@@ -141,12 +152,20 @@ public class CardFieldView extends GridPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
             CommandCard card = field.getCard();
-            if (card != null && field.isVisible()) {
-                label.setText(card.getName());
-            } else {
+            if(card != null && field.isVisible()) {
+                String type = card.getName();
+                Image temp2 = ImageUtils.getImageFromName(type + ".png");
+                if (temp2 != null) {
+                    grafics.setImage(temp2);
+                }else{
+                    label.setText(card.getName());
+                }
+            }else{
                 label.setText("");
+                grafics.setImage(null);
             }
         }
+
     }
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
