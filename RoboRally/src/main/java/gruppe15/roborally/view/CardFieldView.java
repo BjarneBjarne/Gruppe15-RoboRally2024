@@ -24,11 +24,13 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -64,7 +66,17 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     private GameController gameController;
 
+    private ImageView grafics;
+
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
+
+        String type = field.getCard().getName();
+        Image temp = ImageUtils.getImageFromName(type+".png");
+        if(temp != null){
+            grafics = new ImageView(temp);
+            this.getChildren().add(grafics);
+        }
+
         this.gameController = gameController;
         this.field = field;
 
