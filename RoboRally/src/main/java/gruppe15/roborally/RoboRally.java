@@ -107,7 +107,7 @@ public class RoboRally extends Application {
     public void createBoardView(GameController gameController) {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
-
+e
         if (gameController != null) {
             // create and add view for new board
             FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
