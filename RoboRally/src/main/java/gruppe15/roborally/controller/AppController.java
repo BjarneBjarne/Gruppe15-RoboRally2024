@@ -92,9 +92,11 @@ public class AppController implements Observer {
                     }
                 }
             }
+
+            String[] robotColors = {"Red", "Green", "Orange", "Yellow", "Blue", "Purple"};
             // Add players
             for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1), "Robot_" + robotColors[i] + ".png");
                 player.setHeading(Heading.EAST);
                 board.addPlayer(player);
 
