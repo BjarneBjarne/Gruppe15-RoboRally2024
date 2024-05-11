@@ -30,6 +30,7 @@ public class SetupView {
     ArrayList<ComboBox> charSelection = new ArrayList<>();
     boolean ready;
     int playerNr = 2;
+    int mapNr = 1;
     @FXML
     AnchorPane setupmenue;
     @FXML
@@ -70,11 +71,13 @@ public class SetupView {
 
         VBox vBox = new VBox();
 
-        for(Image m: mapGraphics){
+        for(int i = 0; i <mapGraphics.size(); i++){
             Button b = new Button();
-            b.setGraphic(new ImageView(m));
+            b.setGraphic(new ImageView(mapGraphics.get(i)));
+            int temp = i;
             b.setOnAction(e -> {
-                map.setImage(m);
+                map.setImage(mapGraphics.get(temp));
+                mapNr = temp;
             });
             vBox.getChildren().add(b);
         }
