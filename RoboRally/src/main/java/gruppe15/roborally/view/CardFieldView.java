@@ -70,15 +70,11 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
 
-        CommandCard temp1 = field.getCard();
-        if(temp1 != null) {
-            String type = temp1.getName();
-            Image temp2 = ImageUtils.getImageFromName(type + ".png");
-            if (temp2 != null) {
-                grafics = new ImageView(temp2);
-                this.getChildren().add(grafics);
-            }
-        }
+        grafics = new ImageView();
+        grafics.setMouseTransparent(true);
+        grafics.setFitHeight(CARDFIELD_HEIGHT);
+        grafics.setFitWidth(CARDFIELD_WIDTH);
+        this.getChildren().add(grafics);
 
         this.gameController = gameController;
         this.field = field;
@@ -156,12 +152,20 @@ public class CardFieldView extends GridPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
             CommandCard card = field.getCard();
-            if (card != null && field.isVisible()) {
-                label.setText(card.getName());
-            } else {
+            if(card != null && field.isVisible()) {
+                String type = card.getName();
+                Image temp2 = ImageUtils.getImageFromName(type + ".png");
+                if (temp2 != null) {
+                    grafics.setImage(temp2);
+                }else{
+                    label.setText(card.getName());
+                }
+            }else{
                 label.setText("");
+                grafics.setImage(null);
             }
         }
+
     }
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
