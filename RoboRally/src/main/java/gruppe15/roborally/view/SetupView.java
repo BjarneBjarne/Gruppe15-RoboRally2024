@@ -2,16 +2,14 @@ package gruppe15.roborally.view;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
+import gruppe15.roborally.model.Robots;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -19,20 +17,18 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SetupView {
-
     AppController appController;
-    VBox players;
+    VBox playersVBox;
     ArrayList<Image> mapGraphics = new ArrayList<>();
-    String[] names = new String[6];
-    String[] charecters = new String[6];
     ArrayList<ComboBox> charSelection = new ArrayList<>();
     boolean ready;
-    int playerNr = 2;
-    int mapNr = 1;
     @FXML
-    AnchorPane setupmenue;
+    AnchorPane setupMenu;
     @FXML
     VBox maps;
     @FXML
@@ -44,29 +40,35 @@ public class SetupView {
     @FXML
     ScrollPane scrollPane;
 
-    public AnchorPane getSetupmenue() {
-        if(setupmenue == null){
-            System.out.println("Setupmenue is null");
+    int noOfPlayers = 2;
+    int mapIndex = 0;
+    String[] playerNames = new String[6];
+    String[] playerCharacters = new String[6];
+
+
+    public AnchorPane getSetupMenu() {
+        if(setupMenu == null){
+            System.out.println("SetupMenu is null");
         }
-        return setupmenue;
+        return setupMenu;
     }
     @FXML
     public SetupView initialize(AppController appController) {
         this.appController = appController;
         try {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("SetupGame.fxml"));
-            setupmenue = loader.load();
+            setupMenu = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        scrollPane = (ScrollPane) setupmenue.lookup("#scrollpaneformaps");
+        scrollPane = (ScrollPane) setupMenu.lookup("#scrollpaneformaps");
 
         for(int i = 1; i < 7; i++){
             mapGraphics.add(ImageUtils.getImageFromName(i+".png"));
         }
 
-        map = (ImageView) setupmenue.lookup("#map");
+        map = (ImageView) setupMenu.lookup("#map");
         map.setImage(mapGraphics.getFirst());
 
         VBox vBox = new VBox();
@@ -77,20 +79,20 @@ public class SetupView {
             int temp = i;
             b.setOnAction(e -> {
                 map.setImage(mapGraphics.get(temp));
-                mapNr = temp;
+                mapIndex = temp;
             });
             vBox.getChildren().add(b);
         }
 
         scrollPane.setContent(vBox);
 
-        players = (VBox) setupmenue.lookup("#players");
+        playersVBox = (VBox) setupMenu.lookup("#players");
 
         for(int i = 0; i < 6; i++){
             int nr = i+1;
-            TextField nameInput = (TextField) setupmenue.lookup("#player"+nr+"Name");
+            TextField nameInput = (TextField) setupMenu.lookup("#player"+nr+"Name");
             nameInput.setOnAction(e -> {
-                names[nr-1] = nameInput.getText();
+                playerNames[nr-1] = nameInput.getText();
                 if(isReady()){
                     start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
                 }else{
@@ -98,11 +100,14 @@ public class SetupView {
                 }
             });
 
-            ComboBox choseChar = (ComboBox) setupmenue.lookup("#player"+nr+"Charecter");
-            choseChar.getItems().addAll("HAMMER BOT", "ZOOM BOT", "TWONKY", "STINKY", "GLUG BOT", "CRACKER");
+            List<String> robotNames = Arrays.stream(Robots.values())
+                    .map(Robots::getRobotName)
+                    .collect(Collectors.toList());
+            ComboBox choseChar = (ComboBox) setupMenu.lookup("#player"+nr+"Charecter");
+            choseChar.getItems().addAll(robotNames);
             choseChar.setOnAction(e -> {
                 String name = (String) choseChar.getSelectionModel().getSelectedItem();
-                charecters[nr-1] = name;
+                playerCharacters[nr-1] = name;
                 if(isReady()){
                     start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
                 }else{
@@ -112,25 +117,26 @@ public class SetupView {
             charSelection.add(choseChar);
         }
 
-        playerCount = (ComboBox) setupmenue.lookup("#playersCount");
+        playerCount = (ComboBox) setupMenu.lookup("#playersCount");
         playerCount.getItems().addAll(2,3,4,5,6);
         playerCount.setOnAction(e -> {
-            playerNr = (int) playerCount.getSelectionModel().getSelectedItem();
+            noOfPlayers = (int) playerCount.getSelectionModel().getSelectedItem();
             for(int i = 2; i < 6; i++){
-                players.getChildren().get(i).setVisible(i < playerNr);
-                if(i >= playerNr) {
-                    names[i] = null;
-                    charecters[i] = null;
+                playersVBox.getChildren().get(i).setVisible(i < noOfPlayers);
+                if(i >= noOfPlayers) {
+                    playerNames[i] = null;
+                    playerCharacters[i] = null;
                     charSelection.get(i).getSelectionModel().clearSelection();
                 }
             }
         });
 
-        start = (Button) setupmenue.lookup("#start");
+        start = (Button) setupMenu.lookup("#start");
         start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
-        start.setOnAction(e -> {
+        start.setOnMouseClicked(e -> {
             if(ready){
                 //start game
+                appController.beginCourse(noOfPlayers, mapIndex, playerNames, playerCharacters);
             }
         });
 
@@ -138,11 +144,11 @@ public class SetupView {
     }
 
     private boolean isReady(){
-        for(int i = 0; i < playerNr; i++){
-            if(names[i] == null || charecters[i] == null) return false;
+        for(int i = 0; i < noOfPlayers; i++){
+            if(playerNames[i] == null || playerCharacters[i] == null) return false;
             for(int j = i-1; j >= 0; j--){
-                if(names[i].equals(names[j])) return false;
-                if(charecters[i].equals(charecters[j])) return false;
+                if(playerNames[i].equals(playerNames[j])) return false;
+                if(playerCharacters[i].equals(playerCharacters[j])) return false;
             }
         }
         return true;

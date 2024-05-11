@@ -45,7 +45,7 @@ public class Player extends Subject {
     final public Board board;
 
     private String name;
-    private String color;
+    private Robots robot;
 
     private Space space;
     private Space temporarySpace = null;
@@ -63,16 +63,16 @@ public class Player extends Subject {
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
     private Image image;
 
-
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
-    public Player(@NotNull Board board, String color, @NotNull String name, @NotNull String imageName) {
+
+    public Player(@NotNull Board board, @NotNull Robots robot, @NotNull String name) {
         this.board = board;
         this.name = name;
-        this.color = color;
+        this.robot = robot;
         this.space = null;
-        this.image = ImageUtils.getImageFromName(imageName);
+        this.image = ImageUtils.getImageFromName(robot.imageName);
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -125,12 +125,12 @@ public class Player extends Subject {
     public void setPriority(int priority) {this.priority=priority;}
 
 
-    public String getColor() {
-        return color;
+    public Robots getRobot() {
+        return robot;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setRobot(Robots robot) {
+        this.robot = robot;
         notifyChange();
         if (space != null) {
             space.playerChanged();

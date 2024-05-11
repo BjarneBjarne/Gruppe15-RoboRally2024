@@ -24,19 +24,12 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.input.MouseEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -48,12 +41,8 @@ import java.util.*;
  *
  */
 public class AppController implements Observer {
-
     final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
-    final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
-
     final private RoboRally roboRally;
-
     private GameController gameController;
 
     public AppController(@NotNull RoboRally roboRally) {
@@ -64,11 +53,12 @@ public class AppController implements Observer {
         roboRally.createSetupMenue(this);
     }
 
-    public void beginCourse(int noOfPlayers) {
-        Board board = new Board(13,10);
+    public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
+        System.out.println("Start!");
+        Board board = new Board(13,10, mapIndex);
         gameController = new GameController(board);
 
-        // Find spawns
+        // Finding spawns
         List<Space> spawnPoints = new ArrayList<>();
         Space[][] spaces = board.getSpaces();
         for (int x = 0; x < spaces.length; x++) {
@@ -80,9 +70,9 @@ public class AppController implements Observer {
             }
         }
 
-        // Add players
+        // Adding players
         for (int i = 0; i < noOfPlayers; i++) {
-            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+            Player player = new Player(board, Robots.valueOf(playerCharacters[i]), playerNames[i]);
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
