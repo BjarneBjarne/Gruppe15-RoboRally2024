@@ -279,6 +279,10 @@ public class Board extends Subject {
         notifyChange();
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
     public void setOnPhaseChange(PhaseChangeListener listener) {
         phaseChangeListeners.add(listener);

@@ -85,23 +85,11 @@ public class BoardView extends VBox implements ViewObserver {
                 Heading direction = Heading.valueOf(button.getId());
                 buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
                 button.setGraphic(buttonImage);
+
                 button.setOnMouseClicked(event -> {
-                    if (board.getPhase() != INITIALISATION)
-                        return;
-                    
-                    Player currentPlayer = board.getCurrentPlayer();
-                    currentPlayer.setHeading(direction);
-                    int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
-                    Player nextPlayer = board.getPlayer(nextPlayerIndex);
-                    board.setCurrentPlayer(nextPlayer);
+                    gameController.chooseDirection(direction);
                     directionOptionsPane.setDisable(true);
                     directionOptionsPane.setVisible(false);
-
-                    if (nextPlayer.getSpawnPoint() != null) {
-                        System.out.println("Starting programming phase");
-                        gameController.startProgrammingPhase();
-                        return;
-                    }
                 });
             }
         }
