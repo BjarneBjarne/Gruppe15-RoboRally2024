@@ -26,7 +26,6 @@ public class SetupView {
     VBox playersVBox;
     ArrayList<Image> mapGraphics = new ArrayList<>();
     ArrayList<ComboBox> charSelection = new ArrayList<>();
-    boolean ready;
     @FXML
     AnchorPane setupMenu;
     @FXML
@@ -134,8 +133,7 @@ public class SetupView {
         start = (Button) setupMenu.lookup("#start");
         start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
         start.setOnMouseClicked(e -> {
-            if(ready){
-                //start game
+            if(isReady()){
                 appController.beginCourse(noOfPlayers, mapIndex, playerNames, playerCharacters);
             }
         });
