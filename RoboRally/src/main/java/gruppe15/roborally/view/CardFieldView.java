@@ -70,11 +70,14 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
 
-        String type = field.getCard().getName();
-        Image temp = ImageUtils.getImageFromName(type+".png");
-        if(temp != null){
-            grafics = new ImageView(temp);
-            this.getChildren().add(grafics);
+        CommandCard temp1 = field.getCard();
+        if(temp1 != null) {
+            String type = temp1.getName();
+            Image temp2 = ImageUtils.getImageFromName(type + ".png");
+            if (temp2 != null) {
+                grafics = new ImageView(temp2);
+                this.getChildren().add(grafics);
+            }
         }
 
         this.gameController = gameController;
