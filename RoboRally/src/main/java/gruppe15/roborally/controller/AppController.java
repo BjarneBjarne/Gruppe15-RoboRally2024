@@ -62,62 +62,34 @@ public class AppController implements Observer {
 
     public void newGame() {
         roboRally.createSetupMenue(this);
-        /*ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-        dialog.setTitle("Player number");
-        dialog.setHeaderText("Select number of players");
-        Optional<Integer> result = dialog.showAndWait();
+    }
 
-        if (result.isPresent()) {
-            if (gameController != null) {
-                // The UI should not allow this, but in case this happens anyway.
-                // give the user the option to save the game or abort this operation!
-                if (!stopGame()) {
-                    return;
+    public void beginCourse(int noOfPlayers) {
+        Board board = new Board(13,10);
+        gameController = new GameController(board);
+
+        // Find spawns
+        List<Space> spawnPoints = new ArrayList<>();
+        Space[][] spaces = board.getSpaces();
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                Space space = spaces[x][y];
+                if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                    spawnPoints.add(space);
                 }
             }
+        }
 
-            // XXX the board should eventually be created programmatically or loaded from a file
-            //     here we just create an empty board with the required number of players.
-            Board board = new Board(13,10);
-            gameController = new GameController(board);
-            int no = result.get();
+        // Add players
+        for (int i = 0; i < noOfPlayers; i++) {
+            Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+            player.setHeading(Heading.EAST);
+            board.addPlayer(player);
+        }
 
-            // Find spawns
-            List<Space> spawnPoints = new ArrayList<>();
-            Space[][] spaces = board.getSpaces();
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    Space space = spaces[x][y];
-                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                        spawnPoints.add(space);
-                    }
-                }
-            }
-            // Add players
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                player.setHeading(Heading.EAST);
-                board.addPlayer(player);
+        board.setCurrentPlayer(board.getPlayer(0));
 
-                // Set player spawn
-                // Collections.shuffle(spawnPoints);
-                // if (spawnPoints.isEmpty()) {
-                //     player.setSpawn(board.getSpace(i % board.width, i));
-                // } else {
-                //     for (Space spawnPoint : spawnPoints) {
-                //         if (spawnPoint.getPlayer() == null) {
-                //             player.setSpawn(spawnPoint);
-                //         }
-                //     }
-                // }
-            }
-
-            // XXX: the line below is commented out in the current version
-            board.setCurrentPlayer(board.getPlayer(0));
-            // gameController.startProgrammingPhase();
-
-            roboRally.createBoardView(gameController);
-        }*/
+        roboRally.createBoardView(gameController);
     }
 
     public void saveGame() {
