@@ -11,6 +11,7 @@ import gruppe15.roborally.view.ViewObserver;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -86,10 +87,14 @@ public class CourseCreatorController extends VBox {
 
         for (BoardElement boardElement : boardElementList) {
             ImageView boardElementImageView = new ImageView(boardElement.getImage());
+            boardElementImageView.setFitWidth(50);
+            boardElementImageView.setFitHeight(50);
+            Button elementButton = new Button();
+            elementButton.setPrefSize(50, 50);
+            HBox.setMargin(elementButton, new Insets(25, 12.5, 25, 12.5));
+            elementButton.setGraphic(boardElementImageView);
 
-
-
-            //elementButtonsHBox.getChildren().add();
+            elementButtonsHBox.getChildren().add(elementButton);
         }
 
     }
