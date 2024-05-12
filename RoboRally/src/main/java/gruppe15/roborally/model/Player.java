@@ -72,7 +72,7 @@ public class Player extends Subject {
         this.name = name;
         this.robot = robot;
         this.space = null;
-        this.image = ImageUtils.getImageFromName(robot.imageName);
+        this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {

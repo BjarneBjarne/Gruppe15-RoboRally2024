@@ -52,6 +52,8 @@ public class RoboRally extends Application {
     private Stage stage;
     private BorderPane boardRoot;
     private BoardView boardView;
+    private AnchorPane mainMenu;
+    private AnchorPane selectionMenu;
 
 
     // private RoboRallyMenuBar menuBar;
@@ -93,21 +95,40 @@ public class RoboRally extends Application {
     }
 
     public void createMainMenu(AppController appController) {
+        // create and add view for new board
+        mainMenu = new MainMenuView().initialize(appController).getMainMenu();
+        goToMainMenu();
+    }
+    public void goToMainMenu() {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
-
-        // create and add view for new board
-        AnchorPane mainMenu = new MainMenuView().initialize(appController).getMainMenu();
         boardRoot.setCenter(mainMenu);
-
-        // stage.sizeToScene();
     }
 
-    public void createSetupMenue(AppController appController){
-        boardRoot.getChildren().clear();
-        AnchorPane mainMenu = new SetupView().initialize(appController).getSetupMenu();
-        boardRoot.setCenter(mainMenu);
+    public void createSetupMenu(AppController appController){
+        if (selectionMenu != null) {
+            goToSelectionMenu();
+        } else {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/SetupGame.fxml"));
+                //FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("SetupGame.fxml"));
+                SetupView setupView = new SetupView();
+                loader.setController(setupView);
+                selectionMenu = loader.load();  // This also initializes the controller
+                setupView.setupStartButton(appController);
+                setupView.setupBackButton(this);
 
+                goToSelectionMenu();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    public void goToSelectionMenu() {
+        // if present, remove old BoardView
+        boardRoot.getChildren().clear();
+        boardRoot.setCenter(selectionMenu);
     }
 
     public void createBoardView(GameController gameController) {

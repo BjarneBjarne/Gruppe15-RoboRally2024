@@ -1,18 +1,13 @@
 package gruppe15.roborally.view;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 
 public class MainMenuView {
     
@@ -43,10 +38,10 @@ public class MainMenuView {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("mainMenu.fxml"));
             mainMenu = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         newGame = (Button) mainMenu.lookup("#newGame");
-        newGame.setOnAction(e -> appController.newGame());
+        newGame.setOnAction(e -> appController.courseSelection());
         loadGame = (Button) mainMenu.lookup("#loadGame");
         loadGame.setOnAction(e -> appController.loadGame());
         help = (Button) mainMenu.lookup("#help");

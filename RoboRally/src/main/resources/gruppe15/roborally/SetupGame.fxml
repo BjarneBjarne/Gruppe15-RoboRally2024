@@ -15,7 +15,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="selection_menu" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView fitHeight="740.0" fitWidth="1280.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -25,7 +25,7 @@
             <Rectangle2D height="740.0" width="1280.0" />
          </viewport>
       </ImageView>
-      <StackPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <VBox alignment="TOP_CENTER" StackPane.alignment="CENTER">
                <children>
@@ -33,12 +33,12 @@
                      <children>
                         <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Course Select">
                            <font>
-                              <Font name="OCR A Extended" size="60.0" />
+                              <Font name="OCR A Extended" size="65.0" />
                            </font>
                         </Text>
                         <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Course Select">
                            <font>
-                              <Font name="OCR A Extended" size="60.0" />
+                              <Font name="OCR A Extended" size="65.0" />
                            </font>
                         </Text>
                      </children>
@@ -49,39 +49,39 @@
                         <Insets bottom="25.0" top="25.0" />
                      </padding>
                   </StackPane>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                  <AnchorPane>
                      <children>
-                        <HBox alignment="CENTER" spacing="50.0">
+                        <VBox alignment="CENTER" AnchorPane.leftAnchor="50.0">
                            <children>
-                              <VBox alignment="TOP_CENTER">
+                              <StackPane mouseTransparent="true">
                                  <children>
-                                    <StackPane alignment="CENTER_LEFT" mouseTransparent="true">
-                                       <children>
-                                          <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Courses">
-                                             <font>
-                                                <Font name="OCR A Extended" size="36.0" />
-                                             </font>
-                                          </Text>
-                                          <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Courses">
-                                             <font>
-                                                <Font name="OCR A Extended" size="36.0" />
-                                             </font>
-                                          </Text>
-                                       </children>
-                                       <VBox.margin>
-                                          <Insets bottom="10.0" />
-                                       </VBox.margin>
-                                    </StackPane>
-                                    <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" prefHeight="450.0" prefWidth="200.0" style="-fx-background-color: ffffff20; -fx-border-color: ffffff20;" vbarPolicy="ALWAYS">
-                                       <VBox.margin>
-                                          <Insets />
-                                       </VBox.margin>
-                                    </ScrollPane>
+                                    <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Courses">
+                                       <font>
+                                          <Font name="OCR A Extended" size="36.0" />
+                                       </font>
+                                    </Text>
+                                    <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Courses">
+                                       <font>
+                                          <Font name="OCR A Extended" size="36.0" />
+                                       </font>
+                                    </Text>
                                  </children>
-                              </VBox>
-                              <VBox>
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </StackPane>
+                              <ScrollPane fx:id="scrollPaneForMaps" hbarPolicy="NEVER" prefHeight="425.0" prefWidth="200.0" style="-fx-background-color: ffffff20; -fx-border-color: ffffff20;" vbarPolicy="ALWAYS">
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                        <StackPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                           <children>
+                              <VBox alignment="CENTER" fillWidth="false">
                                  <children>
-                                    <StackPane alignment="CENTER_LEFT" mouseTransparent="true">
+                                    <StackPane mouseTransparent="true">
                                        <children>
                                           <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Players">
                                              <font>
@@ -98,136 +98,169 @@
                                           <Insets bottom="10.0" />
                                        </VBox.margin>
                                     </StackPane>
-                                    <VBox fx:id="players" spacing="15.0">
+                                    <VBox fx:id="playersVBox" alignment="CENTER" fillWidth="false" maxWidth="1.7976931348623157E308" spacing="50.0">
                                        <children>
-                                          <HBox>
+                                          <HBox alignment="CENTER" maxWidth="1.7976931348623157E308" spacing="50.0">
                                              <children>
-                                                <VBox fx:id="player1">
+                                                <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="300.0">
                                                    <children>
-                                                      <TextField fx:id="player1Name" prefHeight="28.0" prefWidth="250.0" promptText="Name" />
-                                                      <ComboBox fx:id="player1Character" prefHeight="33.5" prefWidth="250.0" promptText="Charecter" />
+                                                      <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets right="15.0" />
+                                                         </HBox.margin>
+                                                      </ImageView>
+                                                      <VBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES">
+                                                         <children>
+                                                            <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Name" VBox.vgrow="SOMETIMES" />
+                                                            <ComboBox maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Character" VBox.vgrow="SOMETIMES" />
+                                                         </children>
+                                                      </VBox>
                                                    </children>
-                                                </VBox>
-                                                <ImageView fx:id="player1Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefWidth="300.0">
+                                                   <children>
+                                                      <VBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES">
+                                                         <children>
+                                                            <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Name" VBox.vgrow="SOMETIMES" />
+                                                            <ComboBox maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Character" VBox.vgrow="SOMETIMES" />
+                                                         </children>
+                                                      </VBox>
+                                                      <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets left="15.0" />
+                                                         </HBox.margin>
+                                                      </ImageView>
+                                                   </children>
+                                                </HBox>
                                              </children>
                                           </HBox>
-                                          <HBox layoutX="10.0" layoutY="10.0">
+                                          <HBox alignment="CENTER" maxWidth="1.7976931348623157E308" spacing="50.0">
                                              <children>
-                                                <VBox fx:id="player2">
+                                                <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="300.0">
                                                    <children>
-                                                      <TextField fx:id="player2Name" prefHeight="28.0" prefWidth="250.0" promptText="Name" />
-                                                      <ComboBox fx:id="player2Character" prefHeight="33.5" prefWidth="250.0" promptText="Charecter" />
+                                                      <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets right="15.0" />
+                                                         </HBox.margin>
+                                                      </ImageView>
+                                                      <VBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES">
+                                                         <children>
+                                                            <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Name" VBox.vgrow="SOMETIMES" />
+                                                            <ComboBox maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Character" VBox.vgrow="SOMETIMES" />
+                                                         </children>
+                                                      </VBox>
                                                    </children>
-                                                </VBox>
-                                                <ImageView fx:id="player2Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefWidth="300.0">
+                                                   <children>
+                                                      <VBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES">
+                                                         <children>
+                                                            <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Name" VBox.vgrow="SOMETIMES" />
+                                                            <ComboBox maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Character" VBox.vgrow="SOMETIMES" />
+                                                         </children>
+                                                      </VBox>
+                                                      <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets left="15.0" />
+                                                         </HBox.margin>
+                                                      </ImageView>
+                                                   </children>
+                                                </HBox>
                                              </children>
                                           </HBox>
-                                          <HBox layoutX="10.0" layoutY="95.0">
+                                          <HBox alignment="CENTER" maxWidth="1.7976931348623157E308" spacing="50.0">
                                              <children>
-                                                <VBox fx:id="player3">
+                                                <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="300.0">
                                                    <children>
-                                                      <TextField fx:id="player3Name" prefHeight="28.0" prefWidth="250.0" promptText="Name" />
-                                                      <ComboBox fx:id="player3Character" prefHeight="33.5" prefWidth="250.0" promptText="Charecter" />
+                                                      <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets right="15.0" />
+                                                         </HBox.margin>
+                                                      </ImageView>
+                                                      <VBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES">
+                                                         <children>
+                                                            <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Name" VBox.vgrow="SOMETIMES" />
+                                                            <ComboBox maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Character" VBox.vgrow="SOMETIMES" />
+                                                         </children>
+                                                      </VBox>
                                                    </children>
-                                                </VBox>
-                                                <ImageView fx:id="player3Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
-                                             </children>
-                                          </HBox>
-                                          <HBox layoutX="10.0" layoutY="180.0">
-                                             <children>
-                                                <VBox fx:id="player4">
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefWidth="300.0">
                                                    <children>
-                                                      <TextField fx:id="player4Name" prefHeight="28.0" prefWidth="250.0" promptText="Name" />
-                                                      <ComboBox fx:id="player4Character" prefHeight="33.5" prefWidth="250.0" promptText="Charecter" />
+                                                      <VBox alignment="CENTER" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES">
+                                                         <children>
+                                                            <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Name" VBox.vgrow="SOMETIMES" />
+                                                            <ComboBox maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Character" VBox.vgrow="SOMETIMES" />
+                                                         </children>
+                                                      </VBox>
+                                                      <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets left="15.0" />
+                                                         </HBox.margin>
+                                                      </ImageView>
                                                    </children>
-                                                </VBox>
-                                                <ImageView fx:id="player4Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
-                                             </children>
-                                          </HBox>
-                                          <HBox layoutX="10.0" layoutY="265.0">
-                                             <children>
-                                                <VBox fx:id="player5">
-                                                   <children>
-                                                      <TextField fx:id="player5Name" prefHeight="28.0" prefWidth="250.0" promptText="Name" />
-                                                      <ComboBox fx:id="player5Character" prefHeight="33.5" prefWidth="250.0" promptText="Charecter" />
-                                                   </children>
-                                                </VBox>
-                                                <ImageView fx:id="player5Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
-                                             </children>
-                                          </HBox>
-                                          <HBox layoutX="10.0" layoutY="350.0">
-                                             <children>
-                                                <VBox fx:id="player6">
-                                                   <children>
-                                                      <TextField fx:id="player6Name" prefHeight="28.0" prefWidth="250.0" promptText="Name" />
-                                                      <ComboBox fx:id="player6Character" prefHeight="33.5" prefWidth="250.0" promptText="Charecter" />
-                                                   </children>
-                                                </VBox>
-                                                <ImageView fx:id="player6Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
+                                                </HBox>
                                              </children>
                                           </HBox>
                                        </children>
+                                       <VBox.margin>
+                                          <Insets top="25.0" />
+                                       </VBox.margin>
                                     </VBox>
                                  </children>
                               </VBox>
                            </children>
-                        </HBox>
+                        </StackPane>
+                        <VBox alignment="CENTER" AnchorPane.rightAnchor="50.0">
+                           <children>
+                              <StackPane mouseTransparent="true">
+                                 <children>
+                                    <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Settings">
+                                       <font>
+                                          <Font name="OCR A Extended" size="36.0" />
+                                       </font>
+                                    </Text>
+                                    <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Settings">
+                                       <font>
+                                          <Font name="OCR A Extended" size="36.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </StackPane>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <ComboBox fx:id="playersCount" nodeOrientation="LEFT_TO_RIGHT" prefHeight="28.0" prefWidth="250.0" promptText="Number of players" visibleRowCount="5" AnchorPane.rightAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </ComboBox>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </VBox>
                      </children>
                   </AnchorPane>
                </children>
             </VBox>
          </children>
-         <padding>
-            <Insets left="50.0" />
-         </padding>
       </StackPane>
-      <VBox alignment="TOP_CENTER" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <StackPane alignment="CENTER_LEFT" mouseTransparent="true">
-               <children>
-                  <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Settings">
-                     <font>
-                        <Font name="OCR A Extended" size="36.0" />
-                     </font>
-                  </Text>
-                  <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Settings">
-                     <font>
-                        <Font name="OCR A Extended" size="36.0" />
-                     </font>
-                  </Text>
-               </children>
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-            </StackPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
-               <children>
-                  <ComboBox fx:id="playersCount" nodeOrientation="LEFT_TO_RIGHT" prefWidth="250.0" promptText="Number of players" visibleRowCount="5" AnchorPane.rightAnchor="0.0">
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </ComboBox>
-               </children>
-            </AnchorPane>
-         </children>
-         <padding>
-            <Insets right="50.0" top="75.0" />
-         </padding>
-      </VBox>
-      <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
+      <AnchorPane AnchorPane.bottomAnchor="50.0" AnchorPane.rightAnchor="75.0">
          <children>
             <VBox alignment="BOTTOM_CENTER">
                <children>
-                  <StackPane mouseTransparent="true">
+                  <StackPane maxWidth="-Infinity" mouseTransparent="true">
                      <children>
                         <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Selected course">
                            <font>
-                              <Font name="OCR A Extended" size="24.0" />
+                              <Font name="OCR A Extended" size="18.0" />
                            </font>
                         </Text>
                         <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course">
                            <font>
-                              <Font name="OCR A Extended" size="24.0" />
+                              <Font name="OCR A Extended" size="18.0" />
                            </font>
                         </Text>
                      </children>
@@ -242,29 +275,26 @@
                            <children>
                               <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="0.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
                                  <font>
-                                    <Font name="OCR A Extended" size="48.0" />
+                                    <Font name="OCR A Extended" size="36.0" />
                                  </font>
                               </Text>
                               <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
                                  <font>
-                                    <Font name="OCR A Extended" size="48.0" />
+                                    <Font name="OCR A Extended" size="36.0" />
                                  </font>
                               </Text>
                            </children>
                         </StackPane>
                      </graphic>
                      <VBox.margin>
-                        <Insets top="50.0" />
+                        <Insets top="25.0" />
                      </VBox.margin>
                   </Button>
                </children>
-               <padding>
-                  <Insets bottom="35.0" right="50.0" />
-               </padding>
             </VBox>
          </children>
       </AnchorPane>
-      <AnchorPane layoutX="10.0" layoutY="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
+      <AnchorPane layoutX="10.0" layoutY="10.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="75.0">
          <children>
             <VBox alignment="BOTTOM_CENTER">
                <children>
@@ -277,12 +307,12 @@
                            <children>
                               <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Back" textAlignment="CENTER" StackPane.alignment="CENTER">
                                  <font>
-                                    <Font name="OCR A Extended" size="30.0" />
+                                    <Font name="OCR A Extended" size="36.0" />
                                  </font>
                               </Text>
                               <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Back" textAlignment="CENTER" StackPane.alignment="CENTER">
                                  <font>
-                                    <Font name="OCR A Extended" size="30.0" />
+                                    <Font name="OCR A Extended" size="36.0" />
                                  </font>
                               </Text>
                            </children>
@@ -293,9 +323,6 @@
                      </VBox.margin>
                   </Button>
                </children>
-               <padding>
-                  <Insets bottom="35.0" left="50.0" />
-               </padding>
             </VBox>
          </children>
       </AnchorPane>
