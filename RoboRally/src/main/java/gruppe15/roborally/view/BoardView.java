@@ -35,6 +35,8 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -43,6 +45,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
@@ -117,6 +120,17 @@ public class BoardView extends VBox implements ViewObserver {
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
+                // DialogPane dialog = new DialogPane();
+                //     ImageView imageIn = new ImageView(board.getSpace(0, 3).getImage());
+                //     HBox images = new HBox();
+                //     images.setSpacing(10);
+                //     images.getChildren().addAll(imageIn);
+                //     dialog.setContent(images);
+                //     Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                //     alert.setHeaderText("Images");
+                //     alert.setDialogPane(dialog);
+                //     alert.setTitle("Maybe");
+                //     alert.showAndWait();
                 Space space = board.getSpace(x, y);
                 SpaceView spaceView = new SpaceView(space);
                 spaces[x][y] = spaceView;

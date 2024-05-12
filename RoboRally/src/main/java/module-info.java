@@ -2,6 +2,11 @@ module gruppe15.roborally {
     requires javafx.controls;
     requires javafx.fxml;
     requires org.jetbrains.annotations;
+    requires com.google.gson;
+    requires guava;
+    requires java.desktop;
+    requires javafx.swing;
+    requires javafx.graphics;
 
     exports gruppe15.roborally;
     exports gruppe15.roborally.view;
