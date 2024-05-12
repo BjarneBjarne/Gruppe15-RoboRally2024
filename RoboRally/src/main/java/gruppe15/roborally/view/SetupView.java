@@ -145,7 +145,7 @@ public class SetupView {
 
         // Settings
         // Number of players
-        playersCount.getItems().addAll(2, 3, 4, 5, 6);
+        playersCount.getItems().addAll(AppController.PLAYER_NUMBER_OPTIONS);
         playersCount.getSelectionModel().select(0);
         playersCount.setOnMouseReleased(e -> {
             noOfPlayers = (int)(playersCount.getSelectionModel().getSelectedItem());
