@@ -69,6 +69,10 @@ public class Space extends Subject {
         this.backgroundImage = backgroundImage;
     }
 
+    public void setBoardElement(BoardElement boardElement) {
+        this.boardElement = boardElement;
+    }
+
     public Player getPlayer() {
         if (player != null) {
             return player;
