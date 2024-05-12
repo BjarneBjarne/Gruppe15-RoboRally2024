@@ -229,10 +229,10 @@ public class Player extends Subject {
     public void setProgrammingDeckToDefoult(){
         List<Integer> index = new ArrayList<Integer>();
         for(int i = 0; i < 20; i++){
-            if(i<10){
+            if(i<9){
                 index.add(i);
             }else if(i<18){
-                index.add(i-10);
+                index.add(i-9);
             }else{
                 index.add(i-18);
             }
