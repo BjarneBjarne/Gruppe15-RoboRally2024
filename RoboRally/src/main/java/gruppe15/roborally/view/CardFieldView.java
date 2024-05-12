@@ -45,7 +45,6 @@ import static gruppe15.roborally.model.utils.Constants.*;
  *
  */
 public class CardFieldView extends GridPane implements ViewObserver {
-
     // This data format helps avoiding transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
     final public static  DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
