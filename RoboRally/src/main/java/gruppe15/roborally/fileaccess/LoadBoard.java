@@ -110,7 +110,7 @@ public class LoadBoard {
     private static PlayerTemplate savePlayer(Player player){
         PlayerTemplate playerTemplate = new PlayerTemplate();
         playerTemplate.name = player.getName();
-        playerTemplate.color = player.getColor();
+        playerTemplate.robot = player.getRobot();
         playerTemplate.priority = player.getPriority();
         playerTemplate.cards = new Command[player.getCards().length];
         for(int i = 0; i < player.getCards().length; i++){
@@ -121,7 +121,7 @@ public class LoadBoard {
     }
 
     private static Player loadPlayer(PlayerTemplate playerTemplate, Board board){
-        Player player = new Player(board, playerTemplate.color, playerTemplate.name);
+        Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
         player.setPriority(playerTemplate.priority);
         for(int i = 0; i < playerTemplate.cards.length; i++){
             player.getCardField(i).setCard(new CommandCard(playerTemplate.cards[i]));

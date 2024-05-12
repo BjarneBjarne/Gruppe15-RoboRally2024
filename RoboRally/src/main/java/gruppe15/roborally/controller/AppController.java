@@ -95,7 +95,8 @@ public class AppController implements Observer {
         roboRally.createBoardView(gameController);
     }
 
-    public void saveGame() {
+    public void saveGame(String fileName) {
+        LoadBoard.saveBoard(gameController.board, fileName);
         // XXX needs to be implemented eventually
     }
 
@@ -120,7 +121,7 @@ public class AppController implements Observer {
         if (gameController != null) {
 
             // here we save the game (without asking the user).
-            saveGame();
+            saveGame(null);
 
             gameController = null;
             roboRally.createBoardView(null);
