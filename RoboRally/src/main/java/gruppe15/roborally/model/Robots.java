@@ -1,21 +1,27 @@
 package gruppe15.roborally.model;
 
-public enum Robots {
-    Blue("SPIN BOT", "Robot_Blue.png"),
-    Green("ZOOM BOT", "Robot_Green.png"),
-    Orange("TWONKY", "Robot_Orange.png"),
-    Purple("HAMMER BOT", "Robot_Purple.png"),
-    Red("HULK X90", "Robot_Red.png"),
-    Yellow("SMASH BOT", "Robot_Yellow.png");
+import gruppe15.roborally.model.utils.ImageUtils;
 
-    public final String robotName;
-    public final String imageName;
-    Robots(String robotName, String imageName) {
+public enum Robots {
+    Blue("SPIN BOT"),
+    Green("ZOOM BOT"),
+    Orange("TWONKY"),
+    Purple("HAMMER BOT"),
+    Red("HULK X90"),
+    Yellow("SMASH BOT");
+
+    private final String robotName;
+    Robots(String robotName) {
         this.robotName = robotName;
-        this.imageName= imageName;
     }
     public String getRobotName() {
         return robotName;
+    }
+    public String getBoardImageName() {
+        return "Robot_" + this.name() + ".png";
+    }
+    public String getSelectionImageName() {
+        return "Robots/CharacterSelection/RobotSelection_" + this.name() + ".png";
     }
     public static Robots getRobotByName(String robotName) {
         for (Robots robot : Robots.values()) {
@@ -23,6 +29,7 @@ public enum Robots {
                 return robot;
             }
         }
+
         return null;
     }
 }

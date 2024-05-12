@@ -49,8 +49,8 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void newGame() {
-        roboRally.createSetupMenue(this);
+    public void courseSelection() {
+        roboRally.createSetupMenu(this);
     }
 
     public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
@@ -89,7 +89,7 @@ public class AppController implements Observer {
         // XXX needs to be implemented eventually
         // for now, we just create a new game
         if (gameController == null) {
-            newGame();
+            courseSelection();
         }
     }
 
