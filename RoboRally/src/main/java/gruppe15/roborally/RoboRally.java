@@ -24,13 +24,16 @@ package gruppe15.roborally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.controller.CourseCreatorController;
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.model.Player;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.SetupView;
+import gruppe15.roborally.view.WinScreenView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -130,6 +133,16 @@ public class RoboRally extends Application {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
         boardRoot.setCenter(selectionMenu);
+    }
+
+    public void goToWinScreen(GameController gameController, AppController appController){
+
+        boardRoot.getChildren().clear();
+
+        AnchorPane w = new WinScreenView().initialize(gameController, appController, this).getWinScreen();
+
+        boardRoot.setCenter(w);
+
     }
 
     public void createBoardView(GameController gameController) {
