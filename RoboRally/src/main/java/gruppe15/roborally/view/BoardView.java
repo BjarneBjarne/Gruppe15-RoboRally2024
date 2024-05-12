@@ -127,9 +127,6 @@ public class BoardView extends VBox implements ViewObserver {
         mainBoardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         board.attach(this);
-        /*for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            board.getPlayer(i).attach(this);
-        }*/
         update(board);
     }
 
