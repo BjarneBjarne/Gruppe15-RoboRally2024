@@ -170,7 +170,7 @@ public class RoboRally extends Application {
         } else {
             boardRoot.getChildren().clear();
             courseCreator = new CourseCreatorController();
-            courseCreator.setStage(stage);
+            //courseCreator.setStage(stage);
 
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("CourseCreator.fxml"));
             loader.setController(courseCreator);
