@@ -113,7 +113,7 @@ public class SetupView {
             List<String> robotNames = Arrays.stream(Robots.values())
                     .map(Robots::getRobotName)
                     .collect(Collectors.toList());
-            ComboBox choseChar = (ComboBox) setupMenu.lookup("#player" + playerNo + "Charecter");
+            ComboBox choseChar = (ComboBox) setupMenu.lookup("#player" + playerNo + "Character");
             choseChar.getItems().addAll(robotNames);
             String[] t = new String[6];
             robotNames.toArray(t);
