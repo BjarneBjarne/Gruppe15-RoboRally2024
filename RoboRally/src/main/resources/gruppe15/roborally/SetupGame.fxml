@@ -1,63 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" layoutX="14.0" layoutY="14.0" prefHeight="367.0" prefWidth="247.0" vbarPolicy="ALWAYS" />
-      <ComboBox fx:id="playersCount" layoutX="423.0" layoutY="30.0" prefHeight="26.0" prefWidth="92.0" promptText="Players" visibleRowCount="5">
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
-      </ComboBox>
-      <VBox fx:id="players" layoutX="270.0" layoutY="30.0" prefHeight="339.0" prefWidth="126.0" spacing="5.0">
+      <ImageView fitHeight="740.0" fitWidth="1280.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Background_MainMenu.png" />
+         </image>
+         <viewport>
+            <Rectangle2D height="740.0" width="1280.0" />
+         </viewport>
+      </ImageView>
+      <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox fx:id="player1" prefHeight="52.0" prefWidth="100.0">
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleX="1.5" scaleY="1.5">
                <children>
-                  <TextField fx:id="player1Name" promptText="Name" />
-                  <ComboBox fx:id="player1Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" layoutX="14.0" layoutY="30.0" prefHeight="351.0" prefWidth="227.0" vbarPolicy="ALWAYS" />
+                  <VBox alignment="TOP_CENTER" layoutX="426.0" layoutY="27.0" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <StackPane mouseTransparent="true">
+                           <children>
+                              <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Number of players" StackPane.alignment="CENTER_LEFT">
+                                 <font>
+                                    <Font name="OCR A Extended" size="18.0" />
+                                 </font>
+                              </Text>
+                              <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Number of players" StackPane.alignment="CENTER_LEFT">
+                                 <font>
+                                    <Font name="OCR A Extended" size="18.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </StackPane>
+                        <ComboBox fx:id="playersCount" prefHeight="26.0" prefWidth="186.0" promptText="Players" visibleRowCount="5">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </ComboBox>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="players" layoutX="270.0" layoutY="30.0" prefHeight="339.0" prefWidth="126.0" spacing="5.0">
+                     <children>
+                        <VBox fx:id="player1" prefHeight="52.0" prefWidth="100.0">
+                           <children>
+                              <TextField fx:id="player1Name" promptText="Name" />
+                              <ComboBox fx:id="player1Charecter" prefWidth="150.0" promptText="Charecter" />
+                           </children>
+                        </VBox>
+                        <VBox fx:id="player2" prefHeight="52.0" prefWidth="100.0">
+                           <children>
+                              <TextField fx:id="player2Name" promptText="Name" />
+                              <ComboBox fx:id="player2Charecter" prefWidth="150.0" promptText="Charecter" />
+                           </children>
+                        </VBox>
+                        <VBox fx:id="player3" prefHeight="52.0" prefWidth="100.0" visible="false">
+                           <children>
+                              <TextField fx:id="player3Name" promptText="Name" />
+                              <ComboBox fx:id="player3Charecter" prefWidth="150.0" promptText="Charecter" />
+                           </children>
+                        </VBox>
+                        <VBox fx:id="player4" prefHeight="52.0" prefWidth="100.0" visible="false">
+                           <children>
+                              <TextField fx:id="player4Name" promptText="Name" />
+                              <ComboBox fx:id="player4Charecter" prefWidth="150.0" promptText="Charecter" />
+                           </children>
+                        </VBox>
+                        <VBox fx:id="player5" prefHeight="52.0" prefWidth="100.0" visible="false">
+                           <children>
+                              <TextField fx:id="player5Name" promptText="Name" />
+                              <ComboBox fx:id="player5Charecter" prefWidth="150.0" promptText="Charecter" />
+                           </children>
+                        </VBox>
+                        <VBox fx:id="player6" prefHeight="52.0" prefWidth="100.0" visible="false">
+                           <children>
+                              <TextField fx:id="player6Name" promptText="Name" />
+                              <ComboBox fx:id="player6Charecter" prefWidth="150.0" promptText="Charecter" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="map" fitHeight="150.0" fitWidth="150.0" layoutX="423.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true" />
+                  <Button fx:id="start" alignment="CENTER" contentDisplay="CENTER" layoutX="436.0" layoutY="317.0" mnemonicParsing="false" prefWidth="150.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                     <font>
+                        <Font name="OCR A Extended" size="32.0" />
+                     </font>
+                     <graphic>
+                        <StackPane mouseTransparent="true">
+                           <children>
+                              <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="36.0" />
+                                 </font>
+                              </Text>
+                              <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="36.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </StackPane>
+                     </graphic>
+                  </Button>
                </children>
-            </VBox>
-            <VBox fx:id="player2" prefHeight="52.0" prefWidth="100.0">
-               <children>
-                  <TextField fx:id="player2Name" promptText="Name" />
-                  <ComboBox fx:id="player2Charecter" prefWidth="150.0" promptText="Charecter" />
-               </children>
-            </VBox>
-            <VBox fx:id="player3" prefHeight="52.0" prefWidth="100.0" visible="false">
-               <children>
-                  <TextField fx:id="player3Name" promptText="Name" />
-                  <ComboBox fx:id="player3Charecter" prefWidth="150.0" promptText="Charecter" />
-               </children>
-            </VBox>
-            <VBox fx:id="player4" prefHeight="52.0" prefWidth="100.0" visible="false">
-               <children>
-                  <TextField fx:id="player4Name" promptText="Name" />
-                  <ComboBox fx:id="player4Charecter" prefWidth="150.0" promptText="Charecter" />
-               </children>
-            </VBox>
-            <VBox fx:id="player5" prefHeight="52.0" prefWidth="100.0" visible="false">
-               <children>
-                  <TextField fx:id="player5Name" promptText="Name" />
-                  <ComboBox fx:id="player5Charecter" prefWidth="150.0" promptText="Charecter" />
-               </children>
-            </VBox>
-            <VBox fx:id="player6" prefHeight="52.0" prefWidth="100.0" visible="false">
-               <children>
-                  <TextField fx:id="player6Name" promptText="Name" />
-                  <ComboBox fx:id="player6Charecter" prefWidth="150.0" promptText="Charecter" />
-               </children>
-            </VBox>
+            </AnchorPane>
          </children>
-      </VBox>
-      <ImageView fx:id="map" fitHeight="144.0" fitWidth="151.0" layoutX="423.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true" />
-      <Button fx:id="start" layoutX="473.0" layoutY="313.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="82.0" text="START" />
+      </StackPane>
    </children>
 </AnchorPane>

@@ -17,4 +17,12 @@ public enum Robots {
     public String getRobotName() {
         return robotName;
     }
+    public static Robots getRobotByName(String robotName) {
+        for (Robots robot : Robots.values()) {
+            if (robot.getRobotName().equalsIgnoreCase(robotName)) {
+                return robot;
+            }
+        }
+        return null;
+    }
 }
