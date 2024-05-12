@@ -91,6 +91,8 @@ public class Player extends Subject {
         return this.image;
     }
 
+    
+
     public int getCheckpoints() {
         return checkpoints;
     }

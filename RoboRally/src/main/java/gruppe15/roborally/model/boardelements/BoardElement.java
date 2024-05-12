@@ -36,6 +36,10 @@ public abstract class BoardElement {
 
     public BoardElement() { }
 
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
     public void setImage(String imageName) {
         if (!imageName.isEmpty()) {
             this.imageName = imageName;
@@ -43,6 +47,9 @@ public abstract class BoardElement {
         }
     }
     public void setImage(String imageName, Heading direction) {
+        if(direction == null){
+            direction = this.direction;
+        }
         if (!imageName.isEmpty()) {
             this.imageName = imageName;
             this.image = ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(imageName), direction);
