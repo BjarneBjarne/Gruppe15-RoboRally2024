@@ -146,8 +146,6 @@ public class CourseCreatorController extends VBox {
         public void keyPressed(KeyEvent event) {
             System.out.println("Pressed: " + event.getCode());
         }
-
-
     }
 
     enum BoardElements {
