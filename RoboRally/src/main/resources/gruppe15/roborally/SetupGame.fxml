@@ -7,57 +7,88 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" layoutX="14.0" layoutY="14.0" prefHeight="367.0" prefWidth="247.0" vbarPolicy="ALWAYS" />
-      <ComboBox fx:id="playersCount" layoutX="423.0" layoutY="30.0" prefHeight="26.0" prefWidth="92.0" promptText="Players" visibleRowCount="5">
+      <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" layoutX="14.0" layoutY="14.0" prefHeight="367.0" prefWidth="210.0" vbarPolicy="ALWAYS" />
+      <ComboBox fx:id="playersCount" layoutX="234.0" layoutY="26.0" prefHeight="26.0" prefWidth="92.0" promptText="Players" visibleRowCount="5">
          <opaqueInsets>
             <Insets />
          </opaqueInsets>
       </ComboBox>
-      <VBox fx:id="players" layoutX="270.0" layoutY="30.0" prefHeight="339.0" prefWidth="126.0" spacing="5.0">
+      <VBox fx:id="players" layoutX="365.0" layoutY="14.0" prefHeight="331.0" prefWidth="234.0" spacing="5.0">
          <children>
-            <VBox fx:id="player1" prefHeight="52.0" prefWidth="100.0">
+            <HBox prefHeight="52.0" prefWidth="234.0">
                <children>
-                  <TextField fx:id="player1Name" promptText="Name" />
-                  <ComboBox fx:id="player1Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <VBox fx:id="player2" prefHeight="51.0" prefWidth="162.0">
+                     <children>
+                        <TextField fx:id="player2Name" prefHeight="26.0" prefWidth="104.0" promptText="Name" />
+                        <ComboBox fx:id="player2Charecter" prefWidth="150.0" promptText="Charecter" />
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="player1Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
                </children>
-            </VBox>
-            <VBox fx:id="player2" prefHeight="52.0" prefWidth="100.0">
+            </HBox>
+            <HBox prefHeight="51.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="player2Name" promptText="Name" />
-                  <ComboBox fx:id="player2Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <VBox fx:id="player1" prefHeight="52.0" prefWidth="157.0">
+                     <children>
+                        <TextField fx:id="player1Name" promptText="Name" />
+                        <ComboBox fx:id="player1Charecter" prefWidth="150.0" promptText="Charecter" />
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="player2Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
                </children>
-            </VBox>
-            <VBox fx:id="player3" prefHeight="52.0" prefWidth="100.0" visible="false">
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="player3Name" promptText="Name" />
-                  <ComboBox fx:id="player3Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <VBox fx:id="player3" prefHeight="52.0" prefWidth="100.0" visible="false">
+                     <children>
+                        <TextField fx:id="player3Name" promptText="Name" />
+                        <ComboBox fx:id="player3Charecter" prefWidth="150.0" promptText="Charecter" />
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="player3Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
                </children>
-            </VBox>
-            <VBox fx:id="player4" prefHeight="52.0" prefWidth="100.0" visible="false">
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="player4Name" promptText="Name" />
-                  <ComboBox fx:id="player4Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <VBox fx:id="player4" prefHeight="52.0" prefWidth="100.0" visible="false">
+                     <children>
+                        <TextField fx:id="player4Name" promptText="Name" />
+                        <ComboBox fx:id="player4Charecter" prefWidth="150.0" promptText="Charecter" />
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="player4Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
                </children>
-            </VBox>
-            <VBox fx:id="player5" prefHeight="52.0" prefWidth="100.0" visible="false">
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="player5Name" promptText="Name" />
-                  <ComboBox fx:id="player5Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <VBox fx:id="player5" prefHeight="52.0" prefWidth="100.0" visible="false">
+                     <children>
+                        <TextField fx:id="player5Name" promptText="Name" />
+                        <ComboBox fx:id="player5Charecter" prefWidth="150.0" promptText="Charecter" />
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="player5Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
                </children>
-            </VBox>
-            <VBox fx:id="player6" prefHeight="52.0" prefWidth="100.0" visible="false">
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="player6Name" promptText="Name" />
-                  <ComboBox fx:id="player6Charecter" prefWidth="150.0" promptText="Charecter" />
+                  <VBox fx:id="player6" prefHeight="52.0" prefWidth="100.0" visible="false">
+                     <children>
+                        <TextField fx:id="player6Name" promptText="Name" />
+                        <ComboBox fx:id="player6Charecter" prefWidth="150.0" promptText="Charecter" />
+                     </children>
+                  </VBox>
+                  <ImageView fx:id="player6Pic" fitHeight="51.0" fitWidth="84.0" pickOnBounds="true" preserveRatio="true" />
                </children>
-            </VBox>
+            </HBox>
          </children>
       </VBox>
-      <ImageView fx:id="map" fitHeight="144.0" fitWidth="151.0" layoutX="423.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true" />
-      <Button fx:id="start" layoutX="473.0" layoutY="313.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="82.0" text="START" />
+      <ImageView fx:id="map" fitHeight="126.0" fitWidth="126.0" layoutX="234.0" layoutY="89.0" pickOnBounds="true" preserveRatio="true" />
+      <Button fx:id="start" layoutX="491.0" layoutY="345.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="82.0" text="START" />
    </children>
 </AnchorPane>

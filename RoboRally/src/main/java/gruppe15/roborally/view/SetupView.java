@@ -28,6 +28,7 @@ public class SetupView {
     String[] names = new String[6];
     String[] charecters = new String[6];
     ArrayList<ComboBox> charSelection = new ArrayList<>();
+    Image[] charIMG = new Image[6];
     boolean ready;
     int playerNr = 2;
     int mapNr = 1;
@@ -61,6 +62,13 @@ public class SetupView {
         }
 
         scrollPane = (ScrollPane) setupmenue.lookup("#scrollpaneformaps");
+
+        charIMG[0] = ImageUtils.getImageFromName("1.png");
+        charIMG[1] = ImageUtils.getImageFromName("2.png");
+        charIMG[2] = ImageUtils.getImageFromName("3.png");
+        charIMG[3] = ImageUtils.getImageFromName("4.png");
+        charIMG[4] = ImageUtils.getImageFromName("5.png");
+        charIMG[5] = ImageUtils.getImageFromName("6.png");
 
         for(int i = 1; i < 7; i++){
             mapGraphics.add(ImageUtils.getImageFromName(i+".png"));
