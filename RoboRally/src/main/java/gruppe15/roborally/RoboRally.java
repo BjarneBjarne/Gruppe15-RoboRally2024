@@ -120,7 +120,6 @@ public class RoboRally extends Application {
             boardView = new BoardView(gameController, directionOptionsPane);
             boardRoot.setCenter(boardView);
         }
-
         stage.sizeToScene();
     }
 
