@@ -63,8 +63,8 @@ public class Player extends Subject {
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
     private Image image;
 
-    private Queue<CommandCard> programmingDeck = new LinkedList<>();
-    private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
+    transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
+    transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
 
     public Player(@NotNull Board board, @NotNull Robots robot, @NotNull String name) {
@@ -219,6 +219,15 @@ public class Player extends Subject {
 
     public void addEnergyCube() {
         energyCubes++;
+    }
+
+    public CommandCardField[] getProgram() {
+        return program;
+    }
+
+    public CommandCardField[] getCards() {
+        return cards;
+
     }
 
     public void buyUpgradeCard(UpgradeCard upgradeCard) {

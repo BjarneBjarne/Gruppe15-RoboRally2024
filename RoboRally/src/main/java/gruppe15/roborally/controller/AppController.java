@@ -30,9 +30,15 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.io.File;
 
 /**
  * ...
@@ -76,7 +82,15 @@ public class AppController implements Observer {
         }
 
         board.setCurrentPlayer(board.getPlayer(0));
+    }
 
+    public void loadGame(File loadedFile) {
+        Board newBoard = LoadBoard.loadBoard(loadedFile);
+        System.out.println(newBoard.width);
+        gameController = new GameController(newBoard);
+        
+        gameController.startProgrammingPhase();
+        
         roboRally.createBoardView(gameController);
     }
 
