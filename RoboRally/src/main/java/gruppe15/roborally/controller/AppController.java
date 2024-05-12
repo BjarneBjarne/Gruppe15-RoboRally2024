@@ -24,6 +24,7 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.fileaccess.LoadBoard;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
