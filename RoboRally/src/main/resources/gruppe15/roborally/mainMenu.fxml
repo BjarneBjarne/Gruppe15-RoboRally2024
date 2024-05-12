@@ -50,7 +50,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="New Game">
                            <font>
@@ -71,7 +71,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Load Game">
                            <font>
@@ -92,7 +92,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Help">
                            <font>
@@ -113,7 +113,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Exit">
                            <font>

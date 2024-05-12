@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static gruppe15.roborally.model.Phase.*;
+
 /**
  * ...
  *
@@ -161,7 +163,7 @@ public class GameController {
                     field.setVisible(true);
                 }
                 player.drawHand();
-                for (int j = 0; j < Player.NO_CARDS; j++) {
+                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
                     CommandCardField field = player.getCardField(j);
                     field.setVisible(true);
                 }
@@ -284,13 +286,13 @@ public class GameController {
                 handlePlayerRegister();
             }
         } else {
-            // If all registers are done, we start the programming phase. TODO: When the Upgrade Phase is implemented, we should go to the Upgrade Phase here.
+            // If all registers are done, we start the programming phase.
             for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 board.getPlayer(i).setIsRebooting(false);
             }
             turnPlaying = false;
             PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
-            pause.setOnFinished(event -> startProgrammingPhase());  // Small delay before ending activation phase for dramatic effect ;-).
+            pause.setOnFinished(event -> board.setPhase(Phase.REBOOTING));  // Small delay before ending activation phase for dramatic effect ;-).
             pause.play();
         }
     }
@@ -621,6 +623,41 @@ public class GameController {
                 }
             }
         }, Duration.millis(0)));
+    }
+
+    public void chooseDirection(Heading direction) {
+        if (board.getPhase() == INITIALISATION) {
+            Player currentPlayer = board.getCurrentPlayer();
+            currentPlayer.setHeading(direction);
+            int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
+            Player nextPlayer = board.getPlayer(nextPlayerIndex);
+            board.setCurrentPlayer(nextPlayer);
+
+            if (nextPlayer.getSpawnPoint() != null) {
+                System.out.println("Starting programming phase");
+                startProgrammingPhase();
+            }
+        }
+
+        if (board.getPhase() == REBOOTING) {
+            List<Player> playersRebooting = new ArrayList<>();
+            for (Player player : board.getPlayers()) {
+                if (player.getIsRebooting()) {
+                    playersRebooting.add(player);
+                }
+            }
+
+            Player currentPlayer = board.getCurrentPlayer();
+            currentPlayer.setHeading(direction);
+            int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
+            Player nextPlayer = board.getPlayer(nextPlayerIndex);
+            board.setCurrentPlayer(nextPlayer);
+
+            if (nextPlayer.getSpawnPoint() != null) {
+                System.out.println("Starting programming phase");
+                startProgrammingPhase();
+            }
+        }
     }
 
     public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {

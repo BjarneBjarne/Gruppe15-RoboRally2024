@@ -25,14 +25,11 @@ import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
-import gruppe15.roborally.view.RoboRallyMenuBar;
+import gruppe15.roborally.view.SetupView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -49,11 +46,14 @@ import java.io.IOException;
  */
 public class RoboRally extends Application {
 
-    private static final int MIN_APP_WIDTH = 600;
+    private static final int MIN_APP_WIDTH = 1280;
+    private static final int MIN_APP_HEIGHT = 740;
     public GridPane directionOptionsPane;
     private Stage stage;
     private BorderPane boardRoot;
     private BoardView boardView;
+    private AnchorPane mainMenu;
+    private AnchorPane selectionMenu;
 
 
     // private RoboRallyMenuBar menuBar;
@@ -79,6 +79,7 @@ public class RoboRally extends Application {
         VBox vbox = new VBox(boardRoot);
         vbox.setAlignment(Pos.CENTER);
         vbox.setMinWidth(MIN_APP_WIDTH);
+        vbox.setMinHeight(MIN_APP_HEIGHT);
         createMainMenu(appController);
         Scene primaryScene = new Scene(vbox);
 
@@ -91,18 +92,43 @@ public class RoboRally extends Application {
         stage.setResizable(false);
         stage.sizeToScene();
         stage.show();
-
     }
 
     public void createMainMenu(AppController appController) {
+        // create and add view for new board
+        mainMenu = new MainMenuView().initialize(appController).getMainMenu();
+        goToMainMenu();
+    }
+    public void goToMainMenu() {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
-
-        // create and add view for new board
-        AnchorPane mainMenu = new MainMenuView().initialize(appController).getMainMenu();
         boardRoot.setCenter(mainMenu);
+    }
 
-        // stage.sizeToScene();
+    public void createSetupMenu(AppController appController){
+        if (selectionMenu != null) {
+            goToSelectionMenu();
+        } else {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/SetupGame.fxml"));
+                //FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("SetupGame.fxml"));
+                SetupView setupView = new SetupView();
+                loader.setController(setupView);
+                selectionMenu = loader.load();  // This also initializes the controller
+                setupView.setupStartButton(appController);
+                setupView.setupBackButton(this);
+
+                goToSelectionMenu();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    public void goToSelectionMenu() {
+        // if present, remove old BoardView
+        boardRoot.getChildren().clear();
+        boardRoot.setCenter(selectionMenu);
     }
 
     public void createBoardView(GameController gameController) {

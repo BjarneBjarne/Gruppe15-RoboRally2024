@@ -23,6 +23,8 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -38,12 +40,12 @@ import static gruppe15.roborally.model.Heading.SOUTH;
 public class Player extends Subject {
 
     final public static int NO_OF_REGISTERS = 5;
-    final public static int NO_CARDS = 8;
+    final public static int NO_OF_CARDS = 8;
 
     final public Board board;
 
     private String name;
-    private String color;
+    private Robots robot;
 
     private Space space;
     private Space temporarySpace = null;
@@ -59,28 +61,34 @@ public class Player extends Subject {
     private Velocity velocity;
     private boolean rebooting = false;
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
-
+    private Image image;
 
     private Queue<CommandCard> programmingDeck = new LinkedList<>();
     private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
-    public Player(@NotNull Board board, String color, @NotNull String name) {
+
+    public Player(@NotNull Board board, @NotNull Robots robot, @NotNull String name) {
         this.board = board;
         this.name = name;
-        this.color = color;
+        this.robot = robot;
         this.space = null;
+        this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
             program[i] = new CommandCardField(this,i+1);
         }
 
-        cards = new CommandCardField[NO_CARDS];
+        cards = new CommandCardField[NO_OF_CARDS];
         for (int i = 0; i < cards.length; i++) {
             cards[i] = new CommandCardField(this);
         }
 
         setProgrammingDeckToDefoult();
+    }
+
+    public Image getImage() {
+        return this.image;
     }
 
     public int getCheckpoints() {
@@ -117,12 +125,12 @@ public class Player extends Subject {
     public void setPriority(int priority) {this.priority=priority;}
 
 
-    public String getColor() {
-        return color;
+    public Robots getRobot() {
+        return robot;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setRobot(Robots robot) {
+        this.robot = robot;
         notifyChange();
         if (space != null) {
             space.playerChanged();
@@ -221,10 +229,10 @@ public class Player extends Subject {
     public void setProgrammingDeckToDefoult(){
         List<Integer> index = new ArrayList<Integer>();
         for(int i = 0; i < 20; i++){
-            if(i<10){
+            if(i<9){
                 index.add(i);
             }else if(i<18){
-                index.add(i-10);
+                index.add(i-9);
             }else{
                 index.add(i-18);
             }
