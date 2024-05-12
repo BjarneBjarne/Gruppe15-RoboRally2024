@@ -22,6 +22,7 @@
 package gruppe15.roborally;
 
 import gruppe15.roborally.controller.AppController;
+import gruppe15.roborally.controller.CourseCreatorController;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
@@ -54,6 +55,7 @@ public class RoboRally extends Application {
     private BoardView boardView;
     private AnchorPane mainMenu;
     private AnchorPane selectionMenu;
+    private CourseCreatorController courseCreator;
 
 
     // private RoboRallyMenuBar menuBar;
@@ -111,10 +113,9 @@ public class RoboRally extends Application {
         } else {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/SetupGame.fxml"));
-                //FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("SetupGame.fxml"));
                 SetupView setupView = new SetupView();
                 loader.setController(setupView);
-                selectionMenu = loader.load();  // This also initializes the controller
+                selectionMenu = loader.load();
                 setupView.setupStartButton(appController);
                 setupView.setupBackButton(this);
 
@@ -161,5 +162,31 @@ public class RoboRally extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void createCourseCreator(AppController appController) {
+        if (courseCreator != null) {
+            goToCourseCreator();
+        } else {
+            boardRoot.getChildren().clear();
+            courseCreator = new CourseCreatorController();
+
+            FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("CourseCreator.fxml"));
+            loader.setController(courseCreator);
+
+            try {
+                courseCreator.getChildren().add(loader.load());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            boardRoot.setCenter(courseCreator);
+            stage.sizeToScene();
+        }
+    }
+    public void goToCourseCreator() {
+        // if present, remove old BoardView
+        boardRoot.getChildren().clear();
+        boardRoot.setCenter(courseCreator);
     }
 }

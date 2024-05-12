@@ -50,7 +50,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0" prefWidth="608.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="New Game">
                            <font>
@@ -71,7 +71,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0" prefWidth="608.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Load Game">
                            <font>
@@ -87,19 +87,19 @@
                   </StackPane>
                </graphic>
             </Button>
-            <Button fx:id="help" alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="325.0" layoutY="404.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="650.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+            <Button fx:id="courseCreator" alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="325.0" layoutY="404.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="650.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
                <font>
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" minWidth="-Infinity" mouseTransparent="true" prefHeight="45.0" prefWidth="608.0">
                      <children>
-                        <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Help">
+                        <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Course Creator">
                            <font>
                               <Font name="OCR A Extended" size="80.0" />
                            </font>
                         </Text>
-                        <Text fill="#ffffff00" scaleX="0.6" scaleY="0.6" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Help">
+                        <Text fill="#ffffff00" scaleX="0.6" scaleY="0.6" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Course Creator">
                            <font>
                               <Font name="OCR A Extended" size="80.0" />
                            </font>
@@ -113,7 +113,7 @@
                   <Font name="OCR A Extended" size="32.0" />
                </font>
                <graphic>
-                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0">
+                  <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0" prefWidth="608.0">
                      <children>
                         <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Exit">
                            <font>

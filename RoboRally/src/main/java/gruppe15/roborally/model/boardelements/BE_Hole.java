@@ -14,6 +14,10 @@ public class BE_Hole extends BoardElement {
      * @param imageName Specified by the file name + the file extension. E.g: "empty.png".
      */
     public BE_Hole(String imageName) {
+        super(imageName);
+    }
+
+    public BE_Hole() {
         super("hole.png");
     }
 
