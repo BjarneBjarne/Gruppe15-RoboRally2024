@@ -36,9 +36,18 @@
                   </Text>
                </children>
             </StackPane>
-            <VBox alignment="TOP_CENTER" prefHeight="196.0" prefWidth="867.0">
+            <VBox alignment="TOP_CENTER" prefHeight="274.0" prefWidth="1280.0">
                <children>
-                  <ImageView fx:id="playerIMG" fitHeight="200.0" fitWidth="211.0" pickOnBounds="true" preserveRatio="true" />
+                  <StackPane maxHeight="275.0" minHeight="45.0" mouseTransparent="true" prefHeight="275.0" prefWidth="1280.0">
+                     <children>
+                        <ImageView fx:id="playerIMGB" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/empty.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="playerIMG" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </StackPane>
                   <StackPane maxHeight="46.0" minHeight="45.0" mouseTransparent="true" prefHeight="46.0" prefWidth="1022.0">
                      <children>
                         <Text fx:id="winnerText1" fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Winner: ">
