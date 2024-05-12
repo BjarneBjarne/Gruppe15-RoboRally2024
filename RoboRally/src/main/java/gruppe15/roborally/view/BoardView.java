@@ -42,6 +42,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,7 +61,7 @@ public class BoardView extends VBox implements ViewObserver {
 
     private Board board;
 
-    private Pane mainBoardPane;
+    private StackPane mainBoardPane;
     private GridPane boardTilesPane;
     private SpaceView[][] spaces;
 
@@ -100,12 +101,14 @@ public class BoardView extends VBox implements ViewObserver {
         playersView = new PlayersView(gameController);
         statusLabel = new Label("<no status>");
 
-        mainBoardPane = new Pane(boardTilesPane, this.directionOptionsPane);
+        mainBoardPane = new StackPane(boardTilesPane, this.directionOptionsPane);
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersView);
         this.getChildren().add(statusLabel);
         this.setAlignment(Pos.CENTER);
         boardTilesPane.setAlignment(Pos.CENTER);
+        this.setAlignment(Pos.CENTER);
+        mainBoardPane.setAlignment(Pos.CENTER);
 
         spaces = new SpaceView[board.width][board.height];
 
@@ -124,9 +127,6 @@ public class BoardView extends VBox implements ViewObserver {
         mainBoardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         board.attach(this);
-        /*for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            board.getPlayer(i).attach(this);
-        }*/
         update(board);
     }
 
