@@ -6,6 +6,7 @@ import java.util.List;
 
 import gruppe15.roborally.model.Command;
 import gruppe15.roborally.model.Heading;
+import gruppe15.roborally.model.Robots;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.upgrades.UpgradeCard;
 
@@ -19,6 +20,8 @@ public class PlayerTemplate {
     public int energyCubes;
 
     public Command[] cards;
+
+    public Robots robot;
 
     public  int priority;
     transient public List<UpgradeCard> upgradeCards;
