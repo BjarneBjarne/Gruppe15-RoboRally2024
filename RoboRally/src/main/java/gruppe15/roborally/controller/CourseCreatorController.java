@@ -166,7 +166,7 @@ public class CourseCreatorController extends VBox {
         }
     }
 
-    private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
+    /*private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
 
         @Override
         public void handle(MouseEvent event) {
@@ -314,5 +314,5 @@ public class CourseCreatorController extends VBox {
             event.consume();
         }
 
-    }
+    }*/
 }
