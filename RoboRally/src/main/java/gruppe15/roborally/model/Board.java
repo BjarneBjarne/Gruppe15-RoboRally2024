@@ -48,8 +48,6 @@ public class Board extends Subject {
 
     public final int height;
 
-    public final String boardName;
-
     private Integer gameId;
 
     private final Space[][] spaces;
@@ -70,14 +68,17 @@ public class Board extends Subject {
     private List<Space[][]> subBoards;
 
 
-    public Board(int width, int height, @NotNull String boardName) {
-        this.boardName = boardName;
+    public Board(int width, int height) {
+        this(width, height, 0);
+    }
+
+    public Board(int width, int height, int mapIndex) {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
 
         // Setup spaces
-        if (boardName.equals("dizzy_highway")) {
+        if (mapIndex == 0) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
             // BE_SpawnPoint points
@@ -213,11 +214,6 @@ public class Board extends Subject {
         spaces[x][y] = new Space(this, x, y, boardElement);
     }
 
-    public Board(int width, int height) {
-        //this(width, height, "defaultboard");
-        this(width, height, "dizzy_highway");
-    }
-
     public Integer getGameId() {
         return gameId;
     }
@@ -279,6 +275,10 @@ public class Board extends Subject {
         notifyChange();
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
     public void setOnPhaseChange(PhaseChangeListener listener) {
         phaseChangeListeners.add(listener);
@@ -318,6 +318,8 @@ public class Board extends Subject {
     }
 
     public int getPlayerNumber(@NotNull Player player) {
+        if (player == null)
+            return -1; 
         if (player.board == this) {
             return players.indexOf(player);
         } else {
@@ -426,8 +428,11 @@ public class Board extends Subject {
     }
 
     public Integer determinePlayerPriority(Player player,Space antenna) {
-        int x = antenna.x - player.getSpace().x;
-        int y = antenna.y - player.getSpace().y;
+        Space space = player.getSpace();
+        if (space == null) 
+            return -1;
+        int x = antenna.x - space.x;
+        int y = antenna.y - space.y;
         return Math.abs(x) + Math.abs(y);
     }
     public Space findAntenna() {

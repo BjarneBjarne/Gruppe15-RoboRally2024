@@ -40,6 +40,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gruppe15.roborally.model.utils.Constants.*;
+
 /**
  * ...
  *
@@ -56,6 +58,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     private final ImageView energyCubeImageView = new ImageView();
     private final List<ImageView> laserImageViews = new ArrayList<>();
     private final List<ImageView> wallImageViews = new ArrayList<>();
+    private final ImageView playerImageView = new ImageView();
     private GridPane directionOptionsPane = null;
 
     public SpaceView(@NotNull Space space) {
@@ -107,13 +110,9 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(wallImageView);
         }
 
-        /*if ((space.x + space.y) % 2 == 0) {
-            this.setStyle("-fx-background-color: white;");
-        } else {
-            this.setStyle("-fx-background-color: black;");
-        }*/
-
-        // updatePlayer();
+        playerImageView.setFitWidth(SPACE_WIDTH);
+        playerImageView.setFitHeight(SPACE_HEIGHT);
+        this.getChildren().add(playerImageView);
 
         // This space view should listen to changes of the space
         space.attach(this);
@@ -122,12 +121,16 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private void updateSpace() {
         this.getChildren().clear();
+
+        // Space background imageView
         this.getChildren().add(backgroundImageView);
 
+        // Board element imageView
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
             this.getChildren().add(boardElementImageView);
 
+            // Energy cube imageView
             if (boardElement instanceof BE_EnergySpace energySpace) {
                 if (energySpace.getHasEnergyCube()) {
                     this.getChildren().add(energyCubeImageView);
@@ -135,6 +138,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             }
         }
 
+        // Lasers imageView
         this.laserImageViews.clear();
         for (Heading laser : space.getLasersOnSpace()) {
             ImageView laserImageView = newLaserImageView(laser);
@@ -142,23 +146,21 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(laserImageView);
         }
 
-        for (ImageView wall : wallImageViews) {
-            this.getChildren().add(wall);
-        }
-
+        // Player imageView
         Player player = space.getPlayer();
         if (player != null) {
-            Polygon arrow = new Polygon(0.0, 0.0,
-                    10.0, 20.0,
-                    20.0, 0.0 );
             try {
-                arrow.setFill(Color.valueOf(player.getColor()));
+                Image playerImage = player.getImage();
+                playerImageView.setImage(ImageUtils.getRotatedImageByHeading(playerImage, player.getHeading()));
             } catch (Exception e) {
-                arrow.setFill(Color.MEDIUMPURPLE);
+                playerImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Robot_Error.png"), player.getHeading()));
             }
+            this.getChildren().add(playerImageView);
+        }
 
-            arrow.setRotate((90*player.getHeading().ordinal())%360);
-            this.getChildren().add(arrow);
+        // Walls imageView
+        for (ImageView wall : wallImageViews) {
+            this.getChildren().add(wall);
         }
     }
 

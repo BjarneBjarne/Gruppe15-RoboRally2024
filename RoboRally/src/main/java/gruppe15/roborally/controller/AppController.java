@@ -24,19 +24,12 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.input.MouseEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -48,75 +41,43 @@ import java.util.*;
  *
  */
 public class AppController implements Observer {
-
-    final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
-    final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
-
-    final private RoboRally roboRally;
-
+    private final RoboRally roboRally;
     private GameController gameController;
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
-    public void newGame() {
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-        dialog.setTitle("Player number");
-        dialog.setHeaderText("Select number of players");
-        Optional<Integer> result = dialog.showAndWait();
+    public void courseSelection() {
+        roboRally.createSetupMenu(this);
+    }
 
-        if (result.isPresent()) {
-            if (gameController != null) {
-                // The UI should not allow this, but in case this happens anyway.
-                // give the user the option to save the game or abort this operation!
-                if (!stopGame()) {
-                    return;
+    public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
+        Board board = new Board(13,10, mapIndex);
+        gameController = new GameController(board);
+
+        // Finding spawns
+        List<Space> spawnPoints = new ArrayList<>();
+        Space[][] spaces = board.getSpaces();
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[x].length; y++) {
+                Space space = spaces[x][y];
+                if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                    spawnPoints.add(space);
                 }
             }
-
-            // XXX the board should eventually be created programmatically or loaded from a file
-            //     here we just create an empty board with the required number of players.
-            Board board = new Board(13,10);
-            gameController = new GameController(board);
-            int no = result.get();
-
-            // Find spawns
-            List<Space> spawnPoints = new ArrayList<>();
-            Space[][] spaces = board.getSpaces();
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    Space space = spaces[x][y];
-                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                        spawnPoints.add(space);
-                    }
-                }
-            }
-            // Add players
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                player.setHeading(Heading.EAST);
-                board.addPlayer(player);
-
-                // Set player spawn
-                Collections.shuffle(spawnPoints);
-                if (spawnPoints.isEmpty()) {
-                    player.setSpawn(board.getSpace(i % board.width, i));
-                } else {
-                    for (Space spawnPoint : spawnPoints) {
-                        if (spawnPoint.getPlayer() == null) {
-                            player.setSpawn(spawnPoint);
-                        }
-                    }
-                }
-            }
-
-            // XXX: the line below is commented out in the current version
-            // board.setCurrentPlayer(board.getPlayer(0));
-            gameController.startProgrammingPhase();
-
-            roboRally.createBoardView(gameController);
         }
+
+        // Adding players
+        for (int i = 0; i < noOfPlayers; i++) {
+            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(playerCharacters[i])), playerNames[i]);
+            player.setHeading(Heading.EAST);
+            board.addPlayer(player);
+        }
+
+        board.setCurrentPlayer(board.getPlayer(0));
+
+        roboRally.createBoardView(gameController);
     }
 
     public void saveGame() {
@@ -127,7 +88,7 @@ public class AppController implements Observer {
         // XXX needs to be implemented eventually
         // for now, we just create a new game
         if (gameController == null) {
-            newGame();
+            courseSelection();
         }
     }
 

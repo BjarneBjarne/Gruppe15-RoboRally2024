@@ -66,7 +66,7 @@ public class PlayerView extends Tab implements ViewObserver {
 
     public PlayerView(@NotNull GameController gameController, @NotNull Player player) {
         super(player.getName());
-        this.setStyle("-fx-text-base-color: " + player.getColor() + ";");
+        this.setStyle("-fx-text-base-color: " + player.getRobot() + ";");
 
         top = new VBox();
         this.setContent(top);
@@ -75,6 +75,7 @@ public class PlayerView extends Tab implements ViewObserver {
         this.player = player;
 
         programLabel = new Label("Program");
+        programLabel.setAlignment(Pos.CENTER);
 
         programPane = new GridPane();
         programPane.setVgap(2.0);
@@ -87,6 +88,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 programPane.add(programCardViews[i], i, 0);
             }
         }
+        programPane.setAlignment(Pos.CENTER);
 
         // XXX  the following buttons should actually not be on the tabs of the individual
         //      players, but on the PlayersView (view for all players). This should be
@@ -111,17 +113,19 @@ public class PlayerView extends Tab implements ViewObserver {
         playerInteractionPanel.setSpacing(3.0);
 
         cardsLabel = new Label("Command Cards");
+        cardsLabel.setAlignment(Pos.CENTER);
         cardsPane = new GridPane();
         cardsPane.setVgap(2.0);
         cardsPane.setHgap(2.0);
-        cardViews = new CardFieldView[Player.NO_CARDS];
-        for (int i = 0; i < Player.NO_CARDS; i++) {
+        cardViews = new CardFieldView[Player.NO_OF_CARDS];
+        for (int i = 0; i < Player.NO_OF_CARDS; i++) {
             CommandCardField cardField = player.getCardField(i);
             if (cardField != null) {
                 cardViews[i] = new CardFieldView(gameController, cardField);
                 cardsPane.add(cardViews[i], i, 0);
             }
         }
+        cardsPane.setAlignment(Pos.CENTER);
 
         top.getChildren().add(programLabel);
         top.getChildren().add(programPane);
@@ -170,7 +174,7 @@ public class PlayerView extends Tab implements ViewObserver {
                         finishButton.setDisable(true);
                         // XXX just to make sure that there is a way for the player to get
                         //     from the initialization phase to the programming phase somehow!
-                        executeButton.setDisable(false);
+                        executeButton.setDisable(true);
                         stepButton.setDisable(true);
                         break;
 
