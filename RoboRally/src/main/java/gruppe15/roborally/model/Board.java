@@ -48,8 +48,6 @@ public class Board extends Subject {
 
     public final int height;
 
-    public final String boardName;
-
     private Integer gameId;
 
     private final Space[][] spaces;
@@ -70,14 +68,17 @@ public class Board extends Subject {
     private List<Space[][]> subBoards;
 
 
-    public Board(int width, int height, @NotNull String boardName) {
-        this.boardName = boardName;
+    public Board(int width, int height) {
+        this(width, height, 0);
+    }
+
+    public Board(int width, int height, int mapIndex) {
         this.width = width;
         this.height = height;
         spaces = new Space[width][height];
 
         // Setup spaces
-        if (boardName.equals("dizzy_highway")) {
+        if (mapIndex == 0) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
             // BE_SpawnPoint points
@@ -211,11 +212,6 @@ public class Board extends Subject {
 
     private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
         spaces[x][y] = new Space(this, x, y, boardElement);
-    }
-
-    public Board(int width, int height) {
-        //this(width, height, "defaultboard");
-        this(width, height, "dizzy_highway");
     }
 
     public Integer getGameId() {
