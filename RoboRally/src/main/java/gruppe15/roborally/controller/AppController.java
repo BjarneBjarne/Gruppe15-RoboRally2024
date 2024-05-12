@@ -41,8 +41,7 @@ import java.util.*;
  *
  */
 public class AppController implements Observer {
-    final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
-    final private RoboRally roboRally;
+    private final RoboRally roboRally;
     private GameController gameController;
 
     public AppController(@NotNull RoboRally roboRally) {

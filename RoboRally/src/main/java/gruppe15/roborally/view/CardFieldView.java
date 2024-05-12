@@ -36,6 +36,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
+import static gruppe15.roborally.model.utils.Constants.*;
+
 /**
  * ...
  *
@@ -43,13 +45,9 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 public class CardFieldView extends GridPane implements ViewObserver {
-
     // This data format helps avoiding transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
     final public static  DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
-
-    final public static int CARDFIELD_WIDTH = 50;
-    final public static int CARDFIELD_HEIGHT = 75;
 
     final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
@@ -118,7 +116,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 }
             }
 
-            for (int i = 0; i < Player.NO_CARDS; i++) {
+            for (int i = 0; i < Player.NO_OF_CARDS; i++) {
                 CommandCardField other = cardField.player.getCardField(i);
                 if (other == cardField) {
                     return "C," + i;
@@ -139,7 +137,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         return field.player.getProgramField(i);
                     }
                 } else if ("C".equals(strings[0])) {
-                    if (i < Player.NO_CARDS) {
+                    if (i < Player.NO_OF_CARDS) {
                         return field.player.getCardField(i);
                     }
                 }
