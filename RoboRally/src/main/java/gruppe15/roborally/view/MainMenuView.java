@@ -20,6 +20,8 @@ public class MainMenuView {
     @FXML
     Button help;
     @FXML
+    Button courseCreator;
+    @FXML
     Button exit;
     AppController appController;
 
@@ -46,6 +48,8 @@ public class MainMenuView {
         loadGame.setOnAction(e -> appController.loadGame());
         help = (Button) mainMenu.lookup("#help");
         // help.setOnAction(e -> appController.help());
+        courseCreator = (Button) mainMenu.lookup("#courseCreator");
+        courseCreator.setOnMouseClicked(e -> appController.courseCreator());
         exit = (Button) mainMenu.lookup("#exit");
         exit.setOnAction(e -> appController.exit());
         return this;

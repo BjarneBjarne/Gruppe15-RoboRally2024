@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<VBox alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <StackPane fx:id="CC_boardPane" />
+      <ScrollPane>
+         <content>
+            <HBox fx:id="elementButtonsHBox" alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity">
+               <children>
+                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0">
+                     <HBox.margin>
+                        <Insets bottom="25.0" left="12.5" right="12.5" top="25.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button layoutX="25.0" layoutY="35.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0">
+                     <HBox.margin>
+                        <Insets bottom="25.0" left="12.5" right="12.5" top="25.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+         </content>
+      </ScrollPane>
+   </children>
+</VBox>

@@ -143,4 +143,7 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
+    public void courseCreator() {
+        roboRally.createCourseCreator(this);
+    }
 }

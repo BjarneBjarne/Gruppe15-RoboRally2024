@@ -9,4 +9,5 @@ module gruppe15.roborally {
 
     opens gruppe15.roborally to javafx.fxml;
     opens gruppe15.roborally.view to javafx.fxml;
+    opens gruppe15.roborally.controller to javafx.fxml;
 }
