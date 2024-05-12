@@ -57,6 +57,10 @@ public abstract class BoardElement {
         return image;
     }
 
+    public void updateImage() {
+        setImage(imageName);
+    }
+
     public Heading getDirection() {
         return direction;
     }

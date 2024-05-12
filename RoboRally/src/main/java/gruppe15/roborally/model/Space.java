@@ -44,7 +44,7 @@ public class Space extends Subject {
     public final int y;
 
     private Player player;
-    private final BoardElement boardElement;
+    private BoardElement boardElement;
     private Image backgroundImage;
     private final List<Heading> walls = new ArrayList<>();
     private final List<Heading> lasersOnSpace = new ArrayList<>();
@@ -105,6 +105,9 @@ public class Space extends Subject {
 
     public BoardElement getBoardElement() {
         return boardElement;
+    }
+    public void setBoardElement(BoardElement boardElement) {
+        this.boardElement = boardElement;
     }
 
     public boolean hasWall() {

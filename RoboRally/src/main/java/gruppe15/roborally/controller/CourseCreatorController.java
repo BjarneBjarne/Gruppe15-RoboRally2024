@@ -12,6 +12,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -145,20 +146,24 @@ public class CourseCreatorController extends VBox {
         public void keyPressed(KeyEvent event) {
             System.out.println("Pressed: " + event.getCode());
         }
+
+
     }
 
     enum BoardElements {
-        Antenna("antenna.png"),
-        Laser("laserStart.png"),
-        ConveyorBelt("greenStraight.png"),
-        EnergySpace("energySpace.png"),
-        Gear("gearRight.png"),
-        Hole("hole.png"),
-        PushPanel("push135.png"),
-        Reboot("reboot.png"),
-        SpawnPoint("startField.png");
-        String imageName;
-        BoardElements(String imageName) {
+        Antenna(BE_Antenna.class, "antenna.png"),
+        Laser(BE_BoardLaser.class, "laserStart.png"),
+        ConveyorBelt(BE_ConveyorBelt .class, "greenStraight.png"),
+        EnergySpace(BE_EnergySpace.class, "energySpace.png"),
+        Gear(BE_Gear.class, "gearRight.png"),
+        Hole(BE_Hole.class, "hole.png"),
+        PushPanel(BE_PushPanel.class, "push135.png"),
+        Reboot(BE_Reboot.class, "reboot.png"),
+        SpawnPoint(BE_SpawnPoint.class, "startField.png");
+        final Class<? extends BoardElement> boardElementClass;
+        final String imageName;
+        BoardElements(Class<? extends BoardElement> boardElementClass, String imageName) {
+            this.boardElementClass = boardElementClass;
             this.imageName = imageName;
         }
     }
