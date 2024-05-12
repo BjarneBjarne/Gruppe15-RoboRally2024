@@ -27,6 +27,7 @@ public class SetupView {
     ArrayList<Image> mapGraphics = new ArrayList<>();
     ArrayList<ComboBox> charSelection = new ArrayList<>();
     Image[] charIMG = new Image[6];
+    ImageView[] charIMGSelected = new ImageView[6];
     @FXML
     AnchorPane setupMenu;
     @FXML
@@ -64,12 +65,17 @@ public class SetupView {
 
         scrollPane = (ScrollPane) setupMenu.lookup("#scrollpaneformaps");
 
-        charIMG[0] = ImageUtils.getImageFromName("1.png");
-        charIMG[1] = ImageUtils.getImageFromName("2.png");
-        charIMG[2] = ImageUtils.getImageFromName("3.png");
-        charIMG[3] = ImageUtils.getImageFromName("4.png");
-        charIMG[4] = ImageUtils.getImageFromName("5.png");
-        charIMG[5] = ImageUtils.getImageFromName("6.png");
+        charIMG[0] = ImageUtils.getImageFromName("Robots/CharacterSelection/RobotSelection_Blue.png");
+        charIMG[1] = ImageUtils.getImageFromName("Robots/CharacterSelection/RobotSelection_Green.png");
+        charIMG[2] = ImageUtils.getImageFromName("Robots/CharacterSelection/RobotSelection_Orange.png");
+        charIMG[3] = ImageUtils.getImageFromName("Robots/CharacterSelection/RobotSelection_Purple.png");
+        charIMG[4] = ImageUtils.getImageFromName("Robots/CharacterSelection/RobotSelection_Red.png");
+        charIMG[5] = ImageUtils.getImageFromName("Robots/CharacterSelection/RobotSelection_Yellow.png");
+
+        for(int i = 0; i < 6; i++){
+            int nr = i+1;
+            charIMGSelected[i] = (ImageView) setupMenu.lookup("#player"+nr+"Pic");
+        }
 
         for(int i = 1; i < 7; i++){
             mapGraphics.add(ImageUtils.getImageFromName(i+".png"));
@@ -115,9 +121,14 @@ public class SetupView {
                     .collect(Collectors.toList());
             ComboBox choseChar = (ComboBox) setupMenu.lookup("#player"+nr+"Charecter");
             choseChar.getItems().addAll(robotNames);
+            String[] t = new String[6];
+            robotNames.toArray(t);
             choseChar.setOnInputMethodTextChanged(e -> {
                 String name = (String) choseChar.getSelectionModel().getSelectedItem();
                 playerCharacters[nr-1] = name;
+                        for(int j = 0; j < 6; j++){
+                            if(name.equals(t[j]))charIMGSelected[nr-1].setImage(charIMG[j]);
+                        }
                 if(isReady()){
                     start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
                 }else{
