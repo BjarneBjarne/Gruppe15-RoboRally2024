@@ -163,7 +163,7 @@ public class GameController {
                     field.setVisible(true);
                 }
                 player.drawHand();
-                for (int j = 0; j < Player.NO_CARDS; j++) {
+                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
                     CommandCardField field = player.getCardField(j);
                     field.setVisible(true);
                 }

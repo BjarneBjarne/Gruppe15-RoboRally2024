@@ -40,6 +40,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gruppe15.roborally.model.utils.Constants.*;
+
 /**
  * ...
  *
@@ -49,8 +51,6 @@ import java.util.List;
 public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
-    public final static int SPACE_HEIGHT = 50; // 60; // 75;
-    public final static int SPACE_WIDTH = 50;  // 60; // 75;
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
     private final ImageView energyCubeImageView = new ImageView();

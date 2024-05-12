@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static gruppe15.roborally.model.utils.Constants.PLAYER_NUMBER_OPTIONS;
+
 public class SetupView {
     ArrayList<Image> mapGraphics = new ArrayList<>();
     ArrayList<ComboBox> charSelection = new ArrayList<>();
-    ImageView[] charIMGSelected = new ImageView[6];
+    ImageView[] playerRobotImageViews = new ImageView[6];
     HBox[] playerHBoxes = new HBox[6];
 
     @FXML
@@ -112,7 +114,7 @@ public class SetupView {
             for (Node child : playerHBoxes[localI].getChildren()) {
                 // Robot image
                 if (child instanceof ImageView robotImageView) {
-                    charIMGSelected[localI] = robotImageView;
+                    playerRobotImageViews[localI] = robotImageView;
                 }
                 if (child instanceof VBox playerVBox) {
                     for (Node grandChild : playerVBox.getChildren()) {
@@ -132,7 +134,7 @@ public class SetupView {
                             chosenCharacter.valueProperty().addListener((obs, oldValue, newValue) -> {
                                 String name = (String) chosenCharacter.getSelectionModel().getSelectedItem();
                                 String robotImageName = Robots.getRobotByName(name).getSelectionImageName();
-                                charIMGSelected[localI].setImage(ImageUtils.getImageFromName(robotImageName));
+                                playerRobotImageViews[localI].setImage(ImageUtils.getImageFromName(robotImageName));
                                 playerCharacters[localI] = name;
                                 updateUI();
                             });
@@ -145,7 +147,7 @@ public class SetupView {
 
         // Settings
         // Number of players
-        playersCount.getItems().addAll(2, 3, 4, 5, 6);
+        playersCount.getItems().addAll(PLAYER_NUMBER_OPTIONS);
         playersCount.getSelectionModel().select(0);
         playersCount.setOnMouseReleased(e -> {
             noOfPlayers = (int)(playersCount.getSelectionModel().getSelectedItem());
