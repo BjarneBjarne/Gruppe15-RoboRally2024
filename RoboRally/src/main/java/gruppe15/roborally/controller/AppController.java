@@ -54,7 +54,6 @@ public class AppController implements Observer {
     }
 
     public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
-        System.out.println("Start!");
         Board board = new Board(13,10, mapIndex);
         gameController = new GameController(board);
 

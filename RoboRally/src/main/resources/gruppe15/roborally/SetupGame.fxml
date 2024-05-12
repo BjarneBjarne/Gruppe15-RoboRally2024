@@ -9,6 +9,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -24,99 +25,249 @@
             <Rectangle2D height="740.0" width="1280.0" />
          </viewport>
       </ImageView>
-      <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <StackPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" scaleX="1.5" scaleY="1.5">
+            <VBox alignment="TOP_CENTER" StackPane.alignment="CENTER">
                <children>
-                  <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" layoutX="14.0" layoutY="30.0" prefHeight="351.0" prefWidth="227.0" vbarPolicy="ALWAYS" />
-                  <VBox alignment="TOP_CENTER" layoutX="426.0" layoutY="27.0" prefHeight="200.0" prefWidth="100.0">
+                  <StackPane mouseTransparent="true">
                      <children>
-                        <StackPane mouseTransparent="true">
-                           <children>
-                              <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Number of players" StackPane.alignment="CENTER_LEFT">
-                                 <font>
-                                    <Font name="OCR A Extended" size="18.0" />
-                                 </font>
-                              </Text>
-                              <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Number of players" StackPane.alignment="CENTER_LEFT">
-                                 <font>
-                                    <Font name="OCR A Extended" size="18.0" />
-                                 </font>
-                              </Text>
-                           </children>
-                        </StackPane>
-                        <ComboBox fx:id="playersCount" prefHeight="26.0" prefWidth="186.0" promptText="Players" visibleRowCount="5">
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                        </ComboBox>
+                        <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Course Select">
+                           <font>
+                              <Font name="OCR A Extended" size="60.0" />
+                           </font>
+                        </Text>
+                        <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Course Select">
+                           <font>
+                              <Font name="OCR A Extended" size="60.0" />
+                           </font>
+                        </Text>
                      </children>
-                  </VBox>
-                  <VBox fx:id="players" layoutX="270.0" layoutY="30.0" prefHeight="339.0" prefWidth="126.0" spacing="5.0">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="25.0" top="25.0" />
+                     </padding>
+                  </StackPane>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <VBox fx:id="player1" prefHeight="52.0" prefWidth="100.0">
+                        <HBox alignment="CENTER" spacing="50.0">
                            <children>
-                              <TextField fx:id="player1Name" promptText="Name" />
-                              <ComboBox fx:id="player1Charecter" prefWidth="150.0" promptText="Charecter" />
+                              <VBox alignment="TOP_CENTER">
+                                 <children>
+                                    <StackPane alignment="CENTER_LEFT" mouseTransparent="true">
+                                       <children>
+                                          <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Courses">
+                                             <font>
+                                                <Font name="OCR A Extended" size="36.0" />
+                                             </font>
+                                          </Text>
+                                          <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Courses">
+                                             <font>
+                                                <Font name="OCR A Extended" size="36.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </StackPane>
+                                    <ScrollPane fx:id="scrollpaneformaps" hbarPolicy="NEVER" prefHeight="450.0" prefWidth="200.0" style="-fx-background-color: ffffff20; -fx-border-color: ffffff20;" vbarPolicy="ALWAYS">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </ScrollPane>
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <StackPane alignment="CENTER_LEFT" mouseTransparent="true">
+                                       <children>
+                                          <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Players">
+                                             <font>
+                                                <Font name="OCR A Extended" size="36.0" />
+                                             </font>
+                                          </Text>
+                                          <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Players">
+                                             <font>
+                                                <Font name="OCR A Extended" size="36.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </StackPane>
+                                    <VBox fx:id="players" spacing="5.0">
+                                       <children>
+                                          <VBox fx:id="player1" prefHeight="52.0" prefWidth="250.0">
+                                             <children>
+                                                <TextField fx:id="player1Name" promptText="Name" />
+                                                <ComboBox fx:id="player1Charecter" prefWidth="150.0" promptText="Charecter" />
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="player2" prefHeight="52.0" prefWidth="250.0">
+                                             <children>
+                                                <TextField fx:id="player2Name" promptText="Name" />
+                                                <ComboBox fx:id="player2Charecter" prefWidth="150.0" promptText="Charecter" />
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="player3" prefHeight="52.0" prefWidth="250.0" visible="false">
+                                             <children>
+                                                <TextField fx:id="player3Name" promptText="Name" />
+                                                <ComboBox fx:id="player3Charecter" prefWidth="150.0" promptText="Charecter" />
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="player4" prefHeight="52.0" prefWidth="250.0" visible="false">
+                                             <children>
+                                                <TextField fx:id="player4Name" promptText="Name" />
+                                                <ComboBox fx:id="player4Charecter" prefWidth="150.0" promptText="Charecter" />
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="player5" prefHeight="52.0" prefWidth="250.0" visible="false">
+                                             <children>
+                                                <TextField fx:id="player5Name" promptText="Name" />
+                                                <ComboBox fx:id="player5Charecter" prefWidth="150.0" promptText="Charecter" />
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="player6" prefHeight="52.0" prefWidth="250.0" visible="false">
+                                             <children>
+                                                <TextField fx:id="player6Name" promptText="Name" />
+                                                <ComboBox fx:id="player6Charecter" prefWidth="150.0" promptText="Charecter" />
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </VBox>
                            </children>
-                        </VBox>
-                        <VBox fx:id="player2" prefHeight="52.0" prefWidth="100.0">
-                           <children>
-                              <TextField fx:id="player2Name" promptText="Name" />
-                              <ComboBox fx:id="player2Charecter" prefWidth="150.0" promptText="Charecter" />
-                           </children>
-                        </VBox>
-                        <VBox fx:id="player3" prefHeight="52.0" prefWidth="100.0" visible="false">
-                           <children>
-                              <TextField fx:id="player3Name" promptText="Name" />
-                              <ComboBox fx:id="player3Charecter" prefWidth="150.0" promptText="Charecter" />
-                           </children>
-                        </VBox>
-                        <VBox fx:id="player4" prefHeight="52.0" prefWidth="100.0" visible="false">
-                           <children>
-                              <TextField fx:id="player4Name" promptText="Name" />
-                              <ComboBox fx:id="player4Charecter" prefWidth="150.0" promptText="Charecter" />
-                           </children>
-                        </VBox>
-                        <VBox fx:id="player5" prefHeight="52.0" prefWidth="100.0" visible="false">
-                           <children>
-                              <TextField fx:id="player5Name" promptText="Name" />
-                              <ComboBox fx:id="player5Charecter" prefWidth="150.0" promptText="Charecter" />
-                           </children>
-                        </VBox>
-                        <VBox fx:id="player6" prefHeight="52.0" prefWidth="100.0" visible="false">
-                           <children>
-                              <TextField fx:id="player6Name" promptText="Name" />
-                              <ComboBox fx:id="player6Charecter" prefWidth="150.0" promptText="Charecter" />
-                           </children>
-                        </VBox>
+                        </HBox>
                      </children>
-                  </VBox>
-                  <ImageView fx:id="map" fitHeight="150.0" fitWidth="150.0" layoutX="423.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true" />
-                  <Button fx:id="start" alignment="CENTER" contentDisplay="CENTER" layoutX="436.0" layoutY="317.0" mnemonicParsing="false" prefWidth="150.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                  </AnchorPane>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets left="50.0" />
+         </padding>
+      </StackPane>
+      <VBox alignment="TOP_CENTER" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <StackPane alignment="CENTER_LEFT" mouseTransparent="true">
+               <children>
+                  <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Settings">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                  </Text>
+                  <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Settings">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                  </Text>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </StackPane>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <ComboBox fx:id="playersCount" nodeOrientation="LEFT_TO_RIGHT" prefWidth="250.0" promptText="Number of players" visibleRowCount="5" AnchorPane.rightAnchor="0.0">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </ComboBox>
+               </children>
+            </AnchorPane>
+         </children>
+         <padding>
+            <Insets right="50.0" top="75.0" />
+         </padding>
+      </VBox>
+      <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+            <VBox alignment="BOTTOM_CENTER">
+               <children>
+                  <StackPane mouseTransparent="true">
+                     <children>
+                        <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Selected course">
+                           <font>
+                              <Font name="OCR A Extended" size="24.0" />
+                           </font>
+                        </Text>
+                        <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course">
+                           <font>
+                              <Font name="OCR A Extended" size="24.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </StackPane>
+                  <ImageView fx:id="map" fitHeight="250.0" fitWidth="250.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" />
+                  <Button fx:id="start" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" style="-fx-background-color: ffffff60; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER" textFill="#993a3a85">
                      <font>
                         <Font name="OCR A Extended" size="32.0" />
                      </font>
                      <graphic>
                         <StackPane mouseTransparent="true">
                            <children>
-                              <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
+                              <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="0.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
                                  <font>
-                                    <Font name="OCR A Extended" size="36.0" />
+                                    <Font name="OCR A Extended" size="48.0" />
                                  </font>
                               </Text>
                               <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
                                  <font>
-                                    <Font name="OCR A Extended" size="36.0" />
+                                    <Font name="OCR A Extended" size="48.0" />
                                  </font>
                               </Text>
                            </children>
                         </StackPane>
                      </graphic>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
                   </Button>
                </children>
-            </AnchorPane>
+               <padding>
+                  <Insets bottom="35.0" right="50.0" />
+               </padding>
+            </VBox>
          </children>
-      </StackPane>
+      </AnchorPane>
+      <AnchorPane layoutX="10.0" layoutY="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
+         <children>
+            <VBox alignment="BOTTOM_CENTER">
+               <children>
+                  <Button fx:id="selection_back" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                     <font>
+                        <Font name="OCR A Extended" size="32.0" />
+                     </font>
+                     <graphic>
+                        <StackPane mouseTransparent="true">
+                           <children>
+                              <Text fill="WHITE" stroke="#ffffffbf" strokeWidth="3.0" text="Back" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="30.0" />
+                                 </font>
+                              </Text>
+                              <Text fill="#ffffff00" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Back" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="30.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </StackPane>
+                     </graphic>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets bottom="35.0" left="50.0" />
+               </padding>
+            </VBox>
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>

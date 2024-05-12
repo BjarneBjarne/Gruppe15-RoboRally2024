@@ -31,7 +31,7 @@ public class SetupView {
     @FXML
     VBox maps;
     @FXML
-    ComboBox<Integer> playerCount;
+    ComboBox playerCount;
     @FXML
     ImageView map;
     @FXML
@@ -44,15 +44,15 @@ public class SetupView {
     String[] playerNames = new String[6];
     String[] playerCharacters = new String[6];
 
-
     public AnchorPane getSetupMenu() {
         if(setupMenu == null){
             System.out.println("SetupMenu is null");
         }
         return setupMenu;
     }
-    @FXML
+
     public SetupView initialize(AppController appController) {
+        // Load FXML
         this.appController = appController;
         try {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("SetupGame.fxml"));
@@ -61,72 +61,64 @@ public class SetupView {
             e.printStackTrace();
         }
 
-        scrollPane = (ScrollPane) setupMenu.lookup("#scrollpaneformaps");
-
+        // Show courses
         for(int i = 1; i < 7; i++){
             mapGraphics.add(ImageUtils.getImageFromName(i+".png"));
         }
-
         map = (ImageView) setupMenu.lookup("#map");
         map.setImage(mapGraphics.getFirst());
-
-        VBox vBox = new VBox();
-
+        VBox coursesVBox = new VBox();
         for(int i = 0; i <mapGraphics.size(); i++){
             Button b = new Button();
-            ImageView mapImageView = new ImageView(mapGraphics.get(i));
-            mapImageView.setFitWidth(227);
-            mapImageView.setFitHeight(227);
-            b.setGraphic(mapImageView);
+            ImageView courseImageView = new ImageView(mapGraphics.get(i));
+            courseImageView.setFitWidth(200 - 10);
+            courseImageView.setFitHeight(200 - 10);
+            b.setGraphic(courseImageView);
             int temp = i;
-            b.setOnAction(e -> {
+            b.setOnMouseClicked(e -> {
                 map.setImage(mapGraphics.get(temp));
                 mapIndex = temp;
             });
-            vBox.getChildren().add(b);
+            coursesVBox.getChildren().add(b);
         }
-
-        scrollPane.setContent(vBox);
-
-        playersVBox = (VBox) setupMenu.lookup("#players");
+        scrollPane = (ScrollPane) setupMenu.lookup("#scrollpaneformaps");
+        scrollPane.setContent(coursesVBox);
 
         for(int i = 0; i < 6; i++){
-            int nr = i+1;
-            TextField nameInput = (TextField) setupMenu.lookup("#player"+nr+"Name");
-            nameInput.setOnAction(e -> {
-                playerNames[nr-1] = nameInput.getText();
-                if(isReady()){
-                    start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
-                }else{
-                    start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
-                }
+            // Player name fields
+            int playerNo = i + 1;
+            TextField nameInput = (TextField) setupMenu.lookup("#player" + playerNo + "Name");
+            nameInput.setOnKeyReleased(e -> {
+                playerNames[playerNo - 1] = nameInput.getText();
+                updateReadyButton();
             });
 
+            // Player robot
             List<String> robotNames = Arrays.stream(Robots.values())
                     .map(Robots::getRobotName)
                     .collect(Collectors.toList());
-            ComboBox choseChar = (ComboBox) setupMenu.lookup("#player"+nr+"Charecter");
+            ComboBox choseChar = (ComboBox) setupMenu.lookup("#player" + playerNo + "Charecter");
             choseChar.getItems().addAll(robotNames);
-            choseChar.setOnInputMethodTextChanged(e -> {
+
+            choseChar.valueProperty().addListener((obs, oldValue, newValue) -> {
                 String name = (String) choseChar.getSelectionModel().getSelectedItem();
-                playerCharacters[nr-1] = name;
-                if(isReady()){
-                    start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
-                }else{
-                    start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
-                }
+                playerCharacters[playerNo - 1] = name;
+                updateReadyButton();
             });
             charSelection.add(choseChar);
         }
 
-        playerCount = (ComboBox) setupMenu.lookup("#playersCount");
-        playerCount.getItems().addAll(2,3,4,5,6);
+        // Settings
+        // Number of players
+        playersVBox = (VBox) setupMenu.lookup("#players");
+        playerCount = (ComboBox)setupMenu.lookup("#playersCount");
+        playerCount.getItems().addAll(2, 3, 4, 5, 6);
         playerCount.getSelectionModel().select(0);
-        playerCount.setOnInputMethodTextChanged(e -> {
-            noOfPlayers = (int) playerCount.getSelectionModel().getSelectedItem();
-            for(int i = 2; i < 6; i++){
+        playerCount.setOnMouseReleased(e -> {
+            noOfPlayers = (int)(playerCount.getSelectionModel().getSelectedItem());
+            for (int i = 2; i < 6; i++){
                 playersVBox.getChildren().get(i).setVisible(i < noOfPlayers);
-                if(i >= noOfPlayers) {
+                if (i >= noOfPlayers) {
                     playerNames[i] = null;
                     playerCharacters[i] = null;
                     charSelection.get(i).getSelectionModel().clearSelection();
@@ -134,15 +126,35 @@ public class SetupView {
             }
         });
 
+        // Start button
         start = (Button) setupMenu.lookup("#start");
-        start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
         start.setOnMouseClicked(e -> {
             if(isReady()){
                 appController.beginCourse(noOfPlayers, mapIndex, playerNames, playerCharacters);
             }
         });
 
+        updateReadyButton();
+
         return this;
+    }
+
+    private void updateReadyButton() {
+        if (isReady()) {
+            start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
+            start.setStyle("-fx-background-color:  #3a993c60;" +
+                    "-fx-background-radius:  15;" +
+                    "-fx-border-radius: 15;" +
+                    "-fx-border-color:  ffffff;" +
+                    "-fx-border-width: 1");
+        } else {
+            //start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
+            start.setStyle("-fx-background-color:  #993a3a60;" +
+                    "-fx-background-radius:  15;" +
+                    "-fx-border-radius: 15;" +
+                    "-fx-border-color:  ffffff;" +
+                    "-fx-border-width: 1");
+        }
     }
 
     private boolean isReady(){
