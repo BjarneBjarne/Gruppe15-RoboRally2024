@@ -55,7 +55,7 @@ public class MainMenuView {
         newGame.setOnAction(e -> appController.courseSelection());
         loadGame = (Button) mainMenu.lookup("#loadGame");
         loadGame.setOnAction(e -> appController.loadGame());
-        help = (Button) mainMenu.lookup("#help");
+        //help = (Button) mainMenu.lookup("#help");
         // help.setOnAction(e -> appController.help());
         courseCreator = (Button) mainMenu.lookup("#courseCreator");
         courseCreator.setOnMouseClicked(e -> appController.courseCreator());
@@ -63,7 +63,8 @@ public class MainMenuView {
         exit.setOnAction(e -> appController.exit());
         buttons[0] = newGame;
         buttons[1] = loadGame;
-        buttons[2] = help;
+        //buttons[2] = help;
+        buttons[2] = courseCreator;
         buttons[3] = exit;
         for (Button button : buttons) {
             button.setOnMouseEntered(e -> button.setEffect(hover));
