@@ -29,9 +29,9 @@ public class Stepdefs extends ApplicationTest {
         board = new Board(8, 8);
 
         players = new ArrayList<>();
-        players.add(new Player(board, "red", "player 1"));
-        players.add(new Player(board, "yellow", "player 2"));
-        players.add(new Player(board, "blue", "player 3"));
+        // players.add(new Player(board, "red", "player 1"));
+        // players.add(new Player(board, "yellow", "player 2"));
+        // players.add(new Player(board, "blue", "player 3"));
 
         board.addPlayer(players.get(0));
         board.addPlayer(players.get(1));
