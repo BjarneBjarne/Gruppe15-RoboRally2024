@@ -74,7 +74,10 @@ public class SetupView {
 
         for(int i = 0; i <mapGraphics.size(); i++){
             Button b = new Button();
-            b.setGraphic(new ImageView(mapGraphics.get(i)));
+            ImageView mapImageView = new ImageView(mapGraphics.get(i));
+            mapImageView.setFitWidth(227);
+            mapImageView.setFitHeight(227);
+            b.setGraphic(mapImageView);
             int temp = i;
             b.setOnAction(e -> {
                 map.setImage(mapGraphics.get(temp));
@@ -104,7 +107,7 @@ public class SetupView {
                     .collect(Collectors.toList());
             ComboBox choseChar = (ComboBox) setupMenu.lookup("#player"+nr+"Charecter");
             choseChar.getItems().addAll(robotNames);
-            choseChar.setOnAction(e -> {
+            choseChar.setOnInputMethodTextChanged(e -> {
                 String name = (String) choseChar.getSelectionModel().getSelectedItem();
                 playerCharacters[nr-1] = name;
                 if(isReady()){
@@ -118,7 +121,8 @@ public class SetupView {
 
         playerCount = (ComboBox) setupMenu.lookup("#playersCount");
         playerCount.getItems().addAll(2,3,4,5,6);
-        playerCount.setOnAction(e -> {
+        playerCount.getSelectionModel().select(0);
+        playerCount.setOnInputMethodTextChanged(e -> {
             noOfPlayers = (int) playerCount.getSelectionModel().getSelectedItem();
             for(int i = 2; i < 6; i++){
                 playersVBox.getChildren().get(i).setVisible(i < noOfPlayers);

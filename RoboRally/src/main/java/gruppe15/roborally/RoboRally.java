@@ -46,7 +46,8 @@ import java.io.IOException;
  */
 public class RoboRally extends Application {
 
-    private static final int MIN_APP_WIDTH = 600;
+    private static final int MIN_APP_WIDTH = 1280;
+    private static final int MIN_APP_HEIGHT = 740;
     public GridPane directionOptionsPane;
     private Stage stage;
     private BorderPane boardRoot;
@@ -76,6 +77,7 @@ public class RoboRally extends Application {
         VBox vbox = new VBox(boardRoot);
         vbox.setAlignment(Pos.CENTER);
         vbox.setMinWidth(MIN_APP_WIDTH);
+        vbox.setMinHeight(MIN_APP_HEIGHT);
         createMainMenu(appController);
         Scene primaryScene = new Scene(vbox);
 
