@@ -149,7 +149,7 @@ public class SetupView {
         // Number of players
         playersCount.getItems().addAll(PLAYER_NUMBER_OPTIONS);
         playersCount.getSelectionModel().select(0);
-        playersCount.setOnMouseReleased(e -> {
+        playersCount.setOnAction(e -> {
             noOfPlayers = (int)(playersCount.getSelectionModel().getSelectedItem());
             updateUI();
         });
@@ -163,7 +163,7 @@ public class SetupView {
             if (i >= noOfPlayers) {
                 playerNames[i] = null;
                 playerCharacters[i] = null;
-                charSelection.get(i).getSelectionModel().clearSelection();
+                //charSelection.get(i).getSelectionModel().clearSelection();
             }
         }
         if (isReady()) {
