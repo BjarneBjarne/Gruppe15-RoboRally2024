@@ -119,26 +119,25 @@ public class CourseCreatorController extends VBox {
             Space space = spaceView.space;
             Board board = space.board;
 
-            if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                Player currentPlayer = board.getCurrentPlayer();
-                if (board.getPhase() == INITIALISATION) {
-                    if (space.getPlayer() == null) {
-                        currentPlayer.setSpawn(space);
-                        currentPlayer.setSpace(space);
+            if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
+                if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                    Player currentPlayer = board.getCurrentPlayer();
+                    if (board.getPhase() == INITIALISATION) {
+                        if (space.getPlayer() == null) {
+                            currentPlayer.setSpawn(space);
+                            currentPlayer.setSpace(space);
+                        }
+                    }
+                } else {
+                    if (event.isShiftDown()) {
+                        space.setPlayer(board.getPlayer(1));
+                    } else if (event.isControlDown()) {
+                        space.setPlayer(board.getPlayer(0));
                     }
                 }
-            } else {
-                if (event.isShiftDown()) {
-                    space.setPlayer(board.getPlayer(1));
-                } else if (event.isControlDown()) {
-                    space.setPlayer(board.getPlayer(0));
-                }
+
+                //event.setDropCompleted(success);
             }
-
-           /* if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-
-            }*/
-
 
             event.consume();
         }
@@ -146,8 +145,6 @@ public class CourseCreatorController extends VBox {
         public void keyPressed(KeyEvent event) {
             System.out.println("Pressed: " + event.getCode());
         }
-
-
     }
 
     enum BoardElements {
