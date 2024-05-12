@@ -47,6 +47,7 @@ import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.Phase.INITIALISATION;
+import static gruppe15.roborally.model.utils.Constants.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,13 +77,13 @@ public class BoardView extends VBox implements ViewObserver {
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         board = gameController.board;
         this.directionOptionsPane = directionOptionsPane;
-        this.directionOptionsPane.setPrefSize(SpaceView.SPACE_WIDTH * 3, SpaceView.SPACE_HEIGHT * 3);
+        this.directionOptionsPane.setPrefSize(SPACE_WIDTH * 3, SPACE_HEIGHT * 3);
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
                 ImageView buttonImage = new ImageView();
-                buttonImage.setFitWidth(SpaceView.SPACE_WIDTH);
-                buttonImage.setFitHeight(SpaceView.SPACE_HEIGHT);
+                buttonImage.setFitWidth(SPACE_WIDTH);
+                buttonImage.setFitHeight(SPACE_HEIGHT);
                 Heading direction = Heading.valueOf(button.getId());
                 buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
                 button.setGraphic(buttonImage);

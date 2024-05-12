@@ -40,7 +40,7 @@ import static gruppe15.roborally.model.Heading.SOUTH;
 public class Player extends Subject {
 
     final public static int NO_OF_REGISTERS = 5;
-    final public static int NO_CARDS = 8;
+    final public static int NO_OF_CARDS = 8;
 
     final public Board board;
 
@@ -79,7 +79,7 @@ public class Player extends Subject {
             program[i] = new CommandCardField(this,i+1);
         }
 
-        cards = new CommandCardField[NO_CARDS];
+        cards = new CommandCardField[NO_OF_CARDS];
         for (int i = 0; i < cards.length; i++) {
             cards[i] = new CommandCardField(this);
         }
