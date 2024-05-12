@@ -135,9 +135,6 @@ public class SetupView {
                                 String name = (String) chosenCharacter.getSelectionModel().getSelectedItem();
                                 String robotImageName = Robots.getRobotByName(name).getSelectionImageName();
                                 playerRobotImageViews[localI].setImage(ImageUtils.getImageFromName(robotImageName));
-                                System.out.println(playerRobotImageViews[localI].getFitWidth());
-                                System.out.println(playerRobotImageViews[localI].getFitHeight());
-
                                 playerCharacters[localI] = name;
                                 updateUI();
                             });
