@@ -40,10 +40,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.Phase.INITIALISATION;
@@ -104,7 +101,8 @@ public class BoardView extends VBox implements ViewObserver {
         boardTilesPane = new GridPane();
         playersView = new PlayersView(gameController);
         statusLabel = new Label("<no status>");
-        mainBoardPane = new StackPane(boardTilesPane, this.directionOptionsPane);
+        AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
+        mainBoardPane = new StackPane(boardTilesPane, anchorPane);
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersView);
         this.getChildren().add(statusLabel);
