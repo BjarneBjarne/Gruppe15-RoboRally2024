@@ -268,13 +268,13 @@ public class BoardView extends VBox implements ViewObserver {
                             directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
                             directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
                         }
-                    } else {
+                    } /* else { // XXX this is just for testing purposes
                         if (event.isShiftDown()) {
                             space.setPlayer(board.getPlayer(1));
                         } else if (event.isControlDown()) {
                             space.setPlayer(board.getPlayer(0));
                         }
-                    }
+                    } */
                     event.consume();
                 }
             }
