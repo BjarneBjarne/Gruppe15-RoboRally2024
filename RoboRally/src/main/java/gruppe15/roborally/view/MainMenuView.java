@@ -1,5 +1,6 @@
 package gruppe15.roborally.view;
 
+import java.io.File;
 import java.io.IOException;
 
 import gruppe15.roborally.RoboRally;
@@ -14,6 +15,7 @@ import javafx.scene.effect.Shadow;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 public class MainMenuView {
     
@@ -50,26 +52,50 @@ public class MainMenuView {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        Effect hover = new InnerShadow(20, Color.STEELBLUE);
+        createNewGameButton();
+        createLoadGameButton();
+        createCourseCreatorButton();
+        createExitButton();
+        setButtonEffect();
+        return this;
+    }
+
+    private void createNewGameButton(){
         newGame = (Button) mainMenu.lookup("#newGame");
         newGame.setOnAction(e -> appController.courseSelection());
+        buttons[0] = newGame;
+    }
+
+    private void createLoadGameButton(){
         loadGame = (Button) mainMenu.lookup("#loadGame");
-        loadGame.setOnAction(e -> appController.loadGame());
-        //help = (Button) mainMenu.lookup("#help");
-        // help.setOnAction(e -> appController.help());
+        loadGame.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Load Game");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
+            fileChooser.setInitialDirectory(new File("RoboRally/src/main/resources/gruppe15/roborally/saveGames"));
+            File loadedFile = fileChooser.showOpenDialog(mainMenu.getScene().getWindow());
+            appController.loadGame(loadedFile);
+        });
+        buttons[1] = loadGame;
+    }
+
+    private void createCourseCreatorButton(){
         courseCreator = (Button) mainMenu.lookup("#courseCreator");
         courseCreator.setOnMouseClicked(e -> appController.courseCreator());
+        buttons[2] = courseCreator;
+    }
+
+    private void createExitButton(){
         exit = (Button) mainMenu.lookup("#exit");
         exit.setOnAction(e -> appController.exit());
-        buttons[0] = newGame;
-        buttons[1] = loadGame;
-        //buttons[2] = help;
-        buttons[2] = courseCreator;
         buttons[3] = exit;
+    }
+
+    private void setButtonEffect(){
+        Effect hover = new InnerShadow(20, Color.STEELBLUE);
         for (Button button : buttons) {
             button.setOnMouseEntered(e -> button.setEffect(hover));
             button.setOnMouseExited(e -> button.setEffect(null));
         }
-        return this;
     }
 }
