@@ -65,10 +65,9 @@ public class AppController implements Observer {
 
         // Finding spawns
         List<Space> spawnPoints = new ArrayList<>();
-        Space[][] spaces = board.getSpaces();
-        for (int x = 0; x < spaces.length; x++) {
-            for (int y = 0; y < spaces[x].length; y++) {
-                Space space = spaces[x][y];
+        for (int x = 0; x < board.getSpaces().length; x++) {
+            for (int y = 0; y < board.getSpaces()[x].length; y++) {
+                Space space = board.getSpace(x, y);
                 if (space.getBoardElement() instanceof BE_SpawnPoint) {
                     spawnPoints.add(space);
                 }
@@ -83,6 +82,7 @@ public class AppController implements Observer {
         }
 
         board.setCurrentPlayer(board.getPlayer(0));
+        roboRally.createBoardView(gameController);
     }
 
     public void loadGame(File loadedFile) {
