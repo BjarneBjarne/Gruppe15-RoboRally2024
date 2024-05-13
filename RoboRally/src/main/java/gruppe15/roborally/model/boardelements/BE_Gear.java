@@ -15,6 +15,7 @@ import java.util.Objects;
  * a player reaches a gear, the player's heading is updated
  * according to the direction of the gear.
  * The gear can turn the player either left or right.
+ * 
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_Gear extends BoardElement {

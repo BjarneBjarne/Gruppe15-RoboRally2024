@@ -18,14 +18,25 @@ import java.util.LinkedList;
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public abstract class BoardElement {
-    transient protected Image image;
+    protected Image image;
     protected Heading elemDirection;
 
+    /**
+     * Constructor for the board element
+     * 
+     * @param imageName     the name of the image
+     * @param elemDirection the direction of the board element and the image
+     */
     public BoardElement(String imageName, Heading elemDirection) {
         setElemDirection(elemDirection);
         setImage(imageName);
     }
 
+    /**
+     * Constructor for the board element
+     * 
+     * @param imageName the name of the image
+     */
     public BoardElement(String imageName) {
         setImage(imageName);
     }
@@ -34,6 +45,12 @@ public abstract class BoardElement {
         this.image = image;
     }
 
+    /**
+     * Sets the image of the board element to the image with the given name and
+     * rotates the image according to the direction of the board element.
+     * 
+     * @param imageName the name of the image
+     */
     public void setImage(String imageName) {
         if (imageName == null || imageName.isEmpty())
             return;
@@ -48,6 +65,12 @@ public abstract class BoardElement {
         return image;
     }
 
+    /**
+     * Sets the direction of the board element and rotates the image according to
+     * the direction of the board element.
+     * 
+     * @param elemDirection the direction of the board element
+     */
     public void setElemDirection(Heading elemDirection) {
         this.elemDirection = elemDirection;
         if (image != null) {
@@ -59,6 +82,14 @@ public abstract class BoardElement {
         return elemDirection;
     }
 
+    /**
+     * Performs the action of the board element.
+     * 
+     * @param space          the space where the player is located
+     * @param gameController the game controller
+     * @param actionQueue    the queue of actions
+     * @return true if the action was performed, false otherwise
+     */
     public abstract boolean doAction(@NotNull Space space, @NotNull GameController gameController,
             LinkedList<ActionWithDelay> actionQueue);
 }

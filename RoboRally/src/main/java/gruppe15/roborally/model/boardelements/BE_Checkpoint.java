@@ -11,6 +11,7 @@ import java.util.LinkedList;
 /**
  * This class represents a checkpoint on the board and when
  * a player reaches a checkpoint, the player's checkpoint number is updated.
+ * 
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_Checkpoint extends BoardElement {

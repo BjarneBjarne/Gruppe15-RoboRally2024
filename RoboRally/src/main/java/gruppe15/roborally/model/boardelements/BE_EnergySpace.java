@@ -2,13 +2,20 @@ package gruppe15.roborally.model.boardelements;
 
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
-import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 
+/**
+ * This class represents an energy space on the board and when a player is
+ * on an energy space, the player gets an energy cube.
+ * The energy space can only give an energy cube once.
+ * If the player is on an energy space when the register is 5, the player gets an energy cube.
+ * 
+ * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+ */
 public class BE_EnergySpace extends BoardElement {
     private boolean hasEnergyCube = true;
     public BE_EnergySpace() {
