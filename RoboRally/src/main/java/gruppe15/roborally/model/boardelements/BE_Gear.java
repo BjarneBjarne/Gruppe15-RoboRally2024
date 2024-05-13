@@ -30,7 +30,7 @@ public class BE_Gear extends BoardElement {
   
     public BE_Gear(String rotateDirection) {
         super("gear" + rotateDirection + ".png");
-        if (!Objects.equals(rotateDirection, "Right") && !Objects.equals(rotateDirection, "Left"))
+        if (!rotateDirection.equals("Right") && !rotateDirection.equals("Left"))
             throw new IllegalArgumentException("Invalid direction: " + rotateDirection);
         this.rotateDirection = rotateDirection;
     }
