@@ -169,7 +169,6 @@ public class LoadBoard {
             template.players[i] = savePlayer(board.getPlayers().get(i));
         };
         template.currentPlayer = board.getCurrentPlayer().getName();
-        System.out.println("Current Player: " + template.currentPlayer);
 
         for (int i=0; i<board.width; i++) {
             for (int j=0; j<board.height; j++) {

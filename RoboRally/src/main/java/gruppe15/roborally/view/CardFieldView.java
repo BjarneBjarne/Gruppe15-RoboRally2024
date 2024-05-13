@@ -90,7 +90,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         this.setMinHeight(CARDFIELD_HEIGHT);
         this.setMaxHeight(CARDFIELD_HEIGHT);
 
-        label = new Label("This is a slightly longer text");
+        label = new Label(); //"This is a slightly longer text"
         label.setWrapText(true);
         label.setMouseTransparent(true);
         this.add(label, 0, 0);
