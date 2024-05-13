@@ -39,6 +39,7 @@ import static gruppe15.roborally.model.Heading.*;
  * determines how many times the player is moved in the direction of the conveyor belt.
  * The conveyor belt can also rotate the player if the player lands on a conveyor belt that is
  * rotated 90 degrees compared to the conveyor belt the player was on.
+ * 
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_ConveyorBelt extends BoardElement {
