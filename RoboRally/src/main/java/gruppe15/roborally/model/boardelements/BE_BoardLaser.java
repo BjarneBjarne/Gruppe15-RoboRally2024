@@ -19,7 +19,7 @@ public class BE_BoardLaser extends BoardElement {
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Space[][] spaces = gameController.board.getSpaces();
-        Laser laser = new Laser(space, direction);
+        Laser laser = new Laser(space, elemDirection);
         // Start the laser iteration asynchronously
         laser.startLaser(spaces).run();
         // Once the laser iteration is complete, calculate the damage
