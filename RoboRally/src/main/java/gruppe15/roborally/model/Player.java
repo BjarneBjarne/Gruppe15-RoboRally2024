@@ -92,6 +92,12 @@ public class Player extends Subject {
     public Image getImage() {
         return this.image;
     }
+
+    /**
+     * returns the frontal image of the players robot
+     * @return Image
+     * @author Maximillian Bjørn Mortensen
+     */
     public Image getCharImage() {
         return this.charIMG;
     }
@@ -106,10 +112,20 @@ public class Player extends Subject {
         this.checkpoints = checkpoints;
     }
 
+    /**
+     * sets the paramater as the last command
+     * @param lastCmd
+     * @author Maximillian Bjørn Mortensen
+     */
     public void setLastCmd(Command lastCmd) {
         this.lastCmd = lastCmd;
     }
 
+    /**
+     * returns the field lastCmd
+     * @return Command
+     * @author Maximillian Bjørn Mortensen
+     */
     public Command getLastCmd(){
         return lastCmd;
     }
@@ -243,6 +259,10 @@ public class Player extends Subject {
         upgradeCard.initialize(board, this);
     }
 
+    /**
+     * sets the fiels programmingDeck to its defoult settings
+     * @author Maximillian Bjørn Mortensen
+     */
     public void setProgrammingDeckToDefoult(){
         List<Integer> index = new ArrayList<Integer>();
         for(int i = 0; i < 20; i++){
@@ -262,6 +282,10 @@ public class Player extends Subject {
         programmingDeck.add(null);
     }
 
+    /**
+     * shuffels the contents of the field programmingDeck
+     * @author Maximillian Bjørn Mortensen
+     */
     private void shuffleDiscardedIntoDeck(){
         List<CommandCard> temp = new ArrayList<>(programmingDeck);
         programmingDeck.clear();
@@ -269,16 +293,31 @@ public class Player extends Subject {
         programmingDeck.addAll(temp);
         programmingDeck.add(null);
     }
+
+    /**
+     * adds the paramater card into the discarded end of programmingDeck
+     * @param card
+     * @author Maximillian Bjørn Mortensen
+     */
     private void discard(CommandCard card){
         programmingDeck.add(new CommandCard(card.command));
     }
 
+    /**
+     * removes the top card in programmingDeck and returns a copy
+     * @return CommandCard
+     * @author Maximillian Bjørn Mortensen
+     */
     private CommandCard drawFromDeck(){
         CommandCard temp = programmingDeck.remove();
         if(temp == null) return null;
         return new CommandCard(temp.command);
     }
 
+    /**
+     * inputs cards from programmingDeck into all CommandCardFields in cards
+     * @author Maximillian Bjørn Mortensen
+     */
     public void drawHand(){
         for(CommandCardField c: cards){
             if(c.getCard() == null){
@@ -292,6 +331,10 @@ public class Player extends Subject {
         }
     }
 
+    /**
+     * discards all cards in registeres and on hand
+     * @author Maximillian Bjørn Mortensen
+     */
     public void discardAll(){
         for(CommandCardField c: program){
             if(c.getCard() != null){
