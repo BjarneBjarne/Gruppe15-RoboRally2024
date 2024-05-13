@@ -79,6 +79,17 @@ public class Board extends Subject {
         spaces = new Space[width][height];
 
         // Setup spaces
+        
+        if (mapIndex == -1) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    // Add empty space
+                    if (spaces[x][y] == null) {
+                        addSpace(x, y, null, spaces);
+                    }
+                }
+            }
+        }
         if (mapIndex == 0) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
