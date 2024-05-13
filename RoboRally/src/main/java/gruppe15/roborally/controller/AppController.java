@@ -61,7 +61,7 @@ public class AppController implements Observer {
 
     public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
         Board board = new Board(13,10, mapIndex);
-        gameController = new GameController(board);
+        gameController = new GameController(board, this);
 
         // Finding spawns
         List<Space> spawnPoints = new ArrayList<>();
@@ -100,6 +100,10 @@ public class AppController implements Observer {
         // XXX needs to be implemented eventually
     }
 
+    public void gameOver(){
+        roboRally.goToWinScreen(gameController, this);
+    }
+
     public void loadGame() {
         // XXX needs to be implemented eventually
         // for now, we just create a new game
@@ -128,6 +132,10 @@ public class AppController implements Observer {
             return true;
         }
         return false;
+    }
+
+    public void setGameController(GameController gameController){
+        this.gameController = gameController;
     }
 
     public void exit() {
@@ -159,4 +167,7 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
+    public void courseCreator() {
+        roboRally.createCourseCreator(this);
+    }
 }

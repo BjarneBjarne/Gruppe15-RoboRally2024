@@ -22,14 +22,18 @@
 package gruppe15.roborally;
 
 import gruppe15.roborally.controller.AppController;
+import gruppe15.roborally.controller.CourseCreatorController;
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.model.Player;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.SetupView;
+import gruppe15.roborally.view.WinScreenView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -54,6 +58,7 @@ public class RoboRally extends Application {
     private BoardView boardView;
     private AnchorPane mainMenu;
     private AnchorPane selectionMenu;
+    private CourseCreatorController courseCreator;
 
 
     // private RoboRallyMenuBar menuBar;
@@ -111,10 +116,9 @@ public class RoboRally extends Application {
         } else {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/SetupGame.fxml"));
-                //FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("SetupGame.fxml"));
                 SetupView setupView = new SetupView();
                 loader.setController(setupView);
-                selectionMenu = loader.load();  // This also initializes the controller
+                selectionMenu = loader.load();
                 setupView.setupStartButton(appController);
                 setupView.setupBackButton(this);
 
@@ -129,6 +133,16 @@ public class RoboRally extends Application {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
         boardRoot.setCenter(selectionMenu);
+    }
+
+    public void goToWinScreen(GameController gameController, AppController appController){
+
+        boardRoot.getChildren().clear();
+
+        AnchorPane w = new WinScreenView().initialize(gameController, appController, this).getWinScreen();
+
+        boardRoot.setCenter(w);
+
     }
 
     public void createBoardView(GameController gameController) {
@@ -161,5 +175,31 @@ public class RoboRally extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void createCourseCreator(AppController appController) {
+        if (courseCreator != null) {
+            goToCourseCreator();
+        } else {
+            boardRoot.getChildren().clear();
+            courseCreator = new CourseCreatorController();
+
+            FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("CourseCreator.fxml"));
+            loader.setController(courseCreator);
+
+            try {
+                courseCreator.getChildren().add(loader.load());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            boardRoot.setCenter(courseCreator);
+            stage.sizeToScene();
+        }
+    }
+    public void goToCourseCreator() {
+        // if present, remove old BoardView
+        boardRoot.getChildren().clear();
+        boardRoot.setCenter(courseCreator);
     }
 }

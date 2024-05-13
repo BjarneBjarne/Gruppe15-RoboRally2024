@@ -12,12 +12,14 @@ import java.util.LinkedList;
 public class BE_Checkpoint extends BoardElement {
 
     private final int number;
+    private final int total;
 
-    public BE_Checkpoint(int number) {
+    public BE_Checkpoint(int number, int total) {
         super(number + ".png");
         if (number < 1 || 6 < number)
             throw new IllegalArgumentException("Invalid checkpoint number: " + number);
         this.number = number;
+        this.total = total;
     }
 
     @Override
@@ -30,6 +32,9 @@ public class BE_Checkpoint extends BoardElement {
         if (player.getCheckpoints() == number - 1) {
             player.setCheckpoint(number);
             System.out.println(player.getName() + " has reached checkpoint " + number);
+            if(number == total){
+                gameController.setWinner(player.getName(), player.getCharImage());
+            }
         }
         return true;
     }
