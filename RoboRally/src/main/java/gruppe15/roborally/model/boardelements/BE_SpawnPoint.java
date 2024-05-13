@@ -11,8 +11,6 @@ import java.util.LinkedList;
 /**
  * This class represents a spawn point on the board and when a player is
  * rebooted, the player is rebooted on the spawn point.
- * 
- * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_SpawnPoint extends BoardElement {
     /**
