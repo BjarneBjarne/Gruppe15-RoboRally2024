@@ -87,6 +87,7 @@ public class Player extends Subject {
         }
 
         setProgrammingDeckToDefoult();
+        drawHand();
     }
 
     public Image getImage() {
