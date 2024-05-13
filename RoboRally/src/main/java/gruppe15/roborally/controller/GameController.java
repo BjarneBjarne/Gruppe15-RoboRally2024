@@ -67,14 +67,30 @@ public class GameController {
         this.appController = appController;
     }
 
+    /**
+     * returns the winners image
+     * @return Image
+     * @author Maximillian Bjørn Mortensen
+     */
     public Image getWinnerIMG(){
         return winnerIMG;
     }
 
+    /**
+     * returns the winners name
+     * @return String
+     * @author Maximillian Bjørn Mortensen
+     */
     public String getWinnerName() {
         return winnerName;
     }
 
+    /**
+     * sets the paramaters as the winner
+     * @param winnerName
+     * @param winnerIMG
+     * @author Maximillian Bjørn Mortensen
+     */
     public void setWinner(String winnerName, Image winnerIMG){
         this.winnerName = winnerName;
         this.winnerIMG = winnerIMG;
@@ -365,6 +381,12 @@ public class GameController {
         handlePlayerActions();
     }
 
+    /**
+     * sets the players action from the command
+     * @param player
+     * @param command
+     * @author Maximillian Bjørn Mortensen
+     */
     public void queuePlayerCommand(@NotNull Player player, Command command) {
         if (player.board == board && command != null) {
             // XXX This is a very simplistic way of dealing with some basic cards and
@@ -437,6 +459,11 @@ public class GameController {
         }
     }
 
+    /**
+     * moves player based on heading and velocity
+     * @param player
+     * @author Maximillian Bjørn Mortensen
+     */
     private void startPlayerMovement(Player player) {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
         Velocity playerVelocity = player.getVelocity();
@@ -506,6 +533,12 @@ public class GameController {
         }
     }
 
+    /**
+     * sets heading for player based on paramater
+     * @param player
+     * @param quaterRotationClockwise
+     * @author Maximillian Bjørn Mortensen
+     */
     private void turnPlayer(Player player, int quaterRotationClockwise){
         int playerOrientation = 0;
         switch(player.getHeading()){

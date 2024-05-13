@@ -17,6 +17,9 @@ import javafx.scene.text.Text;
 
 import java.io.IOException;
 
+/**
+ * @author Maximillian Bjørn Mortensen
+ */
 public class WinScreenView {
     @FXML
     AnchorPane wincon;
@@ -29,6 +32,11 @@ public class WinScreenView {
     @FXML
     ImageView playerIMG;
 
+    /**
+     * returns the field wincon
+     * @return AnchorPane
+     * @author Maximillian Bjørn Mortensen
+     */
     public AnchorPane getWinScreen() {
         if(wincon == null){
             System.out.println("winScreen is null");
@@ -36,6 +44,14 @@ public class WinScreenView {
         return wincon;
     }
 
+    /**
+     * creates the wincon node from the WinScreen.fxml file and returns this
+     * @param gameController
+     * @param appController
+     * @param roboRally
+     * @return WinScreenView
+     * @author Maximillian Bjørn Mortensen
+     */
     @FXML
     public WinScreenView initialize(GameController gameController, AppController appController, RoboRally roboRally) {
         try {

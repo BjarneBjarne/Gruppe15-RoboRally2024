@@ -100,6 +100,10 @@ public class AppController implements Observer {
         // XXX needs to be implemented eventually
     }
 
+    /**
+     * sets this gamecontroller to null
+     * @author Maximillian Bjørn Mortensen
+     */
     public void gameOver(){
         roboRally.goToWinScreen(gameController, this);
     }

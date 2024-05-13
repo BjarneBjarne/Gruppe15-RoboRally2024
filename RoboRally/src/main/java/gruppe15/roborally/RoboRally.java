@@ -110,6 +110,10 @@ public class RoboRally extends Application {
         boardRoot.setCenter(mainMenu);
     }
 
+    /**
+     * sets selection menu to null as to not reuse saved information from last game
+     * @author Maximillian Bjørn Mortensen
+     */
     public void resetSelectionMenu(){
         selectionMenu = null;
     }
@@ -139,6 +143,12 @@ public class RoboRally extends Application {
         boardRoot.setCenter(selectionMenu);
     }
 
+    /**
+     * creates and apllys a winscreen
+     * @param gameController
+     * @param appController
+     * @author Maximillian Bjørn Mortensen
+     */
     public void goToWinScreen(GameController gameController, AppController appController){
 
         boardRoot.getChildren().clear();

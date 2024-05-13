@@ -23,6 +23,9 @@ import java.util.List;
 
 import static gruppe15.roborally.model.utils.Constants.PLAYER_NUMBER_OPTIONS;
 
+/**
+ * @author Maximillian Bjørn Mortensen
+ */
 public class SetupView {
     ArrayList<Image> mapGraphics = new ArrayList<>();
     ArrayList<ComboBox> charSelection = new ArrayList<>();
@@ -53,6 +56,11 @@ public class SetupView {
 
     }
 
+    /**
+     * returns the field selection_menu
+     * @return AnchorPane
+     * @author Maximillian Bjørn Mortensen
+     */
     public AnchorPane getSetupMenu() {
         return selection_menu;
     }
@@ -73,6 +81,10 @@ public class SetupView {
         });
     }
 
+    /**
+     * creates the selection menu
+     * @author Maximillian Bjørn Mortensen
+     */
     @FXML
     public void initialize() {
         // Courses
@@ -183,6 +195,11 @@ public class SetupView {
         }
     }
 
+    /**
+     * checks to see if the userinputs to start the game is valid
+     * @return boolean
+     * @author Maximillian Bjørn Mortensen
+     */
     private boolean isReady(){
         for(int i = 0; i < noOfPlayers; i++){
             if(playerNames[i] == null || playerCharacters[i] == null) return false;
