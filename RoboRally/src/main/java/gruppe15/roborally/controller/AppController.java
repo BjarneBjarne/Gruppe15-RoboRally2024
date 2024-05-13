@@ -95,8 +95,12 @@ public class AppController implements Observer {
         roboRally.createBoardView(gameController);
     }
 
-    public void saveGame(String fileName) {
+    public boolean saveGame(String fileName) {
+        if (gameController.board.getPhase() != Phase.PROGRAMMING) {
+            return false;
+        }
         LoadBoard.saveBoard(gameController.board, fileName);
+        return true;
         // XXX needs to be implemented eventually
     }
 

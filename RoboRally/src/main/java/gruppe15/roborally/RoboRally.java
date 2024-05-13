@@ -132,7 +132,13 @@ public class RoboRally extends Application {
                     filenameInput.setTitle("Save Game");
                     Optional<String> filename = filenameInput.showAndWait();
                     String strFilename = filename.get().replace(' ', '_');
-                    appController.saveGame(strFilename);
+                    if(!appController.saveGame(strFilename)){
+                        Alert errorAlert = new Alert(AlertType.ERROR);
+                        errorAlert.setHeaderText("Error saving game");
+                        errorAlert.setContentText("Game can only be saved during programming phase.");
+                        errorAlert.showAndWait();
+                        return;
+                    }
                 }
                 Platform.exit();
             }
