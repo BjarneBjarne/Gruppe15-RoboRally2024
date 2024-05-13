@@ -1,7 +1,5 @@
 package gruppe15.roborally.model;
 
-import gruppe15.roborally.model.utils.ImageUtils;
-
 public enum Robots {
     Blue("SPIN BOT"),
     Green("ZOOM BOT"),

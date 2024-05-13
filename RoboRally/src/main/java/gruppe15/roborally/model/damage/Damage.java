@@ -4,7 +4,6 @@ import gruppe15.roborally.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Damage {
     private final List<DamageType> damageTypes = new ArrayList<>();

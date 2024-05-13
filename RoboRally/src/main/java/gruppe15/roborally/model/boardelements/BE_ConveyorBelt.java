@@ -23,7 +23,6 @@ package gruppe15.roborally.model.boardelements;
 
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
-import javafx.scene.image.Image;
 
 import org.jetbrains.annotations.NotNull;
 
