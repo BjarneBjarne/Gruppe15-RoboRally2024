@@ -145,6 +145,9 @@ public class Board extends Subject {
             addSpace(8, 3, new BE_BoardLaser(EAST), spaces);
             addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
 
+            // Holes
+            addSpace(1, 3, new BE_Hole(), spaces);
+
             // Checkpoints
             numberOfCheckPoints = 4;
             addSpace(12, 3, new BE_Checkpoint(1, numberOfCheckPoints), spaces);
