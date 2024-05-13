@@ -85,6 +85,14 @@ public class AppController implements Observer {
         roboRally.createBoardView(gameController, false);
     }
 
+
+    /**
+     * Load a game from a file. A new game controller is created, with the board loaded
+     * from the file. The Phase of the game is manually set to Programming.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param loadedFile the .json to be deserialized into a board
+     */
     public void loadGame(File loadedFile) {
         Board newBoard = LoadBoard.loadBoard(loadedFile);
         gameController = new GameController(newBoard, this);
@@ -109,13 +117,23 @@ public class AppController implements Observer {
         roboRally.createBoardView(gameController, true);
     }
 
+
+    /**
+     * Save the current game to a file with the given file name. If the
+     * game is not in the programming phase, the game is not saved and
+     * the method returns false. Otherwise, the game is saved and the
+     * method returns true.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param fileName the name of the file to which the game is saved
+     * @return true if the game was saved, false otherwise
+     */
     public boolean saveGame(String fileName) {
         if (gameController.board.getPhase() != Phase.PROGRAMMING) {
             return false;
         }
         LoadBoard.saveBoard(gameController.board, fileName);
         return true;
-        // XXX needs to be implemented eventually
     }
 
     /**
@@ -124,14 +142,6 @@ public class AppController implements Observer {
      */
     public void gameOver(){
         roboRally.goToWinScreen(gameController, this);
-    }
-
-    public void loadGame() {
-        // XXX needs to be implemented eventually
-        // for now, we just create a new game
-        if (gameController == null) {
-            courseSelection();
-        }
     }
 
     /**

@@ -50,9 +50,18 @@ public class LoadBoard {
     private static final String DEFAULTBOARD = "defaultboard";
     private static final String JSON_EXT = "json";
 
+    /**
+     * This method loads a board from a .json file. The file is deserialized into 
+     * BoardTemplate and PlayerTemplate object, which is then used to create new 
+     * Board and Player objects. The board is then populated with the players and
+     * the board elements. The relations between the players and spaces on the board
+     * are also set.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param loadedFile the file from which the board is to be loaded
+     * @return the board loaded from the file
+     */
     public static Board loadBoard(File loadedFile) {
-
-		// In simple cases, we can create a Gson object with new Gson():
         GsonBuilder simpleBuilder = new GsonBuilder().
                 registerTypeAdapter(BoardElement.class, new Adapter<BoardElement>()).
                 excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT);
@@ -91,39 +100,20 @@ public class LoadBoard {
             scanner.close();
 			return result;
 		} catch (IOException e1) {
-            // if (reader != null) {
-            //     try {
-            //         reader.close();
-            //         inputStream = null;
-            //     } catch (IOException e2) {}
-            // }
-            // if (inputStream != null) {
-			// 	try {
-			// 		inputStream.close();
-			// 	} catch (IOException e2) {}
-			// }
+            
 		}
 		return null;
     }
 
-    private static PlayerTemplate savePlayer(Player player){
-        PlayerTemplate playerTemplate = new PlayerTemplate();
-        playerTemplate.name = player.getName();
-        playerTemplate.robot = player.getRobot();
-        playerTemplate.space = player.getSpace();
-        playerTemplate.heading = player.getHeading();
-        playerTemplate.cards = new Command[player.getCards().length];
-        for(int i = 0; i < player.getCards().length; i++){
-            playerTemplate.cards[i] = player.getCardField(i).getCard().getCommand();
-        }
-        playerTemplate.checkpoints = player.getCheckpoints();
-        playerTemplate.energyCubes = player.getEnergyCubes();
-        playerTemplate.spawnPoint = player.getSpawnPoint();
-        playerTemplate.setProgrammingDeck(player.getProgrammingDeck());
-
-        return playerTemplate;
-    }
-
+    /**
+     * Method imports field values from PlayerTemplate object into Player object, which
+     * will be populate the board.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param playerTemplate the playertemplate object to be loaded
+     * @param board the board on which the player is to be loaded
+     * @return the player object loaded from the PlayerTemplate object
+     */
     private static Player loadPlayer(PlayerTemplate playerTemplate, Board board){
         Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
         player.setHeading(playerTemplate.heading);
@@ -152,14 +142,15 @@ public class LoadBoard {
         return player;
     }
 
-    public static void serializePlayers(PlayerTemplate[] players){
-        Gson gson = new GsonBuilder().
-            excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).
-            create();
-        String playersToJson = gson.toJson(players);
-        System.out.println(playersToJson);
-    }
-
+    /**
+     * This method saves a board to a .json file. Field values board are imported 
+     * into a BoardTemplate object, which is then serialized into a .json file.
+     * 
+     * author Marcus Rémi Lemser Eychenne, s230985
+     * @param board the board to be saved
+     * @param name the name of the file to be saved
+     * @return void
+     */
     public static void saveBoard(Board board, String name) {
         BoardTemplate template = new BoardTemplate();
         template.width = board.width;
@@ -185,19 +176,7 @@ public class LoadBoard {
             }
         }
 
-        // TODO: this is not very defensive, and will result in a NullPointerException
-        //       when the folder "resources" does not exist! But, it does not need
-        //       the file "simpleCards.json" to exist!
         String filename = "RoboRally/src/main/resources/gruppe15/roborally/saveGames/" + name + "." + JSON_EXT;
-                // classLoader.getResource(BOARDSFOLDER).getPath() + "/" + name + "." + JSON_EXT;
-
-        // In simple cases, we can create a Gson object with new:
-        //
-        //   Gson gson = new Gson();
-        //
-        // But, if you need to configure it, it is better to create it from
-        // a builder (here, we want to configure the JSON serialisation with
-        // a pretty printer):
         GsonBuilder simpleBuilder = new GsonBuilder().
                 registerTypeAdapter(BoardElement.class, new Adapter<BoardElement>()).
                 excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).
@@ -224,6 +203,33 @@ public class LoadBoard {
                 } catch (IOException e2) {}
             }
         }
+    }
+
+    /**
+     * Method imports field values from Player object into PlayerTemplate object, which
+     * will be inserted as a field variable in BoardTemplate object.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param player the player object to be saved
+     * @return the player object as a PlayerTemplate object
+     */
+
+     private static PlayerTemplate savePlayer(Player player){
+        PlayerTemplate playerTemplate = new PlayerTemplate();
+        playerTemplate.name = player.getName();
+        playerTemplate.robot = player.getRobot();
+        playerTemplate.space = player.getSpace();
+        playerTemplate.heading = player.getHeading();
+        playerTemplate.cards = new Command[player.getCards().length];
+        for(int i = 0; i < player.getCards().length; i++){
+            playerTemplate.cards[i] = player.getCardField(i).getCard().getCommand();
+        }
+        playerTemplate.checkpoints = player.getCheckpoints();
+        playerTemplate.energyCubes = player.getEnergyCubes();
+        playerTemplate.spawnPoint = player.getSpawnPoint();
+        playerTemplate.setProgrammingDeck(player.getProgrammingDeck());
+
+        return playerTemplate;
     }
 
 }

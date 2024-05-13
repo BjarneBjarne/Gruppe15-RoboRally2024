@@ -35,6 +35,11 @@ public class MainMenuView {
     Button[] buttons = new Button[4];
     AppController appController;
 
+    /**
+     * Returns the main menu view.
+     * 
+     * @return the main menu view as an AnchorPane
+     */
     public AnchorPane getMainMenu() {
         if(mainMenu == null){
             System.out.println("MainMenu is null");
@@ -42,7 +47,14 @@ public class MainMenuView {
         return mainMenu;
     }
 
-
+    /**
+     * Initializes the main menu view, and the action events for the buttons, along with
+     * the button effects.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param appController the app controller
+     * @return itself
+     */
     @FXML
     public MainMenuView initialize(AppController appController) {
         this.appController = appController;
