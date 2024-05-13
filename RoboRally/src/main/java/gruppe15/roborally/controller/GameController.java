@@ -652,20 +652,15 @@ public class GameController {
         }, Duration.millis(0)));
     }
 
+    /**
+     * This method is called when the player has chosen a direction for the robot.
+     * The direction is set for the current player and the next player is set as the current player.
+     * If the next player has a spawn point, the programming phase is started.
+     * 
+     * @param direction the direction chosen by the player
+     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
+     */
     public void chooseDirection(Heading direction) {
-        if (board.getPhase() == INITIALISATION) {
-            Player currentPlayer = board.getCurrentPlayer();
-            currentPlayer.setHeading(direction);
-            int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
-            Player nextPlayer = board.getPlayer(nextPlayerIndex);
-            board.setCurrentPlayer(nextPlayer);
-
-            if (nextPlayer.getSpawnPoint() != null) {
-                System.out.println("Starting programming phase");
-                startProgrammingPhase();
-            }
-        }
-
         if (board.getPhase() == REBOOTING) {
             List<Player> playersRebooting = new ArrayList<>();
             for (Player player : board.getPlayers()) {
@@ -673,7 +668,9 @@ public class GameController {
                     playersRebooting.add(player);
                 }
             }
+        }
 
+        if (board.getPhase() == INITIALISATION || board.getPhase() == REBOOTING) {
             Player currentPlayer = board.getCurrentPlayer();
             currentPlayer.setHeading(direction);
             int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();

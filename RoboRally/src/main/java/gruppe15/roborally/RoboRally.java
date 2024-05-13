@@ -118,6 +118,10 @@ public class RoboRally extends Application {
         boardRoot.setCenter(mainMenu);
     }
 
+    public void resetSelectionMenu(){
+        selectionMenu = null;
+    }
+
     public void createSetupMenu(AppController appController){
         if (selectionMenu != null) {
             goToSelectionMenu();
