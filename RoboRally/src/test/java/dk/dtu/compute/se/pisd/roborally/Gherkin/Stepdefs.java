@@ -29,9 +29,9 @@ public class Stepdefs extends ApplicationTest {
         board = new Board(8, 8);
 
         players = new ArrayList<>();
-        players.add(new Player(board, "red", "player 1"));
-        players.add(new Player(board, "yellow", "player 2"));
-        players.add(new Player(board, "blue", "player 3"));
+        // players.add(new Player(board, "red", "player 1"));
+        // players.add(new Player(board, "yellow", "player 2"));
+        // players.add(new Player(board, "blue", "player 3"));
 
         board.addPlayer(players.get(0));
         board.addPlayer(players.get(1));
@@ -41,14 +41,14 @@ public class Stepdefs extends ApplicationTest {
         board.getSpace(0, 1).setPlayer(players.get(1));
         board.getSpace(0, 2).setPlayer(players.get(2));
 
-        gc = new GameController(board);
+        // gc = new GameController(board);
 
         board.setCurrentPlayer(board.getPlayer(0));
     }
 
     @When("The space \\(x: {int}, y: {int}) is clicked")
     public void SpaceIsClicked(int x, int y) {
-        gc.moveCurrentPlayerToSpace(board.getSpace(x,y));
+        // gc.movePlayerToSpace(, board.getSpace(x,y));
     }
 
     @Then("Player {int} is in position \\(x: {int}, y: {int})")

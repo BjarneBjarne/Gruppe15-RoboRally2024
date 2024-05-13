@@ -24,15 +24,19 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
+
+import static gruppe15.roborally.model.utils.Constants.*;
 
 /**
  * ...
@@ -41,13 +45,9 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 public class CardFieldView extends GridPane implements ViewObserver {
-
     // This data format helps avoiding transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
     final public static  DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
-
-    final public static int CARDFIELD_WIDTH = 65;
-    final public static int CARDFIELD_HEIGHT = 100;
 
     final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
@@ -64,7 +64,16 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     private GameController gameController;
 
+    private ImageView grafics;
+
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
+
+        grafics = new ImageView();
+        grafics.setMouseTransparent(true);
+        grafics.setFitHeight(CARDFIELD_HEIGHT);
+        grafics.setFitWidth(CARDFIELD_WIDTH);
+        this.getChildren().add(grafics);
+
         this.gameController = gameController;
         this.field = field;
 
@@ -81,7 +90,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         this.setMinHeight(CARDFIELD_HEIGHT);
         this.setMaxHeight(CARDFIELD_HEIGHT);
 
-        label = new Label("This is a slightly longer text");
+        label = new Label(); //"This is a slightly longer text"
         label.setWrapText(true);
         label.setMouseTransparent(true);
         this.add(label, 0, 0);
@@ -107,7 +116,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 }
             }
 
-            for (int i = 0; i < Player.NO_CARDS; i++) {
+            for (int i = 0; i < Player.NO_OF_CARDS; i++) {
                 CommandCardField other = cardField.player.getCardField(i);
                 if (other == cardField) {
                     return "C," + i;
@@ -128,7 +137,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         return field.player.getProgramField(i);
                     }
                 } else if ("C".equals(strings[0])) {
-                    if (i < Player.NO_CARDS) {
+                    if (i < Player.NO_OF_CARDS) {
                         return field.player.getCardField(i);
                     }
                 }
@@ -141,12 +150,20 @@ public class CardFieldView extends GridPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
             CommandCard card = field.getCard();
-            if (card != null && field.isVisible()) {
-                label.setText(card.getName());
-            } else {
+            if(card != null && field.isVisible()) {
+                String type = card.getName();
+                Image temp2 = ImageUtils.getImageFromName(type + ".png");
+                if (temp2 != null) {
+                    grafics.setImage(temp2);
+                }else{
+                    label.setText(card.getName());
+                }
+            }else{
                 label.setText("");
+                grafics.setImage(null);
             }
         }
+
     }
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {

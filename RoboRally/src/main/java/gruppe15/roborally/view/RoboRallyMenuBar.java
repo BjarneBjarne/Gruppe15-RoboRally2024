@@ -21,10 +21,13 @@
  */
 package gruppe15.roborally.view;
 
+import java.util.Optional;
+
 import gruppe15.roborally.controller.AppController;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
 
 /**
  * ...
@@ -55,7 +58,7 @@ public class RoboRallyMenuBar extends MenuBar {
         this.getMenus().add(controlMenu);
 
         newGame = new MenuItem("New Game");
-        newGame.setOnAction( e -> this.appController.newGame());
+        newGame.setOnAction( e -> this.appController.courseSelection());
         controlMenu.getItems().add(newGame);
 
         stopGame = new MenuItem("Stop Game");
@@ -63,11 +66,19 @@ public class RoboRallyMenuBar extends MenuBar {
         controlMenu.getItems().add(stopGame);
 
         saveGame = new MenuItem("Save Game");
-        saveGame.setOnAction( e -> this.appController.saveGame());
+        saveGame.setOnAction( e -> {
+            
+            TextInputDialog filenameInput = new TextInputDialog();
+            filenameInput.setHeaderText("Enter filename");
+            filenameInput.setTitle("Save Game");
+            Optional<String> filename = filenameInput.showAndWait();
+            String strFilename = filename.get().replace(' ', '_');
+            this.appController.saveGame(strFilename);
+        });
         controlMenu.getItems().add(saveGame);
 
         loadGame = new MenuItem("Load Game");
-        loadGame.setOnAction( e -> this.appController.loadGame());
+        // loadGame.setOnAction( e -> this.appController.loadGame());
         controlMenu.getItems().add(loadGame);
 
         exitApp = new MenuItem("Exit");

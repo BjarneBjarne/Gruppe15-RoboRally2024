@@ -23,22 +23,23 @@ package gruppe15.roborally.controller;
 
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
-
 import gruppe15.roborally.RoboRally;
-
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Player;
-
+import gruppe15.roborally.fileaccess.LoadBoard;
+import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.io.File;
 
 /**
  * ...
@@ -47,62 +48,100 @@ import java.util.Optional;
  *
  */
 public class AppController implements Observer {
-
-    final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
-    final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
-
-    final private RoboRally roboRally;
-
+    private final RoboRally roboRally;
     private GameController gameController;
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
-    public void newGame() {
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-        dialog.setTitle("Player number");
-        dialog.setHeaderText("Select number of players");
-        Optional<Integer> result = dialog.showAndWait();
+    public void courseSelection() {
+        roboRally.createSetupMenu(this);
+    }
 
-        if (result.isPresent()) {
-            if (gameController != null) {
-                // The UI should not allow this, but in case this happens anyway.
-                // give the user the option to save the game or abort this operation!
-                if (!stopGame()) {
-                    return;
+    public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
+        Board board = new Board(13,10, mapIndex);
+        gameController = new GameController(board, this);
+
+        // Finding spawns
+        List<Space> spawnPoints = new ArrayList<>();
+        for (int x = 0; x < board.getSpaces().length; x++) {
+            for (int y = 0; y < board.getSpaces()[x].length; y++) {
+                Space space = board.getSpace(x, y);
+                if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                    spawnPoints.add(space);
                 }
             }
+        }
 
-            // XXX the board should eventually be created programmatically or loaded from a file
-            //     here we just create an empty board with the required number of players.
-            Board board = new Board(8,8);
-            gameController = new GameController(board);
-            int no = result.get();
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                board.addPlayer(player);
-                player.setSpace(board.getSpace(i % board.width, i));
+        // Adding players
+        for (int i = 0; i < noOfPlayers; i++) {
+            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(playerCharacters[i])), playerNames[i]);
+            player.setHeading(Heading.EAST);
+            board.addPlayer(player);
+        }
+
+        board.setCurrentPlayer(board.getPlayer(0));
+        roboRally.createBoardView(gameController, false);
+    }
+
+
+    /**
+     * Load a game from a file. A new game controller is created, with the board loaded
+     * from the file. The Phase of the game is manually set to Programming.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param loadedFile the .json to be deserialized into a board
+     */
+    public void loadGame(File loadedFile) {
+        Board newBoard = LoadBoard.loadBoard(loadedFile);
+        gameController = new GameController(newBoard, this);
+        gameController.board.setPhase(Phase.PROGRAMMING);
+        newBoard.setCurrentRegister(0);
+        newBoard.updatePriorityList();
+        newBoard.setCurrentPlayer(newBoard.getPriorityList().peek());
+
+        for (int i = 0; i < newBoard.getNoOfPlayers(); i++) {
+            Player player = newBoard.getPlayer(i);
+            if (player != null) {
+                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
+                    CommandCardField field = player.getProgramField(j);
+                    field.setVisible(true);
+                }
+                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
+                    CommandCardField field = player.getCardField(j);
+                    field.setVisible(true);
+                }
             }
-
-            // XXX: the line below is commented out in the current version
-            // board.setCurrentPlayer(board.getPlayer(0));
-            gameController.startProgrammingPhase();
-
-            roboRally.createBoardView(gameController);
         }
+        roboRally.createBoardView(gameController, true);
     }
 
-    public void saveGame() {
-        // XXX needs to be implemented eventually
+
+    /**
+     * Save the current game to a file with the given file name. If the
+     * game is not in the programming phase, the game is not saved and
+     * the method returns false. Otherwise, the game is saved and the
+     * method returns true.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param fileName the name of the file to which the game is saved
+     * @return true if the game was saved, false otherwise
+     */
+    public boolean saveGame(String fileName) {
+        if (gameController.board.getPhase() != Phase.PROGRAMMING) {
+            return false;
+        }
+        LoadBoard.saveBoard(gameController.board, fileName);
+        return true;
     }
 
-    public void loadGame() {
-        // XXX needs to be implemented eventually
-        // for now, we just create a new game
-        if (gameController == null) {
-            newGame();
-        }
+    /**
+     * sets ends game
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void gameOver(){
+        roboRally.goToWinScreen(gameController, this);
     }
 
     /**
@@ -118,13 +157,22 @@ public class AppController implements Observer {
         if (gameController != null) {
 
             // here we save the game (without asking the user).
-            saveGame();
+            // saveGame(null);
 
             gameController = null;
-            roboRally.createBoardView(null);
+            roboRally.createBoardView(null, false);
             return true;
         }
         return false;
+    }
+
+    /**
+     * sets game controller to null
+     * @param gameController
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void setGameController(GameController gameController){
+        this.gameController = gameController;
     }
 
     public void exit() {
@@ -156,4 +204,7 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
+    public void courseCreator() {
+        roboRally.createCourseCreator(this);
+    }
 }

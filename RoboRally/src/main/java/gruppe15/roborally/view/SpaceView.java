@@ -22,12 +22,25 @@
 package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.boardelements.BE_EnergySpace;
+import gruppe15.roborally.model.boardelements.BE_Reboot;
+import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static gruppe15.roborally.model.utils.Constants.*;
 
 /**
  * ...
@@ -37,11 +50,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public class SpaceView extends StackPane implements ViewObserver {
 
-    final public static int SPACE_HEIGHT = 60; // 60; // 75;
-    final public static int SPACE_WIDTH = 60;  // 60; // 75;
-
     public final Space space;
-
+    private final ImageView backgroundImageView = new ImageView();
+    private final ImageView boardElementImageView = new ImageView();
+    private final ImageView energyCubeImageView = new ImageView();
+    private final List<ImageView> laserImageViews = new ArrayList<>();
+    private final List<ImageView> wallImageViews = new ArrayList<>();
+    private final ImageView playerImageView = new ImageView();
+    private GridPane directionOptionsPane = null;
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -55,43 +71,118 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
 
-        if ((space.x + space.y) % 2 == 0) {
-            this.setStyle("-fx-background-color: white;");
-        } else {
-            this.setStyle("-fx-background-color: black;");
+        backgroundImageView.setFitWidth(SPACE_WIDTH);
+        backgroundImageView.setFitHeight(SPACE_HEIGHT);
+        backgroundImageView.setImage(space.getImage());
+        this.getChildren().add(backgroundImageView);
+
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
+            if (boardElement instanceof BE_Reboot) {
+                boardElementImageView.setFitWidth(SPACE_WIDTH * 0.75);
+                boardElementImageView.setFitHeight(SPACE_HEIGHT * 0.75);
+            } else {
+                boardElementImageView.setFitWidth(SPACE_WIDTH);
+                boardElementImageView.setFitHeight(SPACE_HEIGHT);
+            }
+
+            boardElementImageView.setImage(boardElement.getImage());
+            this.getChildren().add(boardElementImageView);
+
+            if (boardElement instanceof BE_EnergySpace) {
+                energyCubeImageView.setFitWidth(SPACE_WIDTH);
+                energyCubeImageView.setFitHeight(SPACE_HEIGHT);
+                energyCubeImageView.setImage(ImageUtils.getImageFromName("energyCube.png"));
+                energyCubeImageView.xProperty();
+                energyCubeImageView.setLayoutY(10);
+            }
         }
 
-        // updatePlayer();
+        Image wallImage = ImageUtils.getImageFromName("wall.png");
+        for (Heading wall : space.getWalls()) {
+            ImageView wallImageView = new ImageView();
+            wallImageView.setFitWidth(SPACE_WIDTH);
+            wallImageView.setFitHeight(SPACE_HEIGHT);
+            wallImageView.setImage(ImageUtils.getRotatedImageByHeading(wallImage, wall));
+            wallImageViews.add(wallImageView);
+            this.getChildren().add(wallImageView);
+        }
+
+        playerImageView.setFitWidth(SPACE_WIDTH);
+        playerImageView.setFitHeight(SPACE_HEIGHT);
+        this.getChildren().add(playerImageView);
 
         // This space view should listen to changes of the space
         space.attach(this);
         update(space);
     }
 
-    private void updatePlayer() {
+    private void updateSpace() {
         this.getChildren().clear();
 
+        // Space background imageView
+        this.getChildren().add(backgroundImageView);
+
+        // Board element imageView
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
+            this.getChildren().add(boardElementImageView);
+
+            // Energy cube imageView
+            if (boardElement instanceof BE_EnergySpace energySpace) {
+                if (energySpace.getHasEnergyCube()) {
+                    this.getChildren().add(energyCubeImageView);
+                }
+            }
+        }
+
+        // Lasers imageView
+        this.laserImageViews.clear();
+        for (Heading laser : space.getLasersOnSpace()) {
+            ImageView laserImageView = newLaserImageView(laser);
+            this.laserImageViews.add(laserImageView);
+            this.getChildren().add(laserImageView);
+        }
+
+        // Player imageView
         Player player = space.getPlayer();
         if (player != null) {
-            Polygon arrow = new Polygon(0.0, 0.0,
-                    10.0, 20.0,
-                    20.0, 0.0 );
             try {
-                arrow.setFill(Color.valueOf(player.getColor()));
+                Image playerImage = player.getImage();
+                playerImageView.setImage(ImageUtils.getRotatedImageByHeading(playerImage, player.getHeading()));
             } catch (Exception e) {
-                arrow.setFill(Color.MEDIUMPURPLE);
+                playerImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Robot_Error.png"), player.getHeading()));
             }
-
-            arrow.setRotate((90*player.getHeading().ordinal())%360);
-            this.getChildren().add(arrow);
+            this.getChildren().add(playerImageView);
         }
+
+        // Walls imageView
+        for (ImageView wall : wallImageViews) {
+            this.getChildren().add(wall);
+        }
+    }
+
+    private ImageView newLaserImageView(Heading laser) {
+        ImageView laserImageView = new ImageView();
+        laserImageView.setFitWidth(SPACE_WIDTH);
+        laserImageView.setFitHeight(SPACE_HEIGHT);
+        laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("laser.png"), laser));
+        return laserImageView;
     }
 
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
-            updatePlayer();
+            updateSpace();
         }
     }
 
+    public void setDirectionOptionsPane(GridPane directionOptionsPane) {
+        this.directionOptionsPane = directionOptionsPane;
+        System.out.println("Set space: " + space.x + ", " + space.y + " to choose.");
+    }
+
+    public void removeDirectionOptionsPane() {
+        this.directionOptionsPane = null;
+    }
 }
