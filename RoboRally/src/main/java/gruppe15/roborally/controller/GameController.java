@@ -292,7 +292,15 @@ public class GameController {
             }
             turnPlaying = false;
             PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
-            pause.setOnFinished(event -> board.setPhase(Phase.REBOOTING));  // Small delay before ending activation phase for dramatic effect ;-).
+            pause.setOnFinished(event -> {
+                for (Player player : board.getPlayers()) {
+                    if (player.getIsRebooting()) {
+                        board.setPhase(Phase.REBOOTING);
+                        return;
+                    }
+                }
+                board.setPhase(PROGRAMMING);
+            });  // Small delay before ending activation phase for dramatic effect ;-).
             pause.play();
         }
     }
