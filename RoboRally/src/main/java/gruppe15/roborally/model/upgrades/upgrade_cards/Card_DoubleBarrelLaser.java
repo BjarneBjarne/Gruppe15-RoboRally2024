@@ -10,8 +10,8 @@ import gruppe15.roborally.model.events.PlayerDamageListener;
 
 public class Card_DoubleBarrelLaser extends UpgradeCardPermanent {
 
-    public Card_DoubleBarrelLaser(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
+    public Card_DoubleBarrelLaser() {
+        super("Double Barrel Laser", 0, 0, 0, null);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class Card_DoubleBarrelLaser extends UpgradeCardPermanent {
         // OnDamageDealt
         EventHandler.onEvent((PlayerDamageListener) damage -> {
             System.out.println("Board is at register " + board.getCurrentRegister() + ".");
-            System.out.println("{" + owner.getName() + "} has a Double Barrel Laser!");
+            System.out.println("Player {" + owner.getName() + "} has a Double Barrel Laser!");
 
             // Modifying damage
             damage.setAmount(Spam.class, damage.getAmount(Spam.class) + 1);
