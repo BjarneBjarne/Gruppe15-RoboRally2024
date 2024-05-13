@@ -21,9 +21,6 @@
  */
 package gruppe15.roborally;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * This is a class for starting up the RoboRally application. This is a
  * workaround for a strange quirk in the Open JavaFX project launcher,

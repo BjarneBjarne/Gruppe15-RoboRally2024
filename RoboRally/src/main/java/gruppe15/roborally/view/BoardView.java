@@ -35,8 +35,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Alert;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -270,13 +268,13 @@ public class BoardView extends VBox implements ViewObserver {
                             directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
                             directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
                         }
-                    } else {
+                    } /* else { // XXX this is just for testing purposes
                         if (event.isShiftDown()) {
                             space.setPlayer(board.getPlayer(1));
                         } else if (event.isControlDown()) {
                             space.setPlayer(board.getPlayer(0));
                         }
-                    }
+                    } */
                     event.consume();
                 }
             }
