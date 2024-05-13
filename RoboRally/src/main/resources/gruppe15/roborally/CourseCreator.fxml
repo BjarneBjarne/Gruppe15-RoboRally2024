@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<VBox alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <StackPane fx:id="CC_boardPane" />
+      <ScrollPane minHeight="100.0">
+         <content>
+            <HBox fx:id="elementButtonsHBox" alignment="CENTER_LEFT" fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" />
+         </content>
+      </ScrollPane>
+   </children>
+</VBox>

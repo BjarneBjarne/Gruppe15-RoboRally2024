@@ -1,33 +1,31 @@
 package gruppe15.roborally.model.upgrades.upgrade_cards;
 
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.EventHandler;
-import gruppe15.roborally.model.Phase;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.damage.Spam;
-import gruppe15.roborally.model.events.PlayerDamageListener;
+import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.boardelements.BE_Hole;
 import gruppe15.roborally.model.events.PlayerMoveListener;
 import gruppe15.roborally.model.upgrades.UpgradeCard;
+import javafx.util.Pair;
 
 public class Card_HoverUnit extends UpgradeCard {
 
-    public Card_HoverUnit(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
+    public Card_HoverUnit() {
+        super("Hover Unit", 0, 0, 0, null);
     }
 
     @Override
     public void initialize(Board board, Player owner) {
         super.initialize(board, owner);
-
         // Defining effects on events
-
         // OnDamageDealt
-        EventHandler.onEvent(PlayerMoveListener.class, (PlayerMoveListener) space -> {
-            if (space.getBoardElement().getIsHole()) {
-                System.out.println("{" + owner.getName() + "} has a Hover Unit!");
+        EventHandler.onEvent((PlayerMoveListener) (space, shouldReboot) -> {
+            if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
+                Velocity playerVel = owner.getVelocity();
+                if ((Math.abs(playerVel.forward) + Math.abs(playerVel.right)) > 0) {
+                    System.out.println("Player {" + owner.getName() + "} has a Hover Unit!");
+                    shouldReboot = false;
+                }
             }
-
-            return space;
+            return new Pair<>(space, shouldReboot);
         }, owner);
     }
 

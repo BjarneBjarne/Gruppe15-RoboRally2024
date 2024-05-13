@@ -2,38 +2,44 @@ package gruppe15.roborally.model.damage;
 
 import gruppe15.roborally.model.Player;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Damage {
-    private Map<Class<? extends DamageType>, DamageType> damageMap;
+    private final List<DamageType> damageTypes = new ArrayList<>();
 
     public Damage() {
-        damageMap = new HashMap<>();
         // Initialize instances for each damage type
-        damageMap.put(Spam.class, new Spam(0));
-        damageMap.put(TrojanHorse.class, new TrojanHorse(0));
-        damageMap.put(Worm.class, new Worm(0));
-        damageMap.put(Virus.class, new Virus(0));
+        damageTypes.add(new Spam(0));
+        damageTypes.add(new TrojanHorse(0));
+        damageTypes.add(new Worm(0));
+        damageTypes.add(new Virus(0));
     }
 
     public void setAmount(Class<? extends DamageType> damageType, int newAmount) {
-        DamageType damage = damageMap.get(damageType);
-        if (damage != null) {
-            damage.setAmount(newAmount);
+        for (DamageType dt : damageTypes) {
+            if (dt.getClass().isAssignableFrom(damageType)) {
+                dt.setAmount(newAmount);
+            }
         }
     }
     public int getAmount(Class<? extends DamageType> damageType) {
-        DamageType damage = damageMap.get(damageType);
-        return damage.getAmount();
+        for (DamageType dt : damageTypes) {
+            if (dt.getClass().isAssignableFrom(damageType)) {
+                return dt.getAmount();
+            }
+        }
+        System.out.println("ERROR: Couldn't find damage type: " + damageType.getName() + " : " + damageType);
+        return 0;
     }
 
-    public Map<Class<? extends DamageType>, DamageType> getDamageMap() {
-        return damageMap;
+    public List<DamageType> getDamageTypes() {
+        return damageTypes;
     }
 
     public void applyDamage(Player player) {
-        for (DamageType damageType : damageMap.values()) {
+        for (DamageType damageType : damageTypes) {
             damageType.applyDamage(player);
         }
     }

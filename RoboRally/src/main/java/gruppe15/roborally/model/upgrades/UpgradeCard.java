@@ -28,6 +28,7 @@ public abstract class UpgradeCard {
 
 
     /**
+     * Cards must override this method.
      * Initializes the card to respond to actions performed by the owner. Can "maybe" be initialized to multiple owners?
      * @param owner The player who buys the card.
      */

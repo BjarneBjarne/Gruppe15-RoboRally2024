@@ -5,7 +5,7 @@ import gruppe15.roborally.model.Player;
 public class Spam extends DamageType {
 
     public Spam(int amount) {
-        super(amount);
+        super(amount, "Spam");
     }
 
     @Override

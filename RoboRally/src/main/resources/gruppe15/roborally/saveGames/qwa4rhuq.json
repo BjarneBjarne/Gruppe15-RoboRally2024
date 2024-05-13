@@ -1,0 +1,87 @@
+{
+  "width": 13,
+  "height": 10,
+  "players": [
+    {
+      "name": "123",
+      "robot": "Green",
+      "space": {
+        "x": 1,
+        "y": 8
+      },
+      "heading": "EAST",
+      "cards": [
+        "AGAIN",
+        "FORWARD",
+        "RIGHT",
+        "FORWARD",
+        "LEFT",
+        "LEFT",
+        "U_TURN",
+        "FAST_FORWARD"
+      ],
+      "checkpoints": 0,
+      "energyCubes": 0,
+      "spawnPoint": {
+        "x": 1,
+        "y": 8
+      },
+      "programmingDeck": [
+        "RIGHT",
+        "VARY_FAST_FORWARD",
+        "FAST_FORWARD",
+        "FAST_FORWARD",
+        "VARY_FAST_FORWARD",
+        "POWER_UP",
+        "U_TURN",
+        "BACKWARD",
+        "POWER_UP",
+        "BACKWARD",
+        "FORWARD",
+        "AGAIN",
+        null
+      ]
+    },
+    {
+      "name": "qwar",
+      "robot": "Yellow",
+      "space": {
+        "x": 2,
+        "y": 6
+      },
+      "heading": "EAST",
+      "cards": [
+        "BACKWARD",
+        "LEFT",
+        "RIGHT",
+        "POWER_UP",
+        "FORWARD",
+        "FORWARD",
+        "AGAIN",
+        "FAST_FORWARD"
+      ],
+      "checkpoints": 0,
+      "energyCubes": 0,
+      "spawnPoint": {
+        "x": 1,
+        "y": 5
+      },
+      "programmingDeck": [
+        "VARY_FAST_FORWARD",
+        "AGAIN",
+        "U_TURN",
+        "VARY_FAST_FORWARD",
+        "RIGHT",
+        "BACKWARD",
+        "LEFT",
+        "U_TURN",
+        "FAST_FORWARD",
+        "FAST_FORWARD",
+        "POWER_UP",
+        "FORWARD",
+        null
+      ]
+    }
+  ],
+  "currentPlayer": "qwar",
+  "

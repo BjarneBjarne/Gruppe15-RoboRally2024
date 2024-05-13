@@ -1,7 +1,7 @@
 package gruppe15.roborally.model.events;
 
 import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.upgrades.EventListener;
+import javafx.util.Pair;
 
 @FunctionalInterface
 public interface PlayerMoveListener extends EventListener {
@@ -10,5 +10,5 @@ public interface PlayerMoveListener extends EventListener {
      * @param space The space to calculate.
      * @return The newly calculated space.
      */
-    Space onPlayerMove(Space space);
+    Pair<Space, Boolean> onPlayerMove(Space space, Boolean shouldReboot);
 }
