@@ -88,7 +88,7 @@ public class AppController implements Observer {
     public void loadGame(File loadedFile) {
         Board newBoard = LoadBoard.loadBoard(loadedFile);
         System.out.println(newBoard.width);
-        gameController = new GameController(newBoard);
+        gameController = new GameController(newBoard, this);
         
         gameController.startProgrammingPhase();
         
