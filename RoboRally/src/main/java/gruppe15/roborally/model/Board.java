@@ -410,7 +410,8 @@ public class Board extends Subject {
 //We have added the MoveCount + getMoveCounter() to the string so it will be displayed at the bottom getMoveCounter() is a getter that gets the current move counter
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
-                ", Step: " + getCurrentRegister() +", MoveCount: "+ getMoveCounter();
+                ", Step: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +
+                //",  ";
 
         // TODO Task1: add a counter along with a getter and a setter, so the
         //      state of the board (game) contains the number of moves, which then can

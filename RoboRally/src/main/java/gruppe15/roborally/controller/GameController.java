@@ -318,7 +318,7 @@ public class GameController {
                         return;
                     }
                 }
-                board.setPhase(PROGRAMMING);
+                startProgrammingPhase();
             });  // Small delay before ending activation phase for dramatic effect ;-).
             pause.play();
         }
