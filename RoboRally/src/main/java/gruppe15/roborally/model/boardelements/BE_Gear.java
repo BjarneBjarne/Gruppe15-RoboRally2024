@@ -19,18 +19,19 @@ import java.util.Objects;
  */
 public class BE_Gear extends BoardElement {
 
-    private final String direction;
+    private final String rotateDirection;
 
-    /**
+/**
      * Constructor for the gear
      * 
      * @param direction the direction of the gear
      */
-    public BE_Gear(String direction) {
-        if (!Objects.equals(direction, "Right") && !Objects.equals(direction, "Left"))
-            throw new IllegalArgumentException("Invalid direction: " + direction);
-        this.direction = direction;
-        setImage("gear" + this.direction + ".png");
+  
+    public BE_Gear(String rotateDirection) {
+        if (!Objects.equals(rotateDirection, "Right") && !Objects.equals(rotateDirection, "Left"))
+            throw new IllegalArgumentException("Invalid direction: " + rotateDirection);
+        this.rotateDirection = rotateDirection;
+        setImage("gear" + this.rotateDirection + ".png");
     }
 
     /**
@@ -47,9 +48,9 @@ public class BE_Gear extends BoardElement {
         if (player == null)
             return false;
         Heading newHeading;
-        if (Objects.equals(this.direction, "Right"))
+        if (Objects.equals(this.rotateDirection, "Right"))
             newHeading = player.getHeading().next();
-        else if (Objects.equals(this.direction, "Left"))
+        else if (Objects.equals(this.rotateDirection, "Left"))
             newHeading = player.getHeading().prev();
         else
             return false;
