@@ -106,6 +106,16 @@ public class RoboRally extends Application {
         stage.show();
     }
 
+
+    /**
+     * Method to close the game. Will first ask the user if they are sure they want to exit the game.
+     * If the user chooses to exit the game, they will be asked if they want to save the game.
+     * If the user chooses to save the game, they will be asked to enter a filename.
+     * Then game will be saved, and closed
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param appController the AppController of the game
+     */
     public void closeGame(AppController appController) {
         Boolean isGameRunning = appController.isGameRunning();
         if (isGameRunning) {
@@ -128,8 +138,9 @@ public class RoboRally extends Application {
                 saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
                 Optional<ButtonType> saveGameResult = saveGameDialog.showAndWait();
 
+                // Method appController.saveGame() will return false if the game is not in the programming 
+                // phase, and an error message will be shown to the user. Game will then continue to run.
                 if (saveGameResult.get() == saveButton){
-                    //Implement ocndition to only save in programming phase
                     TextInputDialog filenameInput = new TextInputDialog();
                     filenameInput.setHeaderText("Enter filename");
                     filenameInput.setTitle("Save Game");
@@ -147,12 +158,20 @@ public class RoboRally extends Application {
         }
         Platform.exit();
     }
-
+    
     public void createMainMenu(AppController appController) {
         // create and add view for new board
         mainMenu = new MainMenuView().initialize(appController).getMainMenu();
         goToMainMenu();
     }
+
+    /**
+     * Method to go to the main menu, so that the game can go back to the main menu,
+     * and not recreate an instance of the main menu.
+     * 
+     * @Author Marcus Rémi Lemser Eychenne, s230985
+     * @param appController the AppController of the game
+     */
     public void goToMainMenu() {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
