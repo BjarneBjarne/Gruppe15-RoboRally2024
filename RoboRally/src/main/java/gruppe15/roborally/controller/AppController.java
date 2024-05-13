@@ -80,7 +80,7 @@ public class AppController implements Observer {
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
-
+        gameController.startProgrammingPhase();
         board.setCurrentPlayer(board.getPlayer(0));
         roboRally.createBoardView(gameController);
     }
