@@ -210,6 +210,7 @@ public class Player extends Subject {
     }
 
     public void setIsRebooting(boolean isRebooting) {
+        System.out.println(name + " rebooting: " + isRebooting);
         this.rebooting = isRebooting;
     }
     public boolean getIsRebooting() {
