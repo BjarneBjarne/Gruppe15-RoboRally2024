@@ -101,7 +101,7 @@ public class AppController implements Observer {
     }
 
     /**
-     * sets this gamecontroller to null
+     * sets ends game
      * @author Maximillian Bjørn Mortensen
      */
     public void gameOver(){
@@ -138,6 +138,11 @@ public class AppController implements Observer {
         return false;
     }
 
+    /**
+     * sets game controller to null
+     * @param gameController
+     * @author Maximillian Bjørn Mortensen
+     */
     public void setGameController(GameController gameController){
         this.gameController = gameController;
     }
