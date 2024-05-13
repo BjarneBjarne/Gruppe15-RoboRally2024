@@ -24,15 +24,22 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.fileaccess.LoadBoard;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.io.File;
 
 /**
  * ...
@@ -76,11 +83,20 @@ public class AppController implements Observer {
         }
 
         board.setCurrentPlayer(board.getPlayer(0));
+    }
 
+    public void loadGame(File loadedFile) {
+        Board newBoard = LoadBoard.loadBoard(loadedFile);
+        System.out.println(newBoard.width);
+        gameController = new GameController(newBoard, this);
+        
+        gameController.startProgrammingPhase();
+        
         roboRally.createBoardView(gameController);
     }
 
-    public void saveGame() {
+    public void saveGame(String fileName) {
+        LoadBoard.saveBoard(gameController.board, fileName);
         // XXX needs to be implemented eventually
     }
 
@@ -109,7 +125,7 @@ public class AppController implements Observer {
         if (gameController != null) {
 
             // here we save the game (without asking the user).
-            saveGame();
+            saveGame(null);
 
             gameController = null;
             roboRally.createBoardView(null);
