@@ -106,13 +106,12 @@ public class EventHandler {
                     }
 
                     // Apply damage to the target player
-                    for (Map.Entry<Class<? extends DamageType>, DamageType> entry : damage.getDamageMap().entrySet()) {
-                        if (entry.getValue().getAmount() > 0) {
-                            damage.applyDamage(target);
-                            Damage finalDamage = damage;
+                    for (DamageType damageType : damage.getDamageTypes()) {
+                        if (damageType.getAmount() > 0) {
                             actionQueue.addFirst(new ActionWithDelay(() -> {
+                                damageType.applyDamage(target);
                                 // Print the damage dealt
-                                System.out.println("{" + playerShooting.getName() + "} dealt " + finalDamage.getAmount(entry.getKey()) + " " + entry.getValue().getAmount() + " damage to {" + target.getName() + "}");
+                                System.out.println("Player {" + playerShooting.getName() + "} dealt " + damageType.getAmount() + " " + damageType.getDamageName() + " damage to player {" + target.getName() + "}");
                             }, Duration.millis(500)));
                         }
                     }
@@ -197,7 +196,6 @@ public class EventHandler {
             space = movePair.getKey();
             shouldReboot = movePair.getValue();
         }
-
 
         if (shouldReboot) {
             System.out.println(playerMoving.getName() + " rebooting");

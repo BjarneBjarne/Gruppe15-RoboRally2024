@@ -21,7 +21,7 @@ public class Card_HoverUnit extends UpgradeCard {
             if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
                 Velocity playerVel = owner.getVelocity();
                 if ((Math.abs(playerVel.forward) + Math.abs(playerVel.right)) > 0) {
-                    System.out.println("{" + owner.getName() + "} has a Hover Unit!");
+                    System.out.println("Player {" + owner.getName() + "} has a Hover Unit!");
                     shouldReboot = false;
                 }
             }
