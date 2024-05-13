@@ -139,6 +139,12 @@ public class BoardView extends VBox implements ViewObserver {
         update(board);
     }
 
+    /**
+     * Simple constructor used when loading a game.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param gameController the game controller
+     */
     public BoardView(@NotNull GameController gameController) {
         board = gameController.board;
         spaces = new SpaceView[board.width][board.height];
