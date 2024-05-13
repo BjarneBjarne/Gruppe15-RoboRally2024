@@ -84,9 +84,25 @@ public class MainMenuView {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Load Game");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
-            fileChooser.setInitialDirectory(new File("RoboRally/src/main/resources/gruppe15/roborally/saveGames"));
+            String userHome = System.getProperty("user.home");
+            String relativePath = "\\RoboRally\\saves";
+            String directoryPath = userHome + relativePath;
+
+            File folderFile = new File(directoryPath);
+            // Create saves folder if it doesn't exist
+            if (!folderFile.exists()) {
+                if (folderFile.mkdirs()) {
+                    System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
+                } else {
+                    System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
+                }
+            }
+
+            fileChooser.setInitialDirectory(new File(directoryPath));
             File loadedFile = fileChooser.showOpenDialog(mainMenu.getScene().getWindow());
-            appController.loadGame(loadedFile);
+            if (loadedFile != null) {
+                appController.loadGame(loadedFile);
+            }
         });
         buttons[1] = loadGame;
     }
