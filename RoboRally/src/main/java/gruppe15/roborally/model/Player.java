@@ -23,6 +23,8 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.upgrades.upgrade_cards.Card_DoubleBarrelLaser;
+import gruppe15.roborally.model.upgrades.upgrade_cards.Card_HoverUnit;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
@@ -51,18 +53,18 @@ public class Player extends Subject {
     private Space temporarySpace = null;
     private Heading heading = SOUTH;
 
-    private Command lastCmd;
+    transient private Command lastCmd;
 
-    private final CommandCardField[] program;
-    private final CommandCardField[] cards;
+    transient private final CommandCardField[] program;
+    transient private final CommandCardField[] cards;
     private int energyCubes = 0;
     private int checkpoints = 0;
-    private int priority = 0;
+    transient private int priority = 0;
     private Velocity velocity;
     private boolean rebooting = false;
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
-    private Image image;
-    private Image charIMG;
+    transient private Image image;
+    transient private Image charIMG;
 
     transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
@@ -75,6 +77,9 @@ public class Player extends Subject {
         this.space = null;
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
         this.charIMG = ImageUtils.getImageFromName(robot.getSelectionImageName());
+
+        buyUpgradeCard(new Card_HoverUnit());
+        buyUpgradeCard(new Card_DoubleBarrelLaser());
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -102,7 +107,17 @@ public class Player extends Subject {
         return this.charIMG;
     }
 
-    
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public void setCharImage(Image image) {
+        this.charIMG = image;
+    }
+
+    public int getEnergyCubes() {
+        return energyCubes;
+    }
 
     public int getCheckpoints() {
         return checkpoints;
@@ -226,7 +241,6 @@ public class Player extends Subject {
     }
 
     public void setIsRebooting(boolean isRebooting) {
-        System.out.println(name + " rebooting: " + isRebooting);
         this.rebooting = isRebooting;
     }
     public boolean getIsRebooting() {
@@ -348,5 +362,9 @@ public class Player extends Subject {
                 c.setCard(null);
             }
         }
+    }
+
+    public void setEnergyCubes(int energyCubes) {
+        this.energyCubes = energyCubes;
     }
 }

@@ -4,7 +4,7 @@ import gruppe15.roborally.model.Player;
 
 public class Virus extends DamageType {
     public Virus(int amount) {
-        super(amount);
+        super(amount, "Virus");
     }
 
     @Override
