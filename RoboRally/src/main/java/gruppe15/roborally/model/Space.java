@@ -43,10 +43,11 @@ public class Space extends Subject {
     public final int x;
     public final int y;
 
-    private Player player;
-    private final BoardElement boardElement;
-    private Image backgroundImage;
-    private final List<Heading> walls = new ArrayList<>();
+    transient private Player player;
+    transient private BoardElement boardElement;
+    transient private Image backgroundImage;
+    transient private Image imageName;
+    transient private final List<Heading> walls = new ArrayList<>();
     private final List<Heading> lasersOnSpace = new ArrayList<>();
 
     public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
@@ -66,6 +67,10 @@ public class Space extends Subject {
 
     public void setBackgroundImage(Image backgroundImage) {
         this.backgroundImage = backgroundImage;
+    }
+
+    public void setBoardElement(BoardElement boardElement) {
+        this.boardElement = boardElement;
     }
 
     public Player getPlayer() {

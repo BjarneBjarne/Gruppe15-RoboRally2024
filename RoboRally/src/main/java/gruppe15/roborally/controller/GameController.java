@@ -30,6 +30,7 @@ import gruppe15.roborally.model.boardelements.BE_Gear;
 import gruppe15.roborally.model.boardelements.BE_PushPanel;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.animation.PauseTransition;
+import javafx.scene.image.Image;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,18 +49,36 @@ import static gruppe15.roborally.model.Phase.*;
 public class GameController {
 
     public final Board board;
+    private String winnerName;
+    private Image winnerIMG;
     private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
     private final int nextRegisterDelay = 1000; // In milliseconds.
     private final boolean WITH_ACTION_DELAY = true;
     private final boolean WITH_ACTION_MESSAGE = false;
     private boolean turnPlaying = false;
+    private AppController appController;
     public boolean getIsTurnPlaying() {
         return turnPlaying;
     }
 
 
-    public GameController(@NotNull Board board) {
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
+        this.appController = appController;
+    }
+
+    public Image getWinnerIMG(){
+        return winnerIMG;
+    }
+
+    public String getWinnerName() {
+        return winnerName;
+    }
+
+    public void setWinner(String winnerName, Image winnerIMG){
+        this.winnerName = winnerName;
+        this.winnerIMG = winnerIMG;
+        appController.gameOver();
     }
 
     /**
