@@ -33,6 +33,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -41,6 +42,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * ...
@@ -92,6 +94,12 @@ public class RoboRally extends Application {
         stage.setTitle("RoboRally");
         stage.setOnCloseRequest(
                 e -> {
+                    TextInputDialog filenameInput = new TextInputDialog();
+                    filenameInput.setHeaderText("Enter filename");
+                    filenameInput.setTitle("Save Game");
+                    Optional<String> filename = filenameInput.showAndWait();
+                    String strFilename = filename.get().replace(' ', '_');
+                    appController.saveGame(strFilename);
                     e.consume();
                     appController.exit();} );
         stage.setResizable(false);

@@ -38,7 +38,7 @@ import static gruppe15.roborally.model.Heading.*;
  */
 public class Space extends Subject {
 
-    public final Board board;
+    transient public final Board board;
 
     public final int x;
     public final int y;
@@ -48,7 +48,7 @@ public class Space extends Subject {
     transient private Image backgroundImage;
     transient private Image imageName;
     transient private final List<Heading> walls = new ArrayList<>();
-    private final List<Heading> lasersOnSpace = new ArrayList<>();
+    transient private final List<Heading> lasersOnSpace = new ArrayList<>();
 
     public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
         this.board = board;
