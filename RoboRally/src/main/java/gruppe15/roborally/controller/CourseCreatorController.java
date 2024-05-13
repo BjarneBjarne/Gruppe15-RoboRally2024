@@ -3,7 +3,6 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.view.CardFieldView;
 import gruppe15.roborally.view.SpaceView;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;

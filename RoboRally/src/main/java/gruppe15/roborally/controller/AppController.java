@@ -31,10 +31,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 
 import org.jetbrains.annotations.NotNull;
 
