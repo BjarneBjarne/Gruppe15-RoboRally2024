@@ -66,6 +66,7 @@ public class Board extends Subject {
 
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private List<Space[][]> subBoards;
+    private int numberOfCheckPoints;
 
 
     public Board(int width, int height) {
@@ -78,6 +79,17 @@ public class Board extends Subject {
         spaces = new Space[width][height];
 
         // Setup spaces
+        
+        if (mapIndex == -1) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    // Add empty space
+                    if (spaces[x][y] == null) {
+                        addSpace(x, y, null, spaces);
+                    }
+                }
+            }
+        }
         if (mapIndex == 0) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
@@ -134,10 +146,11 @@ public class Board extends Subject {
             addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
 
             // Checkpoints
-            addSpace(12, 3, new BE_Checkpoint(1), spaces);
-            addSpace(10, 4, new BE_Checkpoint(2), spaces);
-            addSpace(3, 3, new BE_Checkpoint(3), spaces);
-            addSpace(5, 7, new BE_Checkpoint(4), spaces);
+            numberOfCheckPoints = 4;
+            addSpace(12, 3, new BE_Checkpoint(1, numberOfCheckPoints), spaces);
+            addSpace(10, 4, new BE_Checkpoint(2, numberOfCheckPoints), spaces);
+            addSpace(3, 3, new BE_Checkpoint(3, numberOfCheckPoints), spaces);
+            addSpace(5, 7, new BE_Checkpoint(4, numberOfCheckPoints), spaces);
 
             // Gears
             addSpace(0, 0, new BE_Gear("Left"), spaces);
