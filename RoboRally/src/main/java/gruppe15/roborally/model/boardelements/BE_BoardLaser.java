@@ -80,5 +80,4 @@ public class BE_BoardLaser extends BoardElement {
             System.out.println("Board laser interrupted: " + e.getMessage());
         }
     }
-
 }
