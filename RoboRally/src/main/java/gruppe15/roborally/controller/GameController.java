@@ -359,6 +359,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Handle the player command for a command with multiple options
+     *
+     *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     *  @param option the option the player have chosen, and sets the activation phase active again
+     */
     public void executeCommandOptionAndContinue(Command option){
         queuePlayerCommand(board.getCurrentPlayer(), option);
         board.setPhase(Phase.ACTIVATION);
