@@ -139,6 +139,72 @@ public class BoardView extends VBox implements ViewObserver {
         update(board);
     }
 
+    public BoardView(@NotNull GameController gameController) {
+        board = gameController.board;
+        spaces = new SpaceView[board.width][board.height];
+        spaceEventHandler = new SpaceEventHandler(gameController);
+        this.directionOptionsPane = new GridPane();
+        // this.directionOptionsPane.setPrefSize(SPACE_WIDTH * 3, SPACE_HEIGHT * 3);
+
+        // List<Node> children = this.directionOptionsPane.getChildren();
+        // for (Node child : children) {
+        //     if (child instanceof Button button) {
+        //         ImageView buttonImage = new ImageView();
+        //         buttonImage.setFitWidth(SPACE_WIDTH);
+        //         buttonImage.setFitHeight(SPACE_HEIGHT);
+        //         Heading direction = Heading.valueOf(button.getId());
+        //         buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
+        //         button.setGraphic(buttonImage);
+
+        //         button.setOnMouseClicked(event -> {
+        //             gameController.chooseDirection(direction);
+        //             directionOptionsPane.setDisable(true);
+        //             directionOptionsPane.setVisible(false);
+        //         });
+        //     }
+        // }
+        // this.directionOptionsPane.setDisable(true);
+        // this.directionOptionsPane.setVisible(false);
+
+        boardTilesPane = new GridPane();
+        playersView = new PlayersView(gameController);
+        statusLabel = new Label("<no status>");
+        // AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
+        mainBoardPane = new StackPane(boardTilesPane);
+        this.getChildren().add(mainBoardPane);
+        this.getChildren().add(playersView);
+        this.getChildren().add(statusLabel);
+        this.setAlignment(Pos.CENTER);
+        boardTilesPane.setAlignment(Pos.CENTER);
+        mainBoardPane.setAlignment(Pos.CENTER);
+
+        for (int x = 0; x < board.width; x++) {
+            for (int y = 0; y < board.height; y++) {
+                // DialogPane dialog = new DialogPane();
+                //     ImageView imageIn = new ImageView(board.getSpace(0, 3).getImage());
+                //     HBox images = new HBox();
+                //     images.setSpacing(10);
+                //     images.getChildren().addAll(imageIn);
+                //     dialog.setContent(images);
+                //     Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                //     alert.setHeaderText("Images");
+                //     alert.setDialogPane(dialog);
+                //     alert.setTitle("Maybe");
+                //     alert.showAndWait();
+                Space space = board.getSpace(x, y);
+                SpaceView spaceView = new SpaceView(space);
+                spaces[x][y] = spaceView;
+                boardTilesPane.add(spaceView, x, y);
+            }
+        }
+
+        mainBoardPane.setOnMouseClicked(spaceEventHandler);
+        mainBoardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
+
+        board.attach(this);
+        update(board);
+    }
+
     @Override
     public void updateView(Subject subject) {
         if (subject == board) {

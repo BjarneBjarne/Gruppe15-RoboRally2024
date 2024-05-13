@@ -82,17 +82,14 @@ public class AppController implements Observer {
         }
 
         board.setCurrentPlayer(board.getPlayer(0));
-        roboRally.createBoardView(gameController);
+        roboRally.createBoardView(gameController, false);
     }
 
     public void loadGame(File loadedFile) {
         Board newBoard = LoadBoard.loadBoard(loadedFile);
-        System.out.println(newBoard.width);
         gameController = new GameController(newBoard, this);
-        
-        gameController.startProgrammingPhase();
-        
-        roboRally.createBoardView(gameController);
+        gameController.board.setPhase(Phase.PROGRAMMING);
+        roboRally.createBoardView(gameController, true);
     }
 
     public boolean saveGame(String fileName) {
@@ -136,7 +133,7 @@ public class AppController implements Observer {
             // saveGame(null);
 
             gameController = null;
-            roboRally.createBoardView(null);
+            roboRally.createBoardView(null, false);
             return true;
         }
         return false;

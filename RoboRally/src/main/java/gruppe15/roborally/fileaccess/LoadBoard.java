@@ -80,16 +80,15 @@ public class LoadBoard {
                     }
                 }
             }
-            
+        
             for(int i = 0; i < template.players.length; i++){
                 Player player = loadPlayer(template.players[i], result);
                 result.getPlayers().add(player);
-                if(player.getName() == template.currentPlayer){
+                if(player.getName().equals(template.currentPlayer)){
                     result.setCurrentPlayer(player);
                 }
             }
             scanner.close();
-            System.out.println("Load complete");
 			return result;
 		} catch (IOException e1) {
             // if (reader != null) {
@@ -120,6 +119,7 @@ public class LoadBoard {
         playerTemplate.checkpoints = player.getCheckpoints();
         playerTemplate.energyCubes = player.getEnergyCubes();
         playerTemplate.spawnPoint = player.getSpawnPoint();
+        playerTemplate.setProgrammingDeck(player.getProgrammingDeck());
 
         return playerTemplate;
     }
@@ -127,7 +127,7 @@ public class LoadBoard {
     private static Player loadPlayer(PlayerTemplate playerTemplate, Board board){
         Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
         player.setHeading(playerTemplate.heading);
-        for(int i = 0; i < playerTemplate.cards.length; i++){
+        for(int i = 0; i < player.getCards().length; i++){
             player.getCardField(i).setCard(new CommandCard(playerTemplate.cards[i]));
         }
         player.setCheckpoint(playerTemplate.checkpoints);
@@ -144,6 +144,8 @@ public class LoadBoard {
         
         player.setImage(ImageUtils.getImageFromName(player.getRobot().getBoardImageName()));
         player.setCharImage(ImageUtils.getImageFromName(player.getRobot().getSelectionImageName()));
+
+        player.setProgrammingDeck(playerTemplate.getProgrammingDeck());
         return player;
     }
 
@@ -164,6 +166,7 @@ public class LoadBoard {
             template.players[i] = savePlayer(board.getPlayers().get(i));
         };
         template.currentPlayer = board.getCurrentPlayer().getName();
+        System.out.println("Current Player: " + template.currentPlayer);
 
         for (int i=0; i<board.width; i++) {
             for (int j=0; j<board.height; j++) {

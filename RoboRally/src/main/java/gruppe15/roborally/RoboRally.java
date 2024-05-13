@@ -208,19 +208,23 @@ public class RoboRally extends Application {
 
     }
 
-    public void createBoardView(GameController gameController) {
+    public void createBoardView(GameController gameController, boolean loadingGame) {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
 
         if (gameController != null) {
             // create and add view for new board
-            FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
-            try {
-                directionOptionsPane = fxmlLoader.load();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+            if(!loadingGame){
+                FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
+                try {
+                    directionOptionsPane = fxmlLoader.load();
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+                boardView = new BoardView(gameController, directionOptionsPane);
+            } else {
+                boardView = new BoardView(gameController);
             }
-            boardView = new BoardView(gameController, directionOptionsPane);
             boardRoot.setCenter(boardView);
         }
         stage.sizeToScene();
