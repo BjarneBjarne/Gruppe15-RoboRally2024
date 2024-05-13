@@ -717,7 +717,6 @@ public class GameController {
             board.setCurrentPlayer(nextPlayer);
 
             if (nextPlayer.getSpawnPoint() != null) {
-                System.out.println("Starting programming phase");
                 startProgrammingPhase();
             }
         }
