@@ -58,5 +58,4 @@ public class BE_Gear extends BoardElement {
         player.setHeading(newHeading);
         return true;
     }
-
 }
