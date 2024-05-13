@@ -4,15 +4,28 @@ import java.util.LinkedList;
 
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
-import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 
+/**
+ * This class represents a push panel on the board and when
+ * a player reaches a push panel, the player is pushed to the next space
+ * in the direction of the push panel.
+ * 
+ * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+ */
 public class BE_PushPanel extends BoardElement {
 
+    // The registers that the push panel pushes the player to
     public final int[] pushRegisters;
 
+    /**
+     * Constructor for the push panel
+     * 
+     * @param type      the type of the push panel
+     * @param direction the direction of the push panel
+     */
     public BE_PushPanel(String type, Heading direction) {
         super(direction);
         if (type != "24" && type != "135")
@@ -28,6 +41,13 @@ public class BE_PushPanel extends BoardElement {
 
     }
 
+    /**
+     * Checks if an array contains a target
+     * 
+     * @param arr    the array
+     * @param target the target
+     * @return true if the array contains the target, false otherwise
+     */
     private static boolean contains(int[] arr, int target) {
         for (int i : arr) {
             if (i == target) {
@@ -37,6 +57,14 @@ public class BE_PushPanel extends BoardElement {
         return false;
     }
 
+    /**
+     * When a player reaches a push panel, the player is pushed to the next space
+     * in the direction of the push panel.
+     * 
+     * @param space          the space where the player is located
+     * @param gameController the game controller
+     * @param actionQueue    the queue of actions
+     */
     @Override
     public boolean doAction(Space space, GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Player player = space.getPlayer();
