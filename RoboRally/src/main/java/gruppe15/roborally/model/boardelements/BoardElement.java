@@ -18,9 +18,9 @@ public abstract class BoardElement {
     /**
      * @param imageName Specified by the file name + the file extension. E.g: "empty.png".
      */
-    private String imageName = "";
-    private Image image;
-    protected Heading direction;
+    public String imageName = "";
+    transient public Image image;
+    public Heading direction;
 
     public BoardElement(String imageName, Heading direction) {
         setImage(imageName, direction);

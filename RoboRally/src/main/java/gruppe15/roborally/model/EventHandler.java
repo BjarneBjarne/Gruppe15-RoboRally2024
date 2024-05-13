@@ -106,13 +106,12 @@ public class EventHandler {
                     }
 
                     // Apply damage to the target player
-                    for (Map.Entry<Class<? extends DamageType>, DamageType> entry : damage.getDamageMap().entrySet()) {
-                        if (entry.getValue().getAmount() > 0) {
-                            damage.applyDamage(target);
-                            Damage finalDamage = damage;
+                    for (DamageType damageType : damage.getDamageTypes()) {
+                        if (damageType.getAmount() > 0) {
                             actionQueue.addFirst(new ActionWithDelay(() -> {
+                                damageType.applyDamage(target);
                                 // Print the damage dealt
-                                System.out.println("{" + playerShooting.getName() + "} dealt " + finalDamage.getAmount(entry.getKey()) + " " + entry.getValue().getAmount() + " damage to {" + target.getName() + "}");
+                                System.out.println("Player {" + playerShooting.getName() + "} dealt " + damageType.getAmount() + " " + damageType.getDamageName() + " damage to player {" + target.getName() + "}");
                             }, Duration.millis(500)));
                         }
                     }
@@ -185,9 +184,11 @@ public class EventHandler {
     /**
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
+
+
     public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
         List<PlayerMoveListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerMoveListener.class);
-        boolean shouldReboot = (space == null || playerMoving.getSpace().getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
+        boolean shouldReboot = (space == null || space.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
 
         // Handle listener logic
         for (PlayerMoveListener listener : playerMoveListeners) {
@@ -197,6 +198,7 @@ public class EventHandler {
         }
 
         if (shouldReboot) {
+            System.out.println(playerMoving.getName() + " rebooting");
             event_PlayerReboot(playerMoving, gc);
         } else {
             playerMoving.setSpace(space);
