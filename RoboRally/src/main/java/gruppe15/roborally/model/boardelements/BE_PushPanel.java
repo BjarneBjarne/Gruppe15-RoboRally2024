@@ -27,7 +27,7 @@ public class BE_PushPanel extends BoardElement {
      * @param direction the direction of the push panel
      */
     public BE_PushPanel(String type, Heading direction) {
-        super(direction);
+        super("push" + type + ".png", direction);
         if (type != "24" && type != "135")
             throw new IllegalArgumentException("Invalid direction: " + type);
         if (type == "24") {
@@ -37,8 +37,7 @@ public class BE_PushPanel extends BoardElement {
         } else {
             throw new IllegalArgumentException("Invalid direction: " + type);
         }
-        setImage("push" + type + ".png", direction.next().next());
-
+        setElemDirection(direction.next().next());
     }
 
     /**
@@ -72,7 +71,7 @@ public class BE_PushPanel extends BoardElement {
             return false;
         int currentRegister = gameController.board.getCurrentRegister();
         if (contains(pushRegisters, currentRegister + 1)) {
-            gameController.movePlayerToSpace(player, space.getSpaceNextTo(direction, gameController.board.getSpaces()));
+            gameController.movePlayerToSpace(player, space.getSpaceNextTo(elemDirection, gameController.board.getSpaces()));
         }
         return true;
     }
