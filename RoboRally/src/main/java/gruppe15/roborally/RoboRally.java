@@ -97,7 +97,10 @@ public class RoboRally extends Application {
 
         stage.setScene(primaryScene);
         stage.setTitle("RoboRally");
-        stage.setOnCloseRequest(e -> closeGame(appController));
+        stage.setOnCloseRequest(e -> {
+            e.consume();
+            closeGame(appController);
+        });
         stage.setResizable(false);
         stage.sizeToScene();
         stage.show();
@@ -132,7 +135,13 @@ public class RoboRally extends Application {
                     filenameInput.setTitle("Save Game");
                     Optional<String> filename = filenameInput.showAndWait();
                     String strFilename = filename.get().replace(' ', '_');
-                    appController.saveGame(strFilename);
+                    if(!appController.saveGame(strFilename)){
+                        Alert errorAlert = new Alert(AlertType.ERROR);
+                        errorAlert.setHeaderText("Error saving game");
+                        errorAlert.setContentText("Game can only be saved during programming phase.");
+                        errorAlert.showAndWait();
+                        return;
+                    }
                 }
                 Platform.exit();
             }
@@ -199,19 +208,23 @@ public class RoboRally extends Application {
 
     }
 
-    public void createBoardView(GameController gameController) {
+    public void createBoardView(GameController gameController, boolean loadingGame) {
         // if present, remove old BoardView
         boardRoot.getChildren().clear();
 
         if (gameController != null) {
             // create and add view for new board
-            FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
-            try {
-                directionOptionsPane = fxmlLoader.load();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+            if(!loadingGame){
+                FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
+                try {
+                    directionOptionsPane = fxmlLoader.load();
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+                boardView = new BoardView(gameController, directionOptionsPane);
+            } else {
+                boardView = new BoardView(gameController);
             }
-            boardView = new BoardView(gameController, directionOptionsPane);
             boardRoot.setCenter(boardView);
         }
         stage.sizeToScene();
