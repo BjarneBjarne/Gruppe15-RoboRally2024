@@ -28,10 +28,10 @@ public class BE_Gear extends BoardElement {
      */
   
     public BE_Gear(String rotateDirection) {
+        super("gear" + rotateDirection + ".png");
         if (!Objects.equals(rotateDirection, "Right") && !Objects.equals(rotateDirection, "Left"))
             throw new IllegalArgumentException("Invalid direction: " + rotateDirection);
         this.rotateDirection = rotateDirection;
-        setImage("gear" + this.rotateDirection + ".png");
     }
 
     /**

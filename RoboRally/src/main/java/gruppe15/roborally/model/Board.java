@@ -216,8 +216,8 @@ public class Board extends Subject {
             this.subBoards.add(mainBoard);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt) {
-                        spaces[x][y].getBoardElement().calculateImage(x, y, spaces);
+                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
+                        conveyorBelt.calculateImage(x, y, spaces);
                     }
                 }
             }

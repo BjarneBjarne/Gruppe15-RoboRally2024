@@ -224,9 +224,9 @@ public class EventHandler {
             rebootSpace = player.getSpawnPoint();
         }
         List<Player> playersToPush = new ArrayList<>();
-        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getElemDirection(), playersToPush);
         if (couldPush) {
-            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection());
+            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getElemDirection());
             player.setSpace(rebootSpace);
         } else {
             // There is a wall at the end of player chain
