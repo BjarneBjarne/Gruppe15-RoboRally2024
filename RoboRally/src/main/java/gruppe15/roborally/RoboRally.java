@@ -30,9 +30,14 @@ import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.SetupView;
 import gruppe15.roborally.view.WinScreenView;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
@@ -92,19 +97,46 @@ public class RoboRally extends Application {
 
         stage.setScene(primaryScene);
         stage.setTitle("RoboRally");
-        stage.setOnCloseRequest(
-                e -> {
+        stage.setOnCloseRequest(e -> closeGame(appController));
+        stage.setResizable(false);
+        stage.sizeToScene();
+        stage.show();
+    }
+
+    public void closeGame(AppController appController) {
+        Boolean isGameRunning = appController.isGameRunning();
+        if (isGameRunning) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Exit RoboRally?");
+            alert.setContentText("Are you sure you want to exit RoboRally?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (!result.isPresent() || result.get() != ButtonType.OK) {
+                return; // return without exiting the application
+            } else {
+                // If the user did not cancel, the RoboRally application will exit
+                // after the option to save the game
+        
+                Dialog saveGameDialog = new Dialog();
+                saveGameDialog.setHeaderText("Do you want to save the game?");
+                saveGameDialog.setTitle("Save Game");
+                ButtonType saveButton = new ButtonType("Save");
+                ButtonType dontSaveButton = new ButtonType("Don't Save");
+                saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
+                Optional<ButtonType> saveGameResult = saveGameDialog.showAndWait();
+
+                if (saveGameResult.get() == saveButton){
+                    //Implement ocndition to only save in programming phase
                     TextInputDialog filenameInput = new TextInputDialog();
                     filenameInput.setHeaderText("Enter filename");
                     filenameInput.setTitle("Save Game");
                     Optional<String> filename = filenameInput.showAndWait();
                     String strFilename = filename.get().replace(' ', '_');
                     appController.saveGame(strFilename);
-                    e.consume();
-                    appController.exit();} );
-        stage.setResizable(false);
-        stage.sizeToScene();
-        stage.show();
+                }
+                Platform.exit();
+            }
+        }
     }
 
     public void createMainMenu(AppController appController) {
