@@ -11,8 +11,6 @@ import java.util.LinkedList;
  * This class represents a hole on the board and when
  * a player reaches a hole, the player falls down the hole and is removed from
  * the board. The player is then respawned at the start of the board
- * 
- * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_Hole extends BoardElement {
     /**

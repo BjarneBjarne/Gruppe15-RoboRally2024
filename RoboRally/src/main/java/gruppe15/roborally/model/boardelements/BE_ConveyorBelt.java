@@ -72,6 +72,8 @@ public class BE_ConveyorBelt extends BoardElement {
      * @param x the x-coordinate of the conveyor belt
      * @param y the y-coordinate of the conveyor belt
      * @param spaces the spaces on the board
+     * 
+     * @author Gustav
      */
     public void calculateImage(int x, int y, Space[][] spaces) {
         StringBuilder imageNameBuilder = new StringBuilder();
