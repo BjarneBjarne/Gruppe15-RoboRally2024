@@ -12,17 +12,18 @@ import gruppe15.roborally.model.upgrades.UpgradeCard;
 
 public class PlayerTemplate {
     public String name;
-    public String color;
+    public Robots robot;
 
     public Space space;
-    public Heading heading;
 
-    public int energyCubes;
+    public Heading heading;
 
     public Command[] cards;
 
-    public Robots robot;
+    public int checkpoints;
+    public int energyCubes;
 
-    public  int priority;
+    public Space spawnPoint;
+    
     transient public List<UpgradeCard> upgradeCards;
 }

@@ -421,6 +421,11 @@ public class Board extends Subject {
         //      be used to extend the status message
     }
 
+    /**
+     * Sets the priority value for all players, and sorts them in so the player closet to the antenna goes first
+     *
+     * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     */
     public void updatePriorityList() {
         priorityList.clear();
         Space antenna = findAntenna();
@@ -444,6 +449,14 @@ public class Board extends Subject {
         priorityList.addAll(newPriorityList);
     }
 
+    /**
+     * Determine the priority of an individual player, by determining their distance from the antenna
+     *
+     * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     * @param player to determine the priority we need the players position
+     * @param antenna to determine the priority we need the antennas position
+     * @return the players distance from the antenna, which is also their priority
+     */
     public Integer determinePlayerPriority(Player player,Space antenna) {
         Space space = player.getSpace();
         if (space == null) 
@@ -452,6 +465,13 @@ public class Board extends Subject {
         int y = antenna.y - space.y;
         return Math.abs(x) + Math.abs(y);
     }
+
+    /**
+     * Looks through all board spaces and finds the antenna
+     *
+     * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     * @return the location of the antenna
+     */
     public Space findAntenna() {
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
