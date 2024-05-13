@@ -61,7 +61,11 @@ public class GameController {
         return turnPlaying;
     }
 
-
+    /**
+     *
+     * @param board The current board
+     * @param appController The current AppController
+     */
     public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
         this.appController = appController;
@@ -155,6 +159,7 @@ public class GameController {
      * @param space The current space being checked.
      * @param direction The direction we want to push.
      * @return A list of players being pushed.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
         Player playerOnSpace = space.getPlayer();
@@ -181,7 +186,9 @@ public class GameController {
         }
     }
 
-    // XXX: implemented in the current version
+    /**
+     * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
+     */
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
 
@@ -206,14 +213,12 @@ public class GameController {
         }
     }
 
-    // XXX: implemented in the current version
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
         int random = (int) (Math.random() * 9);
         return new CommandCard(commands[random]);
     }
-
-    // XXX: implemented in the current version
+    
     public void finishProgrammingPhase() {
         board.setPhase(Phase.ACTIVATION);
 
