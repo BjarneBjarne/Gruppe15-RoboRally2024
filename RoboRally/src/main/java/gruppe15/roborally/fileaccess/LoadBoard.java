@@ -138,9 +138,12 @@ public class LoadBoard {
         player.setSpace(board.getSpace(x, y));
         board.getSpace(x, y).setPlayer(player);
 
-        x = playerTemplate.spawnPoint.x;
-        y = playerTemplate.spawnPoint.y;
-        player.setSpawn(board.getSpace(x, y));
+        /*
+         * Needs to be fixed later - not important now
+         */
+        // x = playerTemplate.spawnPoint.x;
+        // y = playerTemplate.spawnPoint.y;
+        // player.setSpawn(board.getSpace(x, y));
         
         player.setImage(ImageUtils.getImageFromName(player.getRobot().getBoardImageName()));
         player.setCharImage(ImageUtils.getImageFromName(player.getRobot().getSelectionImageName()));
