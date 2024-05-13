@@ -97,7 +97,10 @@ public class RoboRally extends Application {
 
         stage.setScene(primaryScene);
         stage.setTitle("RoboRally");
-        stage.setOnCloseRequest(e -> closeGame(appController));
+        stage.setOnCloseRequest(e -> {
+            e.consume();
+            closeGame(appController);
+        });
         stage.setResizable(false);
         stage.sizeToScene();
         stage.show();
