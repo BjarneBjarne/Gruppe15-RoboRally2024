@@ -8,8 +8,8 @@ import javafx.util.Pair;
 
 public class Card_HoverUnit extends UpgradeCard {
 
-    public Card_HoverUnit(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
+    public Card_HoverUnit() {
+        super("Hover Unit", 0, 0, 0, null);
     }
 
     @Override
