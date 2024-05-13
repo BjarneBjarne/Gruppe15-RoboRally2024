@@ -15,6 +15,7 @@ import java.util.Objects;
  * a player reaches a gear, the player's heading is updated
  * according to the direction of the gear.
  * The gear can turn the player either left or right.
+ * 
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_Gear extends BoardElement {
@@ -28,10 +29,10 @@ public class BE_Gear extends BoardElement {
      */
   
     public BE_Gear(String rotateDirection) {
+        super("gear" + rotateDirection + ".png");
         if (!Objects.equals(rotateDirection, "Right") && !Objects.equals(rotateDirection, "Left"))
             throw new IllegalArgumentException("Invalid direction: " + rotateDirection);
         this.rotateDirection = rotateDirection;
-        setImage("gear" + this.rotateDirection + ".png");
     }
 
     /**
@@ -57,5 +58,4 @@ public class BE_Gear extends BoardElement {
         player.setHeading(newHeading);
         return true;
     }
-
 }
