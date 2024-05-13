@@ -111,6 +111,14 @@ public class Player extends Subject {
         this.image = image;
     }
 
+    public Queue<CommandCard> getProgrammingDeck() {
+        return programmingDeck;
+    }
+
+    public void setProgrammingDeck(Queue<CommandCard> programmingDeck) {
+        this.programmingDeck = programmingDeck;
+    }
+
     public void setCharImage(Image image) {
         this.charIMG = image;
     }
