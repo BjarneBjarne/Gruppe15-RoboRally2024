@@ -48,6 +48,7 @@ public class WinScreenView {
         toMainMenu = (Button) wincon.lookup("#toMainMenu");
         toMainMenu.setOnAction(e -> {
             appController.setGameController(null);
+            roboRally.resetSelectionMenu();
             roboRally.goToMainMenu();
         });
 
