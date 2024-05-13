@@ -53,8 +53,8 @@ public class Player extends Subject {
 
     transient private Command lastCmd;
 
-    private final CommandCardField[] program;
-    private final CommandCardField[] cards;
+    transient private final CommandCardField[] program;
+    transient private final CommandCardField[] cards;
     private int energyCubes = 0;
     private int checkpoints = 0;
     transient private int priority = 0;
@@ -96,7 +96,17 @@ public class Player extends Subject {
         return this.charIMG;
     }
 
-    
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public void setCharImage(Image image) {
+        this.charIMG = image;
+    }
+
+    public int getEnergyCubes() {
+        return energyCubes;
+    }
 
     public int getCheckpoints() {
         return checkpoints;
@@ -305,5 +315,9 @@ public class Player extends Subject {
                 c.setCard(null);
             }
         }
+    }
+
+    public void setEnergyCubes(int energyCubes) {
+        this.energyCubes = energyCubes;
     }
 }

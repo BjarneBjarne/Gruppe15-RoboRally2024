@@ -111,25 +111,39 @@ public class LoadBoard {
         PlayerTemplate playerTemplate = new PlayerTemplate();
         playerTemplate.name = player.getName();
         playerTemplate.robot = player.getRobot();
-        playerTemplate.priority = player.getPriority();
+        playerTemplate.space = player.getSpace();
+        playerTemplate.heading = player.getHeading();
         playerTemplate.cards = new Command[player.getCards().length];
         for(int i = 0; i < player.getCards().length; i++){
             playerTemplate.cards[i] = player.getCardField(i).getCard().getCommand();
         }
-        playerTemplate.space = player.getSpace();
+        playerTemplate.checkpoints = player.getCheckpoints();
+        playerTemplate.energyCubes = player.getEnergyCubes();
+        playerTemplate.spawnPoint = player.getSpawnPoint();
+
         return playerTemplate;
     }
 
     private static Player loadPlayer(PlayerTemplate playerTemplate, Board board){
         Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
-        player.setPriority(playerTemplate.priority);
+        player.setHeading(playerTemplate.heading);
         for(int i = 0; i < playerTemplate.cards.length; i++){
             player.getCardField(i).setCard(new CommandCard(playerTemplate.cards[i]));
         }
+        player.setCheckpoint(playerTemplate.checkpoints);
+        player.setEnergyCubes(playerTemplate.energyCubes);
+
         int x = playerTemplate.space.x;
         int y = playerTemplate.space.y;
         player.setSpace(board.getSpace(x, y));
         board.getSpace(x, y).setPlayer(player);
+
+        x = playerTemplate.spawnPoint.x;
+        y = playerTemplate.spawnPoint.y;
+        player.setSpawn(board.getSpace(x, y));
+        
+        player.setImage(ImageUtils.getImageFromName(player.getRobot().getBoardImageName()));
+        player.setCharImage(ImageUtils.getImageFromName(player.getRobot().getSelectionImageName()));
         return player;
     }
 
