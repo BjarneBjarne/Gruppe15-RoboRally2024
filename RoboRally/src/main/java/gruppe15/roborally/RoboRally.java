@@ -126,6 +126,7 @@ public class RoboRally extends Application {
                 Optional<ButtonType> saveGameResult = saveGameDialog.showAndWait();
 
                 if (saveGameResult.get() == saveButton){
+                    //Implement ocndition to only save in programming phase
                     TextInputDialog filenameInput = new TextInputDialog();
                     filenameInput.setHeaderText("Enter filename");
                     filenameInput.setTitle("Save Game");
