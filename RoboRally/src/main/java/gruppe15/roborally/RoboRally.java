@@ -143,9 +143,9 @@ public class RoboRally extends Application {
                         return;
                     }
                 }
-                Platform.exit();
             }
         }
+        Platform.exit();
     }
 
     public void createMainMenu(AppController appController) {

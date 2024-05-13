@@ -43,6 +43,9 @@ public class PlayerTemplate {
     public Queue<CommandCard> getProgrammingDeck() {
         Queue<CommandCard> queueProgrammingDeck = new LinkedList<>();
         for (Command command : programmingDeck) {
+            if(command == null) {
+                continue;
+            }
             queueProgrammingDeck.add(new CommandCard(command));
         }
         return queueProgrammingDeck;

@@ -89,6 +89,23 @@ public class AppController implements Observer {
         Board newBoard = LoadBoard.loadBoard(loadedFile);
         gameController = new GameController(newBoard, this);
         gameController.board.setPhase(Phase.PROGRAMMING);
+        newBoard.setCurrentRegister(0);
+        newBoard.updatePriorityList();
+        newBoard.setCurrentPlayer(newBoard.getPriorityList().peek());
+
+        for (int i = 0; i < newBoard.getNoOfPlayers(); i++) {
+            Player player = newBoard.getPlayer(i);
+            if (player != null) {
+                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
+                    CommandCardField field = player.getProgramField(j);
+                    field.setVisible(true);
+                }
+                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
+                    CommandCardField field = player.getCardField(j);
+                    field.setVisible(true);
+                }
+            }
+        }
         roboRally.createBoardView(gameController, true);
     }
 
