@@ -8,8 +8,8 @@ import javafx.util.Pair;
 
 public class Card_HoverUnit extends UpgradeCard {
 
-    public Card_HoverUnit(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
+    public Card_HoverUnit() {
+        super("Hover Unit", 0, 0, 0, null);
     }
 
     @Override
@@ -18,14 +18,15 @@ public class Card_HoverUnit extends UpgradeCard {
         // Defining effects on events
         // OnDamageDealt
         EventHandler.onEvent((PlayerMoveListener) (space, shouldReboot) -> {
+            boolean localShouldReboot = shouldReboot;
             if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
                 Velocity playerVel = owner.getVelocity();
                 if ((Math.abs(playerVel.forward) + Math.abs(playerVel.right)) > 0) {
                     System.out.println("{" + owner.getName() + "} has a Hover Unit!");
-                    shouldReboot = false;
+                    localShouldReboot = false;
                 }
             }
-            return new Pair<>(space, shouldReboot);
+            return new Pair<>(space, localShouldReboot);
         }, owner);
     }
 

@@ -23,6 +23,7 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.upgrades.upgrade_cards.Card_HoverUnit;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +76,8 @@ public class Player extends Subject {
         this.space = null;
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
         this.charIMG = ImageUtils.getImageFromName(robot.getSelectionImageName());
+
+        buyUpgradeCard(new Card_HoverUnit());
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -210,7 +213,6 @@ public class Player extends Subject {
     }
 
     public void setIsRebooting(boolean isRebooting) {
-        System.out.println(name + " rebooting: " + isRebooting);
         this.rebooting = isRebooting;
     }
     public boolean getIsRebooting() {
