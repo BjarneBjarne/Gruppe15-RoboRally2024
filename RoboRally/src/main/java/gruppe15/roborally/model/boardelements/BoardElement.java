@@ -18,7 +18,7 @@ import java.util.LinkedList;
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public abstract class BoardElement {
-    protected Image image;
+    protected transient Image image;
     protected Heading elemDirection;
 
     /**
