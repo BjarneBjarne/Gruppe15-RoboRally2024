@@ -46,7 +46,6 @@ public class Space extends Subject {
     transient private Player player;
     transient private BoardElement boardElement;
     transient private Image backgroundImage;
-    transient private Image imageName;
     transient private final List<Heading> walls = new ArrayList<>();
     transient private final List<Heading> lasersOnSpace = new ArrayList<>();
 

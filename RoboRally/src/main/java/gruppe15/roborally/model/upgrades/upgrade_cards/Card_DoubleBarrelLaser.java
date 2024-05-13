@@ -1,7 +1,6 @@
 package gruppe15.roborally.model.upgrades.upgrade_cards;
 
 import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Phase;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.damage.Spam;
