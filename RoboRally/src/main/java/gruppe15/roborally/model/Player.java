@@ -62,6 +62,7 @@ public class Player extends Subject {
     private boolean rebooting = false;
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
     private Image image;
+    private Image charIMG;
 
     transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
@@ -73,6 +74,7 @@ public class Player extends Subject {
         this.robot = robot;
         this.space = null;
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
+        this.charIMG = ImageUtils.getImageFromName(robot.getSelectionImageName());
 
         program = new CommandCardField[NO_OF_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -89,6 +91,9 @@ public class Player extends Subject {
 
     public Image getImage() {
         return this.image;
+    }
+    public Image getCharImage() {
+        return this.charIMG;
     }
 
     

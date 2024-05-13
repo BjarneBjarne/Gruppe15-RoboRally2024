@@ -42,11 +42,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.Phase.INITIALISATION;
@@ -79,8 +75,11 @@ public class BoardView extends VBox implements ViewObserver {
 
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         board = gameController.board;
+        spaces = new SpaceView[board.width][board.height];
+        spaceEventHandler = new SpaceEventHandler(gameController);
         this.directionOptionsPane = directionOptionsPane;
         this.directionOptionsPane.setPrefSize(SPACE_WIDTH * 3, SPACE_HEIGHT * 3);
+
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
@@ -104,19 +103,14 @@ public class BoardView extends VBox implements ViewObserver {
         boardTilesPane = new GridPane();
         playersView = new PlayersView(gameController);
         statusLabel = new Label("<no status>");
-
-        mainBoardPane = new StackPane(boardTilesPane, this.directionOptionsPane);
+        AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
+        mainBoardPane = new StackPane(boardTilesPane, anchorPane);
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersView);
         this.getChildren().add(statusLabel);
         this.setAlignment(Pos.CENTER);
         boardTilesPane.setAlignment(Pos.CENTER);
-        this.setAlignment(Pos.CENTER);
         mainBoardPane.setAlignment(Pos.CENTER);
-
-        spaces = new SpaceView[board.width][board.height];
-
-        spaceEventHandler = new SpaceEventHandler(gameController);
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
