@@ -218,31 +218,32 @@ public class Space extends Subject {
     }
 
     public Space getSpaceNextTo(Heading direction, Space[][] spaces) {
-        switch (direction) {
-            case SOUTH:
+        return switch (direction) {
+            case SOUTH -> {
                 if (this.y + 1 >= spaces[x].length) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x][this.y + 1];
-            case WEST:
+                yield spaces[this.x][this.y + 1]; // out of bounds
+            }
+            case WEST -> {
                 if (this.x - 1 < 0) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x - 1][this.y];
-            case NORTH:
+                yield spaces[this.x - 1][this.y]; // out of bounds
+            }
+            case NORTH -> {
                 if (this.y - 1 < 0) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x][this.y - 1];
-            case EAST:
+                yield spaces[this.x][this.y - 1]; // out of bounds
+            }
+            case EAST -> {
                 if (this.x + 1 >= spaces.length) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x + 1][this.y];
-            default:
-                System.out.println("ERROR in Space.getSpaceNextTo()");
-                return null;
-        }
+                yield spaces[this.x + 1][this.y]; // out of bounds
+            }
+        };
     }
     public Image getImage() {
         return backgroundImage;

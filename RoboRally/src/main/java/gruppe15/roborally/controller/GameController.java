@@ -22,15 +22,15 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.boardelements.BE_BoardLaser;
-import gruppe15.roborally.model.boardelements.BE_Checkpoint;
-import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
-import gruppe15.roborally.model.boardelements.BE_EnergySpace;
-import gruppe15.roborally.model.boardelements.BE_Gear;
-import gruppe15.roborally.model.boardelements.BE_PushPanel;
-import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.boardelements.*;
+import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.view.BoardView;
+import gruppe15.roborally.view.SpaceView;
 import javafx.animation.PauseTransition;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +39,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static gruppe15.roborally.model.Phase.*;
+import static gruppe15.roborally.model.utils.Constants.SPACE_HEIGHT;
+import static gruppe15.roborally.model.utils.Constants.SPACE_WIDTH;
 
 /**
  * ...
@@ -47,16 +49,22 @@ import static gruppe15.roborally.model.Phase.*;
  *
  */
 public class GameController {
-
     public final Board board;
+    private final AppController appController;
+
+    private final List<Player> playersRebooting = new ArrayList<>();
+    private Space directionOptionsSpace;
     private String winnerName;
     private Image winnerIMG;
+    private boolean turnPlaying = false;
+
+    // Actions
     private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
     private final int nextRegisterDelay = 1000; // In milliseconds.
     private final boolean WITH_ACTION_DELAY = true;
     private final boolean WITH_ACTION_MESSAGE = false;
-    private boolean turnPlaying = false;
-    private AppController appController;
+
+
     public boolean getIsTurnPlaying() {
         return turnPlaying;
     }
@@ -134,7 +142,7 @@ public class GameController {
                     boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
                     if (couldPush) {
                         // Handle pushing players in EventHandler
-                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
+                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection, this); // WARNING: Can lead to infinite loop
                     } else {
                         // There is a wall at the end of player chain
                         couldMove = false;
@@ -164,9 +172,7 @@ public class GameController {
     public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
-
         if (nextSpace == null) {                                // Base case, player fell off LULW
-            System.out.println("Next space null! Player " + (playerOnSpace == null ? "no_player" : playerOnSpace.getName()) + " should fall off.");
             playersToPush.add(playerOnSpace);
             return true;
         }
@@ -266,6 +272,7 @@ public class GameController {
      */
     private void handlePlayerRegister() {
         turnPlaying = true;
+        makeProgramFieldsVisible(board.getCurrentRegister());
         Player currentPlayer = board.getCurrentPlayer();
         if (!currentPlayer.getIsRebooting()) {
             // Handle the players command on the current register. This will queue any command on the register.
@@ -311,13 +318,16 @@ public class GameController {
         runActionsAndCallback(this::nextRegister);
     }
     public void nextRegister() {
+        /*for (Player player : board.getPlayers()) {
+            Space playerSpace = player.getSpace();
+            playerSpace.setPlayer(player);
+        }*/
         int currentRegister = board.getCurrentRegister();
-        // Set next register
-        currentRegister++;
-        if (currentRegister < Player.NO_OF_REGISTERS) {
+        if (currentRegister < Player.NO_OF_REGISTERS - 1) {
+            // Set next register
+            currentRegister++;
             turnPlaying = false;
             // If there are more registers, set the currentRegister and continue to the next player.
-            makeProgramFieldsVisible(currentRegister);
             board.setCurrentRegister(currentRegister);
             board.updatePriorityList();
             // Take player from the queue
@@ -326,37 +336,31 @@ public class GameController {
                 handlePlayerRegister();
             }
         } else {
-            // If all registers are done, we start the programming phase.
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                board.getPlayer(i).setIsRebooting(false);
-            }
+            // If all registers are done
             turnPlaying = false;
             PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
             pause.setOnFinished(event -> {
-                for (Player player : board.getPlayers()) {
-                    if (player.getIsRebooting()) {
-                        board.setPhase(Phase.REBOOTING);
-                        return;
-                    }
-                }
                 startProgrammingPhase();
             });  // Small delay before ending activation phase for dramatic effect ;-).
             pause.play();
         }
     }
+
     private void runActionsAndCallback(Runnable callback) {
-        if (!actionQueue.isEmpty() && board.getPhase() == Phase.ACTIVATION) {
-            // Handle the next action
-            ActionWithDelay nextAction = actionQueue.removeFirst();
-            nextAction.getAction(WITH_ACTION_MESSAGE).run();
-            Duration delay = nextAction.getDelay();
-            PauseTransition pause = new PauseTransition(delay);
-            pause.setOnFinished(event -> runActionsAndCallback(callback)); // Continue actions
-            if (WITH_ACTION_DELAY) {
-                pause.play();
+        if (board.getPhase() == Phase.ACTIVATION) {
+            if (!actionQueue.isEmpty()) {
+                // Handle the next action
+                ActionWithDelay nextAction = actionQueue.removeFirst();
+                nextAction.getAction(WITH_ACTION_MESSAGE).run();
+                Duration delay = nextAction.getDelay();
+                PauseTransition pause = new PauseTransition(delay);
+                pause.setOnFinished(event -> runActionsAndCallback(callback)); // Continue actions
+                if (WITH_ACTION_DELAY) {
+                    pause.play();
+                }
+            } else { // When we have exhausted the actions, call the callback method.
+                callback.run();
             }
-        } else { // When we have exhausted the actions, call the callback method.
-            callback.run();
         }
     }
 
@@ -392,6 +396,29 @@ public class GameController {
         handlePlayerActions();
     }
 
+    public void startRebootPhase() {
+        board.setPhase(Phase.REBOOTING);
+        for (Player player : board.getPlayers()) {
+            if (player.getIsRebooting() && !playersRebooting.contains(player)) {
+                playersRebooting.add(player);
+            }
+        }
+        handleNextReboot();
+    }
+
+    private void handleNextReboot() {
+        if (playersRebooting.isEmpty()) {
+            nextRegister();
+        } else {
+            Player playerRebooting = playersRebooting.getFirst();
+            if (playerRebooting.getIsRebooting()) {
+                setDirectionOptionsPane(playerRebooting.getSpace());
+            }
+        }
+    }
+
+
+
     /**
      * sets the players action from the command
      * @param player
@@ -405,68 +432,65 @@ public class GameController {
             //     (this concerns the way cards are modelled as well as the way they are executed).
             // Call the event handler, and let it modify the command
             command = EventHandler.event_RegisterActivate(player, command);
-            Command finalCommand = command;
 
-            actionQueue.addFirst(new ActionWithDelay(() -> {
-                switch (finalCommand) {
-                    case FORWARD:
-                        player.setVelocity(new Velocity(1, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case FAST_FORWARD:
-                        player.setVelocity(new Velocity(2, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case VARY_FAST_FORWARD:
-                        player.setVelocity(new Velocity(3, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case RIGHT:
-                        turnPlayer(player, 1);
-                        break;
-                    case LEFT:
-                        turnPlayer(player, -1);
-                        break;
-                    case U_TURN:
-                        turnPlayer(player, 2);
-                        break;
-                    case BACKWARD:
-                        player.setVelocity(new Velocity(-1, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case AGAIN:
-                        switch (player.getLastCmd()){
-                            case DAMAGE:
-                                //TODO
-                                break;
-                            case UPGRADE:
-                                player.addEnergyCube();
-                                break;
-                            default:
-                                queuePlayerCommand(player, player.getLastCmd());
-                        }
-                        break;
-                    case POWER_UP:
-                        player.addEnergyCube();
-                        break;
-                    case OPTION_LEFT_RIGHT:
-                        board.setPhase(Phase.PLAYER_INTERACTION);
-                        break;
-                    default:
-                        // DO NOTHING (for now)
-                        System.out.println("Can't find command: " + finalCommand.displayName);
-                        break;
-                }
+            switch (command) {
+                case FORWARD:
+                    player.setVelocity(new Velocity(1, 0));
+                    startPlayerMovement(player);
+                    break;
+                case FAST_FORWARD:
+                    player.setVelocity(new Velocity(2, 0));
+                    startPlayerMovement(player);
+                    break;
+                case VARY_FAST_FORWARD:
+                    player.setVelocity(new Velocity(3, 0));
+                    startPlayerMovement(player);
+                    break;
+                case RIGHT:
+                    turnPlayer(player, 1);
+                    break;
+                case LEFT:
+                    turnPlayer(player, -1);
+                    break;
+                case U_TURN:
+                    turnPlayer(player, 2);
+                    break;
+                case BACKWARD:
+                    player.setVelocity(new Velocity(-1, 0));
+                    startPlayerMovement(player);
+                    break;
+                case AGAIN:
+                    switch (player.getLastCmd()) {
+                        case DAMAGE:
+                            //TODO
+                            break;
+                        case UPGRADE:
+                            player.addEnergyCube();
+                            break;
+                        default:
+                            queuePlayerCommand(player, player.getLastCmd());
+                    }
+                    break;
+                case POWER_UP:
+                    player.addEnergyCube();
+                    break;
+                case OPTION_LEFT_RIGHT:
+                    board.setPhase(Phase.PLAYER_INTERACTION);
+                    break;
+                default:
+                    // DO NOTHING (for now)
+                    System.out.println("Can't find command: " + command.displayName);
+                    break;
+            }
 
-                if(finalCommand != Command.AGAIN) player.setLastCmd(finalCommand);
+            if(command != Command.AGAIN) player.setLastCmd(command);
 
-                // After command is executed, set the next player:
-                var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
-                var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
-                //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
-                //The current move counter is set to the old movecounter+1
-                board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
-            }, Duration.millis(250), "Player movement: " + player.getName()));
+            // After command is executed, set the next player:
+            var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
+            var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
+            //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
+            //The current move counter is set to the old movecounter+1
+            board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
         }
     }
 
@@ -479,108 +503,47 @@ public class GameController {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
         Velocity playerVelocity = player.getVelocity();
 
-        int move = 1;
-        boolean negative = (playerVelocity.forward < 0);
-        if(negative){
-            playerVelocity.forward = -playerVelocity.forward;
-            move = -1;
-        }
         // For each forward movement
-        while (playerVelocity.forward > 0) {
-            Space temp = player.getSpace();
-            int x = temp.x;
-            int y = temp.y;
-            switch(player.getHeading()){
-                case NORTH:
-                    y = y - move;
-                    break;
-                case SOUTH:
-                    y = y + move;
-                    break;
-                case EAST:
-                    x = x + move;
-                    break;
-                case WEST:
-                    x = x - move;
-                    break;
-                default:
-            }
-            playerVelocity.forward--;
-            if (!player.getIsRebooting()) {
-                movePlayerToSpace(player, board.getSpace(x, y));
-            }
+        for (int i = 0; i < Math.abs(playerVelocity.forward); i++) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                Heading direction = (playerVelocity.forward > 0) ? player.getHeading() : player.getHeading().opposite();
+                if (!player.getIsRebooting()) {
+                    movePlayerToSpace(player, board.getNeighbour(player.getSpace(), direction));
+                }
+                // Decrement
+                playerVelocity.forward -= (playerVelocity.forward > 0) ? 1 : -1;
+            }, Duration.millis(150), "Player movement: " + player.getName()));
         }
 
-        move = 1;
-        negative = (playerVelocity.right < 0);
-        if(negative){
-            playerVelocity.right = -playerVelocity.right;
-            move = -1;
-        }
         // For each sideways movement
-        while (playerVelocity.right > 0) {
-            Space temp = player.getSpace();
-            int x = temp.x;
-            int y = temp.y;
-            switch(player.getHeading()){
-                case NORTH:
-                    x = x + move;
-                    break;
-                case SOUTH:
-                    x = x - move;
-                    break;
-                case EAST:
-                    y = y + move;
-                    break;
-                case WEST:
-                    y = y - move;
-                    break;
-                default:
-            }
-            playerVelocity.right--;
-            if (!player.getIsRebooting()) {
-                movePlayerToSpace(player, board.getSpace(x, y));
-            }
+        for (int i = 0; i < Math.abs(playerVelocity.right); i++) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                Heading direction = (playerVelocity.right > 0) ? player.getHeading().next() : player.getHeading().prev();
+                if (!player.getIsRebooting()) {
+                    movePlayerToSpace(player, board.getNeighbour(player.getSpace(), direction));
+                }
+                // Decrement
+                playerVelocity.right -= (playerVelocity.right > 0) ? 1 : -1;
+            }, Duration.millis(150), "Player movement: " + player.getName()));
         }
     }
 
     /**
      * sets heading for player based on paramater
      * @param player
-     * @param quaterRotationClockwise
+     * @param quarterRotationClockwise
      * @author Maximillian Bjørn Mortensen
      */
-    private void turnPlayer(Player player, int quaterRotationClockwise){
-        int playerOrientation = 0;
-        switch(player.getHeading()){
-            case SOUTH:
-                playerOrientation = 2;
-                break;
-            case EAST:
-                playerOrientation = 1;
-                break;
-            case WEST:
-                playerOrientation = 3;
-                break;
-            default:
-        }
-        quaterRotationClockwise = quaterRotationClockwise%4;
-        if( quaterRotationClockwise<0 ) quaterRotationClockwise = quaterRotationClockwise+4;
-        int newOrientation = (quaterRotationClockwise+playerOrientation)%4;
-        switch (newOrientation) {
-            case 0:
-                player.setHeading(Heading.NORTH);
-                break;
-            case 1:
-                player.setHeading(Heading.EAST);
-                break;
-            case 2:
-                player.setHeading(Heading.SOUTH);
-                break;
-            case 3:
-                player.setHeading(Heading.WEST);
-                break;
-            default:
+    private void turnPlayer(Player player, int quarterRotationClockwise) {
+        boolean rotateClockwise = quarterRotationClockwise > 0;
+        for (int i = 0; i < Math.abs(quarterRotationClockwise); i++) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                Heading prevOrientation = player.getHeading();
+                Heading newOrientation = rotateClockwise ? prevOrientation.next() : prevOrientation.prev();
+                if (!player.getIsRebooting()) {
+                    player.setHeading(newOrientation);
+                }
+            }, Duration.millis(150), "Player rotation: " + player.getName()));
         }
     }
 
@@ -615,7 +578,6 @@ public class GameController {
                 pushPanels.add(playerSpace);
             }
         }
-
         // 1. Blue conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space conveyorBeltSpace : blueConveyorBeltSpaces) {
@@ -626,7 +588,6 @@ public class GameController {
                 player.goToTemporarySpace();
             }
         }, Duration.millis(250), "Blue conveyor belts"));
-
         // 2. Green conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space conveyorBeltSpace : greenConveyorBeltSpaces) {
@@ -637,21 +598,18 @@ public class GameController {
                 player.goToTemporarySpace();
             }
         }, Duration.millis(250), "Green conveyor belts"));
-
         // 3. Push panels
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space pushPanel : pushPanels) {
                 pushPanel.getBoardElement().doAction(pushPanel, this, actionQueue);
             }
         }, Duration.millis(0), ""));
-
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space gearSpace : gears) {
                 gearSpace.getBoardElement().doAction(gearSpace, this, actionQueue);
             }
         }, Duration.millis(0), ""));
-
         // 5. Board lasers
         actionQueue.addLast(new ActionWithDelay(() -> { // Shooting all board lasers at the same time
             for (int x = 0; x < spaces.length; x++) {
@@ -662,14 +620,14 @@ public class GameController {
                     }
                 }
             }
-        }, Duration.millis(250), "Board laser"));
-
+        }, Duration.millis(150), "Board laser"));
         // 6. Robot lasers
         addClearLasers(spaces);
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            EventHandler.event_PlayerShoot(board.getSpaces(), board.getPlayer(i), actionQueue);
+        for (Player player : board.getPlayers()) {
+            actionQueue.addLast(new ActionWithDelay(() -> {
+                EventHandler.event_PlayerShoot(board.getSpaces(), player, actionQueue);
+            }, Duration.millis(0), "Player laser"));
         }
-
         // 7. Energy spaces
         addClearLasers(spaces);
         actionQueue.addLast(new ActionWithDelay(() -> {
@@ -677,7 +635,6 @@ public class GameController {
                 energySpace.getBoardElement().doAction(energySpace, this, actionQueue);
             }
         }, Duration.millis(250), "Energy spaces"));
-
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
             for (Space checkpoint : checkpoints) {
@@ -696,6 +653,48 @@ public class GameController {
         }, Duration.millis(0)));
     }
 
+
+
+
+
+    private void setDirectionOptionsPane(Space space) {
+        Player currentPlayer = board.getCurrentPlayer();
+        if (space.getPlayer() == null) {
+            space.setPlayer(currentPlayer);
+            directionOptionsSpace = space;
+            board.updateBoard();
+        }
+    }
+
+    public void spacePressed(MouseEvent event, SpaceView spaceView, Space space) {
+        if (board.getPhase() == INITIALIZATION) {
+            if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                setDirectionOptionsPane(space);
+            }
+        }
+
+        // Debugging
+        if (board.getPhase() != INITIALIZATION) {
+            if (event.isShiftDown()) {
+                space.setPlayer(board.getPlayer(1));
+            } else if (event.isControlDown()) {
+                space.setPlayer(board.getPlayer(0));
+            }
+        }
+    }
+
+    public void initializeDirectionButton(Button button, BoardView BV) {
+        Heading direction = Heading.valueOf(button.getId());
+        button.setOnMouseClicked(event -> {
+            chooseDirection(direction, BV);
+            BV.handleDirectionButtonClicked();
+        });
+    }
+
+    public Space getDirectionOptionsSpace() {
+        return directionOptionsSpace;
+    }
+
     /**
      * This method is called when the player has chosen a direction for the robot.
      * The direction is set for the current player and the next player is set as the current player.
@@ -704,26 +703,33 @@ public class GameController {
      * @param direction the direction chosen by the player
      * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
-    public void chooseDirection(Heading direction) {
-        if (board.getPhase() == REBOOTING) {
-            List<Player> playersRebooting = new ArrayList<>();
-            for (Player player : board.getPlayers()) {
-                if (player.getIsRebooting()) {
-                    playersRebooting.add(player);
-                }
-            }
-        }
+    public void chooseDirection(Heading direction, BoardView BV) {
+        directionOptionsSpace = null;
+        if (board.getPhase() == INITIALIZATION) {
+            Player player = board.getCurrentPlayer();
 
-        if (board.getPhase() == INITIALISATION || board.getPhase() == REBOOTING) {
-            Player currentPlayer = board.getCurrentPlayer();
-            currentPlayer.setHeading(direction);
-            int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
+            Space spawnSpace = player.getSpace();
+            player.setSpawn(spawnSpace);
+            player.setSpace(spawnSpace);
+
+            if (spawnSpace.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                spawnPoint.setColor(player);
+                BV.initializePlayerSpawnSpaceView(spawnSpace);
+            }
+
+            player.setHeading(direction);
+
+            int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % board.getNoOfPlayers();
             Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
-
             if (nextPlayer.getSpawnPoint() != null) {
                 startProgrammingPhase();
             }
+        } else if (board.getPhase() == REBOOTING) {
+            Player player = playersRebooting.getFirst();
+            player.setHeading(direction);
+            playersRebooting.removeFirst();
+            handleNextReboot();
         }
     }
 

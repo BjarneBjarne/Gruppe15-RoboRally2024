@@ -34,7 +34,7 @@ import java.util.*;
 
 import static gruppe15.roborally.model.Heading.*;
 import static gruppe15.roborally.model.Heading.WEST;
-import static gruppe15.roborally.model.Phase.INITIALISATION;
+import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 /**
  * ...
@@ -56,7 +56,7 @@ public class Board extends Subject {
 
     private Player current;
 
-    private Phase phase = INITIALISATION;
+    private Phase phase = INITIALIZATION;
 
     private int currentRegister = 0;
     //The counter for how many moves have been made
@@ -268,6 +268,10 @@ public class Board extends Subject {
         }
     }
 
+    public void updateBoard() {
+        notifyChange();
+    }
+
     public Player getPlayer(int i) {
         if (i >= 0 && i < players.size()) {
             return players.get(i);
@@ -357,45 +361,39 @@ public class Board extends Subject {
         return moveCounter;
     }
 
-
-
     /**
      * Returns the neighbour of the given space of the board in the given heading.
-     * The neighbour is returned only, if it can be reached from the given space
-     * (no walls or obstacles in either of the involved spaces); otherwise,
-     * null will be returned.
-     *
      * @param space the space for which the neighbour should be computed
-     * @param heading the heading of the neighbour
+     * @param direction the heading of the neighbouring space
      * @return the space in the given direction; null if there is no (reachable) neighbour
      */
-    public Space getNeighbour(@NotNull Space space, @NotNull Heading heading) {
-        int x = space.x;
-        int y = space.y;
-        switch (heading) {
-            case SOUTH:
-                if (y + 1 > space.board.height - 1)
-                    return null;
-                y = (y + 1) % height;
-                break;
-            case WEST:
-                if (x - 1 < 0)
-                    return null;
-                x = (x + width - 1) % width;
-                break;
-            case NORTH:
-                if (y - 1 < 0)
-                    return null;
-                y = (y + height - 1) % height;
-                break;
-            case EAST:
-                if (x + 1 > space.board.width - 1)
-                    return null;
-                x = (x + 1) % width;
-                break;
-        }
-
-        return getSpace(x, y);
+    public Space getNeighbour(@NotNull Space space, @NotNull Heading direction) {
+        return switch (direction) {
+            case SOUTH -> {
+                if (space.y + 1 >= spaces[space.x].length) {
+                    yield null;
+                }
+                yield spaces[space.x][space.y + 1]; // out of bounds
+            }
+            case WEST -> {
+                if (space.x - 1 < 0) {
+                    yield null;
+                }
+                yield spaces[space.x - 1][space.y]; // out of bounds
+            }
+            case NORTH -> {
+                if (space.y - 1 < 0) {
+                    yield null;
+                }
+                yield spaces[space.x][space.y - 1]; // out of bounds
+            }
+            case EAST -> {
+                if (space.x + 1 >= spaces.length) {
+                    yield null;
+                }
+                yield spaces[space.x + 1][space.y]; // out of bounds
+            }
+        };
     }
 
     public String getStatusMessage() {
@@ -413,7 +411,7 @@ public class Board extends Subject {
 //We have added the MoveCount + getMoveCounter() to the string so it will be displayed at the bottom getMoveCounter() is a getter that gets the current move counter
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
-                ", Step: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +
+                ", Register: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +
                 //",  ";
 
         // TODO Task1: add a counter along with a getter and a setter, so the
