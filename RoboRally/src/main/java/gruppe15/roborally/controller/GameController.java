@@ -34,9 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static gruppe15.roborally.model.Phase.*;
 import static gruppe15.roborally.model.utils.Constants.SPACE_HEIGHT;
@@ -52,7 +50,7 @@ public class GameController {
     public final Board board;
     private final AppController appController;
 
-    private final List<Player> playersRebooting = new ArrayList<>();
+    private final Queue<Player> playersRebooting = new ArrayDeque<>();
     private Space directionOptionsSpace;
     private String winnerName;
     private Image winnerIMG;
@@ -314,6 +312,9 @@ public class GameController {
     private void handleEndOfRegister() {
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
+        handleBoardElementActions();
+    }
+    private void handleBoardElementActions() {
         // Execute board elements and player lasers. When actions have taken place, we go to the next register.
         runActionsAndCallback(this::nextRegister);
     }
@@ -336,14 +337,22 @@ public class GameController {
                 handlePlayerRegister();
             }
         } else {
-            // If all registers are done
-            turnPlaying = false;
-            PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
-            pause.setOnFinished(event -> {
-                startProgrammingPhase();
-            });  // Small delay before ending activation phase for dramatic effect ;-).
-            pause.play();
+            handleEndOfRound();
         }
+    }
+
+    private void handleEndOfRound() {
+        // If all registers are done
+        turnPlaying = false;
+        PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
+        pause.setOnFinished(event -> {
+            for (Player player : board.getPlayers()) {
+                player.setIsRebooting(false);
+                player.getSpace().updateSpace();
+            }
+            startProgrammingPhase();
+        });  // Small delay before ending activation phase for dramatic effect ;-).
+        pause.play();
     }
 
     private void runActionsAndCallback(Runnable callback) {
@@ -361,6 +370,8 @@ public class GameController {
             } else { // When we have exhausted the actions, call the callback method.
                 callback.run();
             }
+        } else if (board.getPhase() == REBOOTING) {
+            startRebootPhase();
         }
     }
 
@@ -396,25 +407,33 @@ public class GameController {
         handlePlayerActions();
     }
 
+
     public void startRebootPhase() {
         board.setPhase(Phase.REBOOTING);
-        for (Player player : board.getPlayers()) {
-            if (player.getIsRebooting() && !playersRebooting.contains(player)) {
-                playersRebooting.add(player);
-            }
-        }
         handleNextReboot();
     }
 
+    public void addPlayerToRebootQueue(Player player) {
+        if (!playersRebooting.contains(player)) {
+            playersRebooting.offer(player);
+        }
+    }
+
     private void handleNextReboot() {
+        System.out.println(playersRebooting.size() + " left to reboot!");
         if (playersRebooting.isEmpty()) {
-            nextRegister();
+            handleEndOfReboot();
         } else {
-            Player playerRebooting = playersRebooting.getFirst();
+            Player playerRebooting = playersRebooting.peek();
             if (playerRebooting.getIsRebooting()) {
-                setDirectionOptionsPane(playerRebooting.getSpace());
+                setDirectionOptionsPane(playerRebooting.getTemporarySpace());
             }
         }
+    }
+
+    private void handleEndOfReboot() {
+        board.setPhase(ACTIVATION);
+        handlePlayerActions();
     }
 
 
@@ -548,109 +567,73 @@ public class GameController {
     }
 
     public void queueBoardElementsAndRobotLasers() {
-        Space[][] spaces = board.getSpaces();
-        // First we gather some information about the board.
-        List<Space> greenConveyorBeltSpaces = new ArrayList<>();
-        List<Space> blueConveyorBeltSpaces = new ArrayList<>();
-        List<Space> energySpaces = new ArrayList<>();
-        List<Space> checkpoints = new ArrayList<>();
-        List<Space> gears = new ArrayList<>();
-        List<Space> pushPanels = new ArrayList<>();
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            Space playerSpace = board.getPlayer(i).getSpace();
-            if (playerSpace == null) {
-                continue;
-            }
-            BoardElement boardElement = playerSpace.getBoardElement();
-            if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
-                if (conveyorBelt.getStrength() == 1) {
-                    greenConveyorBeltSpaces.add(playerSpace);
-                } else {
-                    blueConveyorBeltSpaces.add(playerSpace);
-                }
-            } else if (boardElement instanceof BE_EnergySpace) {
-                energySpaces.add(playerSpace);
-            } else if (boardElement instanceof BE_Checkpoint) {
-                checkpoints.add(playerSpace);
-            } else if (boardElement instanceof BE_Gear) {
-                gears.add(playerSpace);
-            } else if (boardElement instanceof BE_PushPanel) {
-                pushPanels.add(playerSpace);
-            }
-        }
+        List<Space>[] boardElementsSpaces = board.getBoardElementsSpaces();
+
         // 1. Blue conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space conveyorBeltSpace : blueConveyorBeltSpaces) {
+            for (Space conveyorBeltSpace : boardElementsSpaces[0]) {
                 conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
             }
             for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
                 player.goToTemporarySpace();
             }
-        }, Duration.millis(250), "Blue conveyor belts"));
+        }, Duration.millis(100), "Blue conveyor belts"));
+
         // 2. Green conveyor belts
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space conveyorBeltSpace : greenConveyorBeltSpaces) {
+            for (Space conveyorBeltSpace : boardElementsSpaces[1]) {
                 conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
             }
             for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
                 player.goToTemporarySpace();
             }
-        }, Duration.millis(250), "Green conveyor belts"));
+        }, Duration.millis(100), "Green conveyor belts"));
+
         // 3. Push panels
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space pushPanel : pushPanels) {
+            for (Space pushPanel : boardElementsSpaces[2]) {
                 pushPanel.getBoardElement().doAction(pushPanel, this, actionQueue);
             }
-        }, Duration.millis(0), ""));
+        }, Duration.millis(100), "Push panels"));
+
         // 4. Gears
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space gearSpace : gears) {
+            for (Space gearSpace : boardElementsSpaces[3]) {
                 gearSpace.getBoardElement().doAction(gearSpace, this, actionQueue);
             }
-        }, Duration.millis(0), ""));
+        }, Duration.millis(100), "Gears"));
+
         // 5. Board lasers
         actionQueue.addLast(new ActionWithDelay(() -> { // Shooting all board lasers at the same time
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    BoardElement boardElement = spaces[x][y].getBoardElement();
-                    if (boardElement instanceof BE_BoardLaser) {
-                        boardElement.doAction(spaces[x][y], this, actionQueue);
-                    }
-                }
+            for (Space boardLaser : boardElementsSpaces[4]) {
+                boardLaser.getBoardElement().doAction(boardLaser, this, actionQueue);
             }
         }, Duration.millis(150), "Board laser"));
+
         // 6. Robot lasers
-        addClearLasers(spaces);
+        actionQueue.addLast(new ActionWithDelay(board::clearLasers, Duration.millis(0)));
         for (Player player : board.getPlayers()) {
             actionQueue.addLast(new ActionWithDelay(() -> {
                 EventHandler.event_PlayerShoot(board.getSpaces(), player, actionQueue);
             }, Duration.millis(0), "Player laser"));
         }
+
         // 7. Energy spaces
-        addClearLasers(spaces);
+        actionQueue.addLast(new ActionWithDelay(board::clearLasers, Duration.millis(0)));
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space energySpace : energySpaces) {
+            for (Space energySpace : boardElementsSpaces[5]) {
                 energySpace.getBoardElement().doAction(energySpace, this, actionQueue);
             }
-        }, Duration.millis(250), "Energy spaces"));
+        }, Duration.millis(0), "Energy spaces"));
+
         // 8. Checkpoints
         actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space checkpoint : checkpoints) {
+            for (Space checkpoint : boardElementsSpaces[6]) {
                 checkpoint.getBoardElement().doAction(checkpoint, this, actionQueue);
             }
-        }, Duration.millis(0), ""));
-    }
-
-    private void addClearLasers(Space[][] spaces) {
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space[] space : spaces) {
-                for (Space value : space) {
-                    value.clearLasersOnSpace();
-                }
-            }
-        }, Duration.millis(0)));
+        }, Duration.millis(0), "Check points"));
     }
 
 
@@ -658,27 +641,49 @@ public class GameController {
 
 
     private void setDirectionOptionsPane(Space space) {
-        Player currentPlayer = board.getCurrentPlayer();
-        if (space.getPlayer() == null) {
-            space.setPlayer(currentPlayer);
-            directionOptionsSpace = space;
-            board.updateBoard();
+        // Quirk fix for showing the player when another player is on the respawning players' spawn
+        if (board.getPhase() == REBOOTING) {
+            Player playerRebooting = playersRebooting.peek();
+            assert playerRebooting != null;
+            Player playerOnSpawnPoint = space.getPlayer();
+            if (playerOnSpawnPoint != null) {
+                if (playerOnSpawnPoint != playerRebooting) {
+                    if (playerRebooting.getSpawnPoint() == space) {
+                        Space otherSpawnPoint = playerOnSpawnPoint.getSpawnPoint();
+                        playerOnSpawnPoint.setSpace(otherSpawnPoint);
+                        playerOnSpawnPoint.setTemporarySpace(otherSpawnPoint);
+                        EventHandler.event_PlayerReboot(playerOnSpawnPoint, this);
+                        otherSpawnPoint.updateSpace();
+                    }
+                }
+            }
+            playerRebooting.goToTemporarySpace();
+            space.updateSpace();
         }
+
+        directionOptionsSpace = space;
+        board.updateBoard();
     }
 
     public void spacePressed(MouseEvent event, SpaceView spaceView, Space space) {
         if (board.getPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                setDirectionOptionsPane(space);
+                Player currentPlayer = board.getCurrentPlayer();
+                if (space.getPlayer() == null) {
+                    space.setPlayer(currentPlayer);
+                    setDirectionOptionsPane(space);
+                }
             }
         }
 
         // Debugging
         if (board.getPhase() != INITIALIZATION) {
-            if (event.isShiftDown()) {
-                space.setPlayer(board.getPlayer(1));
-            } else if (event.isControlDown()) {
-                space.setPlayer(board.getPlayer(0));
+            if (space.getPlayer() == null) {
+                if (event.isShiftDown()) {
+                    space.setPlayer(board.getPlayer(1));
+                } else if (event.isControlDown()) {
+                    space.setPlayer(board.getPlayer(0));
+                }
             }
         }
     }
@@ -687,7 +692,6 @@ public class GameController {
         Heading direction = Heading.valueOf(button.getId());
         button.setOnMouseClicked(event -> {
             chooseDirection(direction, BV);
-            BV.handleDirectionButtonClicked();
         });
     }
 
@@ -704,6 +708,7 @@ public class GameController {
      * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
     public void chooseDirection(Heading direction, BoardView BV) {
+        BV.handleDirectionButtonClicked();
         directionOptionsSpace = null;
         if (board.getPhase() == INITIALIZATION) {
             Player player = board.getCurrentPlayer();
@@ -716,7 +721,6 @@ public class GameController {
                 spawnPoint.setColor(player);
                 BV.initializePlayerSpawnSpaceView(spawnSpace);
             }
-
             player.setHeading(direction);
 
             int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % board.getNoOfPlayers();
@@ -726,9 +730,9 @@ public class GameController {
                 startProgrammingPhase();
             }
         } else if (board.getPhase() == REBOOTING) {
-            Player player = playersRebooting.getFirst();
+            Player player = playersRebooting.poll();
             player.setHeading(direction);
-            playersRebooting.removeFirst();
+
             handleNextReboot();
         }
     }

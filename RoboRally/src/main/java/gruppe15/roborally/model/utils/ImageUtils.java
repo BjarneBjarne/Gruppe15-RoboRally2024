@@ -1,11 +1,11 @@
 package gruppe15.roborally.model.utils;
 
+import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.Heading;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 
 import java.io.ByteArrayInputStream;
@@ -88,5 +88,30 @@ public class ImageUtils {
         SnapshotParameters params = new SnapshotParameters();
         params.setFill(Color.TRANSPARENT);
         return imageView.snapshot(params, null);
+    }
+
+    public static Image getImageColored(Image oldImage, Color blendColor, double colorBlend) {
+        WritableImage writableImage = new WritableImage((int) oldImage.getWidth(), (int) oldImage.getHeight());
+        PixelReader pixelReader = oldImage.getPixelReader();
+        PixelWriter pixelWriter = writableImage.getPixelWriter();
+
+        for (int y = 0; y < oldImage.getHeight(); y++) {
+            for (int x = 0; x < oldImage.getWidth(); x++) {
+                Color color = pixelReader.getColor(x, y);
+                Color coloredColor = colorMultiply(color, blendColor);
+                Color newColor = color.interpolate(coloredColor, colorBlend);
+                pixelWriter.setColor(x, y, newColor);
+            }
+        }
+
+        return writableImage;
+    }
+
+    private static Color colorMultiply(Color color, Color multiplier) {
+        double red = color.getRed() * multiplier.getRed();
+        double green = color.getGreen() * multiplier.getGreen();
+        double blue = color.getBlue() * multiplier.getBlue();
+        double opacity = color.getOpacity(); // Keep the original opacity
+        return new Color(red, green, blue, opacity);
     }
 }

@@ -22,6 +22,8 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.boardelements.BE_Antenna;
+import gruppe15.roborally.model.boardelements.BE_PushPanel;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.scene.image.Image;
 
@@ -149,24 +151,20 @@ public class Space extends Subject {
 
         Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
 
+        // Check for walls
         List<Heading> otherWallDirections = otherSpace.getWalls();
-
-        switch (directionToOtherSpace) {
-            case EAST:
-                return (walls.contains(EAST) || otherWallDirections.contains(WEST));
-            case WEST:
-                return (walls.contains(WEST) || otherWallDirections.contains(EAST));
-            case SOUTH:
-                return (walls.contains(SOUTH) || otherWallDirections.contains(NORTH));
-            case NORTH:
-                return (walls.contains(NORTH) || otherWallDirections.contains(SOUTH));
-            default:
-                return false;
+        if (walls.contains(directionToOtherSpace) || otherWallDirections.contains(directionToOtherSpace.opposite())) {
+            return true;
         }
 
-        //System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
-        //System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
-        //return false;
+        // Check for antenna
+        if (otherSpace.getBoardElement() instanceof BE_Antenna) {
+            return true;
+        }
+
+        // Check for push panels
+        return (boardElement instanceof BE_PushPanel myPushPanel && myPushPanel.getDirection().opposite() == directionToOtherSpace) ||
+                (otherSpace.getBoardElement() instanceof BE_PushPanel otherPushPanel && otherPushPanel.getDirection() == directionToOtherSpace);
     }
 
     public Heading getDirectionToOtherSpace(Space otherSpace) {
@@ -247,5 +245,9 @@ public class Space extends Subject {
     }
     public Image getImage() {
         return backgroundImage;
+    }
+
+    public void updateSpace() {
+        notifyChange();
     }
 }

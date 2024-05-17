@@ -37,7 +37,7 @@ public class BE_PushPanel extends BoardElement {
         } else {
             throw new IllegalArgumentException("Invalid direction: " + type);
         }
-        setElemDirection(direction.next().next());
+        setDirection(direction.next().next());
     }
 
     /**
@@ -71,7 +71,7 @@ public class BE_PushPanel extends BoardElement {
             return false;
         int currentRegister = gameController.board.getCurrentRegister();
         if (contains(pushRegisters, currentRegister + 1)) {
-            gameController.movePlayerToSpace(player, space.getSpaceNextTo(elemDirection, gameController.board.getSpaces()));
+            gameController.movePlayerToSpace(player, space.getSpaceNextTo(direction, gameController.board.getSpaces()));
         }
         return true;
     }

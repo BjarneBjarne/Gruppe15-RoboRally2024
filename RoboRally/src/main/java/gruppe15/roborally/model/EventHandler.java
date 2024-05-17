@@ -8,6 +8,7 @@ import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.damage.Spam;
 import gruppe15.roborally.model.events.EventListener;
 import gruppe15.roborally.model.events.*;
+import javafx.application.Platform;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -173,10 +174,10 @@ public class EventHandler {
             }
             // Set players new position
             Space nextSpace = playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces);
-            if (nextSpace != null) {
-                playerToPush.setSpace(nextSpace);
-            } else {
+            if (nextSpace == null || nextSpace.getBoardElement() instanceof BE_Hole) {
                 event_PlayerReboot(playerToPush, gc);
+            } else {
+                playerToPush.setSpace(nextSpace);
             }
         }
     }
@@ -200,7 +201,6 @@ public class EventHandler {
         }
 
         if (shouldReboot) {
-            System.out.println(playerMoving.getName() + " rebooting");
             event_PlayerReboot(playerMoving, gc);
         } else {
             playerMoving.setSpace(space);
@@ -214,28 +214,35 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    private static void event_PlayerReboot(Player player, GameController gc) {
+    public static void event_PlayerReboot(Player player, GameController gc) {
+        System.out.println(player.getName() + " rebooting");
         gc.board.setPhase(Phase.REBOOTING);
         player.setIsRebooting(true);
-        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(player.getSpace());
+        gc.addPlayerToRebootQueue(player);
+        Space oldSpace = player.getSpace();
+        if (oldSpace == null) {
+            System.out.println("old space null for " + player.getName());
+            oldSpace = player.getTemporarySpace();
+        }
+        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(oldSpace);
         Space[][] subBoard = gc.board.getSubBoards().get(subBoardIndex);
         Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(subBoard);
         Space rebootSpace;
         if (rebootSpaceFinder != null) {
             rebootSpace = rebootSpaceFinder.getKey();
+            List<Player> playersToPush = new ArrayList<>();
+            boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+            if (couldPush) {
+                EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
+            } else {
+                // There is a wall at the end of player chain
+                System.out.println("ERROR: Can't place player on reboot.");
+                rebootSpace = player.getSpawnPoint();
+            }
         } else {
             rebootSpace = player.getSpawnPoint();
         }
-        List<Player> playersToPush = new ArrayList<>();
-        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getElemDirection(), playersToPush);
-        if (couldPush) {
-            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getElemDirection(), gc);
-            player.setSpace(rebootSpace);
-        } else {
-            // There is a wall at the end of player chain
-            System.out.println("ERROR: Can't place player on reboot.");
-            // TODO: Find any space to put player, in case this happens
-        }
-        gc.startRebootPhase();
+
+        player.setTemporarySpace(rebootSpace);
     }
 }

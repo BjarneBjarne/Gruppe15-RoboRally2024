@@ -5,6 +5,7 @@ import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -29,30 +30,8 @@ public class BE_SpawnPoint extends BoardElement {
     }
 
     public void setColor(Player player) {
-        Color spawnpointColor = Color.valueOf(player.getRobot().name());
-
-        WritableImage writableImage = new WritableImage((int) this.image.getWidth(), (int) this.image.getHeight());
-        PixelReader pixelReader = this.image.getPixelReader();
-        PixelWriter pixelWriter = writableImage.getPixelWriter();
-
-        for (int y = 0; y < this.image.getHeight(); y++) {
-            for (int x = 0; x < this.image.getWidth(); x++) {
-                Color color = pixelReader.getColor(x, y);
-                Color coloredColor = colorMultiply(color, spawnpointColor);
-                Color newColor = color.interpolate(coloredColor, .75);
-                pixelWriter.setColor(x, y, newColor);
-            }
-        }
-
-        this.image = writableImage;
-    }
-
-    private Color colorMultiply(Color color, Color multiplier) {
-        double red = color.getRed() * multiplier.getRed();
-        double green = color.getGreen() * multiplier.getGreen();
-        double blue = color.getBlue() * multiplier.getBlue();
-        double opacity = color.getOpacity(); // Keep the original opacity
-        return new Color(red, green, blue, opacity);
+        Color playerColor = Color.valueOf(player.getRobot().name());
+        this.image = ImageUtils.getImageColored(this.image, playerColor, .75);
     }
 
     @Override

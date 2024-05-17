@@ -58,6 +58,8 @@ public class SpaceView extends StackPane implements ViewObserver {
     private final List<ImageView> wallImageViews = new ArrayList<>();
     private final ImageView playerImageView = new ImageView();
     private GridPane directionOptionsPane = null;
+    private boolean usingPlayerRebootImage = false;
+    private Image playerRebootImage;
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -148,7 +150,17 @@ public class SpaceView extends StackPane implements ViewObserver {
         Player player = space.getPlayer();
         if (player != null) {
             try {
-                Image playerImage = player.getImage();
+                Image playerImage;
+                if (player.getIsRebooting()) {
+                    if (!usingPlayerRebootImage) {
+                        usingPlayerRebootImage = true;
+                        playerRebootImage = ImageUtils.getImageColored(player.getImage(), Color.BLACK, .75);
+                    }
+                    playerImage = playerRebootImage;
+                } else {
+                    playerImage = player.getImage();
+                    usingPlayerRebootImage = false;
+                }
                 playerImageView.setImage(ImageUtils.getRotatedImageByHeading(playerImage, player.getHeading()));
             } catch (Exception e) {
                 playerImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Robot_Error.png"), player.getHeading()));

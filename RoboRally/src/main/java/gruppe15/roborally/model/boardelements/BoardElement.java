@@ -19,16 +19,16 @@ import java.util.LinkedList;
  */
 public abstract class BoardElement {
     protected transient Image image;
-    protected Heading elemDirection;
+    protected Heading direction;
 
     /**
      * Constructor for the board element
      * 
      * @param imageName     the name of the image
-     * @param elemDirection the direction of the board element and the image
+     * @param direction the direction of the board element and the image
      */
-    public BoardElement(String imageName, Heading elemDirection) {
-        setElemDirection(elemDirection);
+    public BoardElement(String imageName, Heading direction) {
+        setDirection(direction);
         setImage(imageName);
     }
 
@@ -54,10 +54,10 @@ public abstract class BoardElement {
     public void setImage(String imageName) {
         if (imageName == null || imageName.isEmpty())
             return;
-        if (elemDirection == null) {
+        if (direction == null) {
             this.image = ImageUtils.getImageFromName(imageName);
         } else {
-            this.image = ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(imageName), elemDirection);
+            this.image = ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(imageName), direction);
         }
     }
 
@@ -69,17 +69,17 @@ public abstract class BoardElement {
      * Sets the direction of the board element and rotates the image according to
      * the direction of the board element.
      * 
-     * @param elemDirection the direction of the board element
+     * @param direction the direction of the board element
      */
-    public void setElemDirection(Heading elemDirection) {
-        this.elemDirection = elemDirection;
+    public void setDirection(Heading direction) {
+        this.direction = direction;
         if (image != null) {
             setImage(image);
         }
     }
 
-    public Heading getElemDirection() {
-        return elemDirection;
+    public Heading getDirection() {
+        return direction;
     }
 
     /**
