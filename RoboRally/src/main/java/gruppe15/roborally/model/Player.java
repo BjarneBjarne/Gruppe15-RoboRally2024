@@ -212,16 +212,18 @@ public class Player extends Subject {
     }
 
     public Space getTemporarySpace() {
-        return temporarySpace;
+        return this.temporarySpace;
     }
     public void setTemporarySpace(Space space) {
         this.temporarySpace = space;
     }
     public void goToTemporarySpace() {
-        if (temporarySpace != null && temporarySpace.getPlayer() == null) {
+        if (this.temporarySpace != null) {
             // Surpass the setSpace() checks.
-            this.space.setPlayer(null);
-            this.space = temporarySpace;
+            if (this.space != null) {
+                this.space.setPlayer(null);
+            }
+            this.space = this.temporarySpace;
             this.space.setPlayer(this);
             this.temporarySpace = null;
         }

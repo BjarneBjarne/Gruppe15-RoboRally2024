@@ -25,7 +25,7 @@ public class BE_Gear extends BoardElement {
 /**
      * Constructor for the gear
      * 
-     * @param direction the direction of the gear
+     * @param rotateDirection the direction of the gear
      */
   
     public BE_Gear(String rotateDirection) {

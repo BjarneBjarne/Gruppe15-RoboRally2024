@@ -27,6 +27,7 @@ import gruppe15.roborally.model.events.PhaseChangeListener;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -224,6 +225,7 @@ public class Board extends Subject {
         }
 
         this.stepMode = false;
+        updateBoardElementSpaces();
     }
 
     private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
@@ -419,14 +421,59 @@ public class Board extends Subject {
         //      be used to extend the status message
     }
 
+    private List<Space>[] boardElementsSpaces;
+    private void updateBoardElementSpaces() {
+        boardElementsSpaces = new List[7];
+        for (int i = 0; i < boardElementsSpaces.length; i++) {
+            boardElementsSpaces[i] = new ArrayList<>();
+        }
+
+        for (Space[] spaceColumn : spaces) {
+            for (Space space : spaceColumn) {
+                BoardElement boardElement = space.getBoardElement();
+                if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
+                    if (conveyorBelt.getStrength() == 2) {
+                        boardElementsSpaces[0].add(space);
+                    } else {
+                        boardElementsSpaces[1].add(space);
+                    }
+                } else if (boardElement instanceof BE_PushPanel) {
+                    boardElementsSpaces[2].add(space);
+                } else if (boardElement instanceof BE_Gear) {
+                    boardElementsSpaces[3].add(space);
+                } else if (boardElement instanceof BE_BoardLaser) {
+                    boardElementsSpaces[4].add(space);
+                } else if (boardElement instanceof BE_EnergySpace) {
+                    boardElementsSpaces[5].add(space);
+                } else if (boardElement instanceof BE_Checkpoint) {
+                    boardElementsSpaces[6].add(space);
+                }
+            }
+        }
+    }
+    public List<Space>[] getBoardElementsSpaces() {
+        return boardElementsSpaces;
+    }
+
+    public void clearLasers() {
+        for (Space[] space : spaces) {
+            for (Space value : space) {
+                value.clearLasersOnSpace();
+            }
+        }
+    }
+
     /**
      * Sets the priority value for all players, and sorts them in so the player closet to the antenna goes first
      *
      * @author Michael Sylvest Bendtsen, s214954@dtu.dk
      */
+    private Space antenna;
     public void updatePriorityList() {
         priorityList.clear();
-        Space antenna = findAntenna();
+        if (antenna == null) {
+            antenna = findAntenna();
+        }
         ArrayList<Player> newPriorityList = new ArrayList<>();
         for(int i = 0; i < getNoOfPlayers(); i++){
             Player player = getPlayer(i);
