@@ -25,7 +25,11 @@ import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Player;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.Region;
 
 /**
  * ...
@@ -44,12 +48,15 @@ public class PlayersView extends TabPane implements ViewObserver {
 
         this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
+        this.setTabMaxHeight(500);
+
         playerViews = new PlayerView[board.getNoOfPlayers()];
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             playerViews[i] = new PlayerView(gameController, board.getPlayer(i));
             this.getTabs().add(playerViews[i]);
         }
         board.attach(this);
+
         update(board);
     }
 
