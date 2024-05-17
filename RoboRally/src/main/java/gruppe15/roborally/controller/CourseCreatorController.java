@@ -19,7 +19,7 @@ import javafx.scene.layout.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gruppe15.roborally.model.Phase.INITIALISATION;
+import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 public class CourseCreatorController extends VBox {
     @FXML
@@ -120,7 +120,7 @@ public class CourseCreatorController extends VBox {
 
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
                 Player currentPlayer = board.getCurrentPlayer();
-                if (board.getPhase() == INITIALISATION) {
+                if (board.getPhase() == INITIALIZATION) {
                     if (space.getPlayer() == null) {
                         currentPlayer.setSpawn(space);
                         currentPlayer.setSpace(space);

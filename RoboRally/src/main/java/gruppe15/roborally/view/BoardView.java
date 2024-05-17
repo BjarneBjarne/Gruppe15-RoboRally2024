@@ -43,7 +43,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.jetbrains.annotations.NotNull;
 
-import static gruppe15.roborally.model.Phase.INITIALISATION;
+import static gruppe15.roborally.model.Phase.INITIALIZATION;
 import static gruppe15.roborally.model.utils.Constants.*;
 
 import java.util.ArrayList;
@@ -68,31 +68,28 @@ public class BoardView extends VBox implements ViewObserver {
     private Label statusLabel;
 
     private SpaceEventHandler spaceEventHandler;
-
+    private final GameController gameController;
     private final GridPane directionOptionsPane;
 
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
+        this.gameController = gameController;
+        this.directionOptionsPane = directionOptionsPane;
         board = gameController.board;
         spaces = new SpaceView[board.width][board.height];
         spaceEventHandler = new SpaceEventHandler(gameController);
-        this.directionOptionsPane = directionOptionsPane;
         this.directionOptionsPane.setPrefSize(SPACE_WIDTH * 3, SPACE_HEIGHT * 3);
 
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
+                gameController.initializeDirectionButton(button, this);
+
                 ImageView buttonImage = new ImageView();
                 buttonImage.setFitWidth(SPACE_WIDTH);
                 buttonImage.setFitHeight(SPACE_HEIGHT);
                 Heading direction = Heading.valueOf(button.getId());
                 buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
                 button.setGraphic(buttonImage);
-
-                button.setOnMouseClicked(event -> {
-                    gameController.chooseDirection(direction);
-                    directionOptionsPane.setDisable(true);
-                    directionOptionsPane.setVisible(false);
-                });
             }
         }
         this.directionOptionsPane.setDisable(true);
@@ -112,17 +109,6 @@ public class BoardView extends VBox implements ViewObserver {
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
-                // DialogPane dialog = new DialogPane();
-                //     ImageView imageIn = new ImageView(board.getSpace(0, 3).getImage());
-                //     HBox images = new HBox();
-                //     images.setSpacing(10);
-                //     images.getChildren().addAll(imageIn);
-                //     dialog.setContent(images);
-                //     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                //     alert.setHeaderText("Images");
-                //     alert.setDialogPane(dialog);
-                //     alert.setTitle("Maybe");
-                //     alert.showAndWait();
                 Space space = board.getSpace(x, y);
                 SpaceView spaceView = new SpaceView(space);
                 spaces[x][y] = spaceView;
@@ -131,7 +117,6 @@ public class BoardView extends VBox implements ViewObserver {
         }
 
         mainBoardPane.setOnMouseClicked(spaceEventHandler);
-        mainBoardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         board.attach(this);
         update(board);
@@ -144,31 +129,11 @@ public class BoardView extends VBox implements ViewObserver {
      * @param gameController the game controller
      */
     public BoardView(@NotNull GameController gameController) {
+        this.gameController = gameController;
         board = gameController.board;
         spaces = new SpaceView[board.width][board.height];
         spaceEventHandler = new SpaceEventHandler(gameController);
         this.directionOptionsPane = new GridPane();
-        // this.directionOptionsPane.setPrefSize(SPACE_WIDTH * 3, SPACE_HEIGHT * 3);
-
-        // List<Node> children = this.directionOptionsPane.getChildren();
-        // for (Node child : children) {
-        //     if (child instanceof Button button) {
-        //         ImageView buttonImage = new ImageView();
-        //         buttonImage.setFitWidth(SPACE_WIDTH);
-        //         buttonImage.setFitHeight(SPACE_HEIGHT);
-        //         Heading direction = Heading.valueOf(button.getId());
-        //         buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
-        //         button.setGraphic(buttonImage);
-
-        //         button.setOnMouseClicked(event -> {
-        //             gameController.chooseDirection(direction);
-        //             directionOptionsPane.setDisable(true);
-        //             directionOptionsPane.setVisible(false);
-        //         });
-        //     }
-        // }
-        // this.directionOptionsPane.setDisable(true);
-        // this.directionOptionsPane.setVisible(false);
 
         boardTilesPane = new GridPane();
         playersView = new PlayersView(gameController);
@@ -184,17 +149,6 @@ public class BoardView extends VBox implements ViewObserver {
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
-                // DialogPane dialog = new DialogPane();
-                //     ImageView imageIn = new ImageView(board.getSpace(0, 3).getImage());
-                //     HBox images = new HBox();
-                //     images.setSpacing(10);
-                //     images.getChildren().addAll(imageIn);
-                //     dialog.setContent(images);
-                //     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                //     alert.setHeaderText("Images");
-                //     alert.setDialogPane(dialog);
-                //     alert.setTitle("Maybe");
-                //     alert.showAndWait();
                 Space space = board.getSpace(x, y);
                 SpaceView spaceView = new SpaceView(space);
                 spaces[x][y] = spaceView;
@@ -203,27 +157,23 @@ public class BoardView extends VBox implements ViewObserver {
         }
 
         mainBoardPane.setOnMouseClicked(spaceEventHandler);
-        mainBoardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         board.attach(this);
         update(board);
     }
 
-    @Override
-    public void updateView(Subject subject) {
-        if (subject == board) {
-            statusLabel.setText(board.getStatusMessage());
-        }
+    private List<SpaceView> getSpaceViewsAtMouse(MouseEvent event) {
+        return getSpaceViewsAtPosition(new Point2D(event.getSceneX(), event.getSceneY()));
     }
 
-    private List<SpaceView> getSpacesAtMouse(MouseEvent event) {
+    private List<SpaceView> getSpaceViewsAtPosition(Point2D position) {
         List<SpaceView> spacesAtMouse = new ArrayList<>();
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
                 SpaceView space = spaces[x][y];
                 Bounds localBounds = space.getBoundsInLocal();
                 Bounds sceneBounds = space.localToScene(localBounds);
-                if (sceneBounds.contains(new Point2D(event.getSceneX(), event.getSceneY()))) {
+                if (sceneBounds.contains(position)) {
                     // If mouse is within bounds of a node
                     spacesAtMouse.add(space);
                 }
@@ -232,6 +182,33 @@ public class BoardView extends VBox implements ViewObserver {
         return spacesAtMouse;
     }
 
+    public void setDirectionOptionsPane(SpaceView spaceView) {
+        directionOptionsPane.setDisable(false);
+        directionOptionsPane.setVisible(true);
+        directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getWidth() / 3));
+        directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getHeight() / 3));
+    }
+
+    public void initializePlayerSpawnSpaceView(Space space) {
+        spaces[space.x][space.y].updateBoardElementImage();
+    }
+
+    @Override
+    public void updateView(Subject subject) {
+        if (subject == board) {
+            statusLabel.setText(board.getStatusMessage());
+
+            Space directionOptionsSpace = gameController.getDirectionOptionsSpace();
+            if (directionOptionsSpace != null) {
+                setDirectionOptionsPane(spaces[directionOptionsSpace.x][directionOptionsSpace.y]);
+            }
+        }
+    }
+
+    public void handleDirectionButtonClicked() {
+        directionOptionsPane.setDisable(true);
+        directionOptionsPane.setVisible(false);
+    }
 
 
     // XXX this handler and its uses should eventually be deleted! This is just to help test the
@@ -239,6 +216,8 @@ public class BoardView extends VBox implements ViewObserver {
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
         final public GameController gameController;
         private int playerToMove = 0;
+        private SpaceView selectedSpaceView;
+        private Player playerToSpawn;
 
         public SpaceEventHandler(@NotNull GameController gameController) {
             this.gameController = gameController;
@@ -246,10 +225,8 @@ public class BoardView extends VBox implements ViewObserver {
 
         @Override
         public void handle(MouseEvent event) {
-            directionOptionsPane.setDisable(true);
-            directionOptionsPane.setVisible(false);
             // Object source = event.getSource();
-            List<SpaceView> spaceViews = getSpacesAtMouse(event);
+            List<SpaceView> spaceViews = getSpaceViewsAtMouse(event);
             if (!spaceViews.isEmpty()) {
                 SpaceView spaceView = spaceViews.getFirst();
                 //SpaceView spaceView = (SpaceView) source;
@@ -257,44 +234,9 @@ public class BoardView extends VBox implements ViewObserver {
                 Board board = space.board;
 
                 if (board == gameController.board) {
-                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                        Player currentPlayer = board.getCurrentPlayer();
-                        if (board.getPhase() == INITIALISATION) {
-                            if (space.getPlayer() == null) {
-                                currentPlayer.setSpawn(space);
-                                currentPlayer.setSpace(space);
-                            }
-                            directionOptionsPane.setDisable(false);
-                            directionOptionsPane.setVisible(true);
-                            directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
-                            directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
-                        }
-                    } /* else { // XXX this is just for testing purposes
-                        if (event.isShiftDown()) {
-                            space.setPlayer(board.getPlayer(1));
-                        } else if (event.isControlDown()) {
-                            space.setPlayer(board.getPlayer(0));
-                        }
-                    } */
+                    gameController.spacePressed(event, spaceView, space);
                     event.consume();
                 }
-            }
-        }
-
-        public void keyPressed(KeyEvent event) { // NOt working
-            switch (event.getCode()) {
-                case KeyCode.F1:
-                    playerToMove = 0;
-                    break;
-                case KeyCode.F2:
-                    playerToMove = 1;
-                    break;
-                case KeyCode.F3:
-                    playerToMove = 2;
-                    break;
-                case KeyCode.F4:
-                    playerToMove = 3;
-                    break;
             }
         }
     }

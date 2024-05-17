@@ -99,7 +99,7 @@ public class RoboRally extends Application {
             e.consume();
             closeGame(appController);
         });
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.sizeToScene();
         stage.show();
     }
@@ -231,7 +231,7 @@ public class RoboRally extends Application {
 
         if (gameController != null) {
             // create and add view for new board
-            if(!loadingGame){
+            if(!loadingGame) {
                 FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
                 try {
                     directionOptionsPane = fxmlLoader.load();

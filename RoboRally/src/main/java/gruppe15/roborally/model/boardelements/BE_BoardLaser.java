@@ -39,8 +39,7 @@ public class BE_BoardLaser extends BoardElement {
      * @return true if the action was successful, false otherwise
      */
     @Override
-    public boolean doAction(@NotNull Space space, @NotNull GameController gameController,
-            LinkedList<ActionWithDelay> actionQueue) {
+    public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Space[][] spaces = gameController.board.getSpaces();
         Laser laser = new Laser(space, elemDirection);
         // Start the laser iteration asynchronously

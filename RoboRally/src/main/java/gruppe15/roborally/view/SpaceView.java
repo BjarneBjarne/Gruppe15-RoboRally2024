@@ -27,12 +27,14 @@ import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
 import gruppe15.roborally.model.boardelements.BE_Reboot;
+import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -166,6 +168,13 @@ public class SpaceView extends StackPane implements ViewObserver {
         laserImageView.setFitHeight(SPACE_HEIGHT);
         laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("laser.png"), laser));
         return laserImageView;
+    }
+
+    public void updateBoardElementImage() {
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
+            boardElementImageView.setImage(boardElement.getImage());
+        }
     }
 
     @Override
