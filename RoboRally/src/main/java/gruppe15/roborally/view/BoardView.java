@@ -249,8 +249,9 @@ public class BoardView extends VBox implements ViewObserver {
             directionOptionsPane.setDisable(true);
             directionOptionsPane.setVisible(false);
             // Object source = event.getSource();
-            SpaceView spaceView = getSpacesAtMouse(event).getFirst();
-            if (spaceView != null) {
+            List<SpaceView> spaceViews = getSpacesAtMouse(event);
+            if (!spaceViews.isEmpty()) {
+                SpaceView spaceView = spaceViews.getFirst();
                 //SpaceView spaceView = (SpaceView) source;
                 Space space = spaceView.space;
                 Board board = space.board;

@@ -29,6 +29,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,9 +67,16 @@ public class PlayerView extends Tab implements ViewObserver {
 
     public PlayerView(@NotNull GameController gameController, @NotNull Player player) {
         super(player.getName());
-        this.setStyle("-fx-text-base-color: " + player.getRobot() + ";");
+
+        this.setStyle(
+                "-fx-text-base-color: " + player.getRobot() + ";" +
+                        "-fx-font-size: 26;"
+        );
 
         top = new VBox();
+        top.setMinHeight(Region.USE_COMPUTED_SIZE);
+        top.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        top.setMaxHeight(Region.USE_COMPUTED_SIZE);
         this.setContent(top);
 
         this.gameController = gameController;
@@ -111,6 +119,7 @@ public class PlayerView extends Tab implements ViewObserver {
         playerInteractionPanel = new VBox();
         playerInteractionPanel.setAlignment(Pos.CENTER_LEFT);
         playerInteractionPanel.setSpacing(3.0);
+
 
         cardsLabel = new Label("Command Cards");
         cardsLabel.setAlignment(Pos.CENTER);
