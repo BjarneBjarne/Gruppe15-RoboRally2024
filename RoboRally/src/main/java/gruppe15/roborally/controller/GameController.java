@@ -420,7 +420,6 @@ public class GameController {
     }
 
     private void handleNextReboot() {
-        System.out.println(playersRebooting.size() + " left to reboot!");
         if (playersRebooting.isEmpty()) {
             handleEndOfReboot();
         } else {
