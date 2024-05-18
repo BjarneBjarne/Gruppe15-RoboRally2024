@@ -518,6 +518,7 @@ public class GameController {
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         for (Player foundPlayer : board.getPlayers()) {
                             if (player.getSpace().getDistanceFromOtherSpace(foundPlayer.getSpace()) <= 6) {
+                                foundPlayer.discard(new CommandCard(Command.VIRUS));
                                 foundPlayer.discard(new CommandCard(Command.SPAM));
                             }
                         }
