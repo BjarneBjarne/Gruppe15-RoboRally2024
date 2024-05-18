@@ -250,8 +250,14 @@ public class Player extends Subject {
         }
     }
 
-    public void setIsRebooting(boolean isRebooting) {
-        this.rebooting = isRebooting;
+    public void startRebooting() {
+        for (int i = 0; i < 2; i++) {
+            addCardToDeck(new CommandCard(Command.SPAM));
+        }
+        this.rebooting = true;
+    }
+    public void stopRebooting() {
+        this.rebooting = false;
     }
     public boolean getIsRebooting() {
         return this.rebooting;
@@ -275,7 +281,6 @@ public class Player extends Subject {
 
     public CommandCardField[] getCardFields() {
         return cards;
-
     }
 
     public void buyUpgradeCard(UpgradeCard upgradeCard) {
@@ -353,6 +358,10 @@ public class Player extends Subject {
                 c.setCard(temp);
             }
         }
+    }
+
+    public void addCardToDeck(CommandCard newCard) {
+        programmingDeck.add(newCard);
     }
 
     /**

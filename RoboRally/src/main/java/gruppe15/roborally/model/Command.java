@@ -50,8 +50,8 @@ public enum Command {
 
     SPAM(DamageTypes.SPAM.displayName, DamageTypes.SPAM),
     TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName, DamageTypes.TROJAN_HORSE),
-    VIRUS(DamageTypes.VIRUS.displayName, DamageTypes.VIRUS),
     WORM(DamageTypes.WORM.displayName, DamageTypes.WORM),
+    VIRUS(DamageTypes.VIRUS.displayName, DamageTypes.VIRUS),
     UPGRADE("Upgrade"),
     DO_NOTHING("Do Nothing");
 

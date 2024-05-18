@@ -347,7 +347,7 @@ public class GameController {
         PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
         pause.setOnFinished(event -> {
             for (Player player : board.getPlayers()) {
-                player.setIsRebooting(false);
+                player.stopRebooting();
                 player.getSpace().updateSpace();
             }
             startProgrammingPhase();
@@ -493,16 +493,31 @@ public class GameController {
                     board.setPhase(Phase.PLAYER_INTERACTION);
                     break;
                 case SPAM:
-                    queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case TROJAN_HORSE:
-
-                    break;
-                case VIRUS:
-
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        for (int i = 0; i < 2; i++) {
+                            player.addCardToDeck(new CommandCard(Command.SPAM));
+                        }
+                        queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case WORM:
-
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        EventHandler.event_PlayerReboot(player, this);
+                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    break;
+                case VIRUS:
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        for (Player foundPlayer : board.getPlayers()) {
+                            if (player.getSpace().getDistanceFromOtherSpace(foundPlayer.getSpace()) <= 6) {
+                                queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                            }
+                        }
+                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
                     // DO NOTHING (for now)

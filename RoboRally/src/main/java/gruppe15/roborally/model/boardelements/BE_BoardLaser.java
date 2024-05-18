@@ -66,8 +66,7 @@ public class BE_BoardLaser extends BoardElement {
                     playersHit.add(target);
                 }
             }
-            Damage damage = new Damage();
-            damage.setAmount(Spam.class, 1);
+            Damage damage = new Damage(1, 0, 0, 0);
             for (Player playerHit : playersHit) {
                 actionQueue.addFirst(new ActionWithDelay(() -> {
                     damage.applyDamage(playerHit);

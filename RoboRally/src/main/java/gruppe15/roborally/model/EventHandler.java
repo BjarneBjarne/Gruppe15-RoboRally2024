@@ -96,25 +96,14 @@ public class EventHandler {
                 if (target == playerShooting) {
                     continue;
                 }
-                Damage damage = new Damage();
-                damage.setAmount(Spam.class, 1);
+                Damage damage = new Damage(1, 0, 0, 0);
 
                 // Apply any modifications to damage based on player's cards
                 List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(playerShooting, PlayerDamageListener.class);
                 for (PlayerDamageListener listener : playerPlayerDamageListeners) {
                     damage = listener.onPlayerDamage(damage);
                 }
-
-                // Apply damage to the target player
-                for (DamageType damageType : damage.getDamageTypes()) {
-                    if (damageType.getAmount() > 0) {
-                        actionQueue.addFirst(new ActionWithDelay(() -> {
-                            damageType.applyDamage(target);
-                            // Print the damage dealt
-                            System.out.println("Player {" + playerShooting.getName() + "} dealt " + damageType.getAmount() + " " + damageType.damageType + " damage to player {" + target.getName() + "}");
-                        }, Duration.millis(500)));
-                    }
-                }
+                event_PlayerDamage(target, playerShooting, damage, actionQueue);
             }
         } catch (InterruptedException e) {
             // Handle InterruptedException
@@ -132,6 +121,43 @@ public class EventHandler {
         }
         return playersHit;
     }
+
+
+
+
+
+    /**
+     * Method for when a player takes damage
+     * @param playerTakingDamage
+     * @param actionQueue
+     * @return
+     */
+    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage, LinkedList<ActionWithDelay> actionQueue) {
+        // Apply damage to the target player
+        boolean anyDamage = false;
+        for (DamageType damageType : damage.getDamageTypes()) {
+            if (damageType.getAmount() > 0) {
+                anyDamage = true;
+                break;
+            }
+        }
+        if (anyDamage) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                damage.applyDamage(playerTakingDamage, playerInflictingTheDamage);
+            }, Duration.millis(250)));
+        }
+
+
+
+
+
+        List<PlayerCommandListener> playerCommandListeners = getPlayerCardEventListeners(playerActivatingRegister, PlayerCommandListener.class);
+        for (PlayerCommandListener listener : playerCommandListeners) {
+            command = listener.onPlayerCommand(command);
+        }
+        return command;
+    }
+
 
 
 
@@ -217,7 +243,7 @@ public class EventHandler {
     public static void event_PlayerReboot(Player player, GameController gc) {
         System.out.println(player.getName() + " rebooting");
         gc.board.setPhase(Phase.REBOOTING);
-        player.setIsRebooting(true);
+        player.startRebooting();
         gc.addPlayerToRebootQueue(player);
         Space oldSpace = player.getSpace();
         if (oldSpace == null) {
