@@ -164,8 +164,7 @@ public class Space extends Subject {
         Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
 
         // Check for walls
-        List<Heading> otherWallDirections = otherSpace.getWalls();
-        if (walls.contains(directionToOtherSpace) || otherWallDirections.contains(directionToOtherSpace.opposite())) {
+        if (walls.contains(directionToOtherSpace) || otherSpace.getWalls().contains(directionToOtherSpace.opposite())) {
             return true;
         }
 

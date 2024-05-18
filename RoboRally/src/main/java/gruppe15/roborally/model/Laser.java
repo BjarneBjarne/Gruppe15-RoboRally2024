@@ -48,22 +48,29 @@ public class Laser {
         int dy = direction == Heading.NORTH ? -1 : direction == Heading.SOUTH ? 1 : 0;
         int x = origin.x;
         int y = origin.y;
+        Space nextSpace = origin.getSpaceNextTo(direction, boardSpaces);
 
-        if (origin.getWalls().contains(direction)) { // If the source is looking into a wall, stop here
+        boolean thisHasWall = origin.getWalls().contains(direction);
+        boolean otherHasWall = nextSpace != null && nextSpace.getWalls().contains(direction.opposite());
+
+        if (thisHasWall || otherHasWall) { // If the source is looking into a wall, stop here
             if (owner != null) { // If there is an owner, a player shot the laser.
                 addLaserPiece(origin, "Laser_StartPlayerBlocked");
             } else { // Else, board laser
                 addLaserPiece(origin, "Laser_StartBoardBlocked");
             }
+            if (otherHasWall) {
+                addLaserPiece(nextSpace, "Laser_WallHitLower");
+            }
             return;
         }
 
         boolean hitSomething = false;
-        while (!hitSomething && x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
+        while (!hitSomething && (x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length)) {
             Space space = boardSpaces[x][y];
             spacesHit.add(space);
             Player playerOnSpace = space.getPlayer();
-            Space nextSpace = space.getSpaceNextTo(direction, boardSpaces);
+            nextSpace = space.getSpaceNextTo(direction, boardSpaces);
             String laserName = "Laser_";
 
             if (x == origin.x && y == origin.y) {
@@ -81,7 +88,8 @@ public class Laser {
             } else if (space.getWalls().contains(direction)) { // Wall
                 hitSomething = true;
                 laserName += "WallHitUpper";
-            } else if (nextSpace.getWalls().contains(direction.opposite())) {
+            } else if (nextSpace != null && nextSpace.getWalls().contains(direction.opposite())) {
+                hitSomething = true;
                 laserName += "Full";
                 addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.
             } else {
