@@ -39,13 +39,17 @@ public class Damage {
         return damageTypes;
     }
 
-    public void applyDamage(Player player) {
+    public void applyDamage(Player playerTakingDamage, Player playerInflictingTheDamage) {
         for (DamageType damageType : damageTypes) {
             for (int i = 0; i < damageType.getAmount(); i++) {
-                player.addCardToDeck(new CommandCard(damageType.damageType.getCommandCardType()));
+                playerTakingDamage.addCardToDeck(new CommandCard(damageType.damageType.getCommandCardType()));
             }
-            // Print the damage
-            System.out.println("Player {" + player.getName() + "} took " + damageType.getAmount() + " (" + damageType.damageType + ") damage.");
+            // Print the damage dealt
+            if (playerInflictingTheDamage != null) {
+                System.out.println("Player {" + playerInflictingTheDamage.getName() + "} dealt " + damageType.getAmount() + " " + damageType.damageType + " damage to player {" + playerTakingDamage.getName() + "}");
+            } else {
+                System.out.println("Board laser dealt " + damageType.getAmount() + " " + damageType.damageType + " damage to player {" + playerTakingDamage.getName() + "}");
+            }
             //damageType.applyDamage(player);
         }
     }
