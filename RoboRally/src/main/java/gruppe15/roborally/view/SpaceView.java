@@ -23,6 +23,7 @@ package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.Heading;
+import gruppe15.roborally.model.Laser;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
@@ -94,13 +95,13 @@ public class SpaceView extends StackPane implements ViewObserver {
             if (boardElement instanceof BE_EnergySpace) {
                 energyCubeImageView.setFitWidth(SPACE_WIDTH);
                 energyCubeImageView.setFitHeight(SPACE_HEIGHT);
-                energyCubeImageView.setImage(ImageUtils.getImageFromName("energyCube.png"));
+                energyCubeImageView.setImage(ImageUtils.getImageFromName("Board Pieces/energyCube.png"));
                 energyCubeImageView.xProperty();
                 energyCubeImageView.setLayoutY(10);
             }
         }
 
-        Image wallImage = ImageUtils.getImageFromName("wall.png");
+        Image wallImage = ImageUtils.getImageFromName("Board Pieces/wall.png");
         for (Heading wall : space.getWalls()) {
             ImageView wallImageView = new ImageView();
             wallImageView.setFitWidth(SPACE_WIDTH);
@@ -138,14 +139,6 @@ public class SpaceView extends StackPane implements ViewObserver {
             }
         }
 
-        // Lasers imageView
-        this.laserImageViews.clear();
-        for (Heading laser : space.getLasersOnSpace()) {
-            ImageView laserImageView = newLaserImageView(laser);
-            this.laserImageViews.add(laserImageView);
-            this.getChildren().add(laserImageView);
-        }
-
         // Player imageView
         Player player = space.getPlayer();
         if (player != null) {
@@ -172,13 +165,21 @@ public class SpaceView extends StackPane implements ViewObserver {
         for (ImageView wall : wallImageViews) {
             this.getChildren().add(wall);
         }
+
+        // Lasers imageView
+        this.laserImageViews.clear();
+        for (Laser.LaserOnSpace laserOnSpace : space.getLasersOnSpace()) {
+            ImageView laserImageView = newLaserImageView(laserOnSpace);
+            this.laserImageViews.add(laserImageView);
+            this.getChildren().add(laserImageView);
+        }
     }
 
-    private ImageView newLaserImageView(Heading laser) {
+    private ImageView newLaserImageView(Laser.LaserOnSpace laserOnSpace) {
         ImageView laserImageView = new ImageView();
         laserImageView.setFitWidth(SPACE_WIDTH);
         laserImageView.setFitHeight(SPACE_HEIGHT);
-        laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("laser.png"), laser));
+        laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(laserOnSpace.getImageName()), laserOnSpace.getDirection()));
         return laserImageView;
     }
 

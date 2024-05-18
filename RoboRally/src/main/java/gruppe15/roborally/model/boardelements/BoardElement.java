@@ -55,9 +55,9 @@ public abstract class BoardElement {
         if (imageName == null || imageName.isEmpty())
             return;
         if (direction == null) {
-            this.image = ImageUtils.getImageFromName(imageName);
+            this.image = ImageUtils.getImageFromName("Board Pieces/" + imageName);
         } else {
-            this.image = ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(imageName), direction);
+            this.image = ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Board Pieces/" + imageName), direction);
         }
     }
 

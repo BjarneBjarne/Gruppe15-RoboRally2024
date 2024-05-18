@@ -25,7 +25,7 @@ public class BE_BoardLaser extends BoardElement {
      * @param direction the direction of the board laser
      */
     public BE_BoardLaser(Heading direction) {
-        super("laserStart.png", direction);
+        super("boardLaser.png", direction);
     }
 
     /**

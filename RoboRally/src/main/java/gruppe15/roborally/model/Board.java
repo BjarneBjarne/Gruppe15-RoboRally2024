@@ -188,8 +188,8 @@ public class Board extends Subject {
             walls[8][3].add(WEST);
 
             // Fill the rest of the spaces with empty spaces and set background images
-            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
-            Image background = ImageUtils.getImageFromName("empty.png");
+            Image backgroundStart = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
+            Image background = ImageUtils.getImageFromName("Board Pieces/empty.png");
             this.subBoards = new ArrayList<>();
             Space[][] startBoard = new Space[width][height];
             Space[][] mainBoard = new Space[width][height];

@@ -16,7 +16,7 @@ public enum Robots {
         return robotName;
     }
     public String getBoardImageName() {
-        return "Robot_" + this.name() + ".png";
+        return "Robots/Robot_" + this.name() + ".png";
     }
     public String getSelectionImageName() {
         return "Robots/CharacterSelection/RobotSelection_" + this.name() + ".png";

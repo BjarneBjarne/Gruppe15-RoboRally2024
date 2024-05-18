@@ -91,7 +91,7 @@ public class SetupView {
         Platform.runLater(() -> {
             int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 17);
             for(int i = 1; i < 7; i++){
-                mapGraphics.add(ImageUtils.getImageFromName(i + ".png"));
+                mapGraphics.add(ImageUtils.getImageFromName("Courses/Course_" + i + ".png"));
             }
             map.setImage(mapGraphics.getFirst());
             VBox coursesVBox = new VBox();
