@@ -4,11 +4,11 @@ import gruppe15.roborally.model.Player;
 
 public class TrojanHorse extends DamageType {
     public TrojanHorse(int amount) {
-        super(amount, "Trojan Horse");
+        super(amount, DamageTypes.TROJAN_HORSE);
     }
 
-    @Override
+    /*@Override
     public void applyDamage(Player player) {
 
-    }
+    }*/
 }

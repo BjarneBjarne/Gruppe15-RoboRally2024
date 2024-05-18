@@ -139,6 +139,18 @@ public class Space extends Subject {
         return this.lasersOnSpace;
     }
 
+    public int getDistanceFromOtherSpace(Space otherSpace) {
+        int distance = 0;
+        double xDist, yDist;
+
+        xDist = otherSpace.x - this.x;
+        yDist = otherSpace.y - this.y;
+
+        distance = (int)Math.sqrt(Math.pow(xDist, 2.0) + Math.pow(yDist, 2.0));
+
+        return distance;
+    }
+
     /**
      * Should only be used on two spaces next to each other (not diagonally).
      * @return Returns whether there's a wall separating the two spaces.

@@ -16,5 +16,5 @@ public abstract class DamageType {
     public int getAmount() {
         return this.amount;
     }
-    public abstract void applyDamage(Player player); // Logic for handling damage to {player}
+    //public abstract void applyDamage(Player player); // Logic for handling damage to {player}
 }

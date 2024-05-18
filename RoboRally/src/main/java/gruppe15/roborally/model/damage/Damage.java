@@ -1,5 +1,7 @@
 package gruppe15.roborally.model.damage;
 
+import gruppe15.roborally.model.Command;
+import gruppe15.roborally.model.CommandCard;
 import gruppe15.roborally.model.Player;
 
 import java.util.ArrayList;
@@ -8,12 +10,12 @@ import java.util.List;
 public class Damage {
     private final List<DamageType> damageTypes = new ArrayList<>();
 
-    public Damage() {
+    public Damage(int spamDamage, int trojanHorseDamage, int wormDamage, int virusDamage) {
         // Initialize instances for each damage type
-        damageTypes.add(new Spam(0));
-        damageTypes.add(new TrojanHorse(0));
-        damageTypes.add(new Worm(0));
-        damageTypes.add(new Virus(0));
+        damageTypes.add(new Spam(spamDamage));
+        damageTypes.add(new TrojanHorse(trojanHorseDamage));
+        damageTypes.add(new Worm(wormDamage));
+        damageTypes.add(new Virus(virusDamage));
     }
 
     public void setAmount(Class<? extends DamageType> damageType, int newAmount) {
@@ -39,7 +41,12 @@ public class Damage {
 
     public void applyDamage(Player player) {
         for (DamageType damageType : damageTypes) {
-            damageType.applyDamage(player);
+            for (int i = 0; i < damageType.getAmount(); i++) {
+                player.addCardToDeck(new CommandCard(damageType.damageType.getCommandCardType()));
+            }
+            // Print the damage
+            System.out.println("Player {" + player.getName() + "} took " + damageType.getAmount() + " (" + damageType.damageType + ") damage.");
+            //damageType.applyDamage(player);
         }
     }
 }
