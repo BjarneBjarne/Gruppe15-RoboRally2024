@@ -494,7 +494,9 @@ public class GameController {
                     break;
                 case SPAM:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
-                        queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                        CommandCard topCard = player.drawFromDeck();
+                        queuePlayerCommand(player, topCard.getCommand());
+                        player.removeFromDeck(topCard);
                     }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case TROJAN_HORSE:
@@ -502,7 +504,9 @@ public class GameController {
                         for (int i = 0; i < 2; i++) {
                             player.discard(new CommandCard(Command.SPAM));
                         }
-                        queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                        CommandCard topCard = player.drawFromDeck();
+                        queuePlayerCommand(player, topCard.getCommand());
+                        player.removeFromDeck(topCard);
                     }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case WORM:
@@ -514,9 +518,12 @@ public class GameController {
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         for (Player foundPlayer : board.getPlayers()) {
                             if (player.getSpace().getDistanceFromOtherSpace(foundPlayer.getSpace()) <= 6) {
-                                queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                                foundPlayer.discard(new CommandCard(Command.SPAM));
                             }
                         }
+                        CommandCard topCard = player.drawFromDeck();
+                        queuePlayerCommand(player, topCard.getCommand());
+                        player.removeFromDeck(topCard);
                     }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
