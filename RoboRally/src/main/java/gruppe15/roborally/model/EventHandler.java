@@ -111,7 +111,7 @@ public class EventHandler {
                         actionQueue.addFirst(new ActionWithDelay(() -> {
                             damageType.applyDamage(target);
                             // Print the damage dealt
-                            System.out.println("Player {" + playerShooting.getName() + "} dealt " + damageType.getAmount() + " " + damageType.getDamageName() + " damage to player {" + target.getName() + "}");
+                            System.out.println("Player {" + playerShooting.getName() + "} dealt " + damageType.getAmount() + " " + damageType.damageType + " damage to player {" + target.getName() + "}");
                         }, Duration.millis(500)));
                     }
                 }

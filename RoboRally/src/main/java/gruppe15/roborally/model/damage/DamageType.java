@@ -4,10 +4,10 @@ import gruppe15.roborally.model.Player;
 
 public abstract class DamageType {
     private int amount;
-    private final String damageName;
-    public DamageType(int amount, String damageName) {
+    public final DamageTypes damageType;
+    public DamageType(int amount, DamageTypes damageType) {
         this.amount = amount;
-        this.damageName = damageName;
+        this.damageType = damageType;
     }
 
     public void setAmount(int newAmount) {
@@ -15,9 +15,6 @@ public abstract class DamageType {
     }
     public int getAmount() {
         return this.amount;
-    }
-    public String getDamageName() {
-        return this.damageName;
     }
     public abstract void applyDamage(Player player); // Logic for handling damage to {player}
 }
