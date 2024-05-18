@@ -379,6 +379,10 @@ public class Player extends Subject {
         }
     }
 
+    public void removeFromDeck(CommandCard card) {
+        programmingDeck.remove(card);
+    }
+
     public void setEnergyCubes(int energyCubes) {
         this.energyCubes = energyCubes;
     }
