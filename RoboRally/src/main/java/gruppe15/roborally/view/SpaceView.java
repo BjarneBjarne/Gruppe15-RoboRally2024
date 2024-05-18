@@ -81,13 +81,8 @@ public class SpaceView extends StackPane implements ViewObserver {
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
-            if (boardElement instanceof BE_Reboot) {
-                boardElementImageView.setFitWidth(SPACE_WIDTH * 0.75);
-                boardElementImageView.setFitHeight(SPACE_HEIGHT * 0.75);
-            } else {
-                boardElementImageView.setFitWidth(SPACE_WIDTH);
-                boardElementImageView.setFitHeight(SPACE_HEIGHT);
-            }
+            boardElementImageView.setFitWidth(SPACE_WIDTH);
+            boardElementImageView.setFitHeight(SPACE_HEIGHT);
 
             boardElementImageView.setImage(boardElement.getImage());
             this.getChildren().add(boardElementImageView);

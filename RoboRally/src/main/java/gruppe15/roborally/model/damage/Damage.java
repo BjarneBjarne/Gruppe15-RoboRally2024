@@ -8,49 +8,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Damage {
-    private final List<DamageType> damageTypes = new ArrayList<>();
+    private final List<DamageTypeAmount> damageTypeAmountList = new ArrayList<>();
 
-    public Damage(int spamDamage, int trojanHorseDamage, int wormDamage, int virusDamage) {
+    public Damage(int spamDamageAmount, int trojanHorseDamageAmount, int wormDamageAmount, int virusDamageAmount) {
         // Initialize instances for each damage type
-        damageTypes.add(new Spam(spamDamage));
-        damageTypes.add(new TrojanHorse(trojanHorseDamage));
-        damageTypes.add(new Worm(wormDamage));
-        damageTypes.add(new Virus(virusDamage));
+        damageTypeAmountList.add(new DamageTypeAmount(spamDamageAmount, DamageTypes.SPAM));
+        damageTypeAmountList.add(new DamageTypeAmount(trojanHorseDamageAmount, DamageTypes.TROJAN_HORSE));
+        damageTypeAmountList.add(new DamageTypeAmount(wormDamageAmount, DamageTypes.WORM));
+        damageTypeAmountList.add(new DamageTypeAmount(virusDamageAmount, DamageTypes.VIRUS));
     }
 
-    public void setAmount(Class<? extends DamageType> damageType, int newAmount) {
-        for (DamageType dt : damageTypes) {
-            if (dt.getClass().isAssignableFrom(damageType)) {
+    public void setAmount(DamageTypes damageType, int newAmount) {
+        for (DamageTypeAmount dt : damageTypeAmountList) {
+            if (dt.type == damageType) {
                 dt.setAmount(newAmount);
             }
         }
     }
-    public int getAmount(Class<? extends DamageType> damageType) {
-        for (DamageType dt : damageTypes) {
-            if (dt.getClass().isAssignableFrom(damageType)) {
+    public int getAmount(DamageTypes damageType) {
+        for (DamageTypeAmount dt : damageTypeAmountList) {
+            if (dt.type == damageType) {
                 return dt.getAmount();
             }
         }
-        System.out.println("ERROR: Couldn't find damage type: " + damageType.getName() + " : " + damageType);
+        System.out.println("ERROR: Couldn't find damage type: " + damageType.displayName + " : " + damageType);
         return 0;
     }
 
-    public List<DamageType> getDamageTypes() {
-        return damageTypes;
+    public List<DamageTypeAmount> getDamageTypeList() {
+        return damageTypeAmountList;
     }
 
     public void applyDamage(Player playerTakingDamage, Player playerInflictingTheDamage) {
-        for (DamageType damageType : damageTypes) {
-            for (int i = 0; i < damageType.getAmount(); i++) {
-                playerTakingDamage.addCardToDeck(new CommandCard(damageType.damageType.getCommandCardType()));
+        for (DamageTypeAmount damageTypeAmount : damageTypeAmountList) {
+            Command cmdType = damageTypeAmount.type.getCommandCardType();
+            if (damageTypeAmount.getAmount() > 0) {
+                for (int i = 0; i < damageTypeAmount.getAmount(); i++) {
+                    playerTakingDamage.addCardToDeck(new CommandCard(cmdType));
+                }
+                // Print the damage dealt
+                if (playerInflictingTheDamage != null) {
+                    System.out.println("Player {" + playerInflictingTheDamage.getName() + "} dealt " + damageTypeAmount.getAmount() + " " + damageTypeAmount.type + " damage to player {" + playerTakingDamage.getName() + "}");
+                } else {
+                    System.out.println("Board laser dealt " + damageTypeAmount.getAmount() + " " + damageTypeAmount.type + " damage to player {" + playerTakingDamage.getName() + "}");
+                }
+                //damageTypeAmount.applyDamage(player);
             }
-            // Print the damage dealt
-            if (playerInflictingTheDamage != null) {
-                System.out.println("Player {" + playerInflictingTheDamage.getName() + "} dealt " + damageType.getAmount() + " " + damageType.damageType + " damage to player {" + playerTakingDamage.getName() + "}");
-            } else {
-                System.out.println("Board laser dealt " + damageType.getAmount() + " " + damageType.damageType + " damage to player {" + playerTakingDamage.getName() + "}");
-            }
-            //damageType.applyDamage(player);
         }
     }
 }

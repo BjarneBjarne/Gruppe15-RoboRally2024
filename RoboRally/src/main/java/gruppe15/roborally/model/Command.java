@@ -34,9 +34,7 @@ import java.util.List;
  *
  */
 public enum Command {
-
     // This is a very simplistic way of realizing different commands.
-
     FORWARD("Fwd"),
     FAST_FORWARD("Fast Fwd"),
     VARY_FAST_FORWARD("Vary Fast Fwd"),
@@ -48,28 +46,26 @@ public enum Command {
     POWER_UP("Power Up"),
     OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
 
-    SPAM(DamageTypes.SPAM.displayName, DamageTypes.SPAM),
-    TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName, DamageTypes.TROJAN_HORSE),
-    WORM(DamageTypes.WORM.displayName, DamageTypes.WORM),
-    VIRUS(DamageTypes.VIRUS.displayName, DamageTypes.VIRUS),
     UPGRADE("Upgrade"),
-    DO_NOTHING("Do Nothing");
+    DO_NOTHING("Do Nothing"),
 
-    final public String displayName;
+    SPAM(DamageTypes.SPAM.displayName),
+    TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName),
+    WORM(DamageTypes.WORM.displayName),
+    VIRUS(DamageTypes.VIRUS.displayName);
 
-    private List<Command> options;
+    public final String displayName;
+    private final List<Command> options;
+
+    static {
+        DamageTypes.SPAM.setCommandCardType(SPAM);
+        DamageTypes.TROJAN_HORSE.setCommandCardType(TROJAN_HORSE);
+        DamageTypes.WORM.setCommandCardType(WORM);
+        DamageTypes.VIRUS.setCommandCardType(VIRUS);
+    }
     Command(String displayName, Command... options) {
         this.displayName = displayName;
         this.options = Collections.unmodifiableList(Arrays.asList(options));
-    }
-
-    private DamageTypes damageType;
-    Command(String displayName, DamageTypes damageType) {
-        this.displayName = displayName;
-        this.damageType = damageType;
-    }
-    public DamageTypes getDamageType() {
-        return damageType;
     }
 
     public boolean isInteractive() {

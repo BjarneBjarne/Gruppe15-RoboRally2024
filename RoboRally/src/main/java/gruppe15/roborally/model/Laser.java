@@ -49,6 +49,15 @@ public class Laser {
         int x = origin.x;
         int y = origin.y;
 
+        if (origin.getWalls().contains(direction)) { // If the source is looking into a wall, stop here
+            if (owner != null) { // If there is an owner, a player shot the laser.
+                addLaserPiece(origin, "Laser_StartPlayerBlocked");
+            } else { // Else, board laser
+                addLaserPiece(origin, "Laser_StartBoardBlocked");
+            }
+            return;
+        }
+
         boolean hitSomething = false;
         while (!hitSomething && x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
             Space space = boardSpaces[x][y];
@@ -69,14 +78,12 @@ public class Laser {
                     hitSomething = true;
                     laserName += "PlayerHit";
                 }
-            } else if (nextSpace != null && space.getIsWallBetween(nextSpace)) { // Wall
+            } else if (space.getWalls().contains(direction)) { // Wall
                 hitSomething = true;
-                if (space.getWalls().contains(direction)) {
-                    laserName += "WallHitUpper";
-                } else {
-                    laserName += "Full";
-                    addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.
-                }
+                laserName += "WallHitUpper";
+            } else if (nextSpace.getWalls().contains(direction.opposite())) {
+                laserName += "Full";
+                addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.
             } else {
                 laserName += "Full";
             }

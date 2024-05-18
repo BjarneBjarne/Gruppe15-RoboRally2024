@@ -3,7 +3,6 @@ package gruppe15.roborally.model.boardelements;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.damage.Damage;
-import gruppe15.roborally.model.damage.Spam;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
