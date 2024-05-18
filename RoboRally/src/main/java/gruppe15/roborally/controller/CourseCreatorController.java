@@ -31,8 +31,8 @@ public class CourseCreatorController extends VBox {
     private Board board;
     private SpaceView[][] spaces;
     private SpaceEventHandler spaceEventHandler;
-    private final Image backgroundImage = ImageUtils.getImageFromName("empty.png");
-    private final Image backgroundImageStart = ImageUtils.getImageFromName("emptyStart.png");
+    private final Image backgroundImage = ImageUtils.getImageFromName("Board Pieces/empty.png");
+    private final Image backgroundImageStart = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
     private BoardElements currentBoardElement;
     private final ImageView selectedBoardElementImageView = new ImageView();
 
@@ -66,7 +66,7 @@ public class CourseCreatorController extends VBox {
         CC_boardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         for (BoardElements boardElement : BoardElements.values()) {
-            Image boardElementImage = ImageUtils.getImageFromName(boardElement.imageName);
+            Image boardElementImage = ImageUtils.getImageFromName("Board Pieces/" + boardElement.imageName);
             ImageView boardElementImageView = new ImageView(boardElementImage);
             boardElementImageView.setFitWidth(50);
             boardElementImageView.setFitHeight(50);

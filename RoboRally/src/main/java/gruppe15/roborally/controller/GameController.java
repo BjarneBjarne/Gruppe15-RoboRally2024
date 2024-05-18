@@ -616,7 +616,7 @@ public class GameController {
         for (Player player : board.getPlayers()) {
             actionQueue.addLast(new ActionWithDelay(() -> {
                 EventHandler.event_PlayerShoot(board.getSpaces(), player, actionQueue);
-            }, Duration.millis(0), "Player laser"));
+            }, Duration.millis(250), "Player laser"));
         }
 
         // 7. Energy spaces

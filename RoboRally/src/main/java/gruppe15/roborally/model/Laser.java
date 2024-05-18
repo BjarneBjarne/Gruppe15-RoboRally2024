@@ -14,6 +14,19 @@ public class Laser {
     private boolean iterationComplete = false;
     private final Player owner;
 
+    public class LaserOnSpace {
+        private final String imageName;
+        public LaserOnSpace(String imageName) {
+            this.imageName = imageName;
+        }
+        public String getImageName() {
+            return "Lasers/" + imageName + ".png";
+        }
+        public Heading getDirection() {
+            return direction;
+        }
+    }
+
     public Laser(Space origin, Heading direction, Player owner) {
         this.origin = origin;
         this.direction = direction;
@@ -36,35 +49,53 @@ public class Laser {
         int x = origin.x;
         int y = origin.y;
 
-        // Start one space in front of the owner
-        /*if (owner != null) {
-            x += dx;
-            y += dy;
-        }*/
-
-        while (x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
+        boolean hitSomething = false;
+        while (!hitSomething && x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length) {
             Space space = boardSpaces[x][y];
             spacesHit.add(space);
-            space.addLaserOnSpace(direction);
-
-            // If we hit a player, that is not the owner
             Player playerOnSpace = space.getPlayer();
-            if (playerOnSpace != null) {
-                if (playerOnSpace != owner) {
-                    break;
+            Space nextSpace = space.getSpaceNextTo(direction, boardSpaces);
+            String laserName = "Laser_";
+
+            if (x == origin.x && y == origin.y) {
+                laserName += "Start";
+                if (owner != null) { // If there is an owner, a player shot the laser.
+                    laserName += "Player";
+                } else { // Else, board laser
+                    laserName += "Board";
                 }
+            } else if (playerOnSpace != null) { // Player hit
+                if (playerOnSpace != owner) {
+                    hitSomething = true;
+                    laserName += "PlayerHit";
+                }
+            } else if (nextSpace != null && space.getIsWallBetween(nextSpace)) { // Wall
+                hitSomething = true;
+                if (space.getWalls().contains(direction)) {
+                    laserName += "WallHitUpper";
+                } else {
+                    laserName += "Full";
+                    addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.
+                }
+            } else {
+                laserName += "Full";
             }
 
-            // The next space is out of bounds OR there is a wall between this and the next space, break the loop.
-            Space nextSpace = space.getSpaceNextTo(direction, boardSpaces);
-            if (nextSpace == null || space.getIsWallBetween(nextSpace)) {
-                break;
-            }
+            addLaserPiece(space, laserName);
 
             // Move to the next space
             x += dx;
             y += dy;
         }
+    }
+
+    private void addLaserPiece(Space space, String imageName) {
+        space.addLaserOnSpace(new LaserOnSpace(imageName));
+    }
+
+    private synchronized void setIterationComplete(boolean value) {
+        iterationComplete = value;
+        notifyAll();
     }
 
     public List<Space> getSpacesHit() throws InterruptedException {
@@ -76,10 +107,5 @@ public class Laser {
             // Return the list of spaces hit
             return spacesHit;
         }
-    }
-
-    private synchronized void setIterationComplete(boolean value) {
-        iterationComplete = value;
-        notifyAll();
     }
 }

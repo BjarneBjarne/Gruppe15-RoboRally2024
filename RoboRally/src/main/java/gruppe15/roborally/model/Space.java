@@ -49,7 +49,7 @@ public class Space extends Subject {
     transient private BoardElement boardElement;
     transient private Image backgroundImage;
     transient private final List<Heading> walls = new ArrayList<>();
-    transient private final List<Heading> lasersOnSpace = new ArrayList<>();
+    transient private final List<Laser.LaserOnSpace> lasersOnSpace = new ArrayList<>();
 
     public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
         this.board = board;
@@ -127,7 +127,7 @@ public class Space extends Subject {
     }
 
     // For SpaceView, so it can update the laser image on this space.
-    public void addLaserOnSpace(Heading laser) {
+    public void addLaserOnSpace(Laser.LaserOnSpace laser) {
         this.lasersOnSpace.add(laser);
         notifyChange();
     }
@@ -135,7 +135,7 @@ public class Space extends Subject {
         this.lasersOnSpace.clear();
         notifyChange();
     }
-    public List<Heading> getLasersOnSpace() {
+    public List<Laser.LaserOnSpace> getLasersOnSpace() {
         return this.lasersOnSpace;
     }
 

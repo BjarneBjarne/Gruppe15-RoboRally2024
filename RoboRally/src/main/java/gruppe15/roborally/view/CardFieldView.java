@@ -152,7 +152,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
             CommandCard card = field.getCard();
             if(card != null && field.isVisible()) {
                 String type = card.getName();
-                Image temp2 = ImageUtils.getImageFromName(type + ".png");
+                Image temp2 = ImageUtils.getImageFromName("Programming Cards/" + type + ".png");
                 if (temp2 != null) {
                     grafics.setImage(temp2);
                 }else{
