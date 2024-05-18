@@ -533,7 +533,16 @@ public class GameController {
                     break;
             }
 
-            if(command != Command.AGAIN) player.setLastCmd(command);
+            Set<Command> commandsToNotRepeat = Set.of(
+                    Command.AGAIN,
+                    Command.SPAM,
+                    Command.TROJAN_HORSE,
+                    Command.WORM,
+                    Command.VIRUS
+            );
+            if (!commandsToNotRepeat.contains(command)) {
+                player.setLastCmd(command);
+            }
 
             // After command is executed, set the next player:
             var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
