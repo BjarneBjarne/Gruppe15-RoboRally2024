@@ -44,7 +44,7 @@ public class Damage {
             Command cmdType = damageTypeAmount.type.getCommandCardType();
             if (damageTypeAmount.getAmount() > 0) {
                 for (int i = 0; i < damageTypeAmount.getAmount(); i++) {
-                    playerTakingDamage.addCardToDeck(new CommandCard(cmdType));
+                    playerTakingDamage.discard(new CommandCard(cmdType));
                 }
                 // Print the damage dealt
                 if (playerInflictingTheDamage != null) {

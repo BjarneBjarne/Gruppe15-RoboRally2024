@@ -252,7 +252,7 @@ public class Player extends Subject {
 
     public void startRebooting() {
         for (int i = 0; i < 2; i++) {
-            addCardToDeck(new CommandCard(Command.SPAM));
+            discard(new CommandCard(Command.SPAM));
         }
         this.rebooting = true;
     }
@@ -292,7 +292,7 @@ public class Player extends Subject {
      * sets the fiels programmingDeck to its defoult settings
      * @author Maximillian Bjørn Mortensen
      */
-    public void setProgrammingDeckToDefoult(){
+    public void setProgrammingDeckToDefoult() {
         List<Integer> index = new ArrayList<Integer>();
         for(int i = 0; i < 20; i++){
             if(i<9){
@@ -315,7 +315,7 @@ public class Player extends Subject {
      * shuffels the contents of the field programmingDeck
      * @author Maximillian Bjørn Mortensen
      */
-    private void shuffleDiscardedIntoDeck(){
+    private void shuffleDiscardedIntoDeck() {
         List<CommandCard> temp = new ArrayList<>(programmingDeck);
         programmingDeck.clear();
         Collections.shuffle(temp);
@@ -328,7 +328,7 @@ public class Player extends Subject {
      * @param card
      * @author Maximillian Bjørn Mortensen
      */
-    private void discard(CommandCard card){
+    public void discard(CommandCard card) {
         programmingDeck.add(new CommandCard(card.command));
     }
 
@@ -337,7 +337,7 @@ public class Player extends Subject {
      * @return CommandCard
      * @author Maximillian Bjørn Mortensen
      */
-    public CommandCard drawFromDeck(){
+    public CommandCard drawFromDeck() {
         CommandCard temp = programmingDeck.remove();
         if(temp == null) return null;
         return new CommandCard(temp.command);
@@ -347,7 +347,7 @@ public class Player extends Subject {
      * inputs cards from programmingDeck into all CommandCardFields in cards
      * @author Maximillian Bjørn Mortensen
      */
-    public void drawHand(){
+    public void drawHand() {
         for(CommandCardField c: cards){
             if(c.getCard() == null){
                 CommandCard temp = drawFromDeck();
@@ -360,15 +360,11 @@ public class Player extends Subject {
         }
     }
 
-    public void addCardToDeck(CommandCard newCard) {
-        programmingDeck.add(newCard);
-    }
-
     /**
      * discards all cards in registeres and on hand
      * @author Maximillian Bjørn Mortensen
      */
-    public void discardAll(){
+    public void discardAll() {
         for(CommandCardField c: program){
             if(c.getCard() != null){
                 discard(c.getCard());

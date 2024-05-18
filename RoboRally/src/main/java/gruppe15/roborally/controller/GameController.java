@@ -500,7 +500,7 @@ public class GameController {
                 case TROJAN_HORSE:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         for (int i = 0; i < 2; i++) {
-                            player.addCardToDeck(new CommandCard(Command.SPAM));
+                            player.discard(new CommandCard(Command.SPAM));
                         }
                         queuePlayerCommand(player, player.drawFromDeck().getCommand());
                     }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
