@@ -21,6 +21,8 @@
  */
 package gruppe15.roborally.model;
 
+import gruppe15.roborally.model.damage.*;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,17 +48,28 @@ public enum Command {
     POWER_UP("Power Up"),
     OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
 
-    DAMAGE("Damage"),
+    SPAM(DamageTypes.SPAM.displayName, DamageTypes.SPAM),
+    TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName, DamageTypes.TROJAN_HORSE),
+    VIRUS(DamageTypes.VIRUS.displayName, DamageTypes.VIRUS),
+    WORM(DamageTypes.WORM.displayName, DamageTypes.WORM),
     UPGRADE("Upgrade"),
     DO_NOTHING("Do Nothing");
 
     final public String displayName;
 
-    final private List<Command> options;
-
+    private List<Command> options;
     Command(String displayName, Command... options) {
         this.displayName = displayName;
         this.options = Collections.unmodifiableList(Arrays.asList(options));
+    }
+
+    private DamageTypes damageType;
+    Command(String displayName, DamageTypes damageType) {
+        this.displayName = displayName;
+        this.damageType = damageType;
+    }
+    public DamageTypes getDamageType() {
+        return damageType;
     }
 
     public boolean isInteractive() {
@@ -66,5 +79,4 @@ public enum Command {
     public List<Command> getOptions() {
         return options;
     }
-
 }

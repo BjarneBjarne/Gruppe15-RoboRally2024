@@ -479,9 +479,6 @@ public class GameController {
                     break;
                 case AGAIN:
                     switch (player.getLastCmd()) {
-                        case DAMAGE:
-                            //TODO
-                            break;
                         case UPGRADE:
                             player.addEnergyCube();
                             break;
@@ -494,6 +491,18 @@ public class GameController {
                     break;
                 case OPTION_LEFT_RIGHT:
                     board.setPhase(Phase.PLAYER_INTERACTION);
+                    break;
+                case SPAM:
+                    queuePlayerCommand(player, player.drawFromDeck().getCommand());
+                    break;
+                case TROJAN_HORSE:
+
+                    break;
+                case VIRUS:
+
+                    break;
+                case WORM:
+
                     break;
                 default:
                     // DO NOTHING (for now)

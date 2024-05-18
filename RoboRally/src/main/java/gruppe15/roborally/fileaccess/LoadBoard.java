@@ -117,7 +117,7 @@ public class LoadBoard {
     private static Player loadPlayer(PlayerTemplate playerTemplate, Board board){
         Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
         player.setHeading(playerTemplate.heading);
-        for(int i = 0; i < player.getCards().length; i++){
+        for(int i = 0; i < player.getCardFields().length; i++){
             player.getCardField(i).setCard(new CommandCard(playerTemplate.cards[i]));
         }
         player.setCheckpoint(playerTemplate.checkpoints);
@@ -234,8 +234,8 @@ public class LoadBoard {
         playerTemplate.robot = player.getRobot();
         playerTemplate.space = player.getSpace();
         playerTemplate.heading = player.getHeading();
-        playerTemplate.cards = new Command[player.getCards().length];
-        for(int i = 0; i < player.getCards().length; i++){
+        playerTemplate.cards = new Command[player.getCardFields().length];
+        for(int i = 0; i < player.getCardFields().length; i++){
             playerTemplate.cards[i] = player.getCardField(i).getCard().getCommand();
         }
         playerTemplate.checkpoints = player.getCheckpoints();

@@ -273,7 +273,7 @@ public class Player extends Subject {
         return program;
     }
 
-    public CommandCardField[] getCards() {
+    public CommandCardField[] getCardFields() {
         return cards;
 
     }
@@ -332,7 +332,7 @@ public class Player extends Subject {
      * @return CommandCard
      * @author Maximillian Bjørn Mortensen
      */
-    private CommandCard drawFromDeck(){
+    public CommandCard drawFromDeck(){
         CommandCard temp = programmingDeck.remove();
         if(temp == null) return null;
         return new CommandCard(temp.command);
