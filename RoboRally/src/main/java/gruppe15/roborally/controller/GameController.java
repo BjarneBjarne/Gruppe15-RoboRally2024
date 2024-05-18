@@ -497,7 +497,7 @@ public class GameController {
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
                         player.removeFromDeck(topCard);
-                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case TROJAN_HORSE:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
@@ -507,12 +507,12 @@ public class GameController {
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
                         player.removeFromDeck(topCard);
-                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case WORM:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         EventHandler.event_PlayerReboot(player, this);
-                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case VIRUS:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
@@ -525,7 +525,7 @@ public class GameController {
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
                         player.removeFromDeck(topCard);
-                    }, Duration.millis(250), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
                     // DO NOTHING (for now)
