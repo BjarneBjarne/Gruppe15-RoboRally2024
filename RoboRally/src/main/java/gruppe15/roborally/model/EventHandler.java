@@ -4,11 +4,9 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.boardelements.BE_Hole;
 import gruppe15.roborally.model.boardelements.BE_Reboot;
 import gruppe15.roborally.model.damage.Damage;
-import gruppe15.roborally.model.damage.DamageType;
-import gruppe15.roborally.model.damage.Spam;
+import gruppe15.roborally.model.damage.DamageTypeAmount;
 import gruppe15.roborally.model.events.EventListener;
 import gruppe15.roborally.model.events.*;
-import javafx.application.Platform;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -69,26 +67,19 @@ public class EventHandler {
 
     /**
      * Method for whenever a player shoots.
-     * @param spaces
+     * @param board
      * @param playerShooting
      * @param actionQueue
      */
-    public static void event_PlayerShoot(Space[][] spaces, Player playerShooting, LinkedList<ActionWithDelay> actionQueue) {
+    public static void event_PlayerShoot(Board board, Player playerShooting, LinkedList<ActionWithDelay> actionQueue) {
         if (playerShooting.getIsRebooting()) {
             return;
         }
         // Clearing lasers in between player lasers
-        for (int x = 0; x < spaces.length; x++) {
-            for (int y = 0; y < spaces[x].length; y++) {
-                spaces[x][y].clearLasersOnSpace();
-            }
-        }
-        // Create a laser object
-        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting);
-        // Start the laser iteration asynchronously
-        laser.startLaser(spaces).run();
+        board.clearLasers();
 
-        // Wait for the laser iteration to complete and calculate the damage
+        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting);
+        laser.startLaser(board.getSpaces()).run();
         try {
             List<Player> playersHit = calculatePlayersHit(laser);
             // Deal damage to each target player
@@ -101,7 +92,7 @@ public class EventHandler {
                 // Apply any modifications to damage based on player's cards
                 List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(playerShooting, PlayerDamageListener.class);
                 for (PlayerDamageListener listener : playerPlayerDamageListeners) {
-                    damage = listener.onPlayerDamage(damage);
+                    damage = listener.onPlayerDamage(damage, null);
                 }
                 event_PlayerDamage(target, playerShooting, damage, actionQueue);
             }
@@ -127,35 +118,32 @@ public class EventHandler {
 
 
     /**
-     * Method for when a player takes damage
-     * @param playerTakingDamage
+     * Method for when a player takes damage.
+     * @param playerTakingDamage The player that takes the damage.
+     * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
+     * @param damage The damage to deal to the playerTakingDamage.
      * @param actionQueue
-     * @return
      */
     public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage, LinkedList<ActionWithDelay> actionQueue) {
+        List<PlayerDamageListener> playerDamageListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerDamageListener.class);
+        for (PlayerDamageListener listener : playerDamageListeners) {
+            damage = listener.onPlayerDamage(damage, playerTakingDamage);
+        }
+
         // Apply damage to the target player
         boolean anyDamage = false;
-        for (DamageType damageType : damage.getDamageTypes()) {
-            if (damageType.getAmount() > 0) {
+        for (DamageTypeAmount damageTypeAmount : damage.getDamageTypeList()) {
+            if (damageTypeAmount.getAmount() > 0) {
                 anyDamage = true;
                 break;
             }
         }
         if (anyDamage) {
+            Damage finalDamage = damage;
             actionQueue.addFirst(new ActionWithDelay(() -> {
-                damage.applyDamage(playerTakingDamage, playerInflictingTheDamage);
+                finalDamage.applyDamage(playerTakingDamage, playerInflictingTheDamage);
             }, Duration.millis(250)));
         }
-
-
-
-
-
-        List<PlayerCommandListener> playerCommandListeners = getPlayerCardEventListeners(playerActivatingRegister, PlayerCommandListener.class);
-        for (PlayerCommandListener listener : playerCommandListeners) {
-            command = listener.onPlayerCommand(command);
-        }
-        return command;
     }
 
 

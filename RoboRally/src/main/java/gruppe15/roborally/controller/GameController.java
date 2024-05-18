@@ -549,11 +549,11 @@ public class GameController {
         for (int i = 0; i < Math.abs(playerVelocity.forward); i++) {
             actionQueue.addFirst(new ActionWithDelay(() -> {
                 Heading direction = (playerVelocity.forward > 0) ? player.getHeading() : player.getHeading().opposite();
+                // Decrement
+                playerVelocity.forward -= (playerVelocity.forward > 0) ? 1 : -1;
                 if (!player.getIsRebooting()) {
                     movePlayerToSpace(player, board.getNeighbour(player.getSpace(), direction));
                 }
-                // Decrement
-                playerVelocity.forward -= (playerVelocity.forward > 0) ? 1 : -1;
             }, Duration.millis(150), "Player movement: " + player.getName()));
         }
 
@@ -561,11 +561,11 @@ public class GameController {
         for (int i = 0; i < Math.abs(playerVelocity.right); i++) {
             actionQueue.addFirst(new ActionWithDelay(() -> {
                 Heading direction = (playerVelocity.right > 0) ? player.getHeading().next() : player.getHeading().prev();
+                // Decrement
+                playerVelocity.right -= (playerVelocity.right > 0) ? 1 : -1;
                 if (!player.getIsRebooting()) {
                     movePlayerToSpace(player, board.getNeighbour(player.getSpace(), direction));
                 }
-                // Decrement
-                playerVelocity.right -= (playerVelocity.right > 0) ? 1 : -1;
             }, Duration.millis(150), "Player movement: " + player.getName()));
         }
     }
@@ -639,7 +639,7 @@ public class GameController {
         actionQueue.addLast(new ActionWithDelay(board::clearLasers, Duration.millis(0)));
         for (Player player : board.getPlayers()) {
             actionQueue.addLast(new ActionWithDelay(() -> {
-                EventHandler.event_PlayerShoot(board.getSpaces(), player, actionQueue);
+                EventHandler.event_PlayerShoot(board, player, actionQueue);
             }, Duration.millis(250), "Player laser"));
         }
 

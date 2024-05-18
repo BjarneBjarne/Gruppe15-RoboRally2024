@@ -3,7 +3,7 @@ package gruppe15.roborally.model.upgrades.upgrade_cards;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.EventHandler;
-import gruppe15.roborally.model.damage.Spam;
+import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 import gruppe15.roborally.model.events.PlayerDamageListener;
 
@@ -20,13 +20,13 @@ public class Card_DoubleBarrelLaser extends UpgradeCardPermanent {
         // Defining effects on events
 
         // OnDamageDealt
-        EventHandler.onEvent((PlayerDamageListener) damage -> {
-            System.out.println("Board is at register " + board.getCurrentRegister() + ".");
-            System.out.println("Player {" + owner.getName() + "} has a Double Barrel Laser!");
+        EventHandler.onEvent((PlayerDamageListener) (damage, playerTakingDamage) -> {
+            if (owner != playerTakingDamage) {
+                System.out.println("Player {" + owner.getName() + "} has a Double Barrel Laser!");
 
-            // Modifying damage
-            damage.setAmount(Spam.class, damage.getAmount(Spam.class) + 1);
-
+                // Modifying damage
+                damage.setAmount(DamageTypes.SPAM, damage.getAmount(DamageTypes.SPAM) + 1);
+            }
             return damage;
         }, owner);
     }

@@ -26,6 +26,7 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -70,8 +71,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
         grafics = new ImageView();
         grafics.setMouseTransparent(true);
-        grafics.setFitHeight(CARDFIELD_HEIGHT);
-        grafics.setFitWidth(CARDFIELD_WIDTH);
+        grafics.setFitHeight(CARDFIELD_HEIGHT - 8);
+        grafics.setFitWidth(CARDFIELD_WIDTH - 8);
         this.getChildren().add(grafics);
 
         this.gameController = gameController;
@@ -182,6 +183,11 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     Dragboard db = source.startDragAndDrop(TransferMode.MOVE);
                     Image image = source.snapshot(null, null);
                     db.setDragView(image);
+                    // Get the offset from the card to the mouse
+                    Bounds localBounds = source.getBoundsInLocal();
+                    Bounds sceneBounds = source.localToScene(localBounds);
+                    db.setDragViewOffsetX(event.getSceneX() - sceneBounds.getMinX());
+                    db.setDragViewOffsetY(event.getSceneY() - sceneBounds.getMinY());
 
                     ClipboardContent content = new ClipboardContent();
                     content.put(ROBO_RALLY_CARD, cardFieldRepresentation(cardField));
