@@ -8,11 +8,9 @@ module gruppe15.roborally {
     requires javafx.graphics;
     requires com.google.common;
 
-
-
     exports gruppe15.roborally;
     exports gruppe15.roborally.view;
-    // exports gruppe15.roborally.controller;
+    exports gruppe15.roborally.model;
 
     opens gruppe15.roborally.model to com.google.gson; 
     opens gruppe15.roborally.fileaccess.model to com.google.gson; 

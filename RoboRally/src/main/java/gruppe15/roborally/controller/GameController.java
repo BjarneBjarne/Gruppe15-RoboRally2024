@@ -23,22 +23,24 @@ package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.*;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
+import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
+import gruppe15.roborally.model.upgrades.upgrade_cards.Card_DoubleBarrelLaser;
+import gruppe15.roborally.model.upgrades.upgrade_cards.Card_HoverUnit;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.SpaceView;
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 import static gruppe15.roborally.model.Phase.*;
-import static gruppe15.roborally.model.utils.Constants.SPACE_HEIGHT;
-import static gruppe15.roborally.model.utils.Constants.SPACE_WIDTH;
 
 /**
  * ...
@@ -54,7 +56,7 @@ public class GameController {
     private Space directionOptionsSpace;
     private String winnerName;
     private Image winnerIMG;
-    private boolean turnPlaying = false;
+    private boolean isRegisterPlaying = false;
 
     // Actions
     private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
@@ -62,13 +64,16 @@ public class GameController {
     private final boolean WITH_ACTION_DELAY = true;
     private final boolean WITH_ACTION_MESSAGE = false;
 
-
-    public boolean getIsTurnPlaying() {
-        return turnPlaying;
+    public boolean getIsRegisterPlaying() {
+        return isRegisterPlaying;
+    }
+    private void setIsRegisterPlaying(boolean isRegisterPlaying) {
+        this.isRegisterPlaying = isRegisterPlaying;
+        board.updateBoard();
     }
 
     /**
-     *
+     * Constructor method for GameController.
      * @param board The current board
      * @param appController The current AppController
      */
@@ -78,123 +83,26 @@ public class GameController {
     }
 
     /**
-     * returns the winners image
-     * @return Image
-     * @author Maximillian Bjørn Mortensen
+     * Method for starting the game. Called when players have chosen a start space and direction.
      */
-    public Image getWinnerIMG(){
-        return winnerIMG;
+    private void beginGame() {
+        startProgrammingPhase();
     }
 
     /**
-     * returns the winners name
-     * @return String
-     * @author Maximillian Bjørn Mortensen
+     * Method for starting the upgrade phase.
      */
-    public String getWinnerName() {
-        return winnerName;
-    }
-
-    /**
-     * sets the paramaters as the winner
-     * @param winnerName
-     * @param winnerIMG
-     * @author Maximillian Bjørn Mortensen
-     */
-    public void setWinner(String winnerName, Image winnerIMG){
-        this.winnerName = winnerName;
-        this.winnerIMG = winnerIMG;
-        appController.gameOver();
-    }
-
-    /**
-     * Takes the current player of the board and sets the players position to the given space
-     * if the space is free. The current player is then set to the player following the current player.
-     *
-     * @param player
-     * @param nextSpace the space to which the current player should move
-     * @return void
-     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
-     */
-    public void movePlayerToSpace(Player player, Space nextSpace) {
-        // TODO Task1: method should be implemented by the students:
-        //   - the current player should be moved to the given space
-        //     (if it is free())
-        //   - and the current player should be set to the player
-        //     following the current player
-        //   - the counter of moves in the game should be increased by one
-        //     if the player is moved
-        Space currentSpace = player.getSpace();
-        if (currentSpace == null) {
-            System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
-            return;
-        }
-
-        boolean couldMove = true;
-        if (nextSpace != null) {
-            boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
-            if (!isWallBetween) { // If it isn't a wall
-                if (nextSpace.getPlayer() != null) { // If there is a player on the nextSpace
-                    List<Player> playersToPush = new ArrayList<>();
-                    Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
-                    boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
-                    if (couldPush) {
-                        // Handle pushing players in EventHandler
-                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection, this); // WARNING: Can lead to infinite loop
-                    } else {
-                        // There is a wall at the end of player chain
-                        couldMove = false;
-                    }
-                }
-            } else {
-                // There is a wall between currentSpace and nextSpace
-                couldMove = false;
-            }
-        }
-
-        if (!couldMove) {
-            nextSpace = currentSpace;
-        }
-
-        // Setting the players position to nextSpace in the EventHandler
-        EventHandler.event_PlayerMove(player, nextSpace, this);
-    }
-
-    /**
-     * Tries to push players recursively.
-     * @param space The current space being checked.
-     * @param direction The direction we want to push.
-     * @return A list of players being pushed.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
-        Player playerOnSpace = space.getPlayer();
-        Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
-        if (nextSpace == null) {                                // Base case, player fell off LULW
-            playersToPush.add(playerOnSpace);
-            return true;
-        }
-        boolean isWallBetween = space.getIsWallBetween(nextSpace);
-        if (nextSpace.getPlayer() == null && !isWallBetween) {  // Base case, no player on next space and no wall between
-            playersToPush.add(playerOnSpace);
-            return true;
-        }
-        if (nextSpace.getPlayer() != null) {                    // In case more players to move
-            if (tryMovePlayerInDirection(nextSpace, direction, playersToPush)) {
-                // If all other players have moved, we also move.
-                playersToPush.add(playerOnSpace);
-                return true;
-            } return false;  // If push chain was stopped by wall
-        } else {                                                // In case of wall
-            return false;
-        }
+    public void startUpgradingPhase() {
+        board.getUpgradeShop().refreshUpgradeShopCards();
+        board.setPhase(UPGRADE);
+        board.updateBoard();
     }
 
     /**
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
-        board.setPhase(Phase.PROGRAMMING);
+        board.setPhase(PROGRAMMING);
 
         board.setCurrentRegister(0);
         board.updatePriorityList();
@@ -205,61 +113,51 @@ public class GameController {
             if (player != null) {
                 player.discardAll();
                 for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
-                    CommandCardField field = player.getProgramField(j);
+                    CardField field = player.getProgramField(j);
                     field.setVisible(true);
                 }
                 player.drawHand();
                 for (int j = 0; j < Player.NO_OF_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
+                    CardField field = player.getCardField(j);
                     field.setVisible(true);
                 }
             }
         }
     }
 
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * 9);
-        return new CommandCard(commands[random]);
-    }
-    
     public void finishProgrammingPhase() {
-        board.setPhase(Phase.ACTIVATION);
+        board.setPhase(ACTIVATION);
+        board.updateBoard();
 
-        board.setCurrentPlayer(board.getPriorityList().poll());
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
     }
 
-    // XXX: implemented in the current version
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_OF_REGISTERS) {
             for (int i = 0; i < board.getNoOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
-                CommandCardField field = player.getProgramField(register);
+                CardField field = player.getProgramField(register);
                 field.setVisible(true);
             }
         }
     }
 
-    // XXX: implemented in the current version
     private void makeProgramFieldsInvisible() {
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             Player player = board.getPlayer(i);
             for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
-                CommandCardField field = player.getProgramField(j);
+                CardField field = player.getProgramField(j);
                 field.setVisible(false);
             }
         }
     }
 
-    // XXX: implemented in the current version
     public void executePrograms() {
         board.setStepMode(false);
         handlePlayerRegister();
     }
 
-    // XXX: implemented in the current version
     public void executeRegister() {
         board.setStepMode(true);
         handlePlayerRegister();
@@ -269,7 +167,8 @@ public class GameController {
      *     These methods are the main flow of a register.
      */
     private void handlePlayerRegister() {
-        turnPlaying = true;
+        setIsRegisterPlaying(true);
+        board.setCurrentPlayer(board.getPriorityList().poll());
         makeProgramFieldsVisible(board.getCurrentRegister());
         Player currentPlayer = board.getCurrentPlayer();
         if (!currentPlayer.getIsRebooting()) {
@@ -288,15 +187,13 @@ public class GameController {
     }
 
     private void handleEndOfPlayerTurn() {
-        if (board.getPhase() == Phase.PLAYER_INTERACTION) {
+        if (board.getPhase() == PLAYER_INTERACTION) {
             // Return and wait for PLAYER_INTERACTION.
             return;
         }
         // When player command is executed, check if there are more player turns this register.
         if (!board.getPriorityList().isEmpty()) {
             // There are more players in the priorityList. Continue to next player.
-            // Take player from the queue
-            board.setCurrentPlayer(board.getPriorityList().poll());
             handlePlayerRegister();
         } else {
             // priorityList is empty, therefore we end the register.
@@ -319,20 +216,15 @@ public class GameController {
         runActionsAndCallback(this::nextRegister);
     }
     public void nextRegister() {
-        /*for (Player player : board.getPlayers()) {
-            Space playerSpace = player.getSpace();
-            playerSpace.setPlayer(player);
-        }*/
         int currentRegister = board.getCurrentRegister();
         if (currentRegister < Player.NO_OF_REGISTERS - 1) {
             // Set next register
             currentRegister++;
-            turnPlaying = false;
             // If there are more registers, set the currentRegister and continue to the next player.
             board.setCurrentRegister(currentRegister);
             board.updatePriorityList();
-            // Take player from the queue
-            board.setCurrentPlayer(board.getPriorityList().poll());
+            setIsRegisterPlaying(false);
+            board.updateBoard();
             if (!board.isStepMode()) {
                 handlePlayerRegister();
             }
@@ -343,20 +235,20 @@ public class GameController {
 
     private void handleEndOfRound() {
         // If all registers are done
-        turnPlaying = false;
         PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
         pause.setOnFinished(event -> {
             for (Player player : board.getPlayers()) {
                 player.stopRebooting();
                 player.getSpace().updateSpace();
             }
-            startProgrammingPhase();
+            startUpgradingPhase();
+            setIsRegisterPlaying(false);
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
     }
 
     private void runActionsAndCallback(Runnable callback) {
-        if (board.getPhase() == Phase.ACTIVATION) {
+        if (board.getPhase() == ACTIVATION) {
             if (!actionQueue.isEmpty()) {
                 // Handle the next action
                 ActionWithDelay nextAction = actionQueue.removeFirst();
@@ -377,10 +269,10 @@ public class GameController {
 
     // XXX: implemented in the current version
     private void handlePlayerCommand(Player currentPlayer) {
-        if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
+        if (board.getPhase() == ACTIVATION && currentPlayer != null) {
             int currentRegister = board.getCurrentRegister();
             if (currentRegister >= 0 && currentRegister < Player.NO_OF_REGISTERS) {
-                CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
+                CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
                 if (card != null) {
                     Command command = card.command;
                     queuePlayerCommand(currentPlayer, command);
@@ -403,13 +295,13 @@ public class GameController {
      */
     public void executeCommandOptionAndContinue(Command option){
         queuePlayerCommand(board.getCurrentPlayer(), option);
-        board.setPhase(Phase.ACTIVATION);
+        board.setPhase(ACTIVATION);
         handlePlayerActions();
     }
 
 
     public void startRebootPhase() {
-        board.setPhase(Phase.REBOOTING);
+        board.setPhase(REBOOTING);
         handleNextReboot();
     }
 
@@ -452,51 +344,46 @@ public class GameController {
             command = EventHandler.event_RegisterActivate(player, command);
 
             switch (command) {
-                case FORWARD:
+                case MOVE_1:
                     player.setVelocity(new Velocity(1, 0));
                     startPlayerMovement(player);
                     break;
-                case FAST_FORWARD:
+                case MOVE_2:
                     player.setVelocity(new Velocity(2, 0));
                     startPlayerMovement(player);
                     break;
-                case VARY_FAST_FORWARD:
+                case MOVE_3:
                     player.setVelocity(new Velocity(3, 0));
                     startPlayerMovement(player);
                     break;
-                case RIGHT:
+                case RIGHT_TURN:
                     turnPlayer(player, 1);
                     break;
-                case LEFT:
+                case LEFT_TURN:
                     turnPlayer(player, -1);
                     break;
                 case U_TURN:
                     turnPlayer(player, 2);
                     break;
-                case BACKWARD:
+                case MOVE_BACK:
                     player.setVelocity(new Velocity(-1, 0));
                     startPlayerMovement(player);
                     break;
                 case AGAIN:
-                    switch (player.getLastCmd()) {
-                        case UPGRADE:
-                            player.addEnergyCube();
-                            break;
-                        default:
-                            queuePlayerCommand(player, player.getLastCmd());
-                    }
+                    queuePlayerCommand(player, player.getLastCmd());
                     break;
                 case POWER_UP:
                     player.addEnergyCube();
                     break;
                 case OPTION_LEFT_RIGHT:
-                    board.setPhase(Phase.PLAYER_INTERACTION);
+                    board.setPhase(PLAYER_INTERACTION);
                     break;
                 case SPAM:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
-                        player.removeFromDeck(topCard);
+                        CommandCard currentCard = (CommandCard) player.getCardFields()[board.getCurrentRegister()].getCard();
+                        player.removeFromDeck(currentCard);
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case TROJAN_HORSE:
@@ -506,12 +393,15 @@ public class GameController {
                         }
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
-                        player.removeFromDeck(topCard);
+                        CommandCard currentCard = (CommandCard) player.getCardFields()[board.getCurrentRegister()].getCard();
+                        player.removeFromDeck(currentCard);
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case WORM:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         EventHandler.event_PlayerReboot(player, this);
+                        CommandCard currentCard = (CommandCard) player.getCardFields()[board.getCurrentRegister()].getCard();
+                        player.removeFromDeck(currentCard);
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case VIRUS:
@@ -524,7 +414,8 @@ public class GameController {
                         }
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
-                        player.removeFromDeck(topCard);
+                        CommandCard currentCard =(CommandCard)  player.getCardFields()[board.getCurrentRegister()].getCard();
+                        player.removeFromDeck(currentCard);
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
@@ -657,7 +548,7 @@ public class GameController {
         for (Player player : board.getPlayers()) {
             actionQueue.addLast(new ActionWithDelay(() -> {
                 EventHandler.event_PlayerShoot(board, player, actionQueue);
-            }, Duration.millis(250), "Player laser"));
+            }, Duration.millis(150), "Player laser"));
         }
 
         // 7. Energy spaces
@@ -675,6 +566,123 @@ public class GameController {
             }
         }, Duration.millis(0), "Check points"));
     }
+
+    /**
+     * returns the winners image
+     * @return Image
+     * @author Maximillian Bjørn Mortensen
+     */
+    public Image getWinnerIMG(){
+        return winnerIMG;
+    }
+
+    /**
+     * returns the winners name
+     * @return String
+     * @author Maximillian Bjørn Mortensen
+     */
+    public String getWinnerName() {
+        return winnerName;
+    }
+
+    /**
+     * sets the paramaters as the winner
+     * @param winnerName
+     * @param winnerIMG
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void setWinner(String winnerName, Image winnerIMG){
+        this.winnerName = winnerName;
+        this.winnerIMG = winnerIMG;
+        appController.gameOver();
+    }
+
+    /**
+     * Takes the current player of the board and sets the players position to the given space
+     * if the space is free. The current player is then set to the player following the current player.
+     *
+     * @param player
+     * @param nextSpace the space to which the current player should move
+     * @return void
+     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
+     */
+    public void movePlayerToSpace(Player player, Space nextSpace) {
+        // TODO Task1: method should be implemented by the students:
+        //   - the current player should be moved to the given space
+        //     (if it is free())
+        //   - and the current player should be set to the player
+        //     following the current player
+        //   - the counter of moves in the game should be increased by one
+        //     if the player is moved
+        Space currentSpace = player.getSpace();
+        if (currentSpace == null) {
+            System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
+            return;
+        }
+
+        boolean couldMove = true;
+        if (nextSpace != null) {
+            boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
+            if (!isWallBetween) { // If it isn't a wall
+                if (nextSpace.getPlayer() != null) { // If there is a player on the nextSpace
+                    List<Player> playersToPush = new ArrayList<>();
+                    Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
+                    boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
+                    if (couldPush) {
+                        // Handle pushing players in EventHandler
+                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection, this); // WARNING: Can lead to infinite loop
+                    } else {
+                        // There is a wall at the end of player chain
+                        couldMove = false;
+                    }
+                }
+            } else {
+                // There is a wall between currentSpace and nextSpace
+                couldMove = false;
+            }
+        }
+
+        if (!couldMove) {
+            nextSpace = currentSpace;
+        }
+
+        // Setting the players position to nextSpace in the EventHandler
+        EventHandler.event_PlayerMove(player, nextSpace, this);
+    }
+
+    /**
+     * Tries to push players recursively.
+     * @param space The current space being checked.
+     * @param direction The direction we want to push.
+     * @return A list of players being pushed.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
+        Player playerOnSpace = space.getPlayer();
+        Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
+        if (nextSpace == null) {                                // Base case, player fell off LULW
+            playersToPush.add(playerOnSpace);
+            return true;
+        }
+        boolean isWallBetween = space.getIsWallBetween(nextSpace);
+        if (nextSpace.getPlayer() == null && !isWallBetween) {  // Base case, no player on next space and no wall between
+            playersToPush.add(playerOnSpace);
+            return true;
+        }
+        if (nextSpace.getPlayer() != null) {                    // In case more players to move
+            if (tryMovePlayerInDirection(nextSpace, direction, playersToPush)) {
+                // If all other players have moved, we also move.
+                playersToPush.add(playerOnSpace);
+                return true;
+            } return false;  // If push chain was stopped by wall
+        } else {                                                // In case of wall
+            return false;
+        }
+    }
+
+
+
+
 
 
 
@@ -767,7 +775,7 @@ public class GameController {
             Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
             if (nextPlayer.getSpawnPoint() != null) {
-                startProgrammingPhase();
+                beginGame();
             }
         } else if (board.getPhase() == REBOOTING) {
             Player player = playersRebooting.poll();
@@ -777,16 +785,86 @@ public class GameController {
         }
     }
 
-    public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
-        CommandCard sourceCard = source.getCard();
-        CommandCard targetCard = target.getCard();
-        if(sourceCard.command != null && sourceCard.command == Command.AGAIN && target.index == 1) return false;
-        if (sourceCard != null && targetCard == null) {
-            target.setCard(sourceCard);
-            source.setCard(null);
-            return true;
-        } else {
-            return false;
+    public boolean canDragCard(CardField sourceField) {
+        if (sourceField == null) return false;
+        if (sourceField.getCard() == null) return false;
+        CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
+
+        // Drag from shop
+        if (sourceType == UPGRADE_CARD_SHOP_FIELD && board.getPhase() != UPGRADE) return false;
+
+        // Drag from player
+        if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
+            // Limited card movement when not programming
+            assert sourceField.player != null;
+            List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
+            if (board.getPhase() != PROGRAMMING) {
+                if (playerProgramField.contains(sourceField)) return false;
+            }
         }
+
+        return true;
+    }
+
+    public boolean canDropCard(CardField sourceField, CardField targetField) {
+        if (sourceField == null || targetField == null) return false;
+        CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
+        CardField.CardFieldTypes targetType = targetField.cardFieldType;
+
+        // Can't drag onto shop
+        if (targetType == UPGRADE_CARD_SHOP_FIELD) return false;
+
+        // Dragging from shop
+        if (sourceType == UPGRADE_CARD_SHOP_FIELD) {
+            if (board.getPhase() != UPGRADE) return false;
+            if (sourceField.getCard() instanceof UpgradeCardPermanent && targetType != PERMANENT_UPGRADE_CARD_FIELD) return false;
+            if (sourceField.getCard() instanceof UpgradeCardTemporary && targetType != TEMPORARY_UPGRADE_CARD_FIELD) return false;
+        }
+
+        // Dragging from player
+        if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
+            if (sourceField.player != targetField.player) return false;
+            if (sourceType != targetType) return false;
+
+            // Limited card movement when not programming
+            assert sourceField.player != null;
+            List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
+            if (board.getPhase() != PROGRAMMING) {
+                if (playerProgramField.contains(sourceField) || playerProgramField.contains(targetField)) return false;
+            }
+
+            // Can't put again command on first register
+            if (sourceField.cardFieldType == COMMAND_CARD_FIELD) {
+                if (((CommandCard)(sourceField.getCard())).command == Command.AGAIN && targetField.index == 1) return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean moveCard(@NotNull CardField sourceField, @NotNull CardField targetField) {
+        boolean couldMove = true;
+        Card sourceCard = sourceField.getCard();
+        Card targetCard = targetField.getCard();
+
+        // Buying
+        if (sourceField.cardFieldType == UPGRADE_CARD_SHOP_FIELD) {
+            assert targetField.player != null;
+            Player player = targetField.player;
+            boolean canBuyUpgradeCard = player.attemptUpgradeCardPurchase((UpgradeCard) sourceCard);
+            if (canBuyUpgradeCard) {
+                if (targetCard != null) {
+                    player.removeUpgradeCard((UpgradeCard) targetCard);
+                }
+            }
+            couldMove = canBuyUpgradeCard;
+        }
+
+        if (couldMove) {
+            sourceField.setCard(targetCard); // Replaces sourceField card with null if targetCard is null.
+            targetField.setCard(sourceCard);
+        }
+
+        return couldMove;
     }
 }

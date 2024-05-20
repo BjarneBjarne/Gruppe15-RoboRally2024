@@ -3,13 +3,13 @@ package gruppe15.roborally.model.upgrades.upgrade_cards;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_Hole;
 import gruppe15.roborally.model.events.PlayerMoveListener;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 import javafx.util.Pair;
 
-public class Card_HoverUnit extends UpgradeCard {
+public class Card_HoverUnit extends UpgradeCardPermanent {
 
     public Card_HoverUnit() {
-        super("Hover Unit", 0, 0, 0, null);
+        super("Hover Unit", 1, 0, 0, null);
     }
 
     @Override
@@ -17,7 +17,7 @@ public class Card_HoverUnit extends UpgradeCard {
         super.initialize(board, owner);
         // Defining effects on events
         // OnDamageDealt
-        EventHandler.onEvent((PlayerMoveListener) (space, shouldReboot) -> {
+        eventListeners.add(EventHandler.subscribe((PlayerMoveListener) (space, shouldReboot) -> {
             if (space != null) {
                 if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
                     Velocity playerVel = owner.getVelocity();
@@ -28,7 +28,7 @@ public class Card_HoverUnit extends UpgradeCard {
                 }
             }
             return new Pair<>(space, shouldReboot);
-        }, owner);
+        }, owner));
     }
 
     @Override

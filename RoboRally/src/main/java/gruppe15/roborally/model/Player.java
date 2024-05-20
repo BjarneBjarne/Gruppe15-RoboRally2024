@@ -23,13 +23,13 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.upgrades.*;
-import gruppe15.roborally.model.upgrades.upgrade_cards.Card_DoubleBarrelLaser;
-import gruppe15.roborally.model.upgrades.upgrade_cards.Card_HoverUnit;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
 
@@ -40,9 +40,11 @@ import static gruppe15.roborally.model.Heading.SOUTH;
  *
  */
 public class Player extends Subject {
-
     final public static int NO_OF_REGISTERS = 5;
     final public static int NO_OF_CARDS = 8;
+    final public static int NO_OF_PERMANENT_UPGRADE_CARDS = 3;
+    final public static int NO_OF_TEMPORARY_UPGRADE_CARDS = 3;
+    final public static int NO_OF_ENERGY_CUBES = 10;
 
     final public Board board;
 
@@ -55,9 +57,11 @@ public class Player extends Subject {
 
     transient private Command lastCmd;
 
-    transient private final CommandCardField[] program;
-    transient private final CommandCardField[] cards;
-    private int energyCubes = 0;
+    transient private final CardField[] programFields;
+    transient private final CardField[] cardFields;
+    transient private final CardField[] permanentUpgradeCardFields;
+    transient private final CardField[] temporaryUpgradeCardFields;
+    private int energyCubes = 5;
     private int checkpoints = 0;
     transient private int priority = 0;
     private Velocity velocity;
@@ -78,20 +82,24 @@ public class Player extends Subject {
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
         this.charIMG = ImageUtils.getImageFromName(robot.getSelectionImageName());
 
-        buyUpgradeCard(new Card_HoverUnit());
-        buyUpgradeCard(new Card_DoubleBarrelLaser());
-
-        program = new CommandCardField[NO_OF_REGISTERS];
-        for (int i = 0; i < program.length; i++) {
-            program[i] = new CommandCardField(this,i+1);
+        programFields = new CardField[NO_OF_REGISTERS];
+        for (int i = 0; i < programFields.length; i++) {
+            programFields[i] = new CardField(this,i+1);
+        }
+        cardFields = new CardField[NO_OF_CARDS];
+        for (int i = 0; i < cardFields.length; i++) {
+            cardFields[i] = new CardField(this, CardField.CardFieldTypes.COMMAND_CARD_FIELD);
+        }
+        permanentUpgradeCardFields = new CardField[NO_OF_PERMANENT_UPGRADE_CARDS];
+        for (int i = 0; i < permanentUpgradeCardFields.length; i++) {
+            permanentUpgradeCardFields[i] = new CardField(this, CardField.CardFieldTypes.PERMANENT_UPGRADE_CARD_FIELD);
+        }
+        temporaryUpgradeCardFields = new CardField[NO_OF_TEMPORARY_UPGRADE_CARDS];
+        for (int i = 0; i < temporaryUpgradeCardFields.length; i++) {
+            temporaryUpgradeCardFields[i] = new CardField(this, CardField.CardFieldTypes.TEMPORARY_UPGRADE_CARD_FIELD);
         }
 
-        cards = new CommandCardField[NO_OF_CARDS];
-        for (int i = 0; i < cards.length; i++) {
-            cards[i] = new CommandCardField(this);
-        }
-
-        setProgrammingDeckToDefoult();
+        setProgrammingDeckToDefault();
     }
 
     public Image getImage() {
@@ -263,52 +271,106 @@ public class Player extends Subject {
         return this.rebooting;
     }
 
-    public CommandCardField getProgramField(int i) {
-        return program[i];
+    public CardField getProgramField(int i) {
+        return programFields[i];
+    }
+    public CardField[] getProgramFields() {
+        return programFields;
     }
 
-    public CommandCardField getCardField(int i) {
-        return cards[i];
+    public CardField getCardField(int i) {
+        return cardFields[i];
+    }
+    public CardField[] getCardFields() {
+        return cardFields;
+    }
+
+    public CardField getPermanentUpgradeCardField(int i) {
+        return permanentUpgradeCardFields[i];
+    }
+    public CardField[] getPermanentUpgradeCardFields() {
+        return permanentUpgradeCardFields;
+    }
+
+    public CardField getTemporaryUpgradeCardField(int i) {
+        return temporaryUpgradeCardFields[i];
+    }
+    public CardField[] getTemporaryUpgradeCardFields() {
+        return temporaryUpgradeCardFields;
     }
 
     public void addEnergyCube() {
         energyCubes++;
     }
 
-    public CommandCardField[] getProgram() {
-        return program;
-    }
+    public boolean attemptUpgradeCardPurchase(UpgradeCard upgradeCard) {
+        AtomicBoolean hasCard = new AtomicBoolean(false);
+        upgradeCards.stream().forEach(u -> {
+            if (u.getClass().isAssignableFrom(upgradeCard.getClass())) {
+                hasCard.set(true);
+            }
+        });
+        if (hasCard.get()) {
+            return false;
+        }
+        if (energyCubes < upgradeCard.getPurchaseCost()) {
+            return false;
+        }
 
-    public CommandCardField[] getCardFields() {
-        return cards;
+        energyCubes -= upgradeCard.getPurchaseCost();
+        addUpgradeCard(upgradeCard);
+        board.updateBoard();
+        return true;
     }
-
-    public void buyUpgradeCard(UpgradeCard upgradeCard) {
+    public void addUpgradeCard(UpgradeCard upgradeCard) {
+        System.out.println(name + " bought " + upgradeCard.getName());
         upgradeCards.add(upgradeCard);
         upgradeCard.initialize(board, this);
+    }
+    public void removeUpgradeCard(UpgradeCard upgradeCard) {
+        upgradeCards.remove(upgradeCard);
+        upgradeCard.unInitialize();
     }
 
     /**
      * sets the fiels programmingDeck to its defoult settings
      * @author Maximillian Bjørn Mortensen
      */
-    public void setProgrammingDeckToDefoult() {
-        List<Integer> index = new ArrayList<Integer>();
-        for(int i = 0; i < 20; i++){
-            if(i<9){
-                index.add(i);
-            }else if(i<18){
-                index.add(i-9);
-            }else{
-                index.add(i-18);
-            }
+    public void setProgrammingDeckToEven() {
+        List<Integer> index = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            index.add(i % 9);
         }
         Collections.shuffle(index);
         Command[] commands = Command.values();
-        for(int i = 0; i < 20; i++) {
-            programmingDeck.add(new CommandCard(commands[index.remove(0)]));
+        for (int i = 0; i < 20; i++) {
+            programmingDeck.add(new CommandCard(commands[index.removeFirst()]));
         }
         programmingDeck.add(null);
+        //printProgrammingDeck();
+    }
+
+    public void setProgrammingDeckToDefault() {
+        List<CommandCard> tempDeck = new ArrayList<>();
+        addCommandCardsToDeck(tempDeck, Command.MOVE_1, 4);
+        addCommandCardsToDeck(tempDeck, Command.MOVE_2, 3);
+        addCommandCardsToDeck(tempDeck, Command.MOVE_3, 1);
+        addCommandCardsToDeck(tempDeck, Command.RIGHT_TURN, 4);
+        addCommandCardsToDeck(tempDeck, Command.LEFT_TURN, 4);
+        addCommandCardsToDeck(tempDeck, Command.U_TURN, 1);
+        addCommandCardsToDeck(tempDeck, Command.MOVE_BACK, 1);
+        addCommandCardsToDeck(tempDeck, Command.POWER_UP, 1);
+        addCommandCardsToDeck(tempDeck, Command.AGAIN, 1);
+        Collections.shuffle(tempDeck);
+        programmingDeck = new LinkedList<>();
+        programmingDeck.add(null);
+
+        programmingDeck.addAll(tempDeck);
+
+        //printProgrammingDeck();
+    }
+    private static void addCommandCardsToDeck(List<CommandCard> deck, Command command, int count) {
+        deck.addAll(Collections.nCopies(count, new CommandCard(command)));
     }
 
     /**
@@ -321,6 +383,18 @@ public class Player extends Subject {
         Collections.shuffle(temp);
         programmingDeck.addAll(temp);
         programmingDeck.add(null);
+
+        //printProgrammingDeck();
+    }
+
+    public void printProgrammingDeck() {
+        System.out.println("Player cards: " + name);
+        System.out.println("Number of cards: " + programmingDeck.size());
+        Map<Command, Long> commandCardCounts = programmingDeck.stream()
+                .filter(Objects::nonNull) // Filter out null CommandCards
+                .collect(Collectors.groupingBy(CommandCard::getCommand, Collectors.counting()));
+        commandCardCounts.forEach((key, value) -> System.out.println(key + ": " + value));
+        System.out.println();
     }
 
     /**
@@ -348,7 +422,7 @@ public class Player extends Subject {
      * @author Maximillian Bjørn Mortensen
      */
     public void drawHand() {
-        for(CommandCardField c: cards){
+        for(CardField c: cardFields){
             if(c.getCard() == null){
                 CommandCard temp = drawFromDeck();
                 if(temp == null){
@@ -365,15 +439,15 @@ public class Player extends Subject {
      * @author Maximillian Bjørn Mortensen
      */
     public void discardAll() {
-        for(CommandCardField c: program){
-            if(c.getCard() != null){
-                discard(c.getCard());
+        for (CardField c: programFields) {
+            if(c.getCard() != null) {
+                discard((CommandCard) c.getCard());
                 c.setCard(null);
             }
         }
-        for(CommandCardField c: cards){
-            if(c.getCard() != null){
-                discard(c.getCard());
+        for (CardField c: cardFields) {
+            if(c.getCard() != null) {
+                discard((CommandCard) c.getCard());
                 c.setCard(null);
             }
         }

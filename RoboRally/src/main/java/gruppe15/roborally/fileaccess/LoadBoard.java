@@ -236,7 +236,7 @@ public class LoadBoard {
         playerTemplate.heading = player.getHeading();
         playerTemplate.cards = new Command[player.getCardFields().length];
         for(int i = 0; i < player.getCardFields().length; i++){
-            playerTemplate.cards[i] = player.getCardField(i).getCard().getCommand();
+            playerTemplate.cards[i] = ((CommandCard) player.getCardField(i).getCard()).getCommand();
         }
         playerTemplate.checkpoints = player.getCheckpoints();
         playerTemplate.energyCubes = player.getEnergyCubes();

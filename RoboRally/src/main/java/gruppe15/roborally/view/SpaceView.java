@@ -27,9 +27,8 @@ import gruppe15.roborally.model.Laser;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
-import gruppe15.roborally.model.boardelements.BE_Reboot;
-import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -66,30 +65,30 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.space = space;
 
         // XXX the following styling should better be done with styles
-        this.setPrefWidth(SPACE_WIDTH);
-        this.setMinWidth(SPACE_WIDTH);
-        this.setMaxWidth(SPACE_WIDTH);
+        this.setPrefWidth(Constants.SPACE_SIZE);
+        this.setMinWidth(Constants.SPACE_SIZE);
+        this.setMaxWidth(Constants.SPACE_SIZE);
 
-        this.setPrefHeight(SPACE_HEIGHT);
-        this.setMinHeight(SPACE_HEIGHT);
-        this.setMaxHeight(SPACE_HEIGHT);
+        this.setPrefHeight(SPACE_SIZE);
+        this.setMinHeight(SPACE_SIZE);
+        this.setMaxHeight(SPACE_SIZE);
 
-        backgroundImageView.setFitWidth(SPACE_WIDTH);
-        backgroundImageView.setFitHeight(SPACE_HEIGHT);
+        backgroundImageView.setFitWidth(Constants.SPACE_SIZE);
+        backgroundImageView.setFitHeight(SPACE_SIZE);
         backgroundImageView.setImage(space.getImage());
         this.getChildren().add(backgroundImageView);
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
-            boardElementImageView.setFitWidth(SPACE_WIDTH);
-            boardElementImageView.setFitHeight(SPACE_HEIGHT);
+            boardElementImageView.setFitWidth(Constants.SPACE_SIZE);
+            boardElementImageView.setFitHeight(SPACE_SIZE);
 
             boardElementImageView.setImage(boardElement.getImage());
             this.getChildren().add(boardElementImageView);
 
             if (boardElement instanceof BE_EnergySpace) {
-                energyCubeImageView.setFitWidth(SPACE_WIDTH);
-                energyCubeImageView.setFitHeight(SPACE_HEIGHT);
+                energyCubeImageView.setFitWidth(Constants.SPACE_SIZE);
+                energyCubeImageView.setFitHeight(SPACE_SIZE);
                 energyCubeImageView.setImage(ImageUtils.getImageFromName("Board Pieces/energyCube.png"));
                 energyCubeImageView.xProperty();
                 energyCubeImageView.setLayoutY(10);
@@ -99,15 +98,15 @@ public class SpaceView extends StackPane implements ViewObserver {
         Image wallImage = ImageUtils.getImageFromName("Board Pieces/wall.png");
         for (Heading wall : space.getWalls()) {
             ImageView wallImageView = new ImageView();
-            wallImageView.setFitWidth(SPACE_WIDTH);
-            wallImageView.setFitHeight(SPACE_HEIGHT);
+            wallImageView.setFitWidth(Constants.SPACE_SIZE);
+            wallImageView.setFitHeight(SPACE_SIZE);
             wallImageView.setImage(ImageUtils.getRotatedImageByHeading(wallImage, wall));
             wallImageViews.add(wallImageView);
             this.getChildren().add(wallImageView);
         }
 
-        playerImageView.setFitWidth(SPACE_WIDTH);
-        playerImageView.setFitHeight(SPACE_HEIGHT);
+        playerImageView.setFitWidth(Constants.SPACE_SIZE);
+        playerImageView.setFitHeight(SPACE_SIZE);
         this.getChildren().add(playerImageView);
 
         // This space view should listen to changes of the space
@@ -172,8 +171,8 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private ImageView newLaserImageView(Laser.LaserOnSpace laserOnSpace) {
         ImageView laserImageView = new ImageView();
-        laserImageView.setFitWidth(SPACE_WIDTH);
-        laserImageView.setFitHeight(SPACE_HEIGHT);
+        laserImageView.setFitWidth(Constants.SPACE_SIZE);
+        laserImageView.setFitHeight(SPACE_SIZE);
         laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(laserOnSpace.getImageName()), laserOnSpace.getDirection()));
         return laserImageView;
     }

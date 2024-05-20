@@ -30,18 +30,13 @@ import gruppe15.roborally.view.SetupView;
 import gruppe15.roborally.view.WinScreenView;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -58,6 +53,7 @@ public class RoboRally extends Application {
     private static final int MIN_APP_WIDTH = 1280;
     private static final int MIN_APP_HEIGHT = 740;
     public GridPane directionOptionsPane;
+    private StackPane upgradeShopPane;
     private Stage stage;
     private BorderPane boardRoot;
     private BoardView boardView;
@@ -65,9 +61,12 @@ public class RoboRally extends Application {
     private AnchorPane selectionMenu;
     private CourseCreatorController courseCreator;
 
+    @FXML
+    public HBox upgradeShopCardsHBox;
+    @FXML
+    public Button finishUpgradingButton;
 
     // private RoboRallyMenuBar menuBar;
-
     // private AppController appController;
 
     @Override
@@ -168,7 +167,6 @@ public class RoboRally extends Application {
      * and not recreate an instance of the main menu.
      * 
      * @Author Marcus Rémi Lemser Eychenne, s230985
-     * @param appController the AppController of the game
      */
     public void goToMainMenu() {
         // if present, remove old BoardView
@@ -230,15 +228,24 @@ public class RoboRally extends Application {
         boardRoot.getChildren().clear();
 
         if (gameController != null) {
+            try {
+                FXMLLoader upgradeShopFXMLLoader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/UpgradeShop.fxml"));
+                upgradeShopFXMLLoader.setController(this);
+                upgradeShopPane = upgradeShopFXMLLoader.load();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
             // create and add view for new board
             if(!loadingGame) {
-                FXMLLoader fxmlLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
+                FXMLLoader directionOptionsFXMLLoader = new FXMLLoader(RoboRally.class.getResource("SpawnArrows.fxml"));
                 try {
-                    directionOptionsPane = fxmlLoader.load();
+                    directionOptionsPane = directionOptionsFXMLLoader.load();
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                 }
                 boardView = new BoardView(gameController, directionOptionsPane);
+                boardView.setUpgradeShopFXML(upgradeShopPane, upgradeShopCardsHBox, finishUpgradingButton);
             } else {
                 boardView = new BoardView(gameController);
             }

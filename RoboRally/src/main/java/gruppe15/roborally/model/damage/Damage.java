@@ -47,11 +47,11 @@ public class Damage {
                     playerTakingDamage.discard(new CommandCard(cmdType));
                 }
                 // Print the damage dealt
-                if (playerInflictingTheDamage != null) {
+                /*if (playerInflictingTheDamage != null) {
                     System.out.println("Player {" + playerInflictingTheDamage.getName() + "} dealt " + damageTypeAmount.getAmount() + " " + damageTypeAmount.type + " damage to player {" + playerTakingDamage.getName() + "}");
                 } else {
                     System.out.println("Board laser dealt " + damageTypeAmount.getAmount() + " " + damageTypeAmount.type + " damage to player {" + playerTakingDamage.getName() + "}");
-                }
+                }*/
                 //damageTypeAmount.applyDamage(player);
             }
         }
