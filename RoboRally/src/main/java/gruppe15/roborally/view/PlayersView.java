@@ -48,7 +48,7 @@ public class PlayersView extends TabPane implements ViewObserver {
 
         this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
-        this.setTabMaxHeight(500);
+        this.setTabMaxHeight(1000);
 
         playerViews = new PlayerView[board.getNoOfPlayers()];
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
@@ -63,8 +63,8 @@ public class PlayersView extends TabPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == board) {
-            Player current = board.getCurrentPlayer();
-            this.getSelectionModel().select(board.getPlayerNumber(current));
+            //Player current = board.getCurrentPlayer();
+            //this.getSelectionModel().select(board.getPlayerNumber(current));
         }
     }
 

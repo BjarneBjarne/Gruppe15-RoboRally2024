@@ -101,11 +101,11 @@ public class AppController implements Observer {
             Player player = newBoard.getPlayer(i);
             if (player != null) {
                 for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
-                    CommandCardField field = player.getProgramField(j);
+                    CardField field = player.getProgramField(j);
                     field.setVisible(true);
                 }
                 for (int j = 0; j < Player.NO_OF_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
+                    CardField field = player.getCardField(j);
                     field.setVisible(true);
                 }
             }

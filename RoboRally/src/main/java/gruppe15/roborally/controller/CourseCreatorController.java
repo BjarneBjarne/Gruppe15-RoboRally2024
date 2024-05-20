@@ -172,7 +172,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView source = (CardFieldView) t;
-                CommandCardField cardField = source.field;
+                CardField cardField = source.field;
                 if (cardField != null &&
                         cardField.getCard() != null &&
                         cardField.player != null &&
@@ -201,7 +201,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
                 if (cardField != null &&
                         (cardField.getCard() == null || event.getGestureSource() == target) &&
                         cardField.player != null &&
@@ -223,7 +223,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
                 if (cardField != null &&
                         cardField.getCard() == null &&
                         cardField.player != null &&
@@ -246,7 +246,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
                 if (cardField != null &&
                         cardField.getCard() == null &&
                         cardField.player != null &&
@@ -269,7 +269,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
 
                 Dragboard db = event.getDragboard();
                 boolean success = false;
@@ -281,7 +281,7 @@ public class CourseCreatorController extends VBox {
                             db.hasContent(ROBO_RALLY_CARD)) {
                         Object object = db.getContent(ROBO_RALLY_CARD);
                         if (object instanceof String) {
-                            CommandCardField source = cardFieldFromRepresentation((String) object);
+                            CardField source = cardFieldFromRepresentation((String) object);
                             if (source != null && gameController.moveCards(source, cardField)) {
                                 // CommandCard card = source.getCard();
                                 // if (card != null) {

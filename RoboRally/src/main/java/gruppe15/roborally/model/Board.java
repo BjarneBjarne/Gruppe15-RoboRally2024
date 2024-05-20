@@ -23,15 +23,19 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.boardelements.*;
+import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.events.PhaseChangeListener;
+import gruppe15.roborally.model.upgrades.UpgradeCard;
 import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
-import javafx.util.Duration;
+import javafx.scene.layout.HBox;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static gruppe15.roborally.model.Heading.*;
 import static gruppe15.roborally.model.Heading.WEST;
@@ -44,6 +48,7 @@ import static gruppe15.roborally.model.Phase.INITIALIZATION;
  *
  */
 public class Board extends Subject {
+    final public static int NO_OF_CHECKPOINTS = 6;
 
     public final int width;
 
@@ -68,6 +73,7 @@ public class Board extends Subject {
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private List<Space[][]> subBoards;
     private int numberOfCheckPoints;
+    private UpgradeShop upgradeShop;
 
 
     public Board(int width, int height) {
@@ -226,6 +232,14 @@ public class Board extends Subject {
 
         this.stepMode = false;
         updateBoardElementSpaces();
+    }
+
+    public void initializeUpgradeShop() {
+        this.upgradeShop = new UpgradeShop(getNoOfPlayers());
+    }
+
+    public UpgradeShop getUpgradeShop() {
+        return upgradeShop;
     }
 
     private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
@@ -403,22 +417,25 @@ public class Board extends Subject {
         // the students, this method gives a string representation of the current
         // status of the game (specifically, it shows the phase, the player and the step)
 
-        // TODO Task1: this string could eventually be refined
-        //      The status line should show more information based on
-        //      situation; for now, introduce a counter to the Board,
-        //      which is counted up every time a player makes a move; the
-        //      status line should show the current player and the number
-        //      of the current move!
-
 //We have added the MoveCount + getMoveCounter() to the string so it will be displayed at the bottom getMoveCounter() is a getter that gets the current move counter
+        AtomicInteger noOfDamageCards = new AtomicInteger();
+
+        for (CommandCard commandCard : getCurrentPlayer().getProgrammingDeck()) {
+            if (commandCard == null) {
+                continue;
+            }
+            for (DamageTypes damageType : DamageTypes.values()) {
+                if (damageType.getCommandCardType() == commandCard.command) {
+                    noOfDamageCards.getAndIncrement();
+                }
+            }
+        }
+
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
+                ", Player damage cards = " + noOfDamageCards +
                 ", Register: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +
                 //",  ";
-
-        // TODO Task1: add a counter along with a getter and a setter, so the
-        //      state of the board (game) contains the number of moves, which then can
-        //      be used to extend the status message
     }
 
     private List<Space>[] boardElementsSpaces;

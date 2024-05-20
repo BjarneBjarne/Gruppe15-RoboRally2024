@@ -7,7 +7,7 @@ import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 public class Card_Brakes extends UpgradeCardPermanent {
 
     public Card_Brakes() {
-        super("Double Barrel Laser", 0, 0, 0, null);
+        super("Brakes", 3, 0, 0, null);
     }
 
     @Override
@@ -17,14 +17,14 @@ public class Card_Brakes extends UpgradeCardPermanent {
         // Defining effects on events
 
         // OnMoveStart
-        EventHandler.onEvent((PlayerCommandListener) command -> {
+        eventListeners.add(EventHandler.subscribe((PlayerCommandListener) command -> {
             System.out.println("Player {" + owner.getName() + "} moved!");
-            if (command == Command.FORWARD) {
+            if (command == Command.MOVE_1) {
                 return Command.DO_NOTHING;
             } else {
                 return command;
             }
-        }, owner);
+        }, owner));
     }
 
     @Override

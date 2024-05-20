@@ -37,8 +37,17 @@ public class EventHandler {
      * @param listener
      * @param owner
      */
-    public static void onEvent(EventListener listener, Player owner) {
+    public static EventListener subscribe(EventListener listener, Player owner) {
         listeners.put(listener, owner);
+        return listener;
+    }
+    /**
+     * Unsubscription method for EventListeners/Cards.
+     * @param listener
+     * @param owner
+     */
+    public static void unsubscribe(EventListener listener, Player owner) {
+        listeners.entrySet().removeIf(entry -> entry.getKey().equals(listener) && entry.getValue().equals(owner));
     }
 
     /**
