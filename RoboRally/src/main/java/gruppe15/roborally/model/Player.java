@@ -455,13 +455,15 @@ public class Player extends Subject {
      */
     public void discardAll() {
         for (CardField c: programFields) {
-            if(c.getCard() != null) {
+            if(c.getCard() instanceof CommandCard && ((CommandCard) c.getCard()).getCommand().isDamage()){
+                c.setCard(null);
+            }else if(c.getCard() != null) {
                 discard((CommandCard) c.getCard());
                 c.setCard(null);
             }
         }
         for (CardField c: cardFields) {
-            if(c.getCard() != null) {
+            if(c.getCard() != null && !((CommandCard) c.getCard()).getCommand().isDamage()) {
                 discard((CommandCard) c.getCard());
                 c.setCard(null);
             }
