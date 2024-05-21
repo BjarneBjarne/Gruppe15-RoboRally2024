@@ -28,16 +28,24 @@ import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.SetupView;
 import gruppe15.roborally.view.WinScreenView;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -54,7 +62,7 @@ public class RoboRally extends Application {
     public GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private Stage stage;
-    private BorderPane boardRoot;
+    private BorderPane root;
     private BoardView boardView;
     private AnchorPane mainMenu;
     private AnchorPane selectionMenu;
@@ -76,30 +84,75 @@ public class RoboRally extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
-
         AppController appController = new AppController(this);
-
         // create the primary scene with a menu bar and a pane for
         // the board view (which initially is empty); it will be filled
         // when the user creates a new game or loads a game
         //RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
-        boardRoot = new BorderPane();
-        VBox vbox = new VBox(boardRoot);
-        vbox.setAlignment(Pos.CENTER);
-        vbox.setMinWidth(MIN_APP_WIDTH);
-        vbox.setMinHeight(MIN_APP_HEIGHT);
-        createMainMenu(appController);
-        Scene primaryScene = new Scene(vbox);
+        root = new BorderPane();
 
+        Scene primaryScene = new Scene(root);
         stage.setScene(primaryScene);
-        stage.setTitle("RoboRally");
+        stage.setTitle("Robo Rally");
+        stage.setResizable(true);
+        stage.setFullScreen(false);
+
+        // Get screen bounds and calculate scale
+        APP_BOUNDS = Screen.getPrimary().getVisualBounds();
+        APP_SCALE = (APP_BOUNDS.getHeight() / 1440);
+
+        System.out.println("Start bounds:");
+        System.out.println(APP_BOUNDS.getWidth());
+        System.out.println(APP_BOUNDS.getHeight());
+
+        // Set stage dimensions
+        stage.setWidth(APP_BOUNDS.getWidth() * 0.75);
+        stage.setHeight(APP_BOUNDS.getHeight() * 0.75);
+
+        // Show the stage
+        stage.show();
+
+        // Apply scaling to the root node
+        root.setScaleX(APP_SCALE);
+        root.setScaleY(APP_SCALE);
+
+
+        //updateNodeScale(root);
+
+        PauseTransition pause = new PauseTransition(Duration.millis(200));
+        //pause.setOnFinished(event -> onResizeFinished());
+        ChangeListener<Number> resizeListener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                pause.playFromStart(); // Reset and start the pause transition
+            }
+        };
+        stage.heightProperty().addListener(resizeListener);
+
+        // Handling save option on close
         stage.setOnCloseRequest(e -> {
             e.consume();
             closeGame(appController);
         });
-        stage.setResizable(true);
-        stage.sizeToScene();
-        stage.show();
+        /*primaryScene.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                event.consume();
+                closeGame(appController);
+            }
+        });*/
+
+        createMainMenu(appController);
+    }
+
+    private void updateNodeScale(Node node) {
+        //UpdateSizes();
+        node.setScaleX(APP_SCALE);
+        node.setScaleY(APP_SCALE);
+    }
+
+    private void onResizeFinished() {
+        System.out.println("resized");
+        updateNodeScale(root);
     }
 
 
@@ -169,8 +222,8 @@ public class RoboRally extends Application {
      */
     public void goToMainMenu() {
         // if present, remove old BoardView
-        boardRoot.getChildren().clear();
-        boardRoot.setCenter(mainMenu);
+        root.getChildren().clear();
+        root.setCenter(mainMenu);
     }
 
     /**
@@ -202,8 +255,8 @@ public class RoboRally extends Application {
     }
     public void goToSelectionMenu() {
         // if present, remove old BoardView
-        boardRoot.getChildren().clear();
-        boardRoot.setCenter(selectionMenu);
+        root.getChildren().clear();
+        root.setCenter(selectionMenu);
     }
 
     /**
@@ -214,17 +267,17 @@ public class RoboRally extends Application {
      */
     public void goToWinScreen(GameController gameController, AppController appController){
 
-        boardRoot.getChildren().clear();
+        root.getChildren().clear();
 
         AnchorPane w = new WinScreenView().initialize(gameController, appController, this).getWinScreen();
 
-        boardRoot.setCenter(w);
+        root.setCenter(w);
 
     }
 
     public void createBoardView(GameController gameController, boolean loadingGame) {
         // if present, remove old BoardView
-        boardRoot.getChildren().clear();
+        root.getChildren().clear();
 
         if (gameController != null) {
             try {
@@ -248,7 +301,7 @@ public class RoboRally extends Application {
             } else {
                 boardView = new BoardView(gameController);
             }
-            boardRoot.setCenter(boardView);
+            root.setCenter(boardView);
         }
         stage.sizeToScene();
     }
@@ -271,7 +324,7 @@ public class RoboRally extends Application {
         if (courseCreator != null) {
             goToCourseCreator();
         } else {
-            boardRoot.getChildren().clear();
+            root.getChildren().clear();
             courseCreator = new CourseCreatorController();
 
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("CourseCreator.fxml"));
@@ -283,13 +336,13 @@ public class RoboRally extends Application {
                 e.printStackTrace();
             }
 
-            boardRoot.setCenter(courseCreator);
+            root.setCenter(courseCreator);
             stage.sizeToScene();
         }
     }
     public void goToCourseCreator() {
         // if present, remove old BoardView
-        boardRoot.getChildren().clear();
-        boardRoot.setCenter(courseCreator);
+        root.getChildren().clear();
+        root.setCenter(courseCreator);
     }
 }

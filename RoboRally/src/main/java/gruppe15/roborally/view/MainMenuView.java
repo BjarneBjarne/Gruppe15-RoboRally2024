@@ -5,13 +5,22 @@ import java.io.IOException;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
+import gruppe15.roborally.model.utils.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.InnerShadow;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 public class MainMenuView {
@@ -73,6 +82,8 @@ public class MainMenuView {
         newGame = (Button) mainMenu.lookup("#newGame");
         newGame.setOnAction(e -> appController.courseSelection());
         buttons[0] = newGame;
+
+        //newGame.setGraphic(createButtonTextPane(newGame.getText()));
     }
 
     private void createLoadGameButton(){
@@ -102,18 +113,41 @@ public class MainMenuView {
             }
         });
         buttons[1] = loadGame;
+
+        //loadGame.setGraphic(createButtonTextPane(loadGame.getText()));
     }
 
     private void createCourseCreatorButton(){
         courseCreator = (Button) mainMenu.lookup("#courseCreator");
         courseCreator.setOnMouseClicked(e -> appController.courseCreator());
         buttons[2] = courseCreator;
+
+        //courseCreator.setGraphic(createButtonTextPane(courseCreator.getText()));
     }
 
     private void createExitButton(){
         exit = (Button) mainMenu.lookup("#exit");
         exit.setOnAction(e -> appController.exit());
         buttons[3] = exit;
+
+        //exit.setGraphic(createButtonTextPane(exit.getText()));
+    }
+
+    private StackPane createButtonTextPane(String text) {
+        // Button text graphics
+        Label buttonLabelBackground = new Label(text);
+        buttonLabelBackground.setTextFill(Color.BLACK);
+        buttonLabelBackground.setStyle(
+                "-fx-font-size: 48;"
+        );
+        Text buttonLabelForeground = new Text(text);
+        buttonLabelForeground.setFill(Color.WHITE);
+        buttonLabelForeground.setStyle(
+                "-fx-font-size: 42;"
+        );
+        StackPane textPane = new StackPane(buttonLabelBackground, buttonLabelForeground);
+        textPane.setAlignment(Pos.CENTER);
+        return textPane;
     }
 
     private void setButtonEffect(){
