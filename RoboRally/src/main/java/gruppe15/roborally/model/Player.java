@@ -324,7 +324,7 @@ public class Player extends Subject {
     }
     public void addUpgradeCard(UpgradeCard upgradeCard) {
         try {
-            System.out.println(name + " bought " + upgradeCard.getName());
+            System.out.println("Player: \"" + name + "\" bought upgrade: \"" + upgradeCard.getName() + "\".");
             upgradeCards.add(upgradeCard);
             upgradeCard.initialize(board, this);
         } catch (NullPointerException e) {
@@ -338,6 +338,7 @@ public class Player extends Subject {
             if (!upgradeCards.contains(upgradeCard)) {
                 throw new IllegalPlayerPropertyAccess("ERROR - Attempted to remove upgradeCard: \"" + upgradeCard.getName() + "\" that player: \"" + name + "\" doesn't own.");
             }
+            System.out.println("Player: \"" + name + "\" discarded upgrade: \"" + upgradeCard.getName() + "\".");
             upgradeCards.remove(upgradeCard);
             upgradeCard.unInitialize();
             board.getUpgradeShop().returnCardToShop(upgradeCard);
