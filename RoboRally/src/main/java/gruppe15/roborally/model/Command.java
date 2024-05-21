@@ -80,4 +80,8 @@ public enum Command {
     public List<Command> getOptions() {
         return options;
     }
+
+    public boolean isDamage() {
+        return this == SPAM || this == TROJAN_HORSE || this == WORM || this == VIRUS;
+    }
 }
