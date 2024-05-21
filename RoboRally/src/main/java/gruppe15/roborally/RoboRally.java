@@ -42,6 +42,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Optional;
 
+import static gruppe15.roborally.model.utils.Constants.*;
+
 /**
  * ...
  *
@@ -49,9 +51,6 @@ import java.util.Optional;
  *
  */
 public class RoboRally extends Application {
-
-    private static final int MIN_APP_WIDTH = 1280;
-    private static final int MIN_APP_HEIGHT = 740;
     public GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private Stage stage;

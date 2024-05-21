@@ -455,10 +455,10 @@ public class Player extends Subject {
      */
     public void discardAll() {
         for (CardField c: programFields) {
-            if(c.getCard() instanceof CommandCard && ((CommandCard) c.getCard()).getCommand().isDamage()){
-                c.setCard(null);
-            }else if(c.getCard() != null) {
-                discard((CommandCard) c.getCard());
+            if (c.getCard() != null) {
+                if(c.getCard() instanceof CommandCard commandCard && !commandCard.getCommand().isDamage()){
+                    discard((CommandCard) c.getCard()); // Discard used command cards
+                }
                 c.setCard(null);
             }
         }
@@ -468,10 +468,6 @@ public class Player extends Subject {
                 c.setCard(null);
             }
         }
-    }
-
-    public void removeFromDeck(CommandCard card) {
-        programmingDeck.remove(card);
     }
 
     public void setEnergyCubes(int energyCubes) {
