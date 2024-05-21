@@ -257,7 +257,7 @@ public class PlayerView extends Tab implements ViewObserver {
         leftSideStackPane.setAlignment(Pos.CENTER);
 
         // Padding
-        leftSideStackPane.setPadding(new Insets(10, 50, 10, 50)); // Top, right, bottom, left
+        leftSideStackPane.setPadding(new Insets(0, 50, 0, 50)); // Top, right, bottom, left
         HBox.setMargin(temporaryUpgradeCardsPane, new Insets(10, 50, 10, 50)); // Top, right, bottom, left
 
         hBox.setAlignment(Pos.CENTER);

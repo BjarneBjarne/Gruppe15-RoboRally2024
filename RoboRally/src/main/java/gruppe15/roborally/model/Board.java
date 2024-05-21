@@ -235,7 +235,7 @@ public class Board extends Subject {
     }
 
     public void initializeUpgradeShop() {
-        this.upgradeShop = new UpgradeShop(getNoOfPlayers());
+        this.upgradeShop = new UpgradeShop(this);
     }
 
     public UpgradeShop getUpgradeShop() {

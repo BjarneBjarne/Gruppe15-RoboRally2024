@@ -48,7 +48,7 @@ public class BE_EnergySpace extends BoardElement {
                 hasEnergyCube = false;
                 player.addEnergyCube();
             }
-            if (gameController.board.getCurrentRegister() == 5) {
+            if (gameController.board.getCurrentRegister() == 4) {
                 player.addEnergyCube();
             }
         }

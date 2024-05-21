@@ -24,7 +24,6 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
 import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
 import gruppe15.roborally.model.utils.Constants;
@@ -190,7 +189,7 @@ public class BoardView extends VBox implements ViewObserver {
         upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
 
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            CardField cardField = upgradeShop.getCardField(i);
+            CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.2, 1.6 * 1.2);
             upgradeShopCardViews[i] = cardFieldView;
             upgradeShopCardsHBox.getChildren().add(cardFieldView);

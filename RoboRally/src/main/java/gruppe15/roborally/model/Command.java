@@ -35,6 +35,7 @@ import java.util.List;
  */
 public enum Command {
     // This is a very simplistic way of realizing different commands.
+    MOVE_0("Move 0"), // Do nothing
     MOVE_1("Move 1"),
     MOVE_2("Move 2"),
     MOVE_3("Move 3"),
@@ -45,10 +46,14 @@ public enum Command {
     AGAIN("Again"),
     POWER_UP("Power Up"),
 
+    // Special commands
     OPTION_LEFT_RIGHT("Left OR Right", LEFT_TURN, RIGHT_TURN),
     //UPGRADE("Upgrade"),
-    DO_NOTHING("Do Nothing"),
 
+    // UpgradeCards commands
+    BRAKES("Brakes", MOVE_0, MOVE_1),
+
+    // Damage commands
     SPAM(DamageTypes.SPAM.displayName),
     TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName),
     WORM(DamageTypes.WORM.displayName),
