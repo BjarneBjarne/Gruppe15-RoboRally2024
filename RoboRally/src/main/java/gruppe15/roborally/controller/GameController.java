@@ -378,7 +378,6 @@ public class GameController {
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
-                        CommandCard currentCard = (CommandCard) player.getCardFields()[board.getCurrentRegister()].getCard();
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case TROJAN_HORSE:
@@ -388,13 +387,11 @@ public class GameController {
                         }
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
-                        CommandCard currentCard = (CommandCard) player.getCardFields()[board.getCurrentRegister()].getCard();
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case WORM:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         EventHandler.event_PlayerReboot(player, this);
-                        CommandCard currentCard = (CommandCard) player.getCardFields()[board.getCurrentRegister()].getCard();
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 case VIRUS:
@@ -407,7 +404,6 @@ public class GameController {
                         }
                         CommandCard topCard = player.drawFromDeck();
                         queuePlayerCommand(player, topCard.getCommand());
-                        CommandCard currentCard =(CommandCard)  player.getCardFields()[board.getCurrentRegister()].getCard();
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
