@@ -45,7 +45,11 @@ public class UpgradeShop implements Observer {
     }
 
 
-    // Access of availableCards.
+    // Methods for access of availableCards.
+    /**
+     * Method for getting the cards that are currently available for purchase in the shop.
+     * @return
+     */
     public List<UpgradeCard> getAvailableCards() {
         List<UpgradeCard> availableCards = new ArrayList<>();
         for (CardField cardField : availableCardsFields) {
@@ -56,31 +60,48 @@ public class UpgradeShop implements Observer {
         }
         return availableCards;
     }
+    /**
+     * Method for getting the shops CardsFields.
+     * @param index
+     * @return
+     */
     public CardField getAvailableCardsField(int index) {
         return availableCardsFields[index];
     }
 
 
-    // Access of transactions with shop.
+    // Methods for access of transactions with shop.
+    /**
+     * Method for players so buy an UpgradeCard.
+     * @param shopField The CardField in the shop, containing the wanted UpgradeCard.
+     * @param player The player buying the card. Used for checking and setting EnergyCubes.
+     * @return Returns the purchased UpgradeCard. Return NULL if the CardField isn't in the shop or if the player doesn't have enough energy cubes.
+     */
     public UpgradeCard attemptBuyCardFromShop(CardField shopField, Player player) {
         // Purchase criteria checks.
         if (!Arrays.stream(availableCardsFields).toList().contains(shopField)) return null; // FAILED PURCHASE - The CardField isn't in the shop.
         UpgradeCard cardToSell = (UpgradeCard) shopField.getCard();
         if (player.getEnergyCubes() < cardToSell.getPurchaseCost()) return null; // FAILED PURCHASE - The player doesn't have enough energy cubes.
-
         // Completing transaction
         player.setEnergyCubes(player.getEnergyCubes() - cardToSell.getPurchaseCost());
         energyLevel += cardToSell.getPurchaseCost();
         shopField.setCard(null);
         return cardToSell; // SUCCESSFUL PURCHASE - Transaction complete. Sending UpgradeCard to buyer method.
     }
+    /**
+     * Method for players to return a previously purchased UpgradeCard to the shop pool.
+     * @param upgradeCard The UpgradeCard to return to the shop.
+     */
     public void returnCardToShop(UpgradeCard upgradeCard) {
         upgradeCardsDiscardDeck.offerLast(upgradeCard);
     }
 
 
-    // Refreshing of cards available for purchase.
-    public void refreshUpgradeShopCards() {
+    // Methods for refreshing thw cards available for purchase.
+    /**
+     * Method for refilling the shop. Check the UpgradeShop class description for more info.
+     */
+    public void refillAvailableCards() {
         // If no cards were bought, discard all cards
         if (getNoOfMissingCards() == 0) {
             for (int i = 0; i < noOfPlayers; i++) {
@@ -93,6 +114,10 @@ public class UpgradeShop implements Observer {
             availableCardsFields[i].setCard(drawCard());
         }
     }
+    /**
+     * Method for getting the number of cards needed to satisfy shop stock rules. Check the UpgradeShop class description for more info.
+     * @return
+     */
     private int getNoOfMissingCards() {
         int noOfMissingCards = noOfPlayers;
         for (int i = 0; i < noOfPlayers; i++) {
@@ -104,7 +129,11 @@ public class UpgradeShop implements Observer {
     }
 
 
-    // Card draws.
+    // Methods for card draws.
+    /**
+     * Method for drawing a new UpgradeCard from the main shop deck "upgradeCardsDeck".
+     * @return
+     */
     private UpgradeCard drawCard() {
         UpgradeCard drawnCard = upgradeCardsDeck.pollFirst();
         if (drawnCard != null) {
@@ -120,6 +149,9 @@ public class UpgradeShop implements Observer {
         System.out.println("Shop ran out of cards. :(");
         return null;
     }
+    /**
+     * Used for shuffling the DiscardDeck back into the main deck, when the main deck runs our of cards.
+     */
     private void shuffleDiscardDeckToDeck() {
         Collections.shuffle(upgradeCardsDiscardDeck);
         for (int i = 0; i < upgradeCardsDiscardDeck.size(); i++) {
@@ -128,16 +160,30 @@ public class UpgradeShop implements Observer {
     }
 
 
-    // Creation of cards
+    // Methods for creation of cards
+    /**
+     * Method for adding one of each UpgradeCard to the main deck.
+     */
     private void addAllUpgradeCardsShuffled() {
         for (UpgradeCards upgradeCard : UpgradeCards.values()) {
             createUpgradeCard(upgradeCardsDeck, upgradeCard.upgradeCardClass);
         }
         Collections.shuffle(upgradeCardsDeck);
     }
+    /**
+     * Method for creating and adding an instance of an UpgradeCard subclass to an UpgradeCard list.
+     * @param upgradeCardList The list to add the card instance to.
+     * @param upgradeCardClass The UpgradeCard subclass to make an instance of.
+     */
     private static void createUpgradeCard(LinkedList<UpgradeCard> upgradeCardList, Class<? extends UpgradeCard> upgradeCardClass) {
         createNoOfUpgradeCard(upgradeCardList, upgradeCardClass, 1);
     }
+    /**
+     * Method for creating and adding an amount of instances of an UpgradeCard subclass to an UpgradeCard list.
+     * @param upgradeCardList The list to add the card instance to.
+     * @param upgradeCardClass The UpgradeCard subclass to make an instance of.
+     * @param count The amount of instances of the passed UpgradeCard subclass.
+     */
     private static void createNoOfUpgradeCard(LinkedList<UpgradeCard> upgradeCardList, Class<? extends UpgradeCard> upgradeCardClass, int count) {
         Constructor<? extends UpgradeCard> constructor;
         try {
@@ -150,11 +196,10 @@ public class UpgradeShop implements Observer {
     }
 
 
-    // Ensuring variables are up-to-date.
+    // Listener method for ensuring variables are up-to-date.
     @Override
     public void update(Subject subject) {
         if (subject == board) {
-            // Keep noOfPlayers up to date
             this.noOfPlayers = board.getNoOfPlayers();
         }
     }
