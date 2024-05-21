@@ -91,7 +91,7 @@ public class GameController {
      * Method for starting the upgrade phase.
      */
     public void startUpgradingPhase() {
-        board.getUpgradeShop().refreshUpgradeShopCards();
+        board.getUpgradeShop().refillAvailableCards();
         board.setPhase(UPGRADE);
         board.updateBoard();
     }
