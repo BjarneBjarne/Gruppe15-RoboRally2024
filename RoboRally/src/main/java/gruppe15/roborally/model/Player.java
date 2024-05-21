@@ -463,7 +463,7 @@ public class Player extends Subject {
             }
         }
         for (CardField c: cardFields) {
-            if(c.getCard() != null && !((CommandCard) c.getCard()).getCommand().isDamage()) {
+            if(c.getCard() != null) {
                 discard((CommandCard) c.getCard());
                 c.setCard(null);
             }
