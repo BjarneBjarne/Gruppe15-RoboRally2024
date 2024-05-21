@@ -26,8 +26,6 @@ import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.upgrades.UpgradeCard;
 import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
-import gruppe15.roborally.model.upgrades.upgrade_cards.Card_DoubleBarrelLaser;
-import gruppe15.roborally.model.upgrades.upgrade_cards.Card_HoverUnit;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.SpaceView;
 import javafx.animation.PauseTransition;
@@ -131,6 +129,10 @@ public class GameController {
 
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
+
+        for (Player player : board.getPlayers()) {
+            player.fillRestOfRegisters();
+        }
     }
 
     private void makeProgramFieldsVisible(int register) {
@@ -173,7 +175,7 @@ public class GameController {
         Player currentPlayer = board.getCurrentPlayer();
         if (!currentPlayer.getIsRebooting()) {
             // Handle the players command on the current register. This will queue any command on the register.
-            handlePlayerCommand(currentPlayer);
+            queuePlayerCommandFromCommandCard(currentPlayer);
         }
         // Begin handling the actions.
         handlePlayerActions();
@@ -267,24 +269,21 @@ public class GameController {
         }
     }
 
-    // XXX: implemented in the current version
-    private void handlePlayerCommand(Player currentPlayer) {
-        if (board.getPhase() == ACTIVATION && currentPlayer != null) {
+    private void queuePlayerCommandFromCommandCard(Player currentPlayer) {
+        Command commandToQueue = null;
+        try {
             int currentRegister = board.getCurrentRegister();
-            if (currentRegister >= 0 && currentRegister < Player.NO_OF_REGISTERS) {
-                CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
-                if (card != null) {
-                    Command command = card.command;
-                    queuePlayerCommand(currentPlayer, command);
-                }
-            } else {
-                // this should not happen
-                assert false;
-            }
-        } else {
-            // this should not happen
-            assert false;
+            CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
+            commandToQueue = card.command;
+            queuePlayerCommand(currentPlayer, commandToQueue);
+        } catch (Exception e) {
+            System.out.println("ERROR - Something went wrong when trying to get command: \"" + commandToQueue + "\" from CommandCard.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+
+        System.out.println();
+        assert false;
     }
 
     /**
@@ -375,9 +374,6 @@ public class GameController {
                 case POWER_UP:
                     player.addEnergyCube();
                     break;
-                case OPTION_LEFT_RIGHT:
-                    board.setPhase(PLAYER_INTERACTION);
-                    break;
                 case SPAM:
                     actionQueue.addFirst(new ActionWithDelay(() -> {
                         CommandCard topCard = player.drawFromDeck();
@@ -419,8 +415,11 @@ public class GameController {
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
-                    // DO NOTHING (for now)
-                    System.out.println("Can't find command: " + command.displayName);
+                    if (!command.getOptions().isEmpty()) {
+                        board.setPhase(PLAYER_INTERACTION);
+                    } else {
+                        System.out.println("Can't find command: " + command.displayName);
+                    }
                     break;
             }
 
@@ -851,7 +850,7 @@ public class GameController {
         if (sourceField.cardFieldType == UPGRADE_CARD_SHOP_FIELD) {
             assert targetField.player != null;
             Player player = targetField.player;
-            boolean canBuyUpgradeCard = player.attemptUpgradeCardPurchase((UpgradeCard) sourceCard);
+            boolean canBuyUpgradeCard = player.attemptUpgradeCardPurchase(sourceField);
             if (canBuyUpgradeCard) {
                 if (targetCard != null) {
                     player.removeUpgradeCard((UpgradeCard) targetCard);
@@ -861,7 +860,11 @@ public class GameController {
         }
 
         if (couldMove) {
-            sourceField.setCard(targetCard); // Replaces sourceField card with null if targetCard is null.
+            if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
+                sourceField.setCard(targetCard); // Replaces sourceField card with null if targetCard is null.
+            } else {
+                sourceField.setCard(null);
+            }
             targetField.setCard(sourceCard);
         }
 

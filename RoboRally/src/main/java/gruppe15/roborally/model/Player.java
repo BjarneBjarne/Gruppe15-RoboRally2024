@@ -22,6 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.exceptions.*;
 import gruppe15.roborally.model.upgrades.*;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
@@ -303,33 +304,49 @@ public class Player extends Subject {
         energyCubes++;
     }
 
-    public boolean attemptUpgradeCardPurchase(UpgradeCard upgradeCard) {
-        AtomicBoolean hasCard = new AtomicBoolean(false);
-        upgradeCards.stream().forEach(u -> {
-            if (u.getClass().isAssignableFrom(upgradeCard.getClass())) {
-                hasCard.set(true);
+    public boolean attemptUpgradeCardPurchase(CardField shopField) {
+        UpgradeCard boughtCard = null;
+        try {
+            for (UpgradeCard ownedCards : upgradeCards) // First, check if player already has this card
+                if (ownedCards.getClass().isAssignableFrom(shopField.getCard().getClass())) return false;
+            boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(shopField, this);
+            if (boughtCard != null) {
+                addUpgradeCard(boughtCard);
             }
-        });
-        if (hasCard.get()) {
-            return false;
-        }
-        if (energyCubes < upgradeCard.getPurchaseCost()) {
-            return false;
+            board.updateBoard();
+        } catch (Exception e) {
+            System.out.println("ERROR - Attempt to buy upgrade card from shopField failed.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
-        energyCubes -= upgradeCard.getPurchaseCost();
-        addUpgradeCard(upgradeCard);
-        board.updateBoard();
-        return true;
+        return boughtCard != null;
     }
     public void addUpgradeCard(UpgradeCard upgradeCard) {
-        System.out.println(name + " bought " + upgradeCard.getName());
-        upgradeCards.add(upgradeCard);
-        upgradeCard.initialize(board, this);
+        try {
+            System.out.println(name + " bought " + upgradeCard.getName());
+            upgradeCards.add(upgradeCard);
+            upgradeCard.initialize(board, this);
+        } catch (NullPointerException e) {
+            System.out.println("ERROR - Attempted to add upgradeCard of value NULL to player: \"" + name + "\".");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
     public void removeUpgradeCard(UpgradeCard upgradeCard) {
-        upgradeCards.remove(upgradeCard);
-        upgradeCard.unInitialize();
+        try {
+            if (!upgradeCards.contains(upgradeCard)) {
+                throw new IllegalPlayerPropertyAccess("ERROR - Attempted to remove upgradeCard: \"" + upgradeCard.getName() + "\" that player: \"" + name + "\" doesn't own.");
+            }
+            upgradeCards.remove(upgradeCard);
+            upgradeCard.unInitialize();
+            board.getUpgradeShop().returnCardToShop(upgradeCard);
+        } catch (NullPointerException e) {
+            System.out.println("ERROR - Attempted to remove upgradeCard of value NULL from player: \"" + name + "\".");
+        } catch (IllegalPlayerPropertyAccess e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -413,7 +430,10 @@ public class Player extends Subject {
      */
     public CommandCard drawFromDeck() {
         CommandCard temp = programmingDeck.remove();
-        if(temp == null) return null;
+        if (temp == null) {
+            shuffleDiscardedIntoDeck();
+            temp = drawFromDeck();
+        }
         return new CommandCard(temp.command);
     }
 
@@ -422,14 +442,9 @@ public class Player extends Subject {
      * @author Maximillian Bjørn Mortensen
      */
     public void drawHand() {
-        for(CardField c: cardFields){
-            if(c.getCard() == null){
-                CommandCard temp = drawFromDeck();
-                if(temp == null){
-                    shuffleDiscardedIntoDeck();
-                    temp = drawFromDeck();
-                }
-                c.setCard(temp);
+        for (CardField c: cardFields) {
+            if (c.getCard() == null) {
+                c.setCard(drawFromDeck());
             }
         }
     }
@@ -459,5 +474,13 @@ public class Player extends Subject {
 
     public void setEnergyCubes(int energyCubes) {
         this.energyCubes = energyCubes;
+    }
+
+    public void fillRestOfRegisters() {
+        for (CardField programField : programFields) {
+            if (programField.getCard() == null) {
+                programField.setCard(drawFromDeck());
+            }
+        }
     }
 }
