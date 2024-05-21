@@ -4,6 +4,7 @@ import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.upgrades.UpgradeCard;
 import gruppe15.roborally.model.upgrades.UpgradeCards;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -134,7 +135,7 @@ public class UpgradeShop implements Observer {
      * Method for drawing a new UpgradeCard from the main shop deck "upgradeCardsDeck".
      * @return
      */
-    private UpgradeCard drawCard() {
+    private @Nullable UpgradeCard drawCard() {
         UpgradeCard drawnCard = upgradeCardsDeck.pollFirst();
         if (drawnCard != null) {
             return drawnCard;
@@ -146,7 +147,7 @@ public class UpgradeShop implements Observer {
                 }
             }
         }
-        System.out.println("Shop ran out of cards. :(");
+        System.out.println("Shop ran out of cards to draw from deck. :(");
         return null;
     }
     /**

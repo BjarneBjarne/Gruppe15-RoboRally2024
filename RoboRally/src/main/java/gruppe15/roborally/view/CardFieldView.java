@@ -353,7 +353,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
                 if (sourceField.cardFieldType == CardField.CardFieldTypes.UPGRADE_CARD_SHOP_FIELD) {
                     if (event.getGestureSource() instanceof CardFieldView sourceCardFieldView) {
-                        System.out.println("Editing source: " + sourceCardFieldView.field.index);
+                        //System.out.println("Editing source: " + sourceCardFieldView.field.index);
                         sourceCardFieldView.setStyle(
                                 "-fx-background-color: transparent; " +
                                 "-fx-border-color: transparent; " +
