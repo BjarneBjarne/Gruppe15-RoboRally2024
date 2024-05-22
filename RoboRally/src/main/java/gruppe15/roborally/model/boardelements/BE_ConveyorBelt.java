@@ -23,6 +23,7 @@ package gruppe15.roborally.model.boardelements;
 
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -32,23 +33,47 @@ import java.util.List;
 import static gruppe15.roborally.model.Heading.*;
 
 /**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- *
+ * This class represents a conveyor belt on the board. When a player lands on a conveyor belt,
+ * the player is moved in the direction of the conveyor belt. The strength of the conveyor belt
+ * determines how many times the player is moved in the direction of the conveyor belt.
+ * The conveyor belt can also rotate the player if the player lands on a conveyor belt that is
+ * rotated 90 degrees compared to the conveyor belt the player was on.
+ * 
+ * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_ConveyorBelt extends BoardElement {
     private final int strength;
 
+    /**
+     * Constructor for the conveyor belt
+     * @param direction the direction of the conveyor belt
+     * @param strength the strength of the conveyor belt
+     */
     public BE_ConveyorBelt(Heading direction, int strength) {
-        super(direction);
+        super(null);
         if (strength < 1) { // Strength has to be at least 1.
             strength = 1;
         }
         this.strength = strength;
+        setDirection(direction);
     }
 
-    @Override
+    /**
+     * Getter for the strength of the conveyor belt
+     * @return the strength of the conveyor belt
+     */
+    public int getStrength() {
+        return strength;
+    }
+
+    /**
+     * Calculates the image of the conveyor belt based on the direction and the number of neighbors
+     * @param x the x-coordinate of the conveyor belt
+     * @param y the y-coordinate of the conveyor belt
+     * @param spaces the spaces on the board
+     * 
+     * @author Gustav
+     */
     public void calculateImage(int x, int y, Space[][] spaces) {
         StringBuilder imageNameBuilder = new StringBuilder();
 
@@ -93,17 +118,28 @@ public class BE_ConveyorBelt extends BoardElement {
         }
         imageNameBuilder.append(".png");
         //System.out.println("Image: " + imageNameBuilder + " at '" + x + ", " + y + "' pointing " + heading + ", has " + noOfNeighbors + " neighbors!");
-        setImage(imageNameBuilder.toString(), direction);
+        setDirection(direction);
+        setImage(imageNameBuilder.toString());
     }
 
-    public int getStrength() {
-        return strength;
-    }
-
-
-
+    /**
+     * When a player lands on a conveyor belt, the player is moved in the direction of the conveyor belt.
+     * The strength of the conveyor belt determines how many times the player is moved in the direction of the conveyor belt.
+     * The conveyor belt can also rotate the player if the player lands on a conveyor belt that is rotated 90 degrees
+     * compared to the conveyor belt the player was on.
+     * @param space the space where the player is located
+     * @param gameController the game controller
+     * @param actionQueue the queue of actions
+     */
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
+        // Getting the player:
+        Player player = space.getPlayer();
+
+        if (player == null) {
+            return false;
+        }
+
         // First we make a copy of the board to simulate it
         Space[][] boardSpaces = gameController.board.getSpaces();
         SimulatedSpace[][] simulatedSpaces = new SimulatedSpace[boardSpaces.length][boardSpaces[0].length];
@@ -124,8 +160,6 @@ public class BE_ConveyorBelt extends BoardElement {
             }
         }
 
-        // Getting the player:
-        Player player = space.getPlayer();
         Space currentSpace = space;
         // We get the copy of this space.
         SimulatedSpace toSpace = simulatedSpaces[space.x][space.y];
@@ -135,25 +169,23 @@ public class BE_ConveyorBelt extends BoardElement {
             if (canMoveOnce(toSpace, simulatedSpaces, new ArrayList<>())) {
                 // If we get here, it means we can move the player once.
                 BE_ConveyorBelt currentConveyorBelt = ((BE_ConveyorBelt)currentSpace.getBoardElement());
-                Space nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.direction, boardSpaces);
+                Space nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.getDirection(), boardSpaces);
                 // Rotate the robot.
                 if (nextSpace.getBoardElement() instanceof BE_ConveyorBelt nextBelt) {
-                    if (nextBelt.direction != currentConveyorBelt.direction) {
-                        int clockwiseOrdinal = (currentConveyorBelt.direction.ordinal() + 1) % Heading.values().length;
-                        if (nextBelt.direction.ordinal() == clockwiseOrdinal) {
+                    if (nextBelt.direction != currentConveyorBelt.getDirection()) {
+                        int clockwiseOrdinal = (currentConveyorBelt.getDirection().ordinal() + 1) % Heading.values().length;
+                        if (nextBelt.getDirection().ordinal() == clockwiseOrdinal) {
                             player.setHeading(player.getHeading().next());
                         } else {
                             player.setHeading(player.getHeading().prev());
                         }
                     }
                 }
-
                 player.setTemporarySpace(nextSpace);
                 currentSpace = nextSpace;
             }
         }
-
-        return false;
+        return true;
     }
 
     private boolean canMoveOnce(SimulatedSpace currentSpace, SimulatedSpace[][] spaces, List<SimulatedSpace> visitedSpaces) {

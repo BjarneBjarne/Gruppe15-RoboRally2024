@@ -41,7 +41,7 @@ public class Stepdefs extends ApplicationTest {
         board.getSpace(0, 1).setPlayer(players.get(1));
         board.getSpace(0, 2).setPlayer(players.get(2));
 
-        gc = new GameController(board);
+        // gc = new GameController(board);
 
         board.setCurrentPlayer(board.getPlayer(0));
     }

@@ -23,18 +23,23 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.boardelements.*;
+import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.events.PhaseChangeListener;
+import gruppe15.roborally.model.upgrades.UpgradeCard;
 import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static gruppe15.roborally.model.Heading.*;
 import static gruppe15.roborally.model.Heading.WEST;
-import static gruppe15.roborally.model.Phase.INITIALISATION;
+import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 /**
  * ...
@@ -43,6 +48,7 @@ import static gruppe15.roborally.model.Phase.INITIALISATION;
  *
  */
 public class Board extends Subject {
+    final public static int NO_OF_CHECKPOINTS = 6;
 
     public final int width;
 
@@ -56,7 +62,7 @@ public class Board extends Subject {
 
     private Player current;
 
-    private Phase phase = INITIALISATION;
+    private Phase phase = INITIALIZATION;
 
     private int currentRegister = 0;
     //The counter for how many moves have been made
@@ -66,6 +72,8 @@ public class Board extends Subject {
 
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private List<Space[][]> subBoards;
+    private int numberOfCheckPoints;
+    private UpgradeShop upgradeShop;
 
 
     public Board(int width, int height) {
@@ -78,6 +86,17 @@ public class Board extends Subject {
         spaces = new Space[width][height];
 
         // Setup spaces
+        
+        if (mapIndex == -1) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    // Add empty space
+                    if (spaces[x][y] == null) {
+                        addSpace(x, y, null, spaces);
+                    }
+                }
+            }
+        }
         if (mapIndex == 0) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
@@ -133,11 +152,15 @@ public class Board extends Subject {
             addSpace(8, 3, new BE_BoardLaser(EAST), spaces);
             addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
 
+            // Holes
+            addSpace(1, 3, new BE_Hole(), spaces);
+
             // Checkpoints
-            addSpace(12, 3, new BE_Checkpoint(1), spaces);
-            addSpace(10, 4, new BE_Checkpoint(2), spaces);
-            addSpace(3, 3, new BE_Checkpoint(3), spaces);
-            addSpace(5, 7, new BE_Checkpoint(4), spaces);
+            numberOfCheckPoints = 4;
+            addSpace(12, 3, new BE_Checkpoint(1, numberOfCheckPoints), spaces);
+            addSpace(10, 4, new BE_Checkpoint(2, numberOfCheckPoints), spaces);
+            addSpace(3, 3, new BE_Checkpoint(3, numberOfCheckPoints), spaces);
+            addSpace(5, 7, new BE_Checkpoint(4, numberOfCheckPoints), spaces);
 
             // Gears
             addSpace(0, 0, new BE_Gear("Left"), spaces);
@@ -171,8 +194,8 @@ public class Board extends Subject {
             walls[8][3].add(WEST);
 
             // Fill the rest of the spaces with empty spaces and set background images
-            Image backgroundStart = ImageUtils.getImageFromName("emptyStart.png");
-            Image background = ImageUtils.getImageFromName("empty.png");
+            Image backgroundStart = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
+            Image background = ImageUtils.getImageFromName("Board Pieces/empty.png");
             this.subBoards = new ArrayList<>();
             Space[][] startBoard = new Space[width][height];
             Space[][] mainBoard = new Space[width][height];
@@ -200,14 +223,23 @@ public class Board extends Subject {
             this.subBoards.add(mainBoard);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt) {
-                        spaces[x][y].getBoardElement().calculateImage(x, y, spaces);
+                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
+                        conveyorBelt.calculateImage(x, y, spaces);
                     }
                 }
             }
         }
 
         this.stepMode = false;
+        updateBoardElementSpaces();
+    }
+
+    public void initializeUpgradeShop() {
+        this.upgradeShop = new UpgradeShop(this);
+    }
+
+    public UpgradeShop getUpgradeShop() {
+        return upgradeShop;
     }
 
     private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
@@ -250,6 +282,10 @@ public class Board extends Subject {
             players.add(player);
             notifyChange();
         }
+    }
+
+    public void updateBoard() {
+        notifyChange();
     }
 
     public Player getPlayer(int i) {
@@ -341,45 +377,39 @@ public class Board extends Subject {
         return moveCounter;
     }
 
-
-
     /**
      * Returns the neighbour of the given space of the board in the given heading.
-     * The neighbour is returned only, if it can be reached from the given space
-     * (no walls or obstacles in either of the involved spaces); otherwise,
-     * null will be returned.
-     *
      * @param space the space for which the neighbour should be computed
-     * @param heading the heading of the neighbour
+     * @param direction the heading of the neighbouring space
      * @return the space in the given direction; null if there is no (reachable) neighbour
      */
-    public Space getNeighbour(@NotNull Space space, @NotNull Heading heading) {
-        int x = space.x;
-        int y = space.y;
-        switch (heading) {
-            case SOUTH:
-                if (y + 1 > space.board.height - 1)
-                    return null;
-                y = (y + 1) % height;
-                break;
-            case WEST:
-                if (x - 1 < 0)
-                    return null;
-                x = (x + width - 1) % width;
-                break;
-            case NORTH:
-                if (y - 1 < 0)
-                    return null;
-                y = (y + height - 1) % height;
-                break;
-            case EAST:
-                if (x + 1 > space.board.width - 1)
-                    return null;
-                x = (x + 1) % width;
-                break;
-        }
-
-        return getSpace(x, y);
+    public Space getNeighbour(@NotNull Space space, @NotNull Heading direction) {
+        return switch (direction) {
+            case SOUTH -> {
+                if (space.y + 1 >= spaces[space.x].length) {
+                    yield null;
+                }
+                yield spaces[space.x][space.y + 1]; // out of bounds
+            }
+            case WEST -> {
+                if (space.x - 1 < 0) {
+                    yield null;
+                }
+                yield spaces[space.x - 1][space.y]; // out of bounds
+            }
+            case NORTH -> {
+                if (space.y - 1 < 0) {
+                    yield null;
+                }
+                yield spaces[space.x][space.y - 1]; // out of bounds
+            }
+            case EAST -> {
+                if (space.x + 1 >= spaces.length) {
+                    yield null;
+                }
+                yield spaces[space.x + 1][space.y]; // out of bounds
+            }
+        };
     }
 
     public String getStatusMessage() {
@@ -387,26 +417,80 @@ public class Board extends Subject {
         // the students, this method gives a string representation of the current
         // status of the game (specifically, it shows the phase, the player and the step)
 
-        // TODO Task1: this string could eventually be refined
-        //      The status line should show more information based on
-        //      situation; for now, introduce a counter to the Board,
-        //      which is counted up every time a player makes a move; the
-        //      status line should show the current player and the number
-        //      of the current move!
-
 //We have added the MoveCount + getMoveCounter() to the string so it will be displayed at the bottom getMoveCounter() is a getter that gets the current move counter
+        AtomicInteger noOfDamageCards = new AtomicInteger();
+
+        for (CommandCard commandCard : getCurrentPlayer().getProgrammingDeck()) {
+            if (commandCard == null) {
+                continue;
+            }
+            for (DamageTypes damageType : DamageTypes.values()) {
+                if (damageType.getCommandCardType() == commandCard.command) {
+                    noOfDamageCards.getAndIncrement();
+                }
+            }
+        }
+
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
-                ", Step: " + getCurrentRegister() +", MoveCount: "+ getMoveCounter();
-
-        // TODO Task1: add a counter along with a getter and a setter, so the
-        //      state of the board (game) contains the number of moves, which then can
-        //      be used to extend the status message
+                ", Player damage cards = " + noOfDamageCards +
+                ", Register: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +
+                //",  ";
     }
 
+    private List<Space>[] boardElementsSpaces;
+    private void updateBoardElementSpaces() {
+        boardElementsSpaces = new List[7];
+        for (int i = 0; i < boardElementsSpaces.length; i++) {
+            boardElementsSpaces[i] = new ArrayList<>();
+        }
+
+        for (Space[] spaceColumn : spaces) {
+            for (Space space : spaceColumn) {
+                BoardElement boardElement = space.getBoardElement();
+                if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
+                    if (conveyorBelt.getStrength() == 2) {
+                        boardElementsSpaces[0].add(space);
+                    } else {
+                        boardElementsSpaces[1].add(space);
+                    }
+                } else if (boardElement instanceof BE_PushPanel) {
+                    boardElementsSpaces[2].add(space);
+                } else if (boardElement instanceof BE_Gear) {
+                    boardElementsSpaces[3].add(space);
+                } else if (boardElement instanceof BE_BoardLaser) {
+                    boardElementsSpaces[4].add(space);
+                } else if (boardElement instanceof BE_EnergySpace) {
+                    boardElementsSpaces[5].add(space);
+                } else if (boardElement instanceof BE_Checkpoint) {
+                    boardElementsSpaces[6].add(space);
+                }
+            }
+        }
+    }
+    public List<Space>[] getBoardElementsSpaces() {
+        return boardElementsSpaces;
+    }
+
+    public void clearLasers() {
+        for (Space[] space : spaces) {
+            for (Space value : space) {
+                value.clearLasersOnSpace();
+            }
+        }
+    }
+
+    /**
+     * Sets the priority value for all players, and sorts them in so the player closet to the antenna goes first
+     *
+     * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     */
+    private Space antenna;
     public void updatePriorityList() {
         priorityList.clear();
-        Space antenna = findAntenna();
+        if (antenna == null) {
+            antenna = findAntenna();
+        }
         ArrayList<Player> newPriorityList = new ArrayList<>();
         for(int i = 0; i < getNoOfPlayers(); i++){
             Player player = getPlayer(i);
@@ -427,6 +511,14 @@ public class Board extends Subject {
         priorityList.addAll(newPriorityList);
     }
 
+    /**
+     * Determine the priority of an individual player, by determining their distance from the antenna
+     *
+     * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     * @param player to determine the priority we need the players position
+     * @param antenna to determine the priority we need the antennas position
+     * @return the players distance from the antenna, which is also their priority
+     */
     public Integer determinePlayerPriority(Player player,Space antenna) {
         Space space = player.getSpace();
         if (space == null) 
@@ -435,6 +527,13 @@ public class Board extends Subject {
         int y = antenna.y - space.y;
         return Math.abs(x) + Math.abs(y);
     }
+
+    /**
+     * Looks through all board spaces and finds the antenna
+     *
+     * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     * @return the location of the antenna
+     */
     public Space findAntenna() {
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {

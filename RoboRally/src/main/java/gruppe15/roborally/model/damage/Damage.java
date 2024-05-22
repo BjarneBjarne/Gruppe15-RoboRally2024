@@ -1,40 +1,59 @@
 package gruppe15.roborally.model.damage;
 
+import gruppe15.roborally.model.Command;
+import gruppe15.roborally.model.CommandCard;
 import gruppe15.roborally.model.Player;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Damage {
-    private Map<Class<? extends DamageType>, DamageType> damageMap;
+    private final List<DamageTypeAmount> damageTypeAmountList = new ArrayList<>();
 
-    public Damage() {
-        damageMap = new HashMap<>();
+    public Damage(int spamDamageAmount, int trojanHorseDamageAmount, int wormDamageAmount, int virusDamageAmount) {
         // Initialize instances for each damage type
-        damageMap.put(Spam.class, new Spam(0));
-        damageMap.put(TrojanHorse.class, new TrojanHorse(0));
-        damageMap.put(Worm.class, new Worm(0));
-        damageMap.put(Virus.class, new Virus(0));
+        damageTypeAmountList.add(new DamageTypeAmount(spamDamageAmount, DamageTypes.SPAM));
+        damageTypeAmountList.add(new DamageTypeAmount(trojanHorseDamageAmount, DamageTypes.TROJAN_HORSE));
+        damageTypeAmountList.add(new DamageTypeAmount(wormDamageAmount, DamageTypes.WORM));
+        damageTypeAmountList.add(new DamageTypeAmount(virusDamageAmount, DamageTypes.VIRUS));
     }
 
-    public void setAmount(Class<? extends DamageType> damageType, int newAmount) {
-        DamageType damage = damageMap.get(damageType);
-        if (damage != null) {
-            damage.setAmount(newAmount);
+    public void setAmount(DamageTypes damageType, int newAmount) {
+        for (DamageTypeAmount dt : damageTypeAmountList) {
+            if (dt.type == damageType) {
+                dt.setAmount(newAmount);
+            }
         }
     }
-    public int getAmount(Class<? extends DamageType> damageType) {
-        DamageType damage = damageMap.get(damageType);
-        return damage.getAmount();
+    public int getAmount(DamageTypes damageType) {
+        for (DamageTypeAmount dt : damageTypeAmountList) {
+            if (dt.type == damageType) {
+                return dt.getAmount();
+            }
+        }
+        System.out.println("ERROR: Couldn't find damage type: " + damageType.displayName + " : " + damageType);
+        return 0;
     }
 
-    public Map<Class<? extends DamageType>, DamageType> getDamageMap() {
-        return damageMap;
+    public List<DamageTypeAmount> getDamageTypeList() {
+        return damageTypeAmountList;
     }
 
-    public void applyDamage(Player player) {
-        for (DamageType damageType : damageMap.values()) {
-            damageType.applyDamage(player);
+    public void applyDamage(Player playerTakingDamage, Player playerInflictingTheDamage) {
+        for (DamageTypeAmount damageTypeAmount : damageTypeAmountList) {
+            Command cmdType = damageTypeAmount.type.getCommandCardType();
+            if (damageTypeAmount.getAmount() > 0) {
+                for (int i = 0; i < damageTypeAmount.getAmount(); i++) {
+                    playerTakingDamage.discard(new CommandCard(cmdType));
+                }
+                // Print the damage dealt
+                /*if (playerInflictingTheDamage != null) {
+                    System.out.println("Player {" + playerInflictingTheDamage.getName() + "} dealt " + damageTypeAmount.getAmount() + " " + damageTypeAmount.type + " damage to player {" + playerTakingDamage.getName() + "}");
+                } else {
+                    System.out.println("Board laser dealt " + damageTypeAmount.getAmount() + " " + damageTypeAmount.type + " damage to player {" + playerTakingDamage.getName() + "}");
+                }*/
+                //damageTypeAmount.applyDamage(player);
+            }
         }
     }
 }

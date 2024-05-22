@@ -22,21 +22,22 @@
 package gruppe15.roborally.controller;
 
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.boardelements.BE_BoardLaser;
-import gruppe15.roborally.model.boardelements.BE_Checkpoint;
-import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
-import gruppe15.roborally.model.boardelements.BE_EnergySpace;
-import gruppe15.roborally.model.boardelements.BE_Gear;
-import gruppe15.roborally.model.boardelements.BE_PushPanel;
-import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.boardelements.*;
+import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
+import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
+import gruppe15.roborally.view.BoardView;
+import gruppe15.roborally.view.SpaceView;
 import javafx.animation.PauseTransition;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 import static gruppe15.roborally.model.Phase.*;
 
 /**
@@ -46,20 +47,551 @@ import static gruppe15.roborally.model.Phase.*;
  *
  */
 public class GameController {
-
     public final Board board;
+    private final AppController appController;
+
+    private final Queue<Player> playersRebooting = new ArrayDeque<>();
+    private Space directionOptionsSpace;
+    private String winnerName;
+    private Image winnerIMG;
+    private boolean isRegisterPlaying = false;
+
+    // Actions
     private final LinkedList<ActionWithDelay> actionQueue = new LinkedList<>();
     private final int nextRegisterDelay = 1000; // In milliseconds.
     private final boolean WITH_ACTION_DELAY = true;
     private final boolean WITH_ACTION_MESSAGE = false;
-    private boolean turnPlaying = false;
-    public boolean getIsTurnPlaying() {
-        return turnPlaying;
+
+    public boolean getIsRegisterPlaying() {
+        return isRegisterPlaying;
+    }
+    private void setIsRegisterPlaying(boolean isRegisterPlaying) {
+        this.isRegisterPlaying = isRegisterPlaying;
+        board.updateBoard();
+    }
+
+    /**
+     * Constructor method for GameController.
+     * @param board The current board
+     * @param appController The current AppController
+     */
+    public GameController(@NotNull Board board, AppController appController) {
+        this.board = board;
+        this.appController = appController;
+    }
+
+    /**
+     * Method for starting the game. Called when players have chosen a start space and direction.
+     */
+    private void beginGame() {
+        startProgrammingPhase();
+    }
+
+    /**
+     * Method for starting the upgrade phase.
+     */
+    public void startUpgradingPhase() {
+        board.getUpgradeShop().refillAvailableCards();
+        board.setPhase(UPGRADE);
+        board.updateBoard();
+    }
+
+    /**
+     * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
+     */
+    public void startProgrammingPhase() {
+        board.setPhase(PROGRAMMING);
+
+        board.setCurrentRegister(0);
+        board.updatePriorityList();
+        board.setCurrentPlayer(board.getPriorityList().peek());
+
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+            Player player = board.getPlayer(i);
+            if (player != null) {
+                player.discardAll();
+                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
+                    CardField field = player.getProgramField(j);
+                    field.setVisible(true);
+                }
+                player.drawHand();
+                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
+                    CardField field = player.getCardField(j);
+                    field.setVisible(true);
+                }
+            }
+        }
+    }
+
+    public void finishProgrammingPhase() {
+        board.setPhase(ACTIVATION);
+        board.updateBoard();
+
+        makeProgramFieldsInvisible();
+        makeProgramFieldsVisible(0);
+
+        for (Player player : board.getPlayers()) {
+            player.fillRestOfRegisters();
+        }
+    }
+
+    private void makeProgramFieldsVisible(int register) {
+        if (register >= 0 && register < Player.NO_OF_REGISTERS) {
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Player player = board.getPlayer(i);
+                CardField field = player.getProgramField(register);
+                field.setVisible(true);
+            }
+        }
+    }
+
+    private void makeProgramFieldsInvisible() {
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+            Player player = board.getPlayer(i);
+            for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
+                CardField field = player.getProgramField(j);
+                field.setVisible(false);
+            }
+        }
+    }
+
+    public void executePrograms() {
+        board.setStepMode(false);
+        handlePlayerRegister();
+    }
+
+    public void executeRegister() {
+        board.setStepMode(true);
+        handlePlayerRegister();
+    }
+
+    /**
+     *     These methods are the main flow of a register.
+     */
+    private void handlePlayerRegister() {
+        System.out.println();
+        setIsRegisterPlaying(true);
+        board.setCurrentPlayer(board.getPriorityList().poll());
+        makeProgramFieldsVisible(board.getCurrentRegister());
+        Player currentPlayer = board.getCurrentPlayer();
+        if (!currentPlayer.getIsRebooting()) {
+            // Handle the players command on the current register. This will queue any command on the register.
+            queuePlayerCommandFromCommandCard(currentPlayer);
+        }
+        // Begin handling the actions.
+        handlePlayerActions();
+    }
+    /**
+     * This method splits up handlePlayerRegister(), in order to call this again, if the command is a PLAYER_INTERACTION.
+     */
+    private void handlePlayerActions() {
+        // Run through the queue and execute the player command.
+        runActionsAndCallback(this::handleEndOfPlayerTurn);
+    }
+
+    private void handleEndOfPlayerTurn() {
+        if (board.getPhase() == PLAYER_INTERACTION) {
+            // Return and wait for PLAYER_INTERACTION.
+            return;
+        }
+        // When player command is executed, check if there are more player turns this register.
+        if (!board.getPriorityList().isEmpty()) {
+            // There are more players in the priorityList. Continue to next player.
+            handlePlayerRegister();
+        } else {
+            // priorityList is empty, therefore we end the register.
+            handleEndOfRegister();
+        }
+    }
+
+    /**
+     * This is the flow of the end of a register.
+     * Here we queue board elements and player lasers, then execute them.
+     * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
+     */
+    private void handleEndOfRegister() {
+        // Queue board elements and player lasers.
+        queueBoardElementsAndRobotLasers();
+        handleBoardElementActions();
+    }
+    private void handleBoardElementActions() {
+        // Execute board elements and player lasers. When actions have taken place, we go to the next register.
+        runActionsAndCallback(this::nextRegister);
+    }
+    public void nextRegister() {
+        int currentRegister = board.getCurrentRegister();
+        if (currentRegister < Player.NO_OF_REGISTERS - 1) {
+            // Set next register
+            currentRegister++;
+            // If there are more registers, set the currentRegister and continue to the next player.
+            board.setCurrentRegister(currentRegister);
+            board.updatePriorityList();
+            setIsRegisterPlaying(false);
+            board.updateBoard();
+            if (!board.isStepMode()) {
+                handlePlayerRegister();
+            }
+        } else {
+            handleEndOfRound();
+        }
+    }
+
+    private void handleEndOfRound() {
+        // If all registers are done
+        PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
+        pause.setOnFinished(event -> {
+            for (Player player : board.getPlayers()) {
+                player.stopRebooting();
+                player.getSpace().updateSpace();
+            }
+            startUpgradingPhase();
+            setIsRegisterPlaying(false);
+        });  // Small delay before ending activation phase for dramatic effect ;-).
+        pause.play();
+    }
+
+    private void runActionsAndCallback(Runnable callback) {
+        if (board.getPhase() == ACTIVATION) {
+            if (!actionQueue.isEmpty()) {
+                // Handle the next action
+                ActionWithDelay nextAction = actionQueue.removeFirst();
+                nextAction.getAction(WITH_ACTION_MESSAGE).run();
+                Duration delay = nextAction.getDelay();
+                PauseTransition pause = new PauseTransition(delay);
+                pause.setOnFinished(event -> runActionsAndCallback(callback)); // Continue actions
+                if (WITH_ACTION_DELAY) {
+                    pause.play();
+                }
+            } else { // When we have exhausted the actions, call the callback method.
+                callback.run();
+            }
+        } else if (board.getPhase() == REBOOTING) {
+            startRebootPhase();
+        }
+    }
+
+    private void queuePlayerCommandFromCommandCard(Player currentPlayer) {
+        Command commandToQueue = null;
+        try {
+            int currentRegister = board.getCurrentRegister();
+            CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
+            commandToQueue = card.command;
+            queuePlayerCommand(currentPlayer, commandToQueue);
+        } catch (Exception e) {
+            System.out.println("ERROR - Something went wrong when trying to get command: \"" + commandToQueue + "\" from CommandCard.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        assert false;
+    }
+
+    /**
+     * Handle the player command for a command with multiple options
+     *
+     *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     *  @param option the option the player have chosen, and sets the activation phase active again
+     */
+    public void executeCommandOptionAndContinue(Command option){
+        queuePlayerCommand(board.getCurrentPlayer(), option, true);
+        board.setPhase(ACTIVATION);
+        handlePlayerActions();
     }
 
 
-    public GameController(@NotNull Board board) {
-        this.board = board;
+    public void startRebootPhase() {
+        board.setPhase(REBOOTING);
+        handleNextReboot();
+    }
+
+    public void addPlayerToRebootQueue(Player player) {
+        if (!playersRebooting.contains(player)) {
+            playersRebooting.offer(player);
+        }
+    }
+
+    private void handleNextReboot() {
+        if (playersRebooting.isEmpty()) {
+            handleEndOfReboot();
+        } else {
+            Player playerRebooting = playersRebooting.peek();
+            if (playerRebooting.getIsRebooting()) {
+                setDirectionOptionsPane(playerRebooting.getTemporarySpace());
+            }
+        }
+    }
+
+    private void handleEndOfReboot() {
+        board.setPhase(ACTIVATION);
+        handlePlayerActions();
+    }
+
+    public void queuePlayerCommand(@NotNull Player player, Command command) {
+        queuePlayerCommand(player, command, false);
+    }
+
+    /**
+     * sets the players action from the command
+     * @param player
+     * @param command
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void queuePlayerCommand(@NotNull Player player, Command command, boolean isOption) {
+        if (player.board == board && command != null) {
+            // XXX This is a very simplistic way of dealing with some basic cards and
+            //     their execution. This should eventually be done in a more elegant way
+            //     (this concerns the way cards are modelled as well as the way they are executed).
+            // Call the event handler, and let it modify the command
+
+            if (!isOption) {
+                command = EventHandler.event_RegisterActivate(player, command);
+            }
+
+            switch (command) {
+                case MOVE_1:
+                    player.setVelocity(new Velocity(1, 0));
+                    startPlayerMovement(player);
+                    break;
+                case MOVE_2:
+                    player.setVelocity(new Velocity(2, 0));
+                    startPlayerMovement(player);
+                    break;
+                case MOVE_3:
+                    player.setVelocity(new Velocity(3, 0));
+                    startPlayerMovement(player);
+                    break;
+                case RIGHT_TURN:
+                    turnPlayer(player, 1);
+                    break;
+                case LEFT_TURN:
+                    turnPlayer(player, -1);
+                    break;
+                case U_TURN:
+                    turnPlayer(player, 2);
+                    break;
+                case MOVE_BACK:
+                    player.setVelocity(new Velocity(-1, 0));
+                    startPlayerMovement(player);
+                    break;
+                case AGAIN:
+                    queuePlayerCommand(player, player.getLastCmd());
+                    break;
+                case POWER_UP:
+                    player.addEnergyCube();
+                    break;
+                case SPAM:
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        CommandCard topCard = player.drawFromDeck();
+                        queuePlayerCommand(player, topCard.getCommand());
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    break;
+                case TROJAN_HORSE:
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        for (int i = 0; i < 2; i++) {
+                            player.discard(new CommandCard(Command.SPAM));
+                        }
+                        CommandCard topCard = player.drawFromDeck();
+                        queuePlayerCommand(player, topCard.getCommand());
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    break;
+                case WORM:
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        EventHandler.event_PlayerReboot(player, this);
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    break;
+                case VIRUS:
+                    actionQueue.addFirst(new ActionWithDelay(() -> {
+                        for (Player foundPlayer : board.getPlayers()) {
+                            if (player.getSpace().getDistanceFromOtherSpace(foundPlayer.getSpace()) <= 6) {
+                                foundPlayer.discard(new CommandCard(Command.VIRUS));
+                                foundPlayer.discard(new CommandCard(Command.SPAM));
+                            }
+                        }
+                        CommandCard topCard = player.drawFromDeck();
+                        queuePlayerCommand(player, topCard.getCommand());
+                    }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
+                    break;
+                default:
+                    if (command.isInteractive()) {
+                        board.setPhase(PLAYER_INTERACTION);
+                        player.setCurrentOptions(command.getOptions());
+                        board.updateBoard();
+                    } else {
+                        System.out.println("Can't find command: " + command.displayName);
+                    }
+                    break;
+            }
+
+            Set<Command> commandsToNotRepeat = Set.of(
+                    Command.AGAIN,
+                    Command.SPAM,
+                    Command.TROJAN_HORSE,
+                    Command.WORM,
+                    Command.VIRUS
+            );
+            if (!commandsToNotRepeat.contains(command) && !isOption) {
+                player.setLastCmd(command);
+            }
+
+            // After command is executed, set the next player:
+            var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
+            var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
+            //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
+            //The current move counter is set to the old movecounter+1
+            board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
+        }
+    }
+
+    /**
+     * moves player based on heading and velocity
+     * @param player
+     * @author Maximillian Bjørn Mortensen
+     */
+    private void startPlayerMovement(Player player) {
+        // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
+        Velocity playerVelocity = player.getVelocity();
+
+        // For each forward movement
+        for (int i = 0; i < Math.abs(playerVelocity.forward); i++) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                Heading direction = (playerVelocity.forward > 0) ? player.getHeading() : player.getHeading().opposite();
+                // Decrement
+                playerVelocity.forward -= (playerVelocity.forward > 0) ? 1 : -1;
+                if (!player.getIsRebooting()) {
+                    movePlayerToSpace(player, board.getNeighbour(player.getSpace(), direction));
+                }
+            }, Duration.millis(150), "Player movement: " + player.getName()));
+        }
+
+        // For each sideways movement
+        for (int i = 0; i < Math.abs(playerVelocity.right); i++) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                Heading direction = (playerVelocity.right > 0) ? player.getHeading().next() : player.getHeading().prev();
+                // Decrement
+                playerVelocity.right -= (playerVelocity.right > 0) ? 1 : -1;
+                if (!player.getIsRebooting()) {
+                    movePlayerToSpace(player, board.getNeighbour(player.getSpace(), direction));
+                }
+            }, Duration.millis(150), "Player movement: " + player.getName()));
+        }
+    }
+
+    /**
+     * sets heading for player based on paramater
+     * @param player
+     * @param quarterRotationClockwise
+     * @author Maximillian Bjørn Mortensen
+     */
+    private void turnPlayer(Player player, int quarterRotationClockwise) {
+        boolean rotateClockwise = quarterRotationClockwise > 0;
+        for (int i = 0; i < Math.abs(quarterRotationClockwise); i++) {
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                Heading prevOrientation = player.getHeading();
+                Heading newOrientation = rotateClockwise ? prevOrientation.next() : prevOrientation.prev();
+                if (!player.getIsRebooting()) {
+                    player.setHeading(newOrientation);
+                }
+            }, Duration.millis(150), "Player rotation: " + player.getName()));
+        }
+    }
+
+    public void queueBoardElementsAndRobotLasers() {
+        List<Space>[] boardElementsSpaces = board.getBoardElementsSpaces();
+
+        // 1. Blue conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space conveyorBeltSpace : boardElementsSpaces[0]) {
+                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
+            }
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Player player = board.getPlayer(i);
+                player.goToTemporarySpace();
+            }
+        }, Duration.millis(100), "Blue conveyor belts"));
+
+        // 2. Green conveyor belts
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space conveyorBeltSpace : boardElementsSpaces[1]) {
+                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
+            }
+            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+                Player player = board.getPlayer(i);
+                player.goToTemporarySpace();
+            }
+        }, Duration.millis(100), "Green conveyor belts"));
+
+        // 3. Push panels
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space pushPanel : boardElementsSpaces[2]) {
+                pushPanel.getBoardElement().doAction(pushPanel, this, actionQueue);
+            }
+        }, Duration.millis(100), "Push panels"));
+
+        // 4. Gears
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space gearSpace : boardElementsSpaces[3]) {
+                gearSpace.getBoardElement().doAction(gearSpace, this, actionQueue);
+            }
+        }, Duration.millis(100), "Gears"));
+
+        // 5. Board lasers
+        actionQueue.addLast(new ActionWithDelay(() -> { // Shooting all board lasers at the same time
+            for (Space boardLaser : boardElementsSpaces[4]) {
+                boardLaser.getBoardElement().doAction(boardLaser, this, actionQueue);
+            }
+        }, Duration.millis(150), "Board laser"));
+
+        // 6. Robot lasers
+        actionQueue.addLast(new ActionWithDelay(board::clearLasers, Duration.millis(0)));
+        for (Player player : board.getPlayers()) {
+            actionQueue.addLast(new ActionWithDelay(() -> {
+                EventHandler.event_PlayerShoot(board, player, actionQueue);
+            }, Duration.millis(150), "Player laser"));
+        }
+
+        // 7. Energy spaces
+        actionQueue.addLast(new ActionWithDelay(board::clearLasers, Duration.millis(0)));
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space energySpace : boardElementsSpaces[5]) {
+                energySpace.getBoardElement().doAction(energySpace, this, actionQueue);
+            }
+        }, Duration.millis(0), "Energy spaces"));
+
+        // 8. Checkpoints
+        actionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space checkpoint : boardElementsSpaces[6]) {
+                checkpoint.getBoardElement().doAction(checkpoint, this, actionQueue);
+            }
+        }, Duration.millis(0), "Check points"));
+    }
+
+    /**
+     * returns the winners image
+     * @return Image
+     * @author Maximillian Bjørn Mortensen
+     */
+    public Image getWinnerIMG(){
+        return winnerIMG;
+    }
+
+    /**
+     * returns the winners name
+     * @return String
+     * @author Maximillian Bjørn Mortensen
+     */
+    public String getWinnerName() {
+        return winnerName;
+    }
+
+    /**
+     * sets the paramaters as the winner
+     * @param winnerName
+     * @param winnerIMG
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void setWinner(String winnerName, Image winnerIMG){
+        this.winnerName = winnerName;
+        this.winnerIMG = winnerIMG;
+        appController.gameOver();
     }
 
     /**
@@ -95,7 +627,7 @@ public class GameController {
                     boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
                     if (couldPush) {
                         // Handle pushing players in EventHandler
-                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection);
+                        EventHandler.event_PlayerPush(board.getSpaces(), player, playersToPush, pushDirection, this); // WARNING: Can lead to infinite loop
                     } else {
                         // There is a wall at the end of player chain
                         couldMove = false;
@@ -120,13 +652,12 @@ public class GameController {
      * @param space The current space being checked.
      * @param direction The direction we want to push.
      * @return A list of players being pushed.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, board.getSpaces());
-
         if (nextSpace == null) {                                // Base case, player fell off LULW
-            System.out.println("Next space null! Player " + (playerOnSpace == null ? "no_player" : playerOnSpace.getName()) + " should fall off.");
             playersToPush.add(playerOnSpace);
             return true;
         }
@@ -146,530 +677,195 @@ public class GameController {
         }
     }
 
-    // XXX: implemented in the current version
-    public void startProgrammingPhase() {
-        board.setPhase(Phase.PROGRAMMING);
 
-        board.setCurrentRegister(0);
-        board.updatePriorityList();
-        board.setCurrentPlayer(board.getPriorityList().peek());
 
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            Player player = board.getPlayer(i);
-            if (player != null) {
-                player.discardAll();
-                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
-                    CommandCardField field = player.getProgramField(j);
-                    field.setVisible(true);
-                }
-                player.drawHand();
-                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    field.setVisible(true);
-                }
-            }
-        }
-    }
 
-    // XXX: implemented in the current version
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * 9);
-        return new CommandCard(commands[random]);
-    }
 
-    // XXX: implemented in the current version
-    public void finishProgrammingPhase() {
-        board.setPhase(Phase.ACTIVATION);
 
-        board.setCurrentPlayer(board.getPriorityList().poll());
-        makeProgramFieldsInvisible();
-        makeProgramFieldsVisible(0);
-    }
 
-    // XXX: implemented in the current version
-    private void makeProgramFieldsVisible(int register) {
-        if (register >= 0 && register < Player.NO_OF_REGISTERS) {
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                Player player = board.getPlayer(i);
-                CommandCardField field = player.getProgramField(register);
-                field.setVisible(true);
-            }
-        }
-    }
 
-    // XXX: implemented in the current version
-    private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            Player player = board.getPlayer(i);
-            for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
-                CommandCardField field = player.getProgramField(j);
-                field.setVisible(false);
-            }
-        }
-    }
 
-    // XXX: implemented in the current version
-    public void executePrograms() {
-        board.setStepMode(false);
-        handlePlayerRegister();
-    }
-
-    // XXX: implemented in the current version
-    public void executeRegister() {
-        board.setStepMode(true);
-        handlePlayerRegister();
-    }
-
-    /**
-     *     These methods are the main flow of a register.
-     */
-    private void handlePlayerRegister() {
-        turnPlaying = true;
-        Player currentPlayer = board.getCurrentPlayer();
-        if (!currentPlayer.getIsRebooting()) {
-            // Handle the players command on the current register. This will queue any command on the register.
-            handlePlayerCommand(currentPlayer);
-        }
-        // Begin handling the actions.
-        handlePlayerActions();
-    }
-    /**
-     * This method splits up handleNextPlayerTurn(), in order to call this again, if the command is a PLAYER_INTERACTION.
-     */
-    private void handlePlayerActions() {
-        // Run through the queue and execute the player command.
-        runActionsAndCallback(this::handleEndOfPlayerTurn);
-    }
-
-    private void handleEndOfPlayerTurn() {
-        if (board.getPhase() == Phase.PLAYER_INTERACTION) {
-            // Return and wait for PLAYER_INTERACTION.
-            return;
-        }
-        // When player command is executed, check if there are more player turns this register.
-        if (!board.getPriorityList().isEmpty()) {
-            // There are more players in the priorityList. Continue to next player.
-            // Take player from the queue
-            board.setCurrentPlayer(board.getPriorityList().poll());
-            handlePlayerRegister();
-        } else {
-            // priorityList is empty, therefore we end the register.
-            handleEndOfRegister();
-        }
-    }
-
-    /**
-     * This is the flow of the end of a register.
-     * Here we queue board elements and player lasers, then execute them.
-     * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
-     */
-    private void handleEndOfRegister() {
-        // Queue board elements and player lasers.
-        queueBoardElementsAndRobotLasers();
-        // Execute board elements and player lasers. When actions have taken place, we go to the next register.
-        runActionsAndCallback(this::nextRegister);
-    }
-    public void nextRegister() {
-        int currentRegister = board.getCurrentRegister();
-        // Set next register
-        currentRegister++;
-        if (currentRegister < Player.NO_OF_REGISTERS) {
-            turnPlaying = false;
-            // If there are more registers, set the currentRegister and continue to the next player.
-            makeProgramFieldsVisible(currentRegister);
-            board.setCurrentRegister(currentRegister);
-            board.updatePriorityList();
-            // Take player from the queue
-            board.setCurrentPlayer(board.getPriorityList().poll());
-            if (!board.isStepMode()) {
-                handlePlayerRegister();
-            }
-        } else {
-            // If all registers are done, we start the programming phase.
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                board.getPlayer(i).setIsRebooting(false);
-            }
-            turnPlaying = false;
-            PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
-            pause.setOnFinished(event -> board.setPhase(Phase.REBOOTING));  // Small delay before ending activation phase for dramatic effect ;-).
-            pause.play();
-        }
-    }
-    private void runActionsAndCallback(Runnable callback) {
-        if (!actionQueue.isEmpty() && board.getPhase() == Phase.ACTIVATION) {
-            // Handle the next action
-            ActionWithDelay nextAction = actionQueue.removeFirst();
-            nextAction.getAction(WITH_ACTION_MESSAGE).run();
-            Duration delay = nextAction.getDelay();
-            PauseTransition pause = new PauseTransition(delay);
-            pause.setOnFinished(event -> runActionsAndCallback(callback)); // Continue actions
-            if (WITH_ACTION_DELAY) {
-                pause.play();
-            }
-        } else { // When we have exhausted the actions, call the callback method.
-            callback.run();
-        }
-    }
-
-    // XXX: implemented in the current version
-    private void handlePlayerCommand(Player currentPlayer) {
-        if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
-            int currentRegister = board.getCurrentRegister();
-            if (currentRegister >= 0 && currentRegister < Player.NO_OF_REGISTERS) {
-                CommandCard card = currentPlayer.getProgramField(currentRegister).getCard();
-                if (card != null) {
-                    Command command = card.command;
-                    queuePlayerCommand(currentPlayer, command);
-                }
-            } else {
-                // this should not happen
-                assert false;
-            }
-        } else {
-            // this should not happen
-            assert false;
-        }
-    }
-
-    public void executeCommandOptionAndContinue(Command option){
-        queuePlayerCommand(board.getCurrentPlayer(), option);
-        board.setPhase(Phase.ACTIVATION);
-        handlePlayerActions();
-    }
-
-    public void queuePlayerCommand(@NotNull Player player, Command command) {
-        if (player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
-            // Call the event handler, and let it modify the command
-            command = EventHandler.event_RegisterActivate(player, command);
-            Command finalCommand = command;
-
-            actionQueue.addFirst(new ActionWithDelay(() -> {
-                switch (finalCommand) {
-                    case FORWARD:
-                        player.setVelocity(new Velocity(1, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case FAST_FORWARD:
-                        player.setVelocity(new Velocity(2, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case VARY_FAST_FORWARD:
-                        player.setVelocity(new Velocity(3, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case RIGHT:
-                        turnPlayer(player, 1);
-                        break;
-                    case LEFT:
-                        turnPlayer(player, -1);
-                        break;
-                    case U_TURN:
-                        turnPlayer(player, 2);
-                        break;
-                    case BACKWARD:
-                        player.setVelocity(new Velocity(-1, 0));
-                        startPlayerMovement(player);
-                        break;
-                    case AGAIN:
-                        switch (player.getLastCmd()){
-                            case DAMAGE:
-                                //TODO
-                                break;
-                            case UPGRADE:
-                                player.addEnergyCube();
-                                break;
-                            default:
-                                queuePlayerCommand(player, player.getLastCmd());
-                        }
-                        break;
-                    case POWER_UP:
-                        player.addEnergyCube();
-                        break;
-                    case OPTION_LEFT_RIGHT:
-                        board.setPhase(Phase.PLAYER_INTERACTION);
-                        break;
-                    default:
-                        // DO NOTHING (for now)
-                        System.out.println("Can't find command: " + finalCommand.displayName);
-                        break;
-                }
-
-                if(finalCommand != Command.AGAIN) player.setLastCmd(finalCommand);
-
-                // After command is executed, set the next player:
-                var currentPlayerIndex = board.getPlayerNumber(board.getCurrentPlayer()); // Get the index of the current player
-                var nextPlayerIndex = (currentPlayerIndex + 1) % board.getNoOfPlayers(); // Get the index of the next player
-                //board.setCurrentPlayer(board.getPlayer(nextPlayerIndex)); // Set the current player to the next player
-                //The current move counter is set to the old movecounter+1
-                board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
-            }, Duration.millis(250), "Player movement: " + player.getName()));
-        }
-    }
-
-    private void startPlayerMovement(Player player) {
-        // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
-        Velocity playerVelocity = player.getVelocity();
-
-        int move = 1;
-        boolean negative = (playerVelocity.forward < 0);
-        if(negative){
-            playerVelocity.forward = -playerVelocity.forward;
-            move = -1;
-        }
-        // For each forward movement
-        while (playerVelocity.forward > 0) {
-            Space temp = player.getSpace();
-            int x = temp.x;
-            int y = temp.y;
-            switch(player.getHeading()){
-                case NORTH:
-                    y = y - move;
-                    break;
-                case SOUTH:
-                    y = y + move;
-                    break;
-                case EAST:
-                    x = x + move;
-                    break;
-                case WEST:
-                    x = x - move;
-                    break;
-                default:
-            }
-            playerVelocity.forward--;
-            if (!player.getIsRebooting()) {
-                movePlayerToSpace(player, board.getSpace(x, y));
-            }
-        }
-
-        move = 1;
-        negative = (playerVelocity.right < 0);
-        if(negative){
-            playerVelocity.right = -playerVelocity.right;
-            move = -1;
-        }
-        // For each sideways movement
-        while (playerVelocity.right > 0) {
-            Space temp = player.getSpace();
-            int x = temp.x;
-            int y = temp.y;
-            switch(player.getHeading()){
-                case NORTH:
-                    x = x + move;
-                    break;
-                case SOUTH:
-                    x = x - move;
-                    break;
-                case EAST:
-                    y = y + move;
-                    break;
-                case WEST:
-                    y = y - move;
-                    break;
-                default:
-            }
-            playerVelocity.right--;
-            if (!player.getIsRebooting()) {
-                movePlayerToSpace(player, board.getSpace(x, y));
-            }
-        }
-    }
-
-    private void turnPlayer(Player player, int quaterRotationClockwise){
-        int playerOrientation = 0;
-        switch(player.getHeading()){
-            case SOUTH:
-                playerOrientation = 2;
-                break;
-            case EAST:
-                playerOrientation = 1;
-                break;
-            case WEST:
-                playerOrientation = 3;
-                break;
-            default:
-        }
-        quaterRotationClockwise = quaterRotationClockwise%4;
-        if( quaterRotationClockwise<0 ) quaterRotationClockwise = quaterRotationClockwise+4;
-        int newOrientation = (quaterRotationClockwise+playerOrientation)%4;
-        switch (newOrientation) {
-            case 0:
-                player.setHeading(Heading.NORTH);
-                break;
-            case 1:
-                player.setHeading(Heading.EAST);
-                break;
-            case 2:
-                player.setHeading(Heading.SOUTH);
-                break;
-            case 3:
-                player.setHeading(Heading.WEST);
-                break;
-            default:
-        }
-    }
-
-    public void queueBoardElementsAndRobotLasers() {
-        Space[][] spaces = board.getSpaces();
-        // First we gather some information about the board.
-        List<Space> greenConveyorBeltSpaces = new ArrayList<>();
-        List<Space> blueConveyorBeltSpaces = new ArrayList<>();
-        List<Space> energySpaces = new ArrayList<>();
-        List<Space> checkpoints = new ArrayList<>();
-        List<Space> gears = new ArrayList<>();
-        List<Space> pushPanels = new ArrayList<>();
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            Space playerSpace = board.getPlayer(i).getSpace();
-            if (playerSpace == null) {
-                continue;
-            }
-            BoardElement boardElement = playerSpace.getBoardElement();
-            if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
-                if (conveyorBelt.getStrength() == 1) {
-                    greenConveyorBeltSpaces.add(playerSpace);
-                } else {
-                    blueConveyorBeltSpaces.add(playerSpace);
-                }
-            } else if (boardElement instanceof BE_EnergySpace) {
-                energySpaces.add(playerSpace);
-            } else if (boardElement instanceof BE_Checkpoint) {
-                checkpoints.add(playerSpace);
-            } else if (boardElement instanceof BE_Gear) {
-                gears.add(playerSpace);
-            } else if (boardElement instanceof BE_PushPanel) {
-                pushPanels.add(playerSpace);
-            }
-        }
-
-        // 1. Blue conveyor belts
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space conveyorBeltSpace : blueConveyorBeltSpaces) {
-                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
-            }
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                Player player = board.getPlayer(i);
-                player.goToTemporarySpace();
-            }
-        }, Duration.millis(250), "Blue conveyor belts"));
-
-        // 2. Green conveyor belts
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space conveyorBeltSpace : greenConveyorBeltSpaces) {
-                conveyorBeltSpace.getBoardElement().doAction(conveyorBeltSpace, this, actionQueue);
-            }
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
-                Player player = board.getPlayer(i);
-                player.goToTemporarySpace();
-            }
-        }, Duration.millis(250), "Green conveyor belts"));
-
-        // 3. Push panels
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space pushPanel : pushPanels) {
-                pushPanel.getBoardElement().doAction(pushPanel, this, actionQueue);
-            }
-        }, Duration.millis(0), ""));
-
-        // 4. Gears
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space gearSpace : gears) {
-                gearSpace.getBoardElement().doAction(gearSpace, this, actionQueue);
-            }
-        }, Duration.millis(0), ""));
-
-        // 5. Board lasers
-        actionQueue.addLast(new ActionWithDelay(() -> { // Shooting all board lasers at the same time
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    BoardElement boardElement = spaces[x][y].getBoardElement();
-                    if (boardElement instanceof BE_BoardLaser) {
-                        boardElement.doAction(spaces[x][y], this, actionQueue);
+    private void setDirectionOptionsPane(Space space) {
+        // Quirk fix for showing the player when another player is on the respawning players' spawn
+        if (board.getPhase() == REBOOTING) {
+            Player playerRebooting = playersRebooting.peek();
+            assert playerRebooting != null;
+            Player playerOnSpawnPoint = space.getPlayer();
+            if (playerOnSpawnPoint != null) {
+                if (playerOnSpawnPoint != playerRebooting) {
+                    if (playerRebooting.getSpawnPoint() == space) {
+                        Space otherSpawnPoint = playerOnSpawnPoint.getSpawnPoint();
+                        playerOnSpawnPoint.setSpace(otherSpawnPoint);
+                        playerOnSpawnPoint.setTemporarySpace(otherSpawnPoint);
+                        EventHandler.event_PlayerReboot(playerOnSpawnPoint, this);
+                        otherSpawnPoint.updateSpace();
                     }
                 }
             }
-        }, Duration.millis(250), "Board laser"));
-
-        // 6. Robot lasers
-        addClearLasers(spaces);
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
-            EventHandler.event_PlayerShoot(board.getSpaces(), board.getPlayer(i), actionQueue);
+            playerRebooting.goToTemporarySpace();
+            space.updateSpace();
         }
 
-        // 7. Energy spaces
-        addClearLasers(spaces);
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space energySpace : energySpaces) {
-                energySpace.getBoardElement().doAction(energySpace, this, actionQueue);
-            }
-        }, Duration.millis(250), "Energy spaces"));
-
-        // 8. Checkpoints
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space checkpoint : checkpoints) {
-                checkpoint.getBoardElement().doAction(checkpoint, this, actionQueue);
-            }
-        }, Duration.millis(0), ""));
+        directionOptionsSpace = space;
+        board.updateBoard();
     }
 
-    private void addClearLasers(Space[][] spaces) {
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            for (Space[] space : spaces) {
-                for (Space value : space) {
-                    value.clearLasersOnSpace();
+    public void spacePressed(MouseEvent event, SpaceView spaceView, Space space) {
+        if (board.getPhase() == INITIALIZATION) {
+            if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                Player currentPlayer = board.getCurrentPlayer();
+                if (space.getPlayer() == null) {
+                    space.setPlayer(currentPlayer);
+                    setDirectionOptionsPane(space);
                 }
             }
-        }, Duration.millis(0)));
-    }
-
-    public void chooseDirection(Heading direction) {
-        if (board.getPhase() == INITIALISATION) {
-            Player currentPlayer = board.getCurrentPlayer();
-            currentPlayer.setHeading(direction);
-            int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
-            Player nextPlayer = board.getPlayer(nextPlayerIndex);
-            board.setCurrentPlayer(nextPlayer);
-
-            if (nextPlayer.getSpawnPoint() != null) {
-                System.out.println("Starting programming phase");
-                startProgrammingPhase();
-            }
         }
 
-        if (board.getPhase() == REBOOTING) {
-            List<Player> playersRebooting = new ArrayList<>();
-            for (Player player : board.getPlayers()) {
-                if (player.getIsRebooting()) {
-                    playersRebooting.add(player);
+        // Debugging
+        if (board.getPhase() != INITIALIZATION) {
+            if (space.getPlayer() == null) {
+                if (event.isShiftDown()) {
+                    space.setPlayer(board.getPlayer(1));
+                } else if (event.isControlDown()) {
+                    space.setPlayer(board.getPlayer(0));
                 }
             }
-
-            Player currentPlayer = board.getCurrentPlayer();
-            currentPlayer.setHeading(direction);
-            int nextPlayerIndex = (board.getPlayerNumber(currentPlayer) + 1) % board.getNoOfPlayers();
-            Player nextPlayer = board.getPlayer(nextPlayerIndex);
-            board.setCurrentPlayer(nextPlayer);
-
-            if (nextPlayer.getSpawnPoint() != null) {
-                System.out.println("Starting programming phase");
-                startProgrammingPhase();
-            }
         }
     }
 
-    public boolean moveCards(@NotNull CommandCardField source, @NotNull CommandCardField target) {
-        CommandCard sourceCard = source.getCard();
-        CommandCard targetCard = target.getCard();
-        if(sourceCard.command != null && sourceCard.command == Command.AGAIN && target.index == 1) return false;
-        if (sourceCard != null && targetCard == null) {
-            target.setCard(sourceCard);
-            source.setCard(null);
-            return true;
-        } else {
-            return false;
+    public void initializeDirectionButton(Button button, BoardView BV) {
+        Heading direction = Heading.valueOf(button.getId());
+        button.setOnMouseClicked(event -> {
+            chooseDirection(direction, BV);
+        });
+    }
+
+    public Space getDirectionOptionsSpace() {
+        return directionOptionsSpace;
+    }
+
+    /**
+     * This method is called when the player has chosen a direction for the robot.
+     * The direction is set for the current player and the next player is set as the current player.
+     * If the next player has a spawn point, the programming phase is started.
+     * 
+     * @param direction the direction chosen by the player
+     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
+     */
+    public void chooseDirection(Heading direction, BoardView BV) {
+        BV.handleDirectionButtonClicked();
+        directionOptionsSpace = null;
+        if (board.getPhase() == INITIALIZATION) {
+            Player player = board.getCurrentPlayer();
+
+            Space spawnSpace = player.getSpace();
+            player.setSpawn(spawnSpace);
+            player.setSpace(spawnSpace);
+
+            if (spawnSpace.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                spawnPoint.setColor(player);
+                BV.initializePlayerSpawnSpaceView(spawnSpace);
+            }
+            player.setHeading(direction);
+
+            int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % board.getNoOfPlayers();
+            Player nextPlayer = board.getPlayer(nextPlayerIndex);
+            board.setCurrentPlayer(nextPlayer);
+            if (nextPlayer.getSpawnPoint() != null) {
+                beginGame();
+            }
+        } else if (board.getPhase() == REBOOTING) {
+            Player player = playersRebooting.poll();
+            player.setHeading(direction);
+
+            handleNextReboot();
         }
+    }
+
+    public boolean canDragCard(CardField sourceField) {
+        if (sourceField == null) return false;
+        if (sourceField.getCard() == null) return false;
+        CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
+
+        // Drag from shop
+        if (sourceType == UPGRADE_CARD_SHOP_FIELD && board.getPhase() != UPGRADE) return false;
+
+        // Drag from player
+        if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
+            // Limited card movement when not programming
+            assert sourceField.player != null;
+            List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
+            if (board.getPhase() != PROGRAMMING) {
+                if (playerProgramField.contains(sourceField)) return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean canDropCard(CardField sourceField, CardField targetField) {
+        if (sourceField == null || targetField == null) return false;
+        CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
+        CardField.CardFieldTypes targetType = targetField.cardFieldType;
+
+        // Can't drag onto shop
+        if (targetType == UPGRADE_CARD_SHOP_FIELD) return false;
+
+        // Dragging from shop
+        if (sourceType == UPGRADE_CARD_SHOP_FIELD) {
+            if (board.getPhase() != UPGRADE) return false;
+            if (sourceField.getCard() instanceof UpgradeCardPermanent && targetType != PERMANENT_UPGRADE_CARD_FIELD) return false;
+            if (sourceField.getCard() instanceof UpgradeCardTemporary && targetType != TEMPORARY_UPGRADE_CARD_FIELD) return false;
+        }
+
+        // Dragging from player
+        if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
+            if (sourceField.player != targetField.player) return false;
+            if (sourceType != targetType) return false;
+
+            // Limited card movement when not programming
+            assert sourceField.player != null;
+            List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
+            if (board.getPhase() != PROGRAMMING) {
+                if (playerProgramField.contains(sourceField) || playerProgramField.contains(targetField)) return false;
+            }
+
+            // Can't put again command on first register
+            if (sourceField.cardFieldType == COMMAND_CARD_FIELD) {
+                if (((CommandCard)(sourceField.getCard())).command == Command.AGAIN && targetField.index == 1) return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean moveCard(@NotNull CardField sourceField, @NotNull CardField targetField) {
+        boolean couldMove = true;
+        Card sourceCard = sourceField.getCard();
+        Card targetCard = targetField.getCard();
+
+        // Buying
+        if (sourceField.cardFieldType == UPGRADE_CARD_SHOP_FIELD) {
+            assert targetField.player != null;
+            Player player = targetField.player;
+            boolean canBuyUpgradeCard = player.attemptUpgradeCardPurchase(sourceField);
+            if (canBuyUpgradeCard) {
+                if (targetCard != null) {
+                    player.removeUpgradeCard((UpgradeCard) targetCard);
+                }
+            }
+            couldMove = canBuyUpgradeCard;
+        }
+
+        if (couldMove) {
+            if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
+                sourceField.setCard(targetCard); // Replaces sourceField card with null if targetCard is null.
+            } else {
+                sourceField.setCard(null);
+            }
+            targetField.setCard(sourceCard);
+        }
+
+        return couldMove;
     }
 }

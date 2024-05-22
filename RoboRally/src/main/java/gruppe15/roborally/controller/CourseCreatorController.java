@@ -3,7 +3,6 @@ package gruppe15.roborally.controller;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.view.CardFieldView;
 import gruppe15.roborally.view.SpaceView;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -21,7 +20,7 @@ import javafx.scene.layout.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gruppe15.roborally.model.Phase.INITIALISATION;
+import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 public class CourseCreatorController extends VBox {
     @FXML
@@ -33,8 +32,8 @@ public class CourseCreatorController extends VBox {
     private Board board;
     private SpaceView[][] spaces;
     private SpaceEventHandler spaceEventHandler;
-    private final Image backgroundImage = ImageUtils.getImageFromName("empty.png");
-    private final Image backgroundImageStart = ImageUtils.getImageFromName("emptyStart.png");
+    private final Image backgroundImage = ImageUtils.getImageFromName("Board Pieces/empty.png");
+    private final Image backgroundImageStart = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
     private BoardElements currentBoardElement;
     private final ImageView selectedBoardElementImageView = new ImageView();
 
@@ -68,7 +67,7 @@ public class CourseCreatorController extends VBox {
         CC_boardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         for (BoardElements boardElement : BoardElements.values()) {
-            Image boardElementImage = ImageUtils.getImageFromName(boardElement.imageName);
+            Image boardElementImage = ImageUtils.getImageFromName("Board Pieces/" + boardElement.imageName);
             ImageView boardElementImageView = new ImageView(boardElementImage);
             boardElementImageView.setFitWidth(50);
             boardElementImageView.setFitHeight(50);
@@ -123,7 +122,7 @@ public class CourseCreatorController extends VBox {
             if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
                 if (space.getBoardElement() instanceof BE_SpawnPoint) {
                     Player currentPlayer = board.getCurrentPlayer();
-                    if (board.getPhase() == INITIALISATION) {
+                    if (board.getPhase() == INITIALIZATION) {
                         if (space.getPlayer() == null) {
                             currentPlayer.setSpawn(space);
                             currentPlayer.setSpace(space);
@@ -173,7 +172,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView source = (CardFieldView) t;
-                CommandCardField cardField = source.field;
+                CardField cardField = source.field;
                 if (cardField != null &&
                         cardField.getCard() != null &&
                         cardField.player != null &&
@@ -202,7 +201,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
                 if (cardField != null &&
                         (cardField.getCard() == null || event.getGestureSource() == target) &&
                         cardField.player != null &&
@@ -224,7 +223,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
                 if (cardField != null &&
                         cardField.getCard() == null &&
                         cardField.player != null &&
@@ -247,7 +246,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
                 if (cardField != null &&
                         cardField.getCard() == null &&
                         cardField.player != null &&
@@ -270,7 +269,7 @@ public class CourseCreatorController extends VBox {
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
+                CardField cardField = target.field;
 
                 Dragboard db = event.getDragboard();
                 boolean success = false;
@@ -282,7 +281,7 @@ public class CourseCreatorController extends VBox {
                             db.hasContent(ROBO_RALLY_CARD)) {
                         Object object = db.getContent(ROBO_RALLY_CARD);
                         if (object instanceof String) {
-                            CommandCardField source = cardFieldFromRepresentation((String) object);
+                            CardField source = cardFieldFromRepresentation((String) object);
                             if (source != null && gameController.moveCards(source, cardField)) {
                                 // CommandCard card = source.getCard();
                                 // if (card != null) {

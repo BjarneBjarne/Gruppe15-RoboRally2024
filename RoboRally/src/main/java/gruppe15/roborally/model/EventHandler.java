@@ -4,8 +4,7 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.boardelements.BE_Hole;
 import gruppe15.roborally.model.boardelements.BE_Reboot;
 import gruppe15.roborally.model.damage.Damage;
-import gruppe15.roborally.model.damage.DamageType;
-import gruppe15.roborally.model.damage.Spam;
+import gruppe15.roborally.model.damage.DamageTypeAmount;
 import gruppe15.roborally.model.events.EventListener;
 import gruppe15.roborally.model.events.*;
 import javafx.util.Duration;
@@ -38,8 +37,17 @@ public class EventHandler {
      * @param listener
      * @param owner
      */
-    public static void onEvent(EventListener listener, Player owner) {
+    public static EventListener subscribe(EventListener listener, Player owner) {
         listeners.put(listener, owner);
+        return listener;
+    }
+    /**
+     * Unsubscription method for EventListeners/Cards.
+     * @param listener
+     * @param owner
+     */
+    public static void unsubscribe(EventListener listener, Player owner) {
+        listeners.entrySet().removeIf(entry -> entry.getKey().equals(listener) && entry.getValue().equals(owner));
     }
 
     /**
@@ -68,60 +76,39 @@ public class EventHandler {
 
     /**
      * Method for whenever a player shoots.
-     * @param spaces
+     * @param board
      * @param playerShooting
      * @param actionQueue
      */
-    public static void event_PlayerShoot(Space[][] spaces, Player playerShooting, LinkedList<ActionWithDelay> actionQueue) {
-        actionQueue.addLast(new ActionWithDelay(() -> {
-            if (playerShooting.getIsRebooting()) {
-                return;
-            }
-            // Clearing lasers in between player lasers
-            for (int x = 0; x < spaces.length; x++) {
-                for (int y = 0; y < spaces[x].length; y++) {
-                    spaces[x][y].clearLasersOnSpace();
+    public static void event_PlayerShoot(Board board, Player playerShooting, LinkedList<ActionWithDelay> actionQueue) {
+        if (playerShooting.getIsRebooting()) {
+            return;
+        }
+        // Clearing lasers in between player lasers
+        board.clearLasers();
+
+        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting);
+        laser.startLaser(board.getSpaces()).run();
+        try {
+            List<Player> playersHit = calculatePlayersHit(laser);
+            // Deal damage to each target player
+            for (Player target : playersHit) {
+                if (target == playerShooting) {
+                    continue;
                 }
-            }
-            // Create a laser object
-            Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting);
-            // Start the laser iteration asynchronously
-            laser.startLaser(spaces).run();
+                Damage damage = new Damage(1, 0, 0, 0);
 
-            // Wait for the laser iteration to complete and calculate the damage
-            try {
-                List<Player> playersHit = calculatePlayersHit(laser);
-                // Deal damage to each target player
-                for (Player target : playersHit) {
-                    if (target == playerShooting) {
-                        continue;
-                    }
-                    Damage damage = new Damage();
-                    damage.setAmount(Spam.class, 1);
-
-                    // Apply any modifications to damage based on player's cards
-                    List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(playerShooting, PlayerDamageListener.class);
-                    for (PlayerDamageListener listener : playerPlayerDamageListeners) {
-                        damage = listener.onPlayerDamage(damage);
-                    }
-
-                    // Apply damage to the target player
-                    for (Map.Entry<Class<? extends DamageType>, DamageType> entry : damage.getDamageMap().entrySet()) {
-                        if (entry.getValue().getAmount() > 0) {
-                            damage.applyDamage(target);
-                            Damage finalDamage = damage;
-                            actionQueue.addFirst(new ActionWithDelay(() -> {
-                                // Print the damage dealt
-                                System.out.println("{" + playerShooting.getName() + "} dealt " + finalDamage.getAmount(entry.getKey()) + " " + entry.getValue().getAmount() + " damage to {" + target.getName() + "}");
-                            }, Duration.millis(500)));
-                        }
-                    }
+                // Apply any modifications to damage based on player's cards
+                List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(playerShooting, PlayerDamageListener.class);
+                for (PlayerDamageListener listener : playerPlayerDamageListeners) {
+                    damage = listener.onPlayerDamage(damage, null);
                 }
-            } catch (InterruptedException e) {
-                // Handle InterruptedException
-                System.out.println("Player laser interrupted: " + e.getMessage());
+                event_PlayerDamage(target, playerShooting, damage, actionQueue);
             }
-        }, Duration.millis(250), "Player laser"));
+        } catch (InterruptedException e) {
+            // Handle InterruptedException
+            System.out.println("Player laser interrupted: " + e.getMessage());
+        }
     }
     private static List<Player> calculatePlayersHit(Laser laser) throws InterruptedException {
         List<Player> playersHit = new ArrayList<>();
@@ -134,6 +121,40 @@ public class EventHandler {
         }
         return playersHit;
     }
+
+
+
+
+
+    /**
+     * Method for when a player takes damage.
+     * @param playerTakingDamage The player that takes the damage.
+     * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
+     * @param damage The damage to deal to the playerTakingDamage.
+     * @param actionQueue
+     */
+    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage, LinkedList<ActionWithDelay> actionQueue) {
+        List<PlayerDamageListener> playerDamageListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerDamageListener.class);
+        for (PlayerDamageListener listener : playerDamageListeners) {
+            damage = listener.onPlayerDamage(damage, playerTakingDamage);
+        }
+
+        // Apply damage to the target player
+        boolean anyDamage = false;
+        for (DamageTypeAmount damageTypeAmount : damage.getDamageTypeList()) {
+            if (damageTypeAmount.getAmount() > 0) {
+                anyDamage = true;
+                break;
+            }
+        }
+        if (anyDamage) {
+            Damage finalDamage = damage;
+            actionQueue.addFirst(new ActionWithDelay(() -> {
+                finalDamage.applyDamage(playerTakingDamage, playerInflictingTheDamage);
+            }, Duration.millis(250)));
+        }
+    }
+
 
 
 
@@ -155,6 +176,7 @@ public class EventHandler {
 
 
 
+
     /**
      * Method for when players are pushed.
      * @param spaces
@@ -162,7 +184,7 @@ public class EventHandler {
      * @param playersToPush
      * @param pushDirection
      */
-    public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection) {
+    public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection, GameController gc) {
         for (Player playerToPush : playersToPush) {
             if (playerToPush == playerPushing) {
                 continue;
@@ -174,10 +196,15 @@ public class EventHandler {
                 }
             }
             // Set players new position
-            playerToPush.setSpace(playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces));
-            // TODO: Make playerOnSpace (fall off / reboot)
+            Space nextSpace = playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces);
+            if (nextSpace == null || nextSpace.getBoardElement() instanceof BE_Hole) {
+                event_PlayerReboot(playerToPush, gc);
+            } else {
+                playerToPush.setSpace(nextSpace);
+            }
         }
     }
+
 
 
 
@@ -187,7 +214,7 @@ public class EventHandler {
      */
     public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
         List<PlayerMoveListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerMoveListener.class);
-        boolean shouldReboot = (space == null || playerMoving.getSpace().getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
+        boolean shouldReboot = (space == null || space.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
 
         // Handle listener logic
         for (PlayerMoveListener listener : playerMoveListeners) {
@@ -210,26 +237,35 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    private static void event_PlayerReboot(Player player, GameController gc) {
-        player.setIsRebooting(true);
-        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(player.getSpace());
+    public static void event_PlayerReboot(Player player, GameController gc) {
+        System.out.println(player.getName() + " rebooting");
+        gc.board.setPhase(Phase.REBOOTING);
+        player.startRebooting();
+        gc.addPlayerToRebootQueue(player);
+        Space oldSpace = player.getSpace();
+        if (oldSpace == null) {
+            System.out.println("old space null for " + player.getName());
+            oldSpace = player.getTemporarySpace();
+        }
+        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(oldSpace);
         Space[][] subBoard = gc.board.getSubBoards().get(subBoardIndex);
         Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(subBoard);
         Space rebootSpace;
         if (rebootSpaceFinder != null) {
             rebootSpace = rebootSpaceFinder.getKey();
+            List<Player> playersToPush = new ArrayList<>();
+            boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+            if (couldPush) {
+                EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
+            } else {
+                // There is a wall at the end of player chain
+                System.out.println("ERROR: Can't place player on reboot.");
+                rebootSpace = player.getSpawnPoint();
+            }
         } else {
             rebootSpace = player.getSpawnPoint();
         }
-        List<Player> playersToPush = new ArrayList<>();
-        boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
-        if (couldPush) {
-            EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection());
-            player.setSpace(rebootSpace);
-        } else {
-            // There is a wall at the end of player chain
-            System.out.println("ERROR: Can't place player on reboot.");
-            // TODO: Find any space to put player, in case this happens
-        }
+
+        player.setTemporarySpace(rebootSpace);
     }
 }
