@@ -39,6 +39,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static gruppe15.roborally.model.Phase.*;
@@ -317,14 +318,16 @@ public class PlayerView extends Tab implements ViewObserver {
                 if (!interactionPane.getChildren().contains(playerOptionsPanel)) {
                     interactionPane.getChildren().add(playerOptionsPanel);
                 }
+
                 playerOptionsPanel.getChildren().clear();
                 if (board.getCurrentPlayer() == player) {
-                    Player currentPlayer = gameController.board.getCurrentPlayer();
-                    CommandCard card = (CommandCard) currentPlayer.getProgramField(currentPlayer.board.getCurrentRegister()).getCard();
-                    List<Command> options = card.command.getOptions();
+                    List<Command> options = player.getCurrentOptions();
                     for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(e -> gameController.executeCommandOptionAndContinue(command));
+                        optionButton.setOnAction(e -> {
+                            gameController.executeCommandOptionAndContinue(command);
+                            player.setCurrentOptions(new ArrayList<>());
+                        });
                         optionButton.setDisable(false);
                         playerOptionsPanel.getChildren().add(optionButton);
                     }

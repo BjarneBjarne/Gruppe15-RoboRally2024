@@ -169,6 +169,7 @@ public class GameController {
      *     These methods are the main flow of a register.
      */
     private void handlePlayerRegister() {
+        System.out.println();
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
         makeProgramFieldsVisible(board.getCurrentRegister());
@@ -281,8 +282,6 @@ public class GameController {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-
-        System.out.println();
         assert false;
     }
 
@@ -293,7 +292,7 @@ public class GameController {
      *  @param option the option the player have chosen, and sets the activation phase active again
      */
     public void executeCommandOptionAndContinue(Command option){
-        queuePlayerCommand(board.getCurrentPlayer(), option);
+        queuePlayerCommand(board.getCurrentPlayer(), option, true);
         board.setPhase(ACTIVATION);
         handlePlayerActions();
     }
@@ -326,7 +325,9 @@ public class GameController {
         handlePlayerActions();
     }
 
-
+    public void queuePlayerCommand(@NotNull Player player, Command command) {
+        queuePlayerCommand(player, command, false);
+    }
 
     /**
      * sets the players action from the command
@@ -334,13 +335,16 @@ public class GameController {
      * @param command
      * @author Maximillian Bjørn Mortensen
      */
-    public void queuePlayerCommand(@NotNull Player player, Command command) {
+    public void queuePlayerCommand(@NotNull Player player, Command command, boolean isOption) {
         if (player.board == board && command != null) {
             // XXX This is a very simplistic way of dealing with some basic cards and
             //     their execution. This should eventually be done in a more elegant way
             //     (this concerns the way cards are modelled as well as the way they are executed).
             // Call the event handler, and let it modify the command
-            command = EventHandler.event_RegisterActivate(player, command);
+
+            if (!isOption) {
+                command = EventHandler.event_RegisterActivate(player, command);
+            }
 
             switch (command) {
                 case MOVE_1:
@@ -409,6 +413,7 @@ public class GameController {
                 default:
                     if (!command.getOptions().isEmpty()) {
                         board.setPhase(PLAYER_INTERACTION);
+                        player.setCurrentOptions(command.getOptions());
                     } else {
                         System.out.println("Can't find command: " + command.displayName);
                     }
