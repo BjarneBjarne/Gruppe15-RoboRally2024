@@ -31,6 +31,7 @@ import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -98,36 +99,29 @@ public class BoardView extends VBox implements ViewObserver {
         boardTilesPane = new GridPane();
         boardTilesPane.setAlignment(Pos.CENTER);
         playersView = new PlayersView(gameController);
+        StackPane playersViewStackPane = new StackPane(playersView);
         statusLabel = new Label("<no status>");
         AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
         mainBoardPane = new StackPane(boardTilesPane, anchorPane);
         mainBoardPane.setAlignment(Pos.CENTER);
+        playersViewStackPane.setAlignment(Pos.CENTER);
         this.getChildren().add(statusLabel);
         this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playersView);
-        this.setAlignment(Pos.CENTER);
-        this.setMaxHeight(Double.MAX_VALUE);
-        this.setMaxWidth(Double.MAX_VALUE);
-        this.setPrefHeight(1080);
-        this.setPrefWidth(1920);
-        this.setMinHeight(1080);
-        this.setMinWidth(1920);
+        this.getChildren().add(playersViewStackPane);
+        this.setAlignment(Pos.BOTTOM_CENTER);
         this.setFillWidth(true);
 
-        mainBoardPane.setPrefWidth(1920);
-        mainBoardPane.setMinWidth(1920);
+        VBox.setVgrow(mainBoardPane, Priority.ALWAYS);
+        VBox.setVgrow(playersViewStackPane, Priority.ALWAYS);
 
-        playersView.setPrefWidth(1920);
-        playersView.setMinWidth(1920);
+        mainBoardPane.setPrefWidth(APP_BOUNDS.getWidth());
+        mainBoardPane.setMinWidth(APP_BOUNDS.getWidth());
 
+        playersView.setPrefWidth(APP_BOUNDS.getWidth());
+        playersView.setMinWidth(APP_BOUNDS.getWidth());
 
         //mainBoardPane.setStyle("-fx-border-color: black;");
         //mainBoardPane.setStyle("-fx-corder-color: gray;");
-        this.setStyle("-fx-border-color: red;");
-
-
-        VBox.setVgrow(mainBoardPane, javafx.scene.layout.Priority.ALWAYS);
-        VBox.setVgrow(playersView, javafx.scene.layout.Priority.ALWAYS);
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -165,12 +159,15 @@ public class BoardView extends VBox implements ViewObserver {
         this.getChildren().add(statusLabel);
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersView);
-        this.setAlignment(Pos.CENTER);
-        boardTilesPane.setAlignment(Pos.CENTER);
-        mainBoardPane.setAlignment(Pos.CENTER);
+        this.setAlignment(Pos.TOP_CENTER);
+        boardTilesPane.setAlignment(Pos.TOP_CENTER);
+        mainBoardPane.setAlignment(Pos.TOP_CENTER);
+        //StackPane.setMargin(mainBoardPane, new Insets(30, 0, 0, 0));
+        //GridPane.setMargin(boardTilesPane, new Insets(30, 0, 0, 0));
 
-        VBox.setVgrow(mainBoardPane, javafx.scene.layout.Priority.ALWAYS);
-        VBox.setVgrow(playersView, javafx.scene.layout.Priority.ALWAYS);
+
+        //VBox.setVgrow(mainBoardPane, javafx.scene.layout.Priority.ALWAYS);
+        //VBox.setVgrow(playersView, javafx.scene.layout.Priority.ALWAYS);
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {

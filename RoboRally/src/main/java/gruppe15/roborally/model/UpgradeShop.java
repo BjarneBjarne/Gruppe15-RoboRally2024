@@ -46,10 +46,7 @@ public class UpgradeShop implements Observer {
 
 
     // Methods for access of availableCards.
-    /**
-     * Method for getting the cards that are currently available for purchase in the shop.
-     * @return
-     */
+    /*
     public List<UpgradeCard> getAvailableCards() {
         List<UpgradeCard> availableCards = new ArrayList<>();
         for (CardField cardField : availableCardsFields) {
@@ -59,7 +56,7 @@ public class UpgradeShop implements Observer {
             }
         }
         return availableCards;
-    }
+    }*/
     /**
      * Method for getting the shops CardsFields.
      * @param index
@@ -68,7 +65,9 @@ public class UpgradeShop implements Observer {
     public CardField getAvailableCardsField(int index) {
         return availableCardsFields[index];
     }
-
+    public CardField[] getAvailableCardsFields() {
+        return availableCardsFields;
+    }
 
     // Methods for access of transactions with shop.
     /**
@@ -102,6 +101,10 @@ public class UpgradeShop implements Observer {
      * Method for refilling the shop. Check the UpgradeShop class description for more info.
      */
     public void refillAvailableCards() {
+        System.out.println("upgradeCardsDeck: " + upgradeCardsDeck.size());
+        System.out.println("upgradeCardsDeck: " + upgradeCardsDeck.size());
+        System.out.println("upgradeCardsDeck: " + upgradeCardsDeck.size());
+
         // If no cards were bought, discard all cards
         if (getNoOfMissingCards() == 0) {
             for (int i = 0; i < noOfPlayers; i++) {
@@ -111,7 +114,9 @@ public class UpgradeShop implements Observer {
         }
         // Add noOfMissing cards to availableUpgradeCards
         for (int i = 0; i < noOfPlayers; i++) {
-            availableCardsFields[i].setCard(drawCard());
+            if (availableCardsFields[i].getCard() == null) {
+                availableCardsFields[i].setCard(drawCard());
+            }
         }
     }
     /**
@@ -121,7 +126,7 @@ public class UpgradeShop implements Observer {
     private int getNoOfMissingCards() {
         int noOfMissingCards = noOfPlayers;
         for (int i = 0; i < noOfPlayers; i++) {
-            if (availableCardsFields[i] == null) {
+            if (availableCardsFields[i].getCard() == null) {
                 noOfMissingCards--;
             }
         }

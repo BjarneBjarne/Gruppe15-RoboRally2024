@@ -22,7 +22,7 @@ public class Constants {
     public static double CARDFIELD_SIZE;
 
     public static void UpdateSizes() {
-        SPACE_SIZE = 115 * APP_SCALE;
-        CARDFIELD_SIZE = 150 * APP_SCALE;
+        SPACE_SIZE = 120 * 0.75;
+        CARDFIELD_SIZE = 225 * 0.75;
     }
 }

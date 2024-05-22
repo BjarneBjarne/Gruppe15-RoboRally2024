@@ -135,8 +135,9 @@ public class CardFieldView extends GridPane implements ViewObserver {
         } else {
             if (gameController.board.getPhase().equals(Phase.UPGRADE)) {
                 if (cardField.cardFieldType == CardField.CardFieldTypes.UPGRADE_CARD_SHOP_FIELD) {
-                    for (int i = 0; i < gameController.board.getUpgradeShop().getAvailableCards().size(); i++) {
-                        CardField other = gameController.board.getUpgradeShop().getAvailableCardsField(i);
+                    UpgradeShop upgradeShop = gameController.board.getUpgradeShop();
+                    for (int i = 0; i < upgradeShop.getAvailableCardsFields().length; i++) {
+                        CardField other = upgradeShop.getAvailableCardsField(i);
                         if (other == cardField) {
                             return "S," + i;    // Shop cardField
                         }
@@ -178,7 +179,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     }
                 } else {
                     if (strings[0].equals("S")) {
-                        if (i < gameController.board.getUpgradeShop().getAvailableCards().size()) {
+                        if (i < gameController.board.getUpgradeShop().getAvailableCardsFields().length) {
                             return gameController.board.getUpgradeShop().getAvailableCardsField(i);
                         }
                     }
@@ -353,7 +354,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
                 if (sourceField.cardFieldType == CardField.CardFieldTypes.UPGRADE_CARD_SHOP_FIELD) {
                     if (event.getGestureSource() instanceof CardFieldView sourceCardFieldView) {
-                        System.out.println("Editing source: " + sourceCardFieldView.field.index);
+                        //System.out.println("Editing source: " + sourceCardFieldView.field.index);
                         sourceCardFieldView.setStyle(
                                 "-fx-background-color: transparent; " +
                                 "-fx-border-color: transparent; " +

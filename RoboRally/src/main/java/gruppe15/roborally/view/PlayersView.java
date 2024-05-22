@@ -48,7 +48,7 @@ public class PlayersView extends TabPane implements ViewObserver {
 
         this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
-        this.setTabMaxHeight(1000);
+        this.setTabMaxHeight(Double.MAX_VALUE);
 
         playerViews = new PlayerView[board.getNoOfPlayers()];
         for (int i = 0; i < board.getNoOfPlayers(); i++) {

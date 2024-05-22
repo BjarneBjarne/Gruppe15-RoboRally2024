@@ -766,7 +766,7 @@ public class GameController {
             Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
             if (nextPlayer.getSpawnPoint() != null) {
-                beginGame();
+                startUpgradingPhase();
             }
         } else if (board.getPhase() == REBOOTING) {
             Player player = playersRebooting.poll();
@@ -799,6 +799,7 @@ public class GameController {
 
     public boolean canDropCard(CardField sourceField, CardField targetField) {
         if (sourceField == null || targetField == null) return false;
+
         CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
         CardField.CardFieldTypes targetType = targetField.cardFieldType;
 
