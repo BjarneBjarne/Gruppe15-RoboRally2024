@@ -76,6 +76,8 @@ public class RoboRally extends Application {
     // private RoboRallyMenuBar menuBar;
     // private AppController appController;
 
+
+
     @Override
     public void init() throws Exception {
         super.init();
@@ -83,77 +85,83 @@ public class RoboRally extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Super messy, but works.
+        // TODO: Clean up this mess.
+
         stage = primaryStage;
         AppController appController = new AppController(this);
-        // create the primary scene with a menu bar and a pane for
-        // the board view (which initially is empty); it will be filled
-        // when the user creates a new game or loads a game
         //RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
         root = new BorderPane();
-
-        Scene primaryScene = new Scene(root);
-        stage.setScene(primaryScene);
+        root.setMaxHeight(Double.MAX_VALUE);
+        root.setMaxWidth(Double.MAX_VALUE);
+        root.setPrefHeight(1080);
+        root.setPrefWidth(1920);
+        root.setMinHeight(1080);
+        root.setMinWidth(1920);
+        //root.setStyle("-fx-border-color: blue;");
+        root.setStyle("-fx-border-color: lightblue;");
+        VBox vbox = new VBox(root);
+        //vbox.setStyle("-fx-border-color: green;");
+        vbox.setAlignment(Pos.CENTER);
         stage.setTitle("Robo Rally");
-        stage.setResizable(true);
-        stage.setFullScreen(false);
+        createMainMenu(appController);
+        stage.setFullScreen(START_FULLSCREEN);
 
         // Get screen bounds and calculate scale
-        APP_BOUNDS = Screen.getPrimary().getVisualBounds();
-        APP_SCALE = (APP_BOUNDS.getHeight() / 1440);
+        if (START_FULLSCREEN) {
+            Scene primaryScene = new Scene(vbox);
+            stage.setScene(primaryScene);
+            stage.setResizable(false);
+            stage.show();
+            APP_BOUNDS = Screen.getPrimary().getBounds();
+            APP_SCALE = (APP_BOUNDS.getHeight() / REFERENCE_HEIGHT);
+            // Show the stage
+            stage.show();
+            // Set stage dimensions
+            stage.setWidth(APP_BOUNDS.getWidth());
+            stage.setHeight(APP_BOUNDS.getHeight());
 
-        System.out.println("Start bounds:");
-        System.out.println(APP_BOUNDS.getWidth());
-        System.out.println(APP_BOUNDS.getHeight());
-
-        // Set stage dimensions
-        stage.setWidth(APP_BOUNDS.getWidth() * 0.75);
-        stage.setHeight(APP_BOUNDS.getHeight() * 0.75);
-
-        // Show the stage
-        stage.show();
-
-        // Apply scaling to the root node
-        root.setScaleX(APP_SCALE);
-        root.setScaleY(APP_SCALE);
-
-
-        //updateNodeScale(root);
-
-        PauseTransition pause = new PauseTransition(Duration.millis(200));
-        //pause.setOnFinished(event -> onResizeFinished());
-        ChangeListener<Number> resizeListener = new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                pause.playFromStart(); // Reset and start the pause transition
+            /*primaryScene.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                event.consume();
+                closeGame(appController);
             }
-        };
-        stage.heightProperty().addListener(resizeListener);
+        });*/
+        } else {
+            Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
+            double initialWidth = primaryScreenBounds.getWidth() * 0.75;
+            double initialHeight = primaryScreenBounds.getHeight() * 0.75;
+            Scene primaryScene = new Scene(vbox, initialWidth, initialHeight);
+            primaryStage.setScene(primaryScene);
+            primaryStage.setWidth(initialWidth);
+            primaryStage.setHeight(initialHeight);
+            primaryStage.show();
+
+            primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+                APP_SCALE = newVal.doubleValue() / REFERENCE_HEIGHT;
+                scaleRoot();
+            });
+            APP_SCALE = initialHeight / REFERENCE_HEIGHT;
+        }
+        scaleRoot();
+
+        System.out.println("Scale: " + APP_SCALE);
+        System.out.println("Size: " + stage.getWidth() + "x" + stage.getHeight());
 
         // Handling save option on close
         stage.setOnCloseRequest(e -> {
             e.consume();
             closeGame(appController);
         });
-        /*primaryScene.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                event.consume();
-                closeGame(appController);
-            }
-        });*/
-
-        createMainMenu(appController);
     }
 
-    private void updateNodeScale(Node node) {
-        //UpdateSizes();
-        node.setScaleX(APP_SCALE);
-        node.setScaleY(APP_SCALE);
+    private void scaleRoot() {
+        root.setScaleX(APP_SCALE);
+        root.setScaleY(APP_SCALE);
+        //root.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+        UpdateSizes();
     }
 
-    private void onResizeFinished() {
-        System.out.println("resized");
-        updateNodeScale(root);
-    }
 
 
     /**
@@ -266,13 +274,11 @@ public class RoboRally extends Application {
      * @author Maximillian Bjørn Mortensen
      */
     public void goToWinScreen(GameController gameController, AppController appController){
-
         root.getChildren().clear();
 
         AnchorPane w = new WinScreenView().initialize(gameController, appController, this).getWinScreen();
 
         root.setCenter(w);
-
     }
 
     public void createBoardView(GameController gameController, boolean loadingGame) {
@@ -302,8 +308,12 @@ public class RoboRally extends Application {
                 boardView = new BoardView(gameController);
             }
             root.setCenter(boardView);
+            //BorderPane.set
+            VBox.setVgrow(root, javafx.scene.layout.Priority.ALWAYS);
+            VBox.setVgrow(boardView, javafx.scene.layout.Priority.ALWAYS);
+
         }
-        stage.sizeToScene();
+        //stage.sizeToScene();
     }
 
     @Override
