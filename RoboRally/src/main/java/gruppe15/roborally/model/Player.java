@@ -24,6 +24,7 @@ package gruppe15.roborally.model;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.exceptions.*;
 import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.upgrades.upgrade_cards.Card_Brakes;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +71,7 @@ public class Player extends Subject {
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
     transient private Image image;
     transient private Image charIMG;
+    private List<Command> currentOptions = new ArrayList<>();
 
     transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
@@ -82,6 +84,8 @@ public class Player extends Subject {
         this.space = null;
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
         this.charIMG = ImageUtils.getImageFromName(robot.getSelectionImageName());
+
+        addUpgradeCard(new Card_Brakes());
 
         programFields = new CardField[NO_OF_REGISTERS];
         for (int i = 0; i < programFields.length; i++) {
@@ -481,5 +485,12 @@ public class Player extends Subject {
                 programField.setCard(drawFromDeck());
             }
         }
+    }
+
+    public List<Command> getCurrentOptions() {
+        return currentOptions;
+    }
+    public void setCurrentOptions(List<Command> currentOptions) {
+        this.currentOptions = currentOptions;
     }
 }

@@ -46,17 +46,16 @@ public class UpgradeShop implements Observer {
 
 
     // Methods for access of availableCards.
-    /*
-    public List<UpgradeCard> getAvailableCards() {
-        List<UpgradeCard> availableCards = new ArrayList<>();
+    public int getNoOfAvailableCards() {
+       int noOfAvailableCards = 0;
         for (CardField cardField : availableCardsFields) {
             UpgradeCard cardFieldCard = (UpgradeCard) cardField.getCard();
             if (cardFieldCard != null) {
-                availableCards.add(cardFieldCard);
+                noOfAvailableCards++;
             }
         }
-        return availableCards;
-    }*/
+        return noOfAvailableCards;
+    }
     /**
      * Method for getting the shops CardsFields.
      * @param index
@@ -101,12 +100,9 @@ public class UpgradeShop implements Observer {
      * Method for refilling the shop. Check the UpgradeShop class description for more info.
      */
     public void refillAvailableCards() {
-        System.out.println("upgradeCardsDeck: " + upgradeCardsDeck.size());
-        System.out.println("upgradeCardsDeck: " + upgradeCardsDeck.size());
-        System.out.println("upgradeCardsDeck: " + upgradeCardsDeck.size());
-
         // If no cards were bought, discard all cards
         if (getNoOfMissingCards() == 0) {
+            System.out.println("No cards bought. Refreshing whole shop.");
             for (int i = 0; i < noOfPlayers; i++) {
                 upgradeCardsDiscardDeck.offerLast((UpgradeCard) availableCardsFields[i].getCard());
                 availableCardsFields[i].setCard(null);
@@ -124,10 +120,10 @@ public class UpgradeShop implements Observer {
      * @return
      */
     private int getNoOfMissingCards() {
-        int noOfMissingCards = noOfPlayers;
+        int noOfMissingCards = 0;
         for (int i = 0; i < noOfPlayers; i++) {
             if (availableCardsFields[i].getCard() == null) {
-                noOfMissingCards--;
+                noOfMissingCards++;
             }
         }
         return noOfMissingCards;
@@ -147,7 +143,7 @@ public class UpgradeShop implements Observer {
             if (!upgradeCardsDiscardDeck.isEmpty()) { // If there are old unused cards in the discard deck.
                 shuffleDiscardDeckToDeck();
                 if (!upgradeCardsDeck.isEmpty()) {
-                    drawCard();
+                    return drawCard();
                 }
             }
         }
@@ -158,6 +154,7 @@ public class UpgradeShop implements Observer {
      * Used for shuffling the DiscardDeck back into the main deck, when the main deck runs our of cards.
      */
     private void shuffleDiscardDeckToDeck() {
+        //System.out.println("Shuffling shop discard deck");
         Collections.shuffle(upgradeCardsDiscardDeck);
         for (int i = 0; i < upgradeCardsDiscardDeck.size(); i++) {
             upgradeCardsDeck.offerLast(upgradeCardsDiscardDeck.pollFirst());
