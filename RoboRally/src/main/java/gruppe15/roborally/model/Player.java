@@ -85,8 +85,6 @@ public class Player extends Subject {
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
         this.charIMG = ImageUtils.getImageFromName(robot.getSelectionImageName());
 
-        addUpgradeCard(new Card_Brakes());
-
         programFields = new CardField[NO_OF_REGISTERS];
         for (int i = 0; i < programFields.length; i++) {
             programFields[i] = new CardField(this,i+1);

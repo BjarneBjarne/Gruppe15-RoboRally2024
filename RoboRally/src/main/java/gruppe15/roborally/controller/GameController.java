@@ -427,7 +427,7 @@ public class GameController {
                     Command.WORM,
                     Command.VIRUS
             );
-            if (!commandsToNotRepeat.contains(command)) {
+            if (!commandsToNotRepeat.contains(command) && !isOption) {
                 player.setLastCmd(command);
             }
 
@@ -771,7 +771,7 @@ public class GameController {
             Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
             if (nextPlayer.getSpawnPoint() != null) {
-                startUpgradingPhase();
+                beginGame();
             }
         } else if (board.getPhase() == REBOOTING) {
             Player player = playersRebooting.poll();
