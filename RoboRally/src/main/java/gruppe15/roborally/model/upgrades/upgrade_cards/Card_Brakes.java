@@ -6,8 +6,8 @@ import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 
 public class Card_Brakes extends UpgradeCardPermanent {
 
-    public Card_Brakes(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
+    public Card_Brakes() {
+        super("Brakes", 3, 0, 0, null);
     }
 
     @Override
@@ -17,14 +17,14 @@ public class Card_Brakes extends UpgradeCardPermanent {
         // Defining effects on events
 
         // OnMoveStart
-        EventHandler.onEvent((PlayerCommandListener) command -> {
-            System.out.println("{" + owner.getName() + "} moved!");
-            if (command == Command.FORWARD) {
-                return Command.DO_NOTHING;
+        eventListeners.add(EventHandler.subscribe((PlayerCommandListener) command -> {
+            if (command == Command.MOVE_1) {
+                System.out.println("Player \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                return Command.BRAKES;
             } else {
                 return command;
             }
-        }, owner);
+        }, owner));
     }
 
     @Override

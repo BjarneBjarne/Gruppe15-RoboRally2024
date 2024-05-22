@@ -24,15 +24,26 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static gruppe15.roborally.model.Phase.*;
+import static gruppe15.roborally.model.utils.Constants.CARDFIELD_SIZE;
 
 /**
  * ...
@@ -42,95 +53,219 @@ import java.util.List;
  */
 public class PlayerView extends Tab implements ViewObserver {
 
-    private Player player;
+    private final Player player;
 
-    private VBox top;
+    private final StackPane mainPlayerViewPane;
 
-    private Label programLabel;
-    private GridPane programPane;
-    private Label cardsLabel;
-    private GridPane cardsPane;
+    private final GridPane cardsPane;
+    private final GridPane programPane;
+    private final GridPane permanentUpgradeCardsPane;
+    private final GridPane temporaryUpgradeCardsPane;
 
-    private CardFieldView[] programCardViews;
-    private CardFieldView[] cardViews;
+    private final CardFieldView[] cardViews;
+    private final CardFieldView[] programCardViews;
+    private final CardFieldView[] permanentUpgradeCardViews;
+    private final CardFieldView[] temporaryUpgradeCardViews;
 
-    private VBox buttonPanel;
+    private final HBox interactionPane = new HBox();
+    private final HBox executePanel;
+    private final HBox playerOptionsPanel;
 
-    private Button finishButton;
-    private Button executeButton;
-    private Button stepButton;
+    private final Button finishButton;
+    private final Button executeButton;
+    private final Button stepButton;
 
-    private VBox playerInteractionPanel;
-
-    private GameController gameController;
+    private final GameController gameController;
+    private final HBox hBox = new HBox();
+    private final StackPane playerMat = new StackPane();
+    private final ImageView playerMatImageView = new ImageView();
+    private final ImageView energyCubesImageView = new ImageView();
+    private final ImageView checkpointTokenImageView = new ImageView();
+    private final Image[] energyCubeImages = new Image[Player.NO_OF_ENERGY_CUBES + 1];
+    private final Image[] checkpointTokenImages = new Image[Board.NO_OF_CHECKPOINTS + 1];
 
     public PlayerView(@NotNull GameController gameController, @NotNull Player player) {
-        super(player.getName());
-        this.setStyle("-fx-text-base-color: " + player.getRobot() + ";");
-
-        top = new VBox();
-        this.setContent(top);
-
+        super();
+        mainPlayerViewPane = new StackPane();
+        mainPlayerViewPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+        mainPlayerViewPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        mainPlayerViewPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
+        mainPlayerViewPane.setAlignment(Pos.BOTTOM_CENTER);
+        StackPane.setMargin(mainPlayerViewPane, new Insets(-28, 0, 25, 0));
+        this.setContent(mainPlayerViewPane);
         this.gameController = gameController;
         this.player = player;
+        // Setting player name
+        Label playerNameLabel = new Label(player.getName());
+        playerNameLabel.setTextFill(Color.valueOf(player.getRobot().toString()));
+        playerNameLabel.setStyle(
+                        "-fx-font-size: 26;" +
+                        "-fx-font-weight: bold;"
+        );
+        DropShadow dropShadow = new DropShadow(2, 0, 1, Color.BLACK);
+        playerNameLabel.setEffect(dropShadow);
+        this.setGraphic(playerNameLabel);
 
-        programLabel = new Label("Program");
-        programLabel.setAlignment(Pos.CENTER);
-
-        programPane = new GridPane();
-        programPane.setVgap(2.0);
-        programPane.setHgap(2.0);
-        programCardViews = new CardFieldView[Player.NO_OF_REGISTERS];
-        for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
-            CommandCardField cardField = player.getProgramField(i);
-            if (cardField != null) {
-                programCardViews[i] = new CardFieldView(gameController, cardField);
-                programPane.add(programCardViews[i], i, 0);
-            }
+        // Images
+        for (int i = 0; i < energyCubeImages.length; i++) {
+            energyCubeImages[i] = ImageUtils.getImageFromName("Player Mat/EnergyCubePositions/" + i + ".png");
         }
-        programPane.setAlignment(Pos.CENTER);
+        for (int i = 0; i < checkpointTokenImages.length; i++) {
+            checkpointTokenImages[i] = ImageUtils.getImageFromName("Player Mat/CheckpointTokenPositions/" + i + ".png");
+        }
 
-        // XXX  the following buttons should actually not be on the tabs of the individual
-        //      players, but on the PlayersView (view for all players). This should be
-        //      refactored.
+        double permanentUpgradeCardsPaneOffset = CARDFIELD_SIZE * 1.32;
+        double programPaneOffset = CARDFIELD_SIZE * 1.12;
 
-        finishButton = new Button("Finish Programming");
-        finishButton.setOnAction( e -> gameController.finishProgrammingPhase());
-
-        executeButton = new Button("Execute Program");
-        executeButton.setOnAction( e-> gameController.executePrograms());
-
-        stepButton = new Button("Execute Current Register");
-        stepButton.setOnAction( e-> gameController.executeRegister());
-
-        buttonPanel = new VBox(finishButton, executeButton, stepButton);
-        buttonPanel.setAlignment(Pos.CENTER_LEFT);
-        buttonPanel.setSpacing(3.0);
-        // programPane.add(buttonPanel, Player.NO_REGISTERS, 0); done in update now
-
-        playerInteractionPanel = new VBox();
-        playerInteractionPanel.setAlignment(Pos.CENTER_LEFT);
-        playerInteractionPanel.setSpacing(3.0);
-
-        cardsLabel = new Label("Command Cards");
-        cardsLabel.setAlignment(Pos.CENTER);
         cardsPane = new GridPane();
-        cardsPane.setVgap(2.0);
-        cardsPane.setHgap(2.0);
         cardViews = new CardFieldView[Player.NO_OF_CARDS];
         for (int i = 0; i < Player.NO_OF_CARDS; i++) {
-            CommandCardField cardField = player.getCardField(i);
+            CardField cardField = player.getCardField(i);
             if (cardField != null) {
-                cardViews[i] = new CardFieldView(gameController, cardField);
-                cardsPane.add(cardViews[i], i, 0);
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 0.7, 1.4 * 0.7);
+                cardViews[i] = cardFieldView;
+                cardFieldView.setStyle(
+                        "-fx-background-color: transparent; " +
+                                "-fx-border-color: white; " +
+                                "-fx-border-width: 1px 1px 1px 1px;" +
+                                "-fx-border-radius: 5"
+                );
+                GridPane.setMargin(cardFieldView, new Insets(2, 2, 2, 2));
+                cardsPane.add(cardViews[i], i % (Player.NO_OF_CARDS / 2), i / (Player.NO_OF_CARDS / 2));
             }
         }
         cardsPane.setAlignment(Pos.CENTER);
 
-        top.getChildren().add(programLabel);
-        top.getChildren().add(programPane);
-        top.getChildren().add(cardsLabel);
-        top.getChildren().add(cardsPane);
+        programPane = new GridPane();
+        programCardViews = new CardFieldView[Player.NO_OF_REGISTERS];
+        for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
+            CardField cardField = player.getProgramField(i);
+            if (cardField != null) {
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.4);
+                programCardViews[i] = cardFieldView;
+                cardFieldView.setAlignment(Pos.CENTER);
+                cardFieldView.setStyle(
+                        "-fx-background-color: transparent; "
+                );
+                //GridPane.setHalignment(cardFieldView, HPos.CENTER);
+                GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
+                programPane.add(cardFieldView, i, 0);
+            }
+        }
+        programPane.setAlignment(Pos.BOTTOM_CENTER);
+
+        permanentUpgradeCardsPane = new GridPane();
+        permanentUpgradeCardViews = new CardFieldView[Player.NO_OF_PERMANENT_UPGRADE_CARDS];
+        for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
+            CardField cardField = player.getPermanentUpgradeCardField(i);
+            if (cardField != null) {
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.6);
+                permanentUpgradeCardViews[i] = cardFieldView;
+                cardFieldView.setAlignment(Pos.CENTER);
+                cardFieldView.setStyle(
+                        "-fx-background-color: transparent; "/* +
+                                "-fx-border-color: #dfcb45; " +
+                                "-fx-border-width: 2px 2px 0px 2px;" +
+                                "-fx-border-radius: 5"*/
+                );
+                //GridPane.setHalignment(cardFieldView, HPos.CENTER);
+                GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
+                permanentUpgradeCardsPane.add(cardFieldView, i, 0);
+            }
+        }
+        permanentUpgradeCardsPane.setAlignment(Pos.CENTER);
+
+        temporaryUpgradeCardsPane = new GridPane();
+        temporaryUpgradeCardViews = new CardFieldView[Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
+        for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
+            CardField cardField = player.getTemporaryUpgradeCardField(i);
+            if (cardField != null) {
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.15, 1.6 * 1.15);
+                temporaryUpgradeCardViews[i] = cardFieldView;
+                cardFieldView.setAlignment(Pos.CENTER);
+                cardFieldView.setStyle(
+                        "-fx-background-color: transparent; " +
+                                "-fx-border-color: #a62a24; " +
+                                "-fx-border-width: 2px 2px 2px 2px;" +
+                                "-fx-border-radius: 5"
+                );
+                //GridPane.setHalignment(cardFieldView, HPos.CENTER);
+                GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
+                temporaryUpgradeCardsPane.add(cardFieldView, i, 0);
+            }
+        }
+        temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
+        temporaryUpgradeCardsPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+
+        // Card transformer listeners
+        for (CardFieldView cardFieldView : programCardViews) {
+            cardFieldView.setOnMouseEntered(e -> cardFieldView.setTranslateY(-programPaneOffset));
+            cardFieldView.setOnMouseExited(e -> cardFieldView.setTranslateY(0));
+        }
+        for (CardFieldView cardFieldView : permanentUpgradeCardViews) {
+            cardFieldView.setOnMouseEntered(e -> cardFieldView.setTranslateY(permanentUpgradeCardsPaneOffset));
+            cardFieldView.setOnMouseExited(e -> cardFieldView.setTranslateY(0));
+        }
+
+        // Buttons
+        // TODO: finishButton, executeButton & stepButton should be converted to a "Ready" button, when networking is implemented.
+        finishButton = new Button("Finish Programming");
+        finishButton.setOnAction( e -> gameController.finishProgrammingPhase());
+        executeButton = new Button("Execute Program");
+        executeButton.setOnAction( e-> gameController.executePrograms());
+        stepButton = new Button("Execute Current Register");
+        stepButton.setOnAction( e-> gameController.executeRegister());
+        executePanel = new HBox(finishButton, executeButton, stepButton);
+        executePanel.setAlignment(Pos.CENTER);
+        executePanel.setSpacing(3.0);
+        playerOptionsPanel = new HBox();
+        playerOptionsPanel.setAlignment(Pos.CENTER);
+        playerOptionsPanel.setSpacing(3.0);
+
+        // Building the PlayerView structure
+        // Player mat
+        AnchorPane playerMatAnchorPane = new AnchorPane(permanentUpgradeCardsPane, programPane);
+
+        AnchorPane.setTopAnchor(permanentUpgradeCardsPane, -permanentUpgradeCardsPaneOffset + 30);
+        AnchorPane.setRightAnchor(permanentUpgradeCardsPane, 0.0);
+
+        programPane.setAlignment(Pos.BOTTOM_CENTER);
+        AnchorPane.setBottomAnchor(programPane, -programPaneOffset);
+        AnchorPane.setLeftAnchor(programPane, 0.0);
+        AnchorPane.setRightAnchor(programPane, 0.0);
+
+        playerMat.setAlignment(Pos.BOTTOM_CENTER);
+        playerMat.getChildren().addAll(playerMatImageView, energyCubesImageView, checkpointTokenImageView, playerMatAnchorPane);
+
+        playerMatImageView.setImage(ImageUtils.getImageFromName("Player Mat/PlayerMat.png"));
+        playerMatImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
+        playerMatImageView.setPreserveRatio(true);
+
+        energyCubesImageView.setImage(energyCubeImages[0]);
+        energyCubesImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
+        energyCubesImageView.setPreserveRatio(true);
+
+        checkpointTokenImageView.setImage(checkpointTokenImages[0]);
+        checkpointTokenImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
+        checkpointTokenImageView.setPreserveRatio(true);
+
+        // Right side
+        VBox leftSideVBox = new VBox(cardsPane, interactionPane);
+        temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
+        interactionPane.setAlignment(Pos.CENTER);
+        leftSideVBox.setAlignment(Pos.CENTER);
+        leftSideVBox.setSpacing(15);
+        StackPane leftSideStackPane = new StackPane(leftSideVBox);
+        leftSideStackPane.setAlignment(Pos.CENTER);
+
+        // Padding
+        HBox.setMargin(leftSideStackPane, new Insets(40, 0, 0, 150)); // Top, right, bottom, left
+        HBox.setMargin(temporaryUpgradeCardsPane, new Insets(40, 150, 10, 0)); // Top, right, bottom, left
+
+        hBox.setAlignment(Pos.BOTTOM_CENTER);
+        hBox.getChildren().addAll(leftSideStackPane, playerMat, temporaryUpgradeCardsPane);
+        hBox.setSpacing(100);
+        mainPlayerViewPane.getChildren().addAll(hBox);
 
         if (player.board != null) {
             player.board.attach(this);
@@ -140,103 +275,67 @@ public class PlayerView extends Tab implements ViewObserver {
 
     @Override
     public void updateView(Subject subject) {
-        if (subject == player.board) {
+        Board board = player.board;
+        if (subject == board) {
             for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardFieldView cardFieldView = programCardViews[i];
-                if (cardFieldView != null) {
-                    if (player.board.getPhase() == Phase.PROGRAMMING ) {
-                        cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                if (cardFieldView != null && board.getPhase() == ACTIVATION) {
+                    if (i < board.getCurrentRegister()) {
+                        cardFieldView.setBackground(CardFieldView.BG_DONE);
+                    } else if (i == board.getCurrentRegister()) {
+                        cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
                     } else {
-                        if (i < player.board.getCurrentRegister()) {
-                            cardFieldView.setBackground(CardFieldView.BG_DONE);
-                        } else if (i == player.board.getCurrentRegister()) {
-                            if (gameController.getIsTurnPlaying()) {
-                                cardFieldView.setBackground(CardFieldView.BG_DONE);
-                            } else if (player.board.getCurrentPlayer() == player) {
-                                cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
-                            } else {
-                                cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
-                            }
-                        } else {
-                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
-                        }
+                        cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                     }
+                } else {
+                    cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                 }
             }
 
-            if (player.board.getPhase() != Phase.PLAYER_INTERACTION) {
-                if (!programPane.getChildren().contains(buttonPanel)) {
-                    programPane.getChildren().remove(playerInteractionPanel);
-                    programPane.add(buttonPanel, Player.NO_OF_REGISTERS, 0);
+            if (board.getPhase() != PLAYER_INTERACTION) {
+                interactionPane.getChildren().remove(playerOptionsPanel);
+                if (!interactionPane.getChildren().contains(executePanel)) {
+                    interactionPane.getChildren().add(executePanel);
                 }
-                switch (player.board.getPhase()) {
-                    case INITIALISATION:
-                        finishButton.setDisable(true);
-                        // XXX just to make sure that there is a way for the player to get
-                        //     from the initialization phase to the programming phase somehow!
-                        executeButton.setDisable(true);
-                        stepButton.setDisable(true);
-                        break;
-
+                switch (board.getPhase()) {
                     case PROGRAMMING:
                         finishButton.setDisable(false);
                         executeButton.setDisable(true);
                         stepButton.setDisable(true);
                         break;
-
                     case ACTIVATION:
                         finishButton.setDisable(true);
-                        executeButton.setDisable(gameController.getIsTurnPlaying());
-                        stepButton.setDisable(gameController.getIsTurnPlaying());
+                        executeButton.setDisable(gameController.getIsRegisterPlaying());
+                        stepButton.setDisable(gameController.getIsRegisterPlaying());
                         break;
-
-
                     default:
                         finishButton.setDisable(true);
                         executeButton.setDisable(true);
                         stepButton.setDisable(true);
                 }
-
-
             } else {
-                if (!programPane.getChildren().contains(playerInteractionPanel)) {
-                    programPane.getChildren().remove(buttonPanel);
-                    programPane.add(playerInteractionPanel, Player.NO_OF_REGISTERS, 0);
+                interactionPane.getChildren().remove(executePanel);
+                if (!interactionPane.getChildren().contains(playerOptionsPanel)) {
+                    interactionPane.getChildren().add(playerOptionsPanel);
                 }
-                playerInteractionPanel.getChildren().clear();
 
-                if (player.board.getCurrentPlayer() == player) {
-                    // TODO Assignment V3: these buttons should be shown only when there is
-                    //      an interactive command card, and the buttons should represent
-                    //      the player's choices of the interactive command card. The
-                    //      following is just a mockup showing two options
-                    Player currentPlayer = gameController.board.getCurrentPlayer();
-                    //System.out.println("Player turn: " + currentPlayer.getName());
-                    CommandCard card = currentPlayer.getProgramField(currentPlayer.board.getCurrentRegister()).getCard();
-                    List<Command> options = card.command.getOptions();
-                    //System.out.println(options);
-
-                    for (int i = 0; i < options.size(); i++) {
-                        Command command = options.get(i);
+                playerOptionsPanel.getChildren().clear();
+                if (board.getCurrentPlayer() == player) {
+                    List<Command> options = player.getCurrentOptions();
+                    for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction( e -> gameController.executeCommandOptionAndContinue(command));
+                        optionButton.setOnAction(e -> {
+                            gameController.executeCommandOptionAndContinue(command);
+                            player.setCurrentOptions(new ArrayList<>());
+                        });
                         optionButton.setDisable(false);
-                        playerInteractionPanel.getChildren().add(optionButton);
+                        playerOptionsPanel.getChildren().add(optionButton);
                     }
-
-//                    Button optionButton = new Button("Option1");
-//                    optionButton.setOnAction( e -> gameController.notImplemented());
-//                    optionButton.setDisable(false);
-//                    playerInteractionPanel.getChildren().add(optionButton);
-//
-//                    optionButton = new Button("Option 2");
-//                    optionButton.setOnAction( e -> gameController.notImplemented());
-//                    optionButton.setDisable(false);
-//                    playerInteractionPanel.getChildren().add(optionButton);
-
                 }
             }
+
+            energyCubesImageView.setImage(energyCubeImages[player.getEnergyCubes()]);
+            checkpointTokenImageView.setImage(checkpointTokenImages[player.getCheckpoints()]);
         }
     }
-
 }

@@ -23,18 +23,18 @@ package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.Heading;
+import gruppe15.roborally.model.Laser;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
-import gruppe15.roborally.model.boardelements.BE_Reboot;
 import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -58,58 +58,55 @@ public class SpaceView extends StackPane implements ViewObserver {
     private final List<ImageView> wallImageViews = new ArrayList<>();
     private final ImageView playerImageView = new ImageView();
     private GridPane directionOptionsPane = null;
+    private boolean usingPlayerRebootImage = false;
+    private Image playerRebootImage;
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
 
         // XXX the following styling should better be done with styles
-        this.setPrefWidth(SPACE_WIDTH);
-        this.setMinWidth(SPACE_WIDTH);
-        this.setMaxWidth(SPACE_WIDTH);
+        this.setPrefWidth(Constants.SPACE_SIZE);
+        this.setMinWidth(Constants.SPACE_SIZE);
+        this.setMaxWidth(Constants.SPACE_SIZE);
 
-        this.setPrefHeight(SPACE_HEIGHT);
-        this.setMinHeight(SPACE_HEIGHT);
-        this.setMaxHeight(SPACE_HEIGHT);
+        this.setPrefHeight(SPACE_SIZE);
+        this.setMinHeight(SPACE_SIZE);
+        this.setMaxHeight(SPACE_SIZE);
 
-        backgroundImageView.setFitWidth(SPACE_WIDTH);
-        backgroundImageView.setFitHeight(SPACE_HEIGHT);
+        backgroundImageView.setFitWidth(Constants.SPACE_SIZE);
+        backgroundImageView.setFitHeight(SPACE_SIZE);
         backgroundImageView.setImage(space.getImage());
         this.getChildren().add(backgroundImageView);
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
-            if (boardElement instanceof BE_Reboot) {
-                boardElementImageView.setFitWidth(SPACE_WIDTH * 0.75);
-                boardElementImageView.setFitHeight(SPACE_HEIGHT * 0.75);
-            } else {
-                boardElementImageView.setFitWidth(SPACE_WIDTH);
-                boardElementImageView.setFitHeight(SPACE_HEIGHT);
-            }
+            boardElementImageView.setFitWidth(Constants.SPACE_SIZE);
+            boardElementImageView.setFitHeight(SPACE_SIZE);
 
             boardElementImageView.setImage(boardElement.getImage());
             this.getChildren().add(boardElementImageView);
 
             if (boardElement instanceof BE_EnergySpace) {
-                energyCubeImageView.setFitWidth(SPACE_WIDTH);
-                energyCubeImageView.setFitHeight(SPACE_HEIGHT);
-                energyCubeImageView.setImage(ImageUtils.getImageFromName("energyCube.png"));
+                energyCubeImageView.setFitWidth(Constants.SPACE_SIZE);
+                energyCubeImageView.setFitHeight(SPACE_SIZE);
+                energyCubeImageView.setImage(ImageUtils.getImageFromName("Board Pieces/energyCube.png"));
                 energyCubeImageView.xProperty();
                 energyCubeImageView.setLayoutY(10);
             }
         }
 
-        Image wallImage = ImageUtils.getImageFromName("wall.png");
+        Image wallImage = ImageUtils.getImageFromName("Board Pieces/wall.png");
         for (Heading wall : space.getWalls()) {
             ImageView wallImageView = new ImageView();
-            wallImageView.setFitWidth(SPACE_WIDTH);
-            wallImageView.setFitHeight(SPACE_HEIGHT);
+            wallImageView.setFitWidth(Constants.SPACE_SIZE);
+            wallImageView.setFitHeight(SPACE_SIZE);
             wallImageView.setImage(ImageUtils.getRotatedImageByHeading(wallImage, wall));
             wallImageViews.add(wallImageView);
             this.getChildren().add(wallImageView);
         }
 
-        playerImageView.setFitWidth(SPACE_WIDTH);
-        playerImageView.setFitHeight(SPACE_HEIGHT);
+        playerImageView.setFitWidth(Constants.SPACE_SIZE);
+        playerImageView.setFitHeight(SPACE_SIZE);
         this.getChildren().add(playerImageView);
 
         // This space view should listen to changes of the space
@@ -141,19 +138,21 @@ public class SpaceView extends StackPane implements ViewObserver {
             }
         }
 
-        // Lasers imageView
-        this.laserImageViews.clear();
-        for (Heading laser : space.getLasersOnSpace()) {
-            ImageView laserImageView = newLaserImageView(laser);
-            this.laserImageViews.add(laserImageView);
-            this.getChildren().add(laserImageView);
-        }
-
         // Player imageView
         Player player = space.getPlayer();
         if (player != null) {
             try {
-                Image playerImage = player.getImage();
+                Image playerImage;
+                if (player.getIsRebooting()) {
+                    if (!usingPlayerRebootImage) {
+                        usingPlayerRebootImage = true;
+                        playerRebootImage = ImageUtils.getImageColored(player.getImage(), Color.BLACK, .75);
+                    }
+                    playerImage = playerRebootImage;
+                } else {
+                    playerImage = player.getImage();
+                    usingPlayerRebootImage = false;
+                }
                 playerImageView.setImage(ImageUtils.getRotatedImageByHeading(playerImage, player.getHeading()));
             } catch (Exception e) {
                 playerImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Robot_Error.png"), player.getHeading()));
@@ -165,14 +164,29 @@ public class SpaceView extends StackPane implements ViewObserver {
         for (ImageView wall : wallImageViews) {
             this.getChildren().add(wall);
         }
+
+        // Lasers imageView
+        this.laserImageViews.clear();
+        for (Laser.LaserOnSpace laserOnSpace : space.getLasersOnSpace()) {
+            ImageView laserImageView = newLaserImageView(laserOnSpace);
+            this.laserImageViews.add(laserImageView);
+            this.getChildren().add(laserImageView);
+        }
     }
 
-    private ImageView newLaserImageView(Heading laser) {
+    private ImageView newLaserImageView(Laser.LaserOnSpace laserOnSpace) {
         ImageView laserImageView = new ImageView();
-        laserImageView.setFitWidth(SPACE_WIDTH);
-        laserImageView.setFitHeight(SPACE_HEIGHT);
-        laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("laser.png"), laser));
+        laserImageView.setFitWidth(Constants.SPACE_SIZE);
+        laserImageView.setFitHeight(SPACE_SIZE);
+        laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(laserOnSpace.getImageName()), laserOnSpace.getDirection()));
         return laserImageView;
+    }
+
+    public void updateBoardElementImage() {
+        BoardElement boardElement = space.getBoardElement();
+        if (boardElement != null) {
+            boardElementImageView.setImage(boardElement.getImage());
+        }
     }
 
     @Override

@@ -21,6 +21,8 @@
  */
 package gruppe15.roborally.model;
 
+import gruppe15.roborally.model.damage.*;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,28 +34,40 @@ import java.util.List;
  *
  */
 public enum Command {
-
     // This is a very simplistic way of realizing different commands.
-
-    FORWARD("Fwd"),
-    FAST_FORWARD("Fast Fwd"),
-    VARY_FAST_FORWARD("Vary Fast Fwd"),
-    RIGHT("Turn Right"),
-    LEFT("Turn Left"),
+    MOVE_0("Move 0"), // Do nothing
+    MOVE_1("Move 1"),
+    MOVE_2("Move 2"),
+    MOVE_3("Move 3"),
+    RIGHT_TURN("Right Turn"),
+    LEFT_TURN("Left Turn"),
     U_TURN("U-Turn"),
-    BACKWARD("Bwd"),
+    MOVE_BACK("Move Back"),
     AGAIN("Again"),
     POWER_UP("Power Up"),
-    OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT),
 
-    DAMAGE("Damage"),
-    UPGRADE("Upgrade"),
-    DO_NOTHING("Do Nothing");
+    // Special commands
+    OPTION_LEFT_RIGHT("Left OR Right", LEFT_TURN, RIGHT_TURN),
+    //UPGRADE("Upgrade"),
 
-    final public String displayName;
+    // UpgradeCards commands
+    BRAKES("Brakes", MOVE_0, MOVE_1),
 
-    final private List<Command> options;
+    // Damage commands
+    SPAM(DamageTypes.SPAM.displayName),
+    TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName),
+    WORM(DamageTypes.WORM.displayName),
+    VIRUS(DamageTypes.VIRUS.displayName);
 
+    public final String displayName;
+    private final List<Command> options;
+
+    static {
+        DamageTypes.SPAM.setCommandCardType(SPAM);
+        DamageTypes.TROJAN_HORSE.setCommandCardType(TROJAN_HORSE);
+        DamageTypes.WORM.setCommandCardType(WORM);
+        DamageTypes.VIRUS.setCommandCardType(VIRUS);
+    }
     Command(String displayName, Command... options) {
         this.displayName = displayName;
         this.options = Collections.unmodifiableList(Arrays.asList(options));
@@ -67,4 +81,7 @@ public enum Command {
         return options;
     }
 
+    public boolean isDamage() {
+        return this == SPAM || this == TROJAN_HORSE || this == WORM || this == VIRUS;
+    }
 }

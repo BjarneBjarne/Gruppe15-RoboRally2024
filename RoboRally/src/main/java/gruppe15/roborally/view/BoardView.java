@@ -23,27 +23,22 @@ package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
+import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
+import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
+import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import org.jetbrains.annotations.NotNull;
 
-import static gruppe15.roborally.model.Phase.INITIALISATION;
 import static gruppe15.roborally.model.utils.Constants.*;
 
 import java.util.ArrayList;
@@ -60,55 +55,73 @@ public class BoardView extends VBox implements ViewObserver {
     private Board board;
 
     private StackPane mainBoardPane;
+
     private GridPane boardTilesPane;
     private SpaceView[][] spaces;
 
     private PlayersView playersView;
-
     private Label statusLabel;
 
-    private SpaceEventHandler spaceEventHandler;
+    private StackPane upgradeShopPane;
+    private HBox upgradeShopCardsHBox;
+    private Button finishUpgradingButton;
+    private CardFieldView[] upgradeShopCardViews;
 
+    private SpaceEventHandler spaceEventHandler;
+    private final GameController gameController;
     private final GridPane directionOptionsPane;
 
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
+        this.gameController = gameController;
+        this.directionOptionsPane = directionOptionsPane;
         board = gameController.board;
+        board.initializeUpgradeShop();
         spaces = new SpaceView[board.width][board.height];
         spaceEventHandler = new SpaceEventHandler(gameController);
-        this.directionOptionsPane = directionOptionsPane;
-        this.directionOptionsPane.setPrefSize(SPACE_WIDTH * 3, SPACE_HEIGHT * 3);
+        this.directionOptionsPane.setPrefSize(Constants.SPACE_SIZE * 3, SPACE_SIZE * 3);
 
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
+                gameController.initializeDirectionButton(button, this);
+
                 ImageView buttonImage = new ImageView();
-                buttonImage.setFitWidth(SPACE_WIDTH);
-                buttonImage.setFitHeight(SPACE_HEIGHT);
+                buttonImage.setFitWidth(Constants.SPACE_SIZE);
+                buttonImage.setFitHeight(SPACE_SIZE);
                 Heading direction = Heading.valueOf(button.getId());
                 buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
                 button.setGraphic(buttonImage);
-
-                button.setOnMouseClicked(event -> {
-                    gameController.chooseDirection(direction);
-                    directionOptionsPane.setDisable(true);
-                    directionOptionsPane.setVisible(false);
-                });
             }
         }
         this.directionOptionsPane.setDisable(true);
         this.directionOptionsPane.setVisible(false);
 
         boardTilesPane = new GridPane();
+        boardTilesPane.setAlignment(Pos.CENTER);
         playersView = new PlayersView(gameController);
+        StackPane playersViewStackPane = new StackPane(playersView);
         statusLabel = new Label("<no status>");
         AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
         mainBoardPane = new StackPane(boardTilesPane, anchorPane);
-        this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playersView);
-        this.getChildren().add(statusLabel);
-        this.setAlignment(Pos.CENTER);
-        boardTilesPane.setAlignment(Pos.CENTER);
         mainBoardPane.setAlignment(Pos.CENTER);
+        playersViewStackPane.setAlignment(Pos.CENTER);
+        this.getChildren().add(statusLabel);
+        this.getChildren().add(mainBoardPane);
+        this.getChildren().add(playersViewStackPane);
+        this.setAlignment(Pos.BOTTOM_CENTER);
+        this.setFillWidth(true);
+
+        VBox.setVgrow(mainBoardPane, Priority.ALWAYS);
+        VBox.setVgrow(playersViewStackPane, Priority.ALWAYS);
+
+        mainBoardPane.setPrefWidth(APP_BOUNDS.getWidth());
+        mainBoardPane.setMinWidth(APP_BOUNDS.getWidth());
+
+        playersView.setPrefWidth(APP_BOUNDS.getWidth());
+        playersView.setMinWidth(APP_BOUNDS.getWidth());
+
+        //mainBoardPane.setStyle("-fx-border-color: black;");
+        //mainBoardPane.setStyle("-fx-corder-color: gray;");
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -120,27 +133,123 @@ public class BoardView extends VBox implements ViewObserver {
         }
 
         mainBoardPane.setOnMouseClicked(spaceEventHandler);
-        mainBoardPane.setOnKeyPressed(event -> spaceEventHandler.keyPressed(event));
 
         board.attach(this);
         update(board);
     }
 
-    @Override
-    public void updateView(Subject subject) {
-        if (subject == board) {
-            statusLabel.setText(board.getStatusMessage());
+    /**
+     * Simple constructor used when loading a game.
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param gameController the game controller
+     */
+    public BoardView(@NotNull GameController gameController) {
+        this.gameController = gameController;
+        board = gameController.board;
+        spaces = new SpaceView[board.width][board.height];
+        spaceEventHandler = new SpaceEventHandler(gameController);
+        this.directionOptionsPane = new GridPane();
+
+        boardTilesPane = new GridPane();
+        playersView = new PlayersView(gameController);
+        statusLabel = new Label("<no status>");
+        // AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
+        mainBoardPane = new StackPane(boardTilesPane);
+        this.getChildren().add(statusLabel);
+        this.getChildren().add(mainBoardPane);
+        this.getChildren().add(playersView);
+        this.setAlignment(Pos.TOP_CENTER);
+        boardTilesPane.setAlignment(Pos.TOP_CENTER);
+        mainBoardPane.setAlignment(Pos.TOP_CENTER);
+        //StackPane.setMargin(mainBoardPane, new Insets(30, 0, 0, 0));
+        //GridPane.setMargin(boardTilesPane, new Insets(30, 0, 0, 0));
+
+
+        //VBox.setVgrow(mainBoardPane, javafx.scene.layout.Priority.ALWAYS);
+        //VBox.setVgrow(playersView, javafx.scene.layout.Priority.ALWAYS);
+
+        for (int x = 0; x < board.width; x++) {
+            for (int y = 0; y < board.height; y++) {
+                Space space = board.getSpace(x, y);
+                SpaceView spaceView = new SpaceView(space);
+                spaces[x][y] = spaceView;
+                boardTilesPane.add(spaceView, x, y);
+            }
+        }
+
+        mainBoardPane.setOnMouseClicked(spaceEventHandler);
+
+        board.attach(this);
+        update(board);
+    }
+
+    public void setUpgradeShopFXML(StackPane upgradeShopPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
+        this.upgradeShopPane = upgradeShopPane;
+        this.upgradeShopCardsHBox = upgradeShopCardsHBox;
+        this.finishUpgradingButton = finishUpgradingButton;
+
+        if (this.upgradeShopCardsHBox == null) {
+            System.out.println("upgradeShopCardsHBox not initialized in BoardView - setUpgradeShopFXML()");
+        }
+        if (this.finishUpgradingButton == null) {
+            System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
+        }
+
+        finishUpgradingButton.setOnMouseClicked(event -> {
+            gameController.startProgrammingPhase();
+        });
+    }
+    
+    public void setUpgradeShop() {
+        if (!mainBoardPane.getChildren().contains(upgradeShopPane)) {
+            mainBoardPane.getChildren().add(upgradeShopPane);
+        }
+        upgradeShopCardsHBox.getChildren().clear();
+        UpgradeShop upgradeShop = board.getUpgradeShop();
+
+        upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
+
+        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+            CardField cardField = upgradeShop.getAvailableCardsField(i);
+            CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.2, 1.6 * 1.2);
+            upgradeShopCardViews[i] = cardFieldView;
+            upgradeShopCardsHBox.getChildren().add(cardFieldView);
+            cardFieldView.setAlignment(Pos.CENTER);
+            String boarderColorString = "-fx-border-color: black; ";
+            if (cardField.getCard() instanceof UpgradeCardPermanent) {
+                boarderColorString = "-fx-border-color: #dfcb45; ";
+            } else if (cardField.getCard() instanceof UpgradeCardTemporary) {
+                boarderColorString = "-fx-border-color: #a62a24; ";
+            } else if (cardField.getCard() == null) {
+                boarderColorString = "-fx-border-color: transparent; ";
+            } else {
+                System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getName() + ". Check card and BoardView.setUpgradeShop().");
+            }
+            cardFieldView.setStyle(
+                    "-fx-background-color: transparent; " +
+                            boarderColorString +
+                            "-fx-border-width: 2px 2px 2px 2px;" +
+                            "-fx-border-radius: 5"
+            );
+            //cardFieldView.setStyle("-fx-background-color: transparent; -fx-border-color: black; -fx-border-width: 2px;");
+            GridPane.setHalignment(cardFieldView, HPos.CENTER);
+            GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
         }
     }
 
-    private List<SpaceView> getSpacesAtMouse(MouseEvent event) {
+    private List<SpaceView> getSpaceViewsAtMouse(MouseEvent event) {
+        return getSpaceViewsAtPosition(new Point2D(event.getSceneX(), event.getSceneY()));
+    }
+
+    private List<SpaceView> getSpaceViewsAtPosition(Point2D position) {
         List<SpaceView> spacesAtMouse = new ArrayList<>();
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
                 SpaceView space = spaces[x][y];
                 Bounds localBounds = space.getBoundsInLocal();
                 Bounds sceneBounds = space.localToScene(localBounds);
-                if (sceneBounds.contains(new Point2D(event.getSceneX(), event.getSceneY()))) {
+                if (sceneBounds.contains(position)) {
                     // If mouse is within bounds of a node
                     spacesAtMouse.add(space);
                 }
@@ -149,6 +258,39 @@ public class BoardView extends VBox implements ViewObserver {
         return spacesAtMouse;
     }
 
+    public void setDirectionOptionsPane(SpaceView spaceView) {
+        directionOptionsPane.setDisable(false);
+        directionOptionsPane.setVisible(true);
+        directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getWidth() / 3));
+        directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getHeight() / 3));
+    }
+
+    public void initializePlayerSpawnSpaceView(Space space) {
+        spaces[space.x][space.y].updateBoardElementImage();
+    }
+
+    @Override
+    public void updateView(Subject subject) {
+        if (subject == board) {
+            statusLabel.setText(board.getStatusMessage());
+
+            Space directionOptionsSpace = gameController.getDirectionOptionsSpace();
+            if (directionOptionsSpace != null) {
+                setDirectionOptionsPane(spaces[directionOptionsSpace.x][directionOptionsSpace.y]);
+            }
+
+            if (board.getPhase() == Phase.UPGRADE) {
+                setUpgradeShop();
+            } else {
+                mainBoardPane.getChildren().remove(upgradeShopPane);
+            }
+        }
+    }
+
+    public void handleDirectionButtonClicked() {
+        directionOptionsPane.setDisable(true);
+        directionOptionsPane.setVisible(false);
+    }
 
 
     // XXX this handler and its uses should eventually be deleted! This is just to help test the
@@ -156,6 +298,8 @@ public class BoardView extends VBox implements ViewObserver {
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
         final public GameController gameController;
         private int playerToMove = 0;
+        private SpaceView selectedSpaceView;
+        private Player playerToSpawn;
 
         public SpaceEventHandler(@NotNull GameController gameController) {
             this.gameController = gameController;
@@ -163,54 +307,18 @@ public class BoardView extends VBox implements ViewObserver {
 
         @Override
         public void handle(MouseEvent event) {
-            directionOptionsPane.setDisable(true);
-            directionOptionsPane.setVisible(false);
             // Object source = event.getSource();
-            SpaceView spaceView = getSpacesAtMouse(event).getFirst();
-            if (spaceView != null) {
+            List<SpaceView> spaceViews = getSpaceViewsAtMouse(event);
+            if (!spaceViews.isEmpty()) {
+                SpaceView spaceView = spaceViews.getFirst();
                 //SpaceView spaceView = (SpaceView) source;
                 Space space = spaceView.space;
                 Board board = space.board;
 
                 if (board == gameController.board) {
-                    if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                        Player currentPlayer = board.getCurrentPlayer();
-                        if (board.getPhase() == INITIALISATION) {
-                            if (space.getPlayer() == null) {
-                                currentPlayer.setSpawn(space);
-                                currentPlayer.setSpace(space);
-                            }
-                            directionOptionsPane.setDisable(false);
-                            directionOptionsPane.setVisible(true);
-                            directionOptionsPane.setLayoutX(spaceView.getLayoutX() - (directionOptionsPane.getPrefWidth() / 3));
-                            directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getPrefHeight() / 3));
-                        }
-                    } else {
-                        if (event.isShiftDown()) {
-                            space.setPlayer(board.getPlayer(1));
-                        } else if (event.isControlDown()) {
-                            space.setPlayer(board.getPlayer(0));
-                        }
-                    }
+                    gameController.spacePressed(event, spaceView, space);
                     event.consume();
                 }
-            }
-        }
-
-        public void keyPressed(KeyEvent event) { // NOt working
-            switch (event.getCode()) {
-                case KeyCode.F1:
-                    playerToMove = 0;
-                    break;
-                case KeyCode.F2:
-                    playerToMove = 1;
-                    break;
-                case KeyCode.F3:
-                    playerToMove = 2;
-                    break;
-                case KeyCode.F4:
-                    playerToMove = 3;
-                    break;
             }
         }
     }

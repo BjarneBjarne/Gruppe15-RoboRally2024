@@ -22,6 +22,8 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.model.boardelements.BE_Antenna;
+import gruppe15.roborally.model.boardelements.BE_PushPanel;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.scene.image.Image;
 
@@ -38,16 +40,16 @@ import static gruppe15.roborally.model.Heading.*;
  */
 public class Space extends Subject {
 
-    public final Board board;
+    transient public final Board board;
 
     public final int x;
     public final int y;
 
-    private Player player;
-    private BoardElement boardElement;
-    private Image backgroundImage;
-    private final List<Heading> walls = new ArrayList<>();
-    private final List<Heading> lasersOnSpace = new ArrayList<>();
+    transient private Player player;
+    transient private BoardElement boardElement;
+    transient private Image backgroundImage;
+    transient private final List<Heading> walls = new ArrayList<>();
+    transient private final List<Laser.LaserOnSpace> lasersOnSpace = new ArrayList<>();
 
     public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
         this.board = board;
@@ -66,6 +68,10 @@ public class Space extends Subject {
 
     public void setBackgroundImage(Image backgroundImage) {
         this.backgroundImage = backgroundImage;
+    }
+
+    public void setBoardElement(BoardElement boardElement) {
+        this.boardElement = boardElement;
     }
 
     public Player getPlayer() {
@@ -124,7 +130,7 @@ public class Space extends Subject {
     }
 
     // For SpaceView, so it can update the laser image on this space.
-    public void addLaserOnSpace(Heading laser) {
+    public void addLaserOnSpace(Laser.LaserOnSpace laser) {
         this.lasersOnSpace.add(laser);
         notifyChange();
     }
@@ -132,8 +138,20 @@ public class Space extends Subject {
         this.lasersOnSpace.clear();
         notifyChange();
     }
-    public List<Heading> getLasersOnSpace() {
+    public List<Laser.LaserOnSpace> getLasersOnSpace() {
         return this.lasersOnSpace;
+    }
+
+    public int getDistanceFromOtherSpace(Space otherSpace) {
+        int distance = 0;
+        double xDist, yDist;
+
+        xDist = otherSpace.x - this.x;
+        yDist = otherSpace.y - this.y;
+
+        distance = (int)Math.sqrt(Math.pow(xDist, 2.0) + Math.pow(yDist, 2.0));
+
+        return distance;
     }
 
     /**
@@ -148,24 +166,19 @@ public class Space extends Subject {
 
         Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
 
-        List<Heading> otherWallDirections = otherSpace.getWalls();
-
-        switch (directionToOtherSpace) {
-            case EAST:
-                return (walls.contains(EAST) || otherWallDirections.contains(WEST));
-            case WEST:
-                return (walls.contains(WEST) || otherWallDirections.contains(EAST));
-            case SOUTH:
-                return (walls.contains(SOUTH) || otherWallDirections.contains(NORTH));
-            case NORTH:
-                return (walls.contains(NORTH) || otherWallDirections.contains(SOUTH));
-            default:
-                return false;
+        // Check for walls
+        if (walls.contains(directionToOtherSpace) || otherSpace.getWalls().contains(directionToOtherSpace.opposite())) {
+            return true;
         }
 
-        //System.out.println("Getting space {" + this.x + ", " + this.y + "} and " + "{" + otherSpace.x + ", " + otherSpace.y + "}");
-        //System.out.println("ERROR in code. Something went wrong. Check the Space.wallBetween() method.");
-        //return false;
+        // Check for antenna
+        if (otherSpace.getBoardElement() instanceof BE_Antenna) {
+            return true;
+        }
+
+        // Check for push panels
+        return (boardElement instanceof BE_PushPanel myPushPanel && myPushPanel.getDirection().opposite() == directionToOtherSpace) ||
+                (otherSpace.getBoardElement() instanceof BE_PushPanel otherPushPanel && otherPushPanel.getDirection() == directionToOtherSpace);
     }
 
     public Heading getDirectionToOtherSpace(Space otherSpace) {
@@ -217,33 +230,38 @@ public class Space extends Subject {
     }
 
     public Space getSpaceNextTo(Heading direction, Space[][] spaces) {
-        switch (direction) {
-            case SOUTH:
+        return switch (direction) {
+            case SOUTH -> {
                 if (this.y + 1 >= spaces[x].length) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x][this.y + 1];
-            case WEST:
+                yield spaces[this.x][this.y + 1]; // out of bounds
+            }
+            case WEST -> {
                 if (this.x - 1 < 0) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x - 1][this.y];
-            case NORTH:
+                yield spaces[this.x - 1][this.y]; // out of bounds
+            }
+            case NORTH -> {
                 if (this.y - 1 < 0) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x][this.y - 1];
-            case EAST:
+                yield spaces[this.x][this.y - 1]; // out of bounds
+            }
+            case EAST -> {
                 if (this.x + 1 >= spaces.length) {
-                    return null; // out of bounds
+                    yield null;
                 }
-                return spaces[this.x + 1][this.y];
-            default:
-                System.out.println("ERROR in Space.getSpaceNextTo()");
-                return null;
-        }
+                yield spaces[this.x + 1][this.y]; // out of bounds
+            }
+        };
     }
     public Image getImage() {
         return backgroundImage;
+    }
+
+    public void updateSpace() {
+        notifyChange();
     }
 }
