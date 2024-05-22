@@ -182,7 +182,7 @@ public class GameController {
         handlePlayerActions();
     }
     /**
-     * This method splits up handleNextPlayerTurn(), in order to call this again, if the command is a PLAYER_INTERACTION.
+     * This method splits up handlePlayerRegister(), in order to call this again, if the command is a PLAYER_INTERACTION.
      */
     private void handlePlayerActions() {
         // Run through the queue and execute the player command.
@@ -411,9 +411,10 @@ public class GameController {
                     }, Duration.millis(150), "{" + player.getName() + "} activated: (" + command.displayName + ") damage."));
                     break;
                 default:
-                    if (!command.getOptions().isEmpty()) {
+                    if (command.isInteractive()) {
                         board.setPhase(PLAYER_INTERACTION);
                         player.setCurrentOptions(command.getOptions());
+                        board.updateBoard();
                     } else {
                         System.out.println("Can't find command: " + command.displayName);
                     }
@@ -804,7 +805,6 @@ public class GameController {
 
     public boolean canDropCard(CardField sourceField, CardField targetField) {
         if (sourceField == null || targetField == null) return false;
-
         CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
         CardField.CardFieldTypes targetType = targetField.cardFieldType;
 
