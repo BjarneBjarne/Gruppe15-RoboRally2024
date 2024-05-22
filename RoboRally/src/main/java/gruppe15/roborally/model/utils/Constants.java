@@ -10,20 +10,19 @@ import javafx.geometry.Rectangle2D;
 
 public class Constants {
     public final static List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
+    public final static double REFERENCE_HEIGHT = 1440.0;
 
-    public final static double MIN_APP_WIDTH = 800;
-    public final static double MIN_APP_HEIGHT = 600;
+    public final static double MIN_APP_WIDTH = 1280;
+    public final static double MIN_APP_HEIGHT = 720;
+    public final static boolean START_FULLSCREEN = false;
+
     public static Rectangle2D APP_BOUNDS;
     public static double APP_SCALE;
     public static double SPACE_SIZE;
     public static double CARDFIELD_SIZE;
 
     public static void UpdateSizes() {
-        //APP_BOUNDS = Screen.getPrimary().getBounds();
-        APP_SCALE = (APP_BOUNDS.getHeight() / 1440);
-        SPACE_SIZE = 65 * APP_SCALE;
-        CARDFIELD_SIZE = 125 * APP_SCALE;
-
-        System.out.println("App scale: " + APP_SCALE);
+        SPACE_SIZE = 115 * APP_SCALE;
+        CARDFIELD_SIZE = 150 * APP_SCALE;
     }
 }
