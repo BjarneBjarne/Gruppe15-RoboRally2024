@@ -324,7 +324,7 @@ public class Player extends Subject {
     }
     public void addUpgradeCard(UpgradeCard upgradeCard) {
         try {
-            System.out.println(name + " bought " + upgradeCard.getName());
+            System.out.println(name + " bought \"" + upgradeCard.getName() + "\".");
             upgradeCards.add(upgradeCard);
             upgradeCard.initialize(board, this);
         } catch (NullPointerException e) {
@@ -341,6 +341,7 @@ public class Player extends Subject {
             upgradeCards.remove(upgradeCard);
             upgradeCard.unInitialize();
             board.getUpgradeShop().returnCardToShop(upgradeCard);
+            System.out.println(name + " returned \"" + upgradeCard.getName() + "\" to the shop.");
         } catch (NullPointerException e) {
             System.out.println("ERROR - Attempted to remove upgradeCard of value NULL from player: \"" + name + "\".");
         } catch (IllegalPlayerPropertyAccess e) {

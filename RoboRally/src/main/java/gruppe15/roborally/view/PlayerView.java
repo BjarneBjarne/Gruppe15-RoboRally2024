@@ -89,7 +89,8 @@ public class PlayerView extends Tab implements ViewObserver {
         mainPlayerViewPane.setMinHeight(Region.USE_COMPUTED_SIZE);
         mainPlayerViewPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
         mainPlayerViewPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-        mainPlayerViewPane.setAlignment(Pos.CENTER);
+        mainPlayerViewPane.setAlignment(Pos.BOTTOM_CENTER);
+        StackPane.setMargin(mainPlayerViewPane, new Insets(-28, 0, 25, 0));
         this.setContent(mainPlayerViewPane);
         this.gameController = gameController;
         this.player = player;
@@ -112,7 +113,7 @@ public class PlayerView extends Tab implements ViewObserver {
             checkpointTokenImages[i] = ImageUtils.getImageFromName("Player Mat/CheckpointTokenPositions/" + i + ".png");
         }
 
-        double permanentUpgradeCardsPaneOffset = CARDFIELD_SIZE * 1.26;
+        double permanentUpgradeCardsPaneOffset = CARDFIELD_SIZE * 1.32;
         double programPaneOffset = CARDFIELD_SIZE * 1.12;
 
         cardsPane = new GridPane();
@@ -120,11 +121,11 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_OF_CARDS; i++) {
             CardField cardField = player.getCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 0.75, 1.4 * 0.75);
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 0.7, 1.4 * 0.7);
                 cardViews[i] = cardFieldView;
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
-                                "-fx-border-color: black; " +
+                                "-fx-border-color: white; " +
                                 "-fx-border-width: 1px 1px 1px 1px;" +
                                 "-fx-border-radius: 5"
                 );
@@ -224,7 +225,7 @@ public class PlayerView extends Tab implements ViewObserver {
         // Player mat
         AnchorPane playerMatAnchorPane = new AnchorPane(permanentUpgradeCardsPane, programPane);
 
-        AnchorPane.setTopAnchor(permanentUpgradeCardsPane, -permanentUpgradeCardsPaneOffset);
+        AnchorPane.setTopAnchor(permanentUpgradeCardsPane, -permanentUpgradeCardsPaneOffset + 30);
         AnchorPane.setRightAnchor(permanentUpgradeCardsPane, 0.0);
 
         programPane.setAlignment(Pos.BOTTOM_CENTER);
@@ -232,7 +233,7 @@ public class PlayerView extends Tab implements ViewObserver {
         AnchorPane.setLeftAnchor(programPane, 0.0);
         AnchorPane.setRightAnchor(programPane, 0.0);
 
-        playerMat.setAlignment(Pos.CENTER);
+        playerMat.setAlignment(Pos.BOTTOM_CENTER);
         playerMat.getChildren().addAll(playerMatImageView, energyCubesImageView, checkpointTokenImageView, playerMatAnchorPane);
 
         playerMatImageView.setImage(ImageUtils.getImageFromName("Player Mat/PlayerMat.png"));
@@ -252,16 +253,17 @@ public class PlayerView extends Tab implements ViewObserver {
         temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
         interactionPane.setAlignment(Pos.CENTER);
         leftSideVBox.setAlignment(Pos.CENTER);
-        leftSideVBox.setSpacing(10);
+        leftSideVBox.setSpacing(15);
         StackPane leftSideStackPane = new StackPane(leftSideVBox);
         leftSideStackPane.setAlignment(Pos.CENTER);
 
         // Padding
-        leftSideStackPane.setPadding(new Insets(0, 50, 0, 50)); // Top, right, bottom, left
-        HBox.setMargin(temporaryUpgradeCardsPane, new Insets(10, 50, 10, 50)); // Top, right, bottom, left
+        HBox.setMargin(leftSideStackPane, new Insets(40, 0, 0, 150)); // Top, right, bottom, left
+        HBox.setMargin(temporaryUpgradeCardsPane, new Insets(40, 150, 10, 0)); // Top, right, bottom, left
 
-        hBox.setAlignment(Pos.CENTER);
+        hBox.setAlignment(Pos.BOTTOM_CENTER);
         hBox.getChildren().addAll(leftSideStackPane, playerMat, temporaryUpgradeCardsPane);
+        hBox.setSpacing(100);
         mainPlayerViewPane.getChildren().addAll(hBox);
 
         if (player.board != null) {

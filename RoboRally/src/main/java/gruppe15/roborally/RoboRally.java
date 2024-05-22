@@ -24,6 +24,7 @@ package gruppe15.roborally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.controller.CourseCreatorController;
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.SetupView;
@@ -35,12 +36,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
@@ -49,6 +52,7 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Stack;
 
 import static gruppe15.roborally.model.utils.Constants.*;
 
@@ -76,7 +80,8 @@ public class RoboRally extends Application {
     // private RoboRallyMenuBar menuBar;
     // private AppController appController;
 
-
+    StackPane stackPane;
+    StackPane backgroundStackPane;
 
     @Override
     public void init() throws Exception {
@@ -85,7 +90,7 @@ public class RoboRally extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Super messy, but works.
+        // Super messy.
         // TODO: Clean up this mess.
 
         stage = primaryStage;
@@ -94,22 +99,29 @@ public class RoboRally extends Application {
         root = new BorderPane();
         root.setMaxHeight(Double.MAX_VALUE);
         root.setMaxWidth(Double.MAX_VALUE);
-        root.setPrefHeight(1080);
-        root.setPrefWidth(1920);
-        root.setMinHeight(1080);
-        root.setMinWidth(1920);
+        root.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        root.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        root.setMinHeight(Region.USE_COMPUTED_SIZE);
+        root.setMinWidth(Region.USE_COMPUTED_SIZE);
         //root.setStyle("-fx-border-color: blue;");
-        root.setStyle("-fx-border-color: lightblue;");
-        VBox vbox = new VBox(root);
+        //root.setStyle("-fx-border-color: lightblue;");
+        //VBox vBox = new VBox(root);
+        stackPane = new StackPane(root);
         //vbox.setStyle("-fx-border-color: green;");
-        vbox.setAlignment(Pos.CENTER);
+       // StackPane.setAlignment(vBox, Pos.CENTER);
+        StackPane.setAlignment(root, Pos.CENTER);
+        //root.setStyle("-fx-border-color: blue; " + "-fx-border-width: 5px; ");
+        //vBox.setStyle("-fx-border-color: orange; " + "-fx-border-width: 5px; ");
+        //stackPane.setStyle("-fx-border-color: orange; " + "-fx-border-width: 1px; ");
+        //stackPane.setStyle("-fx-border-color: green;");
+
         stage.setTitle("Robo Rally");
         createMainMenu(appController);
         stage.setFullScreen(START_FULLSCREEN);
 
         // Get screen bounds and calculate scale
         if (START_FULLSCREEN) {
-            Scene primaryScene = new Scene(vbox);
+            Scene primaryScene = new Scene(stackPane);
             stage.setScene(primaryScene);
             stage.setResizable(false);
             stage.show();
@@ -128,10 +140,11 @@ public class RoboRally extends Application {
             }
         });*/
         } else {
+            stage.setResizable(false);
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
             double initialWidth = primaryScreenBounds.getWidth() * 0.75;
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
-            Scene primaryScene = new Scene(vbox, initialWidth, initialHeight);
+            Scene primaryScene = new Scene(stackPane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
             primaryStage.setWidth(initialWidth);
             primaryStage.setHeight(initialHeight);
@@ -156,8 +169,11 @@ public class RoboRally extends Application {
     }
 
     private void scaleRoot() {
-        root.setScaleX(APP_SCALE);
-        root.setScaleY(APP_SCALE);
+        stackPane.setScaleX(APP_SCALE);
+        stackPane.setScaleY(APP_SCALE);
+        StackPane.setMargin(root, new Insets(0, 0, 0, 0));
+        //System.out.println(APP_SCALE);
+        APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());
         //root.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
         UpdateSizes();
     }
@@ -219,6 +235,11 @@ public class RoboRally extends Application {
     public void createMainMenu(AppController appController) {
         // create and add view for new board
         mainMenu = new MainMenuView().initialize(appController).getMainMenu();
+        for (Node child : mainMenu.getChildren()) {
+            if (child instanceof StackPane b) {
+                backgroundStackPane = b;
+            }
+        }
         goToMainMenu();
     }
 
@@ -307,11 +328,26 @@ public class RoboRally extends Application {
             } else {
                 boardView = new BoardView(gameController);
             }
-            root.setCenter(boardView);
-            //BorderPane.set
-            VBox.setVgrow(root, javafx.scene.layout.Priority.ALWAYS);
-            VBox.setVgrow(boardView, javafx.scene.layout.Priority.ALWAYS);
 
+            /*AnchorPane anchorPane = new AnchorPane(boardView);
+            AnchorPane.setTopAnchor(boardView, 0.0);
+            AnchorPane.setBottomAnchor(boardView, 0.0);
+            AnchorPane.setRightAnchor(boardView, 0.0);
+            AnchorPane.setLeftAnchor(boardView, 0.0);*/
+/*            stackPane.getChildren().clear();
+            stackPane.getChildren().add(backgroundStackPane);
+            stackPane.getChildren().add(root);*/
+            StackPane boardViewStackPane = new StackPane(backgroundStackPane, boardView);
+            root.setCenter(boardViewStackPane);
+            //BorderPane.set
+            VBox.setVgrow(root, Priority.ALWAYS);
+            VBox.setVgrow(boardView, Priority.ALWAYS);
+
+            if (backgroundStackPane.getChildren().get(0) instanceof ImageView background) {
+                background.setImage(ImageUtils.getImageFromName("Background_SelectionMenu3.png"));
+            }
+
+            boardView.setStyle("-fx-border-color: red;");
         }
         //stage.sizeToScene();
     }
