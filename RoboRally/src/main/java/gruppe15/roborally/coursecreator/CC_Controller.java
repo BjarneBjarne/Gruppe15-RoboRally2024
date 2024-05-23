@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -22,10 +23,12 @@ import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 public class CC_Controller extends VBox {
     @FXML
-    public StackPane CC_boardPane; // Course creator board pane
+    ScrollPane CC_boardScrollPane;
     @FXML
-    public HBox elementButtonsHBox;
-    public GridPane CC_Grid; // Course creator grid
+    StackPane CC_boardPane; // Course creator board pane
+    @FXML
+    HBox CC_elementButtonsHBox;
+    GridPane CC_Grid; // Course creator grid
 
     private final CC_SpaceView[][] CC_SpaceViews;
     private final SpaceEventHandler spaceEventHandler;
@@ -34,11 +37,12 @@ public class CC_Controller extends VBox {
         Background("empty.png"),
         BackgroundStart("emptyStart.png"),
 
+        Wall("wall.png"),
+
         SpawnPoint("startField.png"),
         Reboot("reboot.png"),
         Hole("hole.png"),
         Antenna("antenna.png"),
-        Wall("wall.png"),
 
         BlueConveyorBelt("blueStraight.png"),
         GreenConveyorBelt("greenStraight.png"),
@@ -74,41 +78,44 @@ public class CC_Controller extends VBox {
     @FXML
     public void initialize() {
         CC_Grid = new GridPane();
-        CC_boardPane.getChildren().addAll(CC_Grid, selectedBoardElementImageView);
+        CC_boardPane.getChildren().add(CC_Grid);
 
-        selectedBoardElementImageView.setMouseTransparent(true);
+        CC_boardScrollPane.setVvalue(0.5);
+        CC_boardScrollPane.setHvalue(0.5);
 
-        this.setAlignment(Pos.CENTER);
         CC_Grid.setAlignment(Pos.CENTER);
-        CC_boardPane.setAlignment(Pos.CENTER);
+        //CC_boardPane.setAlignment(Pos.CENTER);
 
         for (int x = 0; x < boardWidth; x++) {
             for (int y = 0; y < boardHeight; y++) {
                 CC_SpaceView CC_SpaceView = new CC_SpaceView();
-                CC_SpaceViews[x][y] = CC_SpaceView;
-                CC_SpaceViews[x][y].setBackground(backgroundImage, 0);
+                CC_SpaceView.setBackground(CC_Items.Background.image, 0);
                 CC_Grid.add(CC_SpaceView, x, y);
+                CC_SpaceViews[x][y] = CC_SpaceView;
+
+                CC_SpaceView.setOnMouseEntered(spaceEventHandler);
+                CC_SpaceView.setOnMouseExited(spaceEventHandler);
             }
         }
         CC_boardPane.setOnMouseClicked(spaceEventHandler);
-        CC_boardPane.setOnMouseMoved(spaceEventHandler);
         CC_boardPane.setOnKeyPressed(spaceEventHandler::keyPressed);
 
-        for (int i = 0; i < BoardElements.values().length; i++) {
-            BoardElements boardElement = BoardElements.values()[i];
-            Image boardElementImage = ImageUtils.getImageFromName("Board Pieces/" + boardElement.imageName);
-            ImageView boardElementImageView = new ImageView(boardElementImage);
-            boardElementImageView.setFitWidth(50);
-            boardElementImageView.setFitHeight(50);
-            Button elementButton = new Button();
-            elementButton.setPrefSize(50, 50);
-            HBox.setMargin(elementButton, new Insets(25, 12.5, 25, 12.5));
-            elementButton.setGraphic(boardElementImageView);
-            elementButtonsHBox.getChildren().add(elementButton);
-            elementButton.setOnMouseClicked(event -> {
-                currentBoardElement = boardElement;
-                selectedBoardElementImageView.setImage(boardElementImage);
-                selectedBoardElementImageView.startDragAndDrop(TransferMode.MOVE);
+        for (int i = 0; i < CC_Items.values().length; i++) {
+            CC_Items item = CC_Items.values()[i];
+            ImageView itemButtonImageView = new ImageView(item.image);
+
+            itemButtonImageView.setFitWidth(50);
+            itemButtonImageView.setFitHeight(50);
+            itemButtonImageView.setImage(item.image);
+
+            Button itemButton = new Button();
+            itemButton.setPrefSize(50, 50);
+            HBox.setMargin(itemButton, new Insets(25, 12.5, 25, 12.5));
+            itemButton.setGraphic(itemButtonImageView);
+
+            CC_elementButtonsHBox.getChildren().add(itemButton);
+            itemButton.setOnMouseClicked(event -> {
+                selectedItem = item;
             });
         }
     }
@@ -141,34 +148,35 @@ public class CC_Controller extends VBox {
             if (CC_SpaceViewsOnMouse.isEmpty()) {
                 return;
             }
-            CC_SpaceView CC_SpaceView = CC_SpaceViewsOnMouse.getFirst();
-            //CC_SpaceView CC_SpaceView = (CC_SpaceView) source;
-            Space spaceClicked = CC_SpaceView.space;
+            CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
 
-            if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-                if (spaceClicked.getBoardElement() instanceof BE_SpawnPoint) {
-                    Player currentPlayer = board.getCurrentPlayer();
-                    if (board.getPhase() == INITIALIZATION) {
-                        if (spaceClicked.getPlayer() == null) {
-                            currentPlayer.setSpawn(spaceClicked);
-                            currentPlayer.setSpace(spaceClicked);
-                        }
-                    }
-                } else {
-                    if (event.isShiftDown()) {
-                        spaceClicked.setPlayer(board.getPlayer(1));
-                    } else if (event.isControlDown()) {
-                        spaceClicked.setPlayer(board.getPlayer(0));
-                    }
-                }
-
-                //event.setDropCompleted(success);
+            if (event.getEventType() == MouseEvent.MOUSE_ENTERED) {
+                hoveredSpaceView.setGhost(selectedItem.image);
             }
 
+            if (event.getEventType() == MouseEvent.MOUSE_EXITED) {
+                hoveredSpaceView.removeGhost();
+            }
+
+            if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
+                if (selectedItem.ordinal() < 2) {
+
+                } else if (selectedItem.ordinal() < 3) {
+
+                } else {
+
+                }
+
+                if (event.isShiftDown()) {
+                    spaceClicked.setPlayer(board.getPlayer(1));
+                }
+
+                hoveredSpaceView.removeGhost();
+            }
             event.consume();
         }
 
-        public void keyPressed(KeyEvent event) {
+        private void keyPressed(KeyEvent event) {
             System.out.println("Pressed: " + event.getCode());
         }
     }

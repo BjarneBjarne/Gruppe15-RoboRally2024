@@ -2,20 +2,26 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <StackPane fx:id="CC_boardPane" />
+      <ScrollPane fx:id="CC_boardScrollPane">
+         <content>
+            <StackPane fx:id="CC_boardPane" maxHeight="5000.0" maxWidth="5000.0" minHeight="5000.0" minWidth="5000.0" prefHeight="5000.0" prefWidth="5000.0" />
+         </content>
+      </ScrollPane>
       <ScrollPane minHeight="100.0">
          <content>
-            <HBox fx:id="elementButtonsHBox" alignment="CENTER_LEFT" fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" />
+            <HBox fx:id="CC_elementButtonsHBox" alignment="CENTER_LEFT" fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" />
          </content>
          <VBox.margin>
             <Insets top="20.0" />
          </VBox.margin>
       </ScrollPane>
+      <AnchorPane />
    </children>
 </VBox>
