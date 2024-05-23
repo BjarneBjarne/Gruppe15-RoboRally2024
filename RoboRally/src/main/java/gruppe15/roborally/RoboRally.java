@@ -372,7 +372,7 @@ public class RoboRally extends Application {
             loader.setController(courseCreator);
 
             try {
-                courseCreator.getChildren().add(loader.load());
+                courseCreator = loader.load();
             } catch (IOException e) {
                 e.printStackTrace();
             }
