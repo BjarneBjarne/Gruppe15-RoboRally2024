@@ -22,18 +22,15 @@
 package gruppe15.roborally;
 
 import gruppe15.roborally.controller.AppController;
-import gruppe15.roborally.controller.CourseCreatorController;
+import gruppe15.roborally.coursecreator.CourseCreatorController;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
 import gruppe15.roborally.view.SetupView;
 import gruppe15.roborally.view.WinScreenView;
-import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -44,15 +41,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Stack;
 
 import static gruppe15.roborally.model.utils.Constants.*;
 

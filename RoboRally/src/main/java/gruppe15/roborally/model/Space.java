@@ -112,9 +112,6 @@ public class Space extends Subject {
     public BoardElement getBoardElement() {
         return boardElement;
     }
-    public void setBoardElement(BoardElement boardElement) {
-        this.boardElement = boardElement;
-    }
 
     public boolean hasWall() {
         return !walls.isEmpty();

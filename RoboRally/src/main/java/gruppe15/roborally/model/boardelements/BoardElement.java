@@ -78,9 +78,9 @@ public abstract class BoardElement {
         }
     }
 
-    public void updateImage() {
+    /*public void updateImage() {
         setImage(imageName);
-    }
+    }*/
 
     public Heading getDirection() {
         return direction;

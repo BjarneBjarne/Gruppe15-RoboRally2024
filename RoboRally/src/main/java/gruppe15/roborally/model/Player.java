@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
+import static gruppe15.roborally.model.utils.GameSettings.KEEP_HAND;
 
 /**
  * ...
@@ -465,10 +466,12 @@ public class Player extends Subject {
                 c.setCard(null);
             }
         }
-        for (CardField c: cardFields) {
-            if(c.getCard() != null) {
-                discard((CommandCard) c.getCard());
-                c.setCard(null);
+        if (!KEEP_HAND) {
+            for (CardField c: cardFields) {
+                if(c.getCard() != null) {
+                    discard((CommandCard) c.getCard());
+                    c.setCard(null);
+                }
             }
         }
     }
