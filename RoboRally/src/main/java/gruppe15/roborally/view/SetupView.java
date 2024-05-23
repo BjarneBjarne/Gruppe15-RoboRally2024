@@ -93,6 +93,7 @@ public class SetupView {
     public void initialize() {
         // Courses
         Platform.runLater(() -> {
+            NO_OF_PLAYERS = 2;
             int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 17);
             for(int i = 1; i < 7; i++){
                 mapGraphics.add(ImageUtils.getImageFromName("Courses/Course_" + i + ".png"));

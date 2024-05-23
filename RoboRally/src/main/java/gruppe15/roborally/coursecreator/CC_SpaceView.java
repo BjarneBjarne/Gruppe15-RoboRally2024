@@ -1,30 +1,18 @@
 package gruppe15.roborally.coursecreator;
 
-import gruppe15.observer.Subject;
 import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Laser;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.boardelements.BE_EnergySpace;
-import gruppe15.roborally.model.boardelements.BoardElement;
-import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.view.ViewObserver;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static gruppe15.roborally.model.utils.Constants.*;
 
 public class CC_SpaceView extends StackPane {
-    private int placedBackground = 0;
-    private int placedBoardElement = 0;
+    private final Image backgroundImage = ImageUtils.getImageFromName("Board Pieces/empty.png");
+    private final Image backgroundStartImage = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
+    private boolean isOnStartBoard;
+
+    private int placedBoardElement = -1;
+    private Heading direction;
     private Heading[] placedWalls = new Heading[4];
 
     private ImageView backgroundImageView = new ImageView();
@@ -34,55 +22,70 @@ public class CC_SpaceView extends StackPane {
     private ImageView ghostImageView = new ImageView();
 
     public CC_SpaceView() {
-        this.setPrefWidth(SPACE_SIZE);
-        this.setMinWidth(SPACE_SIZE);
-        this.setMaxWidth(SPACE_SIZE);
-        this.setPrefHeight(SPACE_SIZE);
-        this.setMinHeight(SPACE_SIZE);
-        this.setMaxHeight(SPACE_SIZE);
+
+    }
+
+    public void initialize(double size, boolean isOnStartSubBoard) {
+        this.setPrefWidth(size);
+        this.setMinWidth(size);
+        this.setMaxWidth(size);
+        this.setPrefHeight(size);
+        this.setMinHeight(size);
+        this.setMaxHeight(size);
+
+        this.isOnStartBoard = isOnStartSubBoard;
+        backgroundImageView.setFitWidth(size);
+        backgroundImageView.setFitHeight(size);
+        backgroundImageView.setImage(isOnStartSubBoard ? backgroundStartImage : backgroundImage);
 
         for (int i = 0; i < wallImageViews.length; i++) {
             wallImageViews[i] = new ImageView();
-            wallImageViews[i].setFitWidth(SPACE_SIZE);
-            wallImageViews[i].setFitHeight(SPACE_SIZE);
+            wallImageViews[i].setFitWidth(size);
+            wallImageViews[i].setFitHeight(size);
         }
-        backgroundImageView.setFitWidth(SPACE_SIZE);
-        backgroundImageView.setFitHeight(SPACE_SIZE);
-        boardElementImageView.setFitWidth(SPACE_SIZE);
-        boardElementImageView.setFitHeight(SPACE_SIZE);
+        boardElementImageView.setFitWidth(size);
+        boardElementImageView.setFitHeight(size);
         this.getChildren().addAll(backgroundImageView, boardElementImageView);
         this.getChildren().addAll(wallImageViews);
 
-        ghostImageView.setFitWidth(SPACE_SIZE);
-        ghostImageView.setFitHeight(SPACE_SIZE);
+        ghostImageView.setFitWidth(size);
+        ghostImageView.setFitHeight(size);
         this.getChildren().add(ghostImageView);
     }
 
-    public void setBackground(Image image, int placedBackground) {
-        setImageView(image, Heading.NORTH, backgroundImageView);
-        this.placedBackground = placedBackground;
-    }
-    public void setBoardElement(Image image, int placedBoardElement) {
-        setImageView(image, Heading.NORTH, boardElementImageView);
+    public void CC_setBoardElement(Image image, Heading direction, int placedBoardElement) {
+        CC_setImageView(image, direction, boardElementImageView);
         this.placedBoardElement = placedBoardElement;
+        this.direction = direction;
     }
-    public void setWall(Image image, Heading direction) {
-        setImageView(image, direction, wallImageViews[direction.ordinal()]);
+    public void CC_setWall(Image image, Heading direction) {
+        CC_setImageView(image, direction, wallImageViews[direction.ordinal()]);
         this.placedWalls[direction.ordinal()] = image != null ? direction : null;
     }
 
-    public void setGhost(Image image) {
-        setImageView(image, Heading.NORTH, ghostImageView);
+    public void CC_setGhost(Image image) {
+        CC_setImageView(image, Heading.NORTH, ghostImageView);
     }
-    public void setGhost(Image image, Heading direction) {
-        setImageView(image, direction, ghostImageView);
+    public void CC_setGhost(Image image, Heading direction) {
+        CC_setImageView(image, direction, ghostImageView);
     }
 
-    public void removeGhost() {
+    public void CC_removeGhost() {
         ghostImageView.setImage(null);
     }
 
-    private void setImageView(Image image, Heading direction, ImageView imageView) {
+    private void CC_setImageView(Image image, Heading direction, ImageView imageView) {
         imageView.setImage(ImageUtils.getRotatedImageByHeading(image, direction));
+    }
+
+
+    public int getPlacedBoardElement() {
+        return placedBoardElement;
+    }
+    public Heading[] getPlacedWalls() {
+        return placedWalls;
+    }
+    public Heading getDirection() {
+        return direction;
     }
 }

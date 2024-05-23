@@ -23,6 +23,7 @@ package gruppe15.roborally.view;
 
 import java.util.Optional;
 
+import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -67,13 +68,7 @@ public class RoboRallyMenuBar extends MenuBar {
 
         saveGame = new MenuItem("Save Game");
         saveGame.setOnAction( e -> {
-            
-            TextInputDialog filenameInput = new TextInputDialog();
-            filenameInput.setHeaderText("Enter filename");
-            filenameInput.setTitle("Save Game");
-            Optional<String> filename = filenameInput.showAndWait();
-            String strFilename = filename.get().replace(' ', '_');
-            this.appController.saveGame(strFilename);
+            RoboRally.closeGame(appController);
         });
         controlMenu.getItems().add(saveGame);
 

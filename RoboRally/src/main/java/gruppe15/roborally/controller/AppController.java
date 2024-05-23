@@ -28,6 +28,7 @@ import gruppe15.roborally.fileaccess.LoadBoard;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
 import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -126,11 +127,11 @@ public class AppController implements Observer {
      * @param fileName the name of the file to which the game is saved
      * @return true if the game was saved, false otherwise
      */
-    public boolean saveGame(String fileName) {
+    public boolean saveGame(File file) {
         if (gameController.board.getPhase() != Phase.PROGRAMMING) {
             return false;
         }
-        LoadBoard.saveBoard(gameController.board, fileName);
+        LoadBoard.saveBoard(gameController.board, file);
         return true;
     }
 
@@ -202,7 +203,7 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
-    public void courseCreator() {
-        roboRally.createCourseCreator(this);
+    public void courseCreator(Scene primaryScene) {
+        roboRally.createCourseCreator(primaryScene);
     }
 }

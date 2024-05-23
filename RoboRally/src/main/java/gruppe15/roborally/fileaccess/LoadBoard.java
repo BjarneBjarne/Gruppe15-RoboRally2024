@@ -151,7 +151,7 @@ public class LoadBoard {
      * @param name the name of the file to be saved
      * @return void
      */
-    public static void saveBoard(Board board, String name) {
+    public static void saveBoard(Board board, File file) {
         BoardTemplate template = new BoardTemplate();
         template.width = board.width;
         template.height = board.height;
@@ -176,21 +176,6 @@ public class LoadBoard {
             }
         }
 
-        String userHome = System.getProperty("user.home");
-        String relativePath = "\\RoboRally\\saves";
-        String directoryPath = userHome + relativePath;
-
-        File folderFile = new File(directoryPath);
-        // Create saves folder if it doesn't exist
-        if (!folderFile.exists()) {
-            if (folderFile.mkdirs()) {
-                System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
-            } else {
-                System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
-            }
-        }
-
-        String filename = directoryPath + "\\" + name + "." + JSON_EXT;
         GsonBuilder simpleBuilder = new GsonBuilder().
                 registerTypeAdapter(BoardElement.class, new Adapter<BoardElement>()).
                 excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT).
@@ -200,7 +185,7 @@ public class LoadBoard {
         FileWriter fileWriter = null;
         JsonWriter writer = null;
         try {
-            fileWriter = new FileWriter(filename);
+            fileWriter = new FileWriter(file);
             writer = gson.newJsonWriter(fileWriter);
             gson.toJson(template, template.getClass(), writer);
             writer.close();

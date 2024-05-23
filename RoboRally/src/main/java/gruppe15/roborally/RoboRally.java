@@ -24,6 +24,8 @@ package gruppe15.roborally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.coursecreator.CC_Controller;
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.coursecreator.CC_CourseData;
+import gruppe15.roborally.coursecreator.CC_JsonUtil;
 import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
@@ -41,10 +43,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -60,6 +65,7 @@ public class RoboRally extends Application {
     public GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private Stage stage;
+    private static Scene primaryScene;
     private BorderPane root;
     private BoardView boardView;
     private AnchorPane mainMenu;
@@ -115,7 +121,7 @@ public class RoboRally extends Application {
 
         // Get screen bounds and calculate scale
         if (START_FULLSCREEN) {
-            Scene primaryScene = new Scene(stackPane);
+            primaryScene = new Scene(stackPane);
             stage.setScene(primaryScene);
             stage.setResizable(false);
             stage.show();
@@ -138,11 +144,19 @@ public class RoboRally extends Application {
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
             double initialWidth = primaryScreenBounds.getWidth() * 0.75;
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
-            Scene primaryScene = new Scene(stackPane, initialWidth, initialHeight);
+            primaryScene = new Scene(stackPane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
             primaryStage.setWidth(initialWidth);
             primaryStage.setHeight(initialHeight);
             primaryStage.show();
+
+            primaryScene.addEventFilter(ScrollEvent.SCROLL, event -> {
+                if (event.isControlDown()) {
+                    if (courseCreator != null) {
+                        courseCreator.zoom(event);
+                    }
+                }
+            });
 
             primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
                 APP_SCALE = newVal.doubleValue() / REFERENCE_HEIGHT;
@@ -183,7 +197,7 @@ public class RoboRally extends Application {
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @param appController the AppController of the game
      */
-    public void closeGame(AppController appController) {
+    public static void closeGame(AppController appController) {
         Boolean isGameRunning = appController.isGameRunning();
         if (isGameRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -208,17 +222,35 @@ public class RoboRally extends Application {
                 // Method appController.saveGame() will return false if the game is not in the programming
                 // phase, and an error message will be shown to the user. Game will then continue to run.
                 if (saveGameResult.get() == saveButton){
-                    TextInputDialog filenameInput = new TextInputDialog();
-                    filenameInput.setHeaderText("Enter filename");
-                    filenameInput.setTitle("Save Game");
-                    Optional<String> filename = filenameInput.showAndWait();
-                    String strFilename = filename.get().replace(' ', '_');
-                    if(!appController.saveGame(strFilename)){
-                        Alert errorAlert = new Alert(AlertType.ERROR);
-                        errorAlert.setHeaderText("Error saving game");
-                        errorAlert.setContentText("Game can only be saved during programming phase.");
-                        errorAlert.showAndWait();
-                        return;
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Game");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
+                    String userHome = System.getProperty("user.home");
+                    String relativePath = "\\RoboRally\\saves";
+                    String directoryPath = userHome + relativePath;
+
+                    File folderFile = new File(directoryPath);
+                    // Create saves folder if it doesn't exist
+                    if (!folderFile.exists()) {
+                        if (folderFile.mkdirs()) {
+                            System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
+                        } else {
+                            System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
+                        }
+                    }
+
+                    fileChooser.setInitialDirectory(new File(directoryPath));
+                    fileChooser.setInitialFileName("New save.json");
+                    File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
+
+                    if (saveFile != null) {
+                        if(!appController.saveGame(saveFile)){
+                            Alert errorAlert = new Alert(AlertType.ERROR);
+                            errorAlert.setHeaderText("Error saving game");
+                            errorAlert.setContentText("Game can only be saved during programming phase.");
+                            errorAlert.showAndWait();
+                            return;
+                        }
                     }
                 }
             }
@@ -323,14 +355,6 @@ public class RoboRally extends Application {
                 boardView = new BoardView(gameController);
             }
 
-            /*AnchorPane anchorPane = new AnchorPane(boardView);
-            AnchorPane.setTopAnchor(boardView, 0.0);
-            AnchorPane.setBottomAnchor(boardView, 0.0);
-            AnchorPane.setRightAnchor(boardView, 0.0);
-            AnchorPane.setLeftAnchor(boardView, 0.0);*/
-/*            stackPane.getChildren().clear();
-            stackPane.getChildren().add(backgroundStackPane);
-            stackPane.getChildren().add(root);*/
             StackPane boardViewStackPane = new StackPane(backgroundStackPane, boardView);
             root.setCenter(boardViewStackPane);
             //BorderPane.set
@@ -340,8 +364,6 @@ public class RoboRally extends Application {
             if (backgroundStackPane.getChildren().get(0) instanceof ImageView background) {
                 background.setImage(ImageUtils.getImageFromName("Background_SelectionMenu3.png"));
             }
-
-            boardView.setStyle("-fx-border-color: red;");
         }
         //stage.sizeToScene();
     }
@@ -360,24 +382,26 @@ public class RoboRally extends Application {
         launch(args);
     }
 
-    public void createCourseCreator(AppController appController) {
+    public void createCourseCreator(Scene primaryScene) {
         if (courseCreator != null) {
             goToCourseCreator();
         } else {
             root.getChildren().clear();
-            courseCreator = new CC_Controller();
-            //courseCreator.setStage(stage);
 
-            FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("CourseCreator.fxml"));
-            loader.setController(courseCreator);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/CourseCreator.fxml"));
 
             try {
-                courseCreator = loader.load();
+                // Load the FXML and set the controller
+                VBox loadedVBox = loader.load(); // Load the FXML file
+                courseCreator = loader.getController(); // Get the controller
+
+                courseCreator.setScene(primaryScene);
+
+                // Set the loaded VBox (which is your controller) as the center of the root layout
+                root.setCenter(loadedVBox);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            root.setCenter(courseCreator);
         }
     }
     public void goToCourseCreator() {
