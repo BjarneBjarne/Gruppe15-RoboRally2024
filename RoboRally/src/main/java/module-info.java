@@ -21,4 +21,6 @@ module gruppe15.roborally {
 
     exports gruppe15.roborally.controller to javafx.fxml;
     opens gruppe15.roborally.controller to javafx.fxml;
+    exports gruppe15.roborally.coursecreator to javafx.fxml;
+    opens gruppe15.roborally.coursecreator to javafx.fxml;
 }

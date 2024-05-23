@@ -20,17 +20,18 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-import static gruppe15.roborally.model.utils.Constants.PLAYER_NUMBER_OPTIONS;
+import static gruppe15.roborally.model.utils.GameSettings.*;
 
 /**
  * @author Maximillian Bjørn Mortensen
  */
 public class SetupView {
-    ArrayList<Image> mapGraphics = new ArrayList<>();
-    ArrayList<ComboBox> charSelection = new ArrayList<>();
-    ImageView[] playerRobotImageViews = new ImageView[6];
-    HBox[] playerHBoxes = new HBox[6];
+    private ArrayList<Image> mapGraphics = new ArrayList<>();
+    private ArrayList<ComboBox> charSelection = new ArrayList<>();
+    private ImageView[] playerRobotImageViews = new ImageView[6];
+    private HBox[] playerHBoxes = new HBox[6];
 
     @FXML
     AnchorPane selection_menu;
@@ -39,18 +40,21 @@ public class SetupView {
     @FXML
     VBox playersVBox;
     @FXML
-    ComboBox playersCount;
-    @FXML
     ImageView map;
     @FXML
     Button start;
     @FXML
     Button selection_back;
 
-    int noOfPlayers = 2;
-    int mapIndex = 0;
-    String[] playerNames = new String[6];
-    String[] playerCharacters = new String[6];
+    @FXML
+    ComboBox settings_noOfPlayers;
+    @FXML
+    ComboBox settings_keepHand;
+
+
+    private int mapIndex = 0;
+    private final String[] playerNames = new String[6];
+    private final String[] playerCharacters = new String[6];
 
     public SetupView() {
 
@@ -69,7 +73,7 @@ public class SetupView {
         // Start button
         start.setOnMouseClicked(e -> {
             if(isReady()){
-                appController.beginCourse(noOfPlayers, mapIndex, playerNames, playerCharacters);
+                appController.beginCourse(mapIndex, playerNames, playerCharacters);
             }
         });
     }
@@ -157,12 +161,21 @@ public class SetupView {
             }
         }
 
-        // Settings
+        // GameSettings
         // Number of players
-        playersCount.getItems().addAll(PLAYER_NUMBER_OPTIONS);
-        playersCount.getSelectionModel().select(0);
-        playersCount.setOnAction(e -> {
-            noOfPlayers = (int)(playersCount.getSelectionModel().getSelectedItem());
+        settings_noOfPlayers.getItems().addAll(OPTIONS_NO_OF_PLAYERS);
+        settings_noOfPlayers.getSelectionModel().select(0);
+        settings_noOfPlayers.setOnAction(e -> {
+            NO_OF_PLAYERS = (int)(settings_noOfPlayers.getSelectionModel().getSelectedItem());
+            updateUI();
+        });
+
+        // Keep hand
+        settings_keepHand.getItems().addAll(OPTIONS_KEEP_HAND);
+        settings_keepHand.getSelectionModel().select(0);
+        settings_keepHand.setOnAction(e -> {
+            String keepHandString = settings_keepHand.getSelectionModel().getSelectedItem().toString();
+            KEEP_HAND = keepHandString.equals("Yes");
             updateUI();
         });
 
@@ -171,8 +184,8 @@ public class SetupView {
 
     private void updateUI() {
         for (int i = 2; i < 6; i++) {
-            playerHBoxes[i].setVisible(i < noOfPlayers);
-            if (i >= noOfPlayers) {
+            playerHBoxes[i].setVisible(i < NO_OF_PLAYERS);
+            if (i >= NO_OF_PLAYERS) {
                 playerNames[i] = null;
                 playerCharacters[i] = null;
                 //charSelection.get(i).getSelectionModel().clearSelection();
@@ -201,7 +214,7 @@ public class SetupView {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean isReady(){
-        for(int i = 0; i < noOfPlayers; i++){
+        for(int i = 0; i < NO_OF_PLAYERS; i++){
             if(playerNames[i] == null || playerCharacters[i] == null) return false;
             for(int j = i-1; j >= 0; j--){
                 if(playerNames[i].equals(playerNames[j])) return false;

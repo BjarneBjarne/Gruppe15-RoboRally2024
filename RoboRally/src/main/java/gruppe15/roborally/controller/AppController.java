@@ -37,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.io.File;
 
+import static gruppe15.roborally.model.utils.GameSettings.*;
+
 /**
  * ...
  *
@@ -55,7 +57,7 @@ public class AppController implements Observer {
         roboRally.createSetupMenu(this);
     }
 
-    public void beginCourse(int noOfPlayers, int mapIndex, String[] playerNames, String[] playerCharacters) {
+    public void beginCourse(int mapIndex, String[] playerNames, String[] playerCharacters) {
         Board board = new Board(13,10, mapIndex);
         gameController = new GameController(board, this);
 
@@ -71,7 +73,7 @@ public class AppController implements Observer {
         }
 
         // Adding players
-        for (int i = 0; i < noOfPlayers; i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(playerCharacters[i])), playerNames[i]);
             player.setHeading(Heading.EAST);
             board.addPlayer(player);

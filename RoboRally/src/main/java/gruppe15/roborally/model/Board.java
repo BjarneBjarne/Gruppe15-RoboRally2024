@@ -68,7 +68,7 @@ public class Board extends Subject {
     //The counter for how many moves have been made
     private int moveCounter = 0;
 
-    private boolean stepMode;
+    private boolean stepMode = false;
 
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private List<Space[][]> subBoards;
@@ -85,8 +85,16 @@ public class Board extends Subject {
         this.height = height;
         spaces = new Space[width][height];
 
-        // Setup spaces
-        
+        // Empty board for course creator
+        if (mapIndex == 1337) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    addSpace(x, y, null, spaces);
+                }
+            }
+        }
+
+        //
         if (mapIndex == -1) {
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
@@ -97,6 +105,8 @@ public class Board extends Subject {
                 }
             }
         }
+
+        // Courses
         if (mapIndex == 0) {
             // BE_Antenna
             addSpace(0, 4, new BE_Antenna(), spaces);
@@ -230,7 +240,6 @@ public class Board extends Subject {
             }
         }
 
-        this.stepMode = false;
         updateBoardElementSpaces();
     }
 
@@ -438,13 +447,17 @@ public class Board extends Subject {
                 //",  ";
     }
 
+    /*
+        Creating an array that holds "a list of spaces" for each different board element.
+        This way, we only calculate once, where the different board elements are on the board,
+            for when we execute board elements actions.
+    */
     private List<Space>[] boardElementsSpaces;
     private void updateBoardElementSpaces() {
         boardElementsSpaces = new List[7];
         for (int i = 0; i < boardElementsSpaces.length; i++) {
             boardElementsSpaces[i] = new ArrayList<>();
         }
-
         for (Space[] spaceColumn : spaces) {
             for (Space space : spaceColumn) {
                 BoardElement boardElement = space.getBoardElement();
