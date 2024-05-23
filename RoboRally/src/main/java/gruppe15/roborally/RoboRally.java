@@ -22,7 +22,7 @@
 package gruppe15.roborally;
 
 import gruppe15.roborally.controller.AppController;
-import gruppe15.roborally.coursecreator.CourseCreatorController;
+import gruppe15.roborally.coursecreator.CC_Controller;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
@@ -64,7 +64,7 @@ public class RoboRally extends Application {
     private BoardView boardView;
     private AnchorPane mainMenu;
     private AnchorPane selectionMenu;
-    private CourseCreatorController courseCreator;
+    private CC_Controller courseCreator;
 
     @FXML
     public HBox upgradeShopCardsHBox;
@@ -365,7 +365,7 @@ public class RoboRally extends Application {
             goToCourseCreator();
         } else {
             root.getChildren().clear();
-            courseCreator = new CourseCreatorController();
+            courseCreator = new CC_Controller();
             //courseCreator.setStage(stage);
 
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("CourseCreator.fxml"));

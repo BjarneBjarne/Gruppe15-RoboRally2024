@@ -116,11 +116,6 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private void updateSpace() {
         BoardElement boardElement = space.getBoardElement();
-        if (boardElement != null) {
-            System.out.println("Updating with iamge: " + boardElement.getImage());
-        }
-
-
         this.getChildren().clear();
 
         // Space background imageView

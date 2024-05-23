@@ -85,16 +85,7 @@ public class Board extends Subject {
         this.height = height;
         spaces = new Space[width][height];
 
-        // Empty board for course creator
-        if (mapIndex == 1337) {
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    addSpace(x, y, null, spaces);
-                }
-            }
-        }
-
-        //
+        // Empty spaces for loading board
         if (mapIndex == -1) {
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {

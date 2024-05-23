@@ -3,7 +3,6 @@ package gruppe15.roborally.coursecreator;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.view.SpaceView;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
@@ -21,26 +20,54 @@ import java.util.List;
 
 import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
-public class CourseCreatorController extends VBox {
+public class CC_Controller extends VBox {
     @FXML
     public StackPane CC_boardPane; // Course creator board pane
     @FXML
     public HBox elementButtonsHBox;
     public GridPane CC_Grid; // Course creator grid
 
-    private final Board board;
-    private final Space[][] spaces;
-    private final SpaceView[][] spaceViews;
+    private final CC_SpaceView[][] CC_SpaceViews;
     private final SpaceEventHandler spaceEventHandler;
-    private final Image backgroundImage = ImageUtils.getImageFromName("Board Pieces/empty.png");
-    private final Image backgroundImageStart = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
-    private BoardElements currentBoardElement;
-    private final ImageView selectedBoardElementImageView = new ImageView();
 
-    public CourseCreatorController() {
-        board = new Board(13, 10, 1337);
-        spaces = board.getSpaces();
-        spaceViews = new SpaceView[board.width][board.height];
+    enum CC_Items {
+        Background("empty.png"),
+        BackgroundStart("emptyStart.png"),
+
+        SpawnPoint("startField.png"),
+        Reboot("reboot.png"),
+        Hole("hole.png"),
+        Antenna("antenna.png"),
+        Wall("wall.png"),
+
+        BlueConveyorBelt("blueStraight.png"),
+        GreenConveyorBelt("greenStraight.png"),
+        PushPanel135("push135.png"),
+        PushPanel24("push24.png"),
+        GearRight("gearRight.png"),
+        GearLeft("gearLeft.png"),
+        Laser("laserStart.png"),
+        EnergySpace("energySpace.png"),
+        Checkpoint1("1.png"),
+        Checkpoint2("2.png"),
+        Checkpoint3("3.png"),
+        Checkpoint4("4.png"),
+        Checkpoint5("5.png"),
+        Checkpoint6("6.png");
+
+        private final Image image;
+        CC_Items(String imageName) {
+            this.image = ImageUtils.getImageFromName("Board Pieces/" + imageName);
+        }
+    }
+
+    private CC_Items selectedItem = CC_Items.Background;
+
+    private final int boardWidth = 13;
+    private final int boardHeight = 10;
+
+    public CC_Controller() {
+        CC_SpaceViews = new CC_SpaceView[boardWidth][boardHeight];
         spaceEventHandler = new SpaceEventHandler();
     }
 
@@ -55,14 +82,12 @@ public class CourseCreatorController extends VBox {
         CC_Grid.setAlignment(Pos.CENTER);
         CC_boardPane.setAlignment(Pos.CENTER);
 
-        for (int x = 0; x < board.width; x++) {
-            for (int y = 0; y < board.height; y++) {
-                Space space = spaces[x][y];
-                SpaceView spaceView = new SpaceView(space);
-                spaceViews[x][y] = spaceView;
-
-                space.setBackgroundImage(backgroundImage);
-                CC_Grid.add(spaceView, x, y);
+        for (int x = 0; x < boardWidth; x++) {
+            for (int y = 0; y < boardHeight; y++) {
+                CC_SpaceView CC_SpaceView = new CC_SpaceView();
+                CC_SpaceViews[x][y] = CC_SpaceView;
+                CC_SpaceViews[x][y].setBackground(backgroundImage, 0);
+                CC_Grid.add(CC_SpaceView, x, y);
             }
         }
         CC_boardPane.setOnMouseClicked(spaceEventHandler);
@@ -88,10 +113,10 @@ public class CourseCreatorController extends VBox {
         }
     }
 
-    private List<SpaceView> getSpacesAtMouse(MouseEvent event) {
-        List<SpaceView> spacesAtMouse = new ArrayList<>();
-        for (SpaceView[] spaceViewColumns : spaceViews) {
-            for (SpaceView space : spaceViewColumns) {
+    private List<CC_SpaceView> getSpacesAtMouse(MouseEvent event) {
+        List<CC_SpaceView> spacesAtMouse = new ArrayList<>();
+        for (CC_SpaceView[] CC_SpaceViewColumns : CC_SpaceViews) {
+            for (CC_SpaceView space : CC_SpaceViewColumns) {
                 Bounds localBounds = space.getBoundsInLocal();
                 Bounds sceneBounds = space.localToScene(localBounds);
                 if (sceneBounds.contains(new Point2D(event.getSceneX(), event.getSceneY()))) {
@@ -112,13 +137,13 @@ public class CourseCreatorController extends VBox {
         @Override
         public void handle(MouseEvent event) {
             // Object source = event.getSource();
-            List<SpaceView> spaceViewsOnMouse = getSpacesAtMouse(event);
-            if (spaceViewsOnMouse.isEmpty()) {
+            List<CC_SpaceView> CC_SpaceViewsOnMouse = getSpacesAtMouse(event);
+            if (CC_SpaceViewsOnMouse.isEmpty()) {
                 return;
             }
-            SpaceView spaceView = spaceViewsOnMouse.getFirst();
-            //SpaceView spaceView = (SpaceView) source;
-            Space spaceClicked = spaceView.space;
+            CC_SpaceView CC_SpaceView = CC_SpaceViewsOnMouse.getFirst();
+            //CC_SpaceView CC_SpaceView = (CC_SpaceView) source;
+            Space spaceClicked = CC_SpaceView.space;
 
             if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
                 if (spaceClicked.getBoardElement() instanceof BE_SpawnPoint) {
@@ -145,25 +170,6 @@ public class CourseCreatorController extends VBox {
 
         public void keyPressed(KeyEvent event) {
             System.out.println("Pressed: " + event.getCode());
-        }
-    }
-
-    enum BoardElements {
-        Antenna(BE_Antenna.class, "antenna.png"),
-        Laser(BE_BoardLaser.class, "laserStart.png"),
-        ConveyorBelt(BE_ConveyorBelt .class, "greenStraight.png"),
-        EnergySpace(BE_EnergySpace.class, "energySpace.png"),
-        Gear(BE_Gear.class, "gearRight.png"),
-        Hole(BE_Hole.class, "hole.png"),
-        PushPanel(BE_PushPanel.class, "push135.png"),
-        Reboot(BE_Reboot.class, "reboot.png"),
-        SpawnPoint(BE_SpawnPoint.class, "startField.png");
-
-        private final Class<? extends BoardElement> boardElementClass;
-        private final String imageName;
-        BoardElements(Class<? extends BoardElement> boardElementClass, String imageName) {
-            this.boardElementClass = boardElementClass;
-            this.imageName = imageName;
         }
     }
 }
