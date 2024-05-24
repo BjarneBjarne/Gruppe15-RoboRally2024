@@ -77,10 +77,16 @@ public class CC_Controller extends VBox {
             CC_static_boardPane = CC_boardPane;
             drawSubBoardPositionLines();
             CC_boardPane.setPrefSize(5000, 5000);
+            CC_boardScrollPane.setBackground(new Background(new BackgroundFill(
+                    Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+            CC_boardPane.setBackground(new Background(new BackgroundFill(
+                    Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+            CC_boardScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+            CC_boardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
             CC_boardScrollPane.setVvalue(0.5);
             CC_boardScrollPane.setHvalue(0.5);
 
-            CC_boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
+            CC_boardPane.setStyle("-fx-border-width: 20; -fx-border-color: BLACK");
 
             CC_boardPane.setOnMouseMoved(spaceEventHandler);
             CC_boardPane.setOnMouseClicked(spaceEventHandler);
@@ -114,7 +120,6 @@ public class CC_Controller extends VBox {
                 });
             }
         });
-        
     }
 
     public void zoom(ScrollEvent event) {
@@ -319,7 +324,6 @@ public class CC_Controller extends VBox {
 
         @Override
         public void handle(MouseEvent event) {
-            previousMoveEvent = event;
             // SubBoards
             if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) {
                 handleSubBoardMouseEvent(event);
@@ -329,12 +333,18 @@ public class CC_Controller extends VBox {
             }
 
             rotationChanged = false;
+
+            if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
+                previousMoveEvent = event;
+            }
             event.consume();
         }
 
         public void rotationChanged() {
             rotationChanged = true;
-            handle(previousMoveEvent);
+            if (previousMoveEvent != null) {
+                handle(previousMoveEvent);
+            }
         }
 
         private void handleSubBoardMouseEvent(MouseEvent event) {

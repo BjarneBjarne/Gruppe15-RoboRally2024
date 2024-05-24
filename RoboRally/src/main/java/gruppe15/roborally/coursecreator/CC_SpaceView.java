@@ -59,8 +59,13 @@ public class CC_SpaceView extends StackPane {
         this.direction = direction;
     }
     public void CC_setWall(Image image, Heading direction) {
-        CC_setImageView(image, direction, wallImageViews[direction.ordinal()]);
-        this.placedWalls[direction.ordinal()] = image != null ? direction : null;
+        if (image != null) {
+            CC_setImageView(image, direction, wallImageViews[direction.ordinal()]);
+            this.placedWalls[direction.ordinal()] = direction;
+        } else {
+            CC_setImageView(null, direction, wallImageViews[direction.ordinal()]);
+            this.placedWalls[direction.ordinal()] = null;
+        }
     }
 
     public void CC_setGhost(Image image) {

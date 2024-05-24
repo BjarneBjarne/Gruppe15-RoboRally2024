@@ -73,7 +73,7 @@ public class ImageUtils {
     }
 
     public static Image getRotatedImageByHeading(Image image, Heading heading) {
-        if (image == null) return null;
+        if (image == null || heading == null) return null;
 
         ImageView imageView = new ImageView(image);
         switch (heading) {

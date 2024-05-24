@@ -1,7 +1,12 @@
 package gruppe15.roborally.model.utils;
 
 import gruppe15.roborally.RoboRally;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 
 import java.io.InputStream;
 
@@ -19,5 +24,17 @@ public class TextUtils {
             e.printStackTrace();
             return Font.getDefault();
         }
+    }
+
+    public static TextFlow createStyledText(String text, Font font) {
+        Text styledText = new Text(text);
+        styledText.setFont(font);
+        styledText.setFill(Color.WHITE);
+        styledText.setStroke(Color.BLACK);
+        styledText.setStrokeWidth(2);
+        styledText.setStrokeType(StrokeType.OUTSIDE);
+        styledText.setTextAlignment(TextAlignment.LEFT);
+
+        return new TextFlow(styledText);
     }
 }

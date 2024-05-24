@@ -54,67 +54,74 @@ public class CC_CourseData {
     }
 
     public Pair<List<Space[][]>, Space[][]> getGameSubBoards() {
+        // Board variables
         Point2D[] bounds = getBounds();
         Point2D topLeft = bounds[0];
         Point2D bottomRight = bounds[1];
+        //System.out.println("topLeft: " + topLeft + ", bottomRight: " + bottomRight);
 
-        double boardWidth = (bottomRight.getX() - topLeft.getX() + 1) * 5;
-        double boardHeight = (bottomRight.getY() - topLeft.getY() + 1) * 5;
-
-        //System.out.println("boardWidth: " + boardWidth + " boardHeight: " + boardHeight);
-
-        Space[][] spaces = new Space[(int)boardWidth][(int)boardHeight];
-
+        int boardWidth = (int)(bottomRight.getX() - topLeft.getX());
+        int boardHeight = (int)(bottomRight.getY() - topLeft.getY());
         List<Space[][]> subBoardList = new ArrayList<>();
+        Space[][] boardSpaces = new Space[boardWidth][boardHeight];
+        //System.out.println("boardWidth: " + boardWidth + ", boardHeight: " + boardHeight);
 
         for (CC_SubBoard subBoard : subBoards) {
+            // Sub board variables
             CC_SpaceView[][] subBoardSpaceViews = subBoard.getSpaceViews();
-            Point2D subBoardRelativePos = subBoard.getPosition().subtract(topLeft);
-            // 5 spaces per position increment
-            Point2D subBoardStartPos = new Point2D(subBoardRelativePos.getX() * 5, subBoardRelativePos.getY() * 5);
-            int subBoardStartX = (int)subBoardStartPos.getX();
-            int subBoardStartY = (int)subBoardStartPos.getY();
+            int subBoardWidth = subBoardSpaceViews.length;
+            int subBoardHeight = subBoardSpaceViews[0].length;
+            Space[][] subBoardSpaces = new Space[subBoardWidth][subBoardHeight];
+            Point2D boardRelativePos = new Point2D(subBoard.getPosition().getX() * 5 - topLeft.getX(), subBoard.getPosition().getY() * 5 - topLeft.getY());
+            /*System.out.println("boardRelativePos: " + boardRelativePos);
+            System.out.println("subBoardWidth: " + subBoardWidth + ", subBoardHeight: " + subBoardHeight);*/
 
-            for (int x = subBoardStartX; x < subBoardStartX + subBoardSpaceViews.length; x++) {
-                for (int y = subBoardStartY; y < subBoardStartY + subBoardSpaceViews[0].length; y++) {
-                    int localX = x - subBoardStartX;
-                    int localY = y - subBoardStartY;
-                    System.out.println(localX + ", " + localY);
-                    // Initializing values
-                    CC_SpaceView spaceView = subBoardSpaceViews[localX][localY];
-                    boolean isOnStartBoard = subBoardSpaceViews.length <= 3 || subBoardSpaceViews[0].length <= 3;
+            for (int subBoardX = 0; subBoardX < subBoardWidth; subBoardX++) {
+                for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
+                    // SubBoard spaces
+                    CC_SpaceView spaceView = subBoardSpaceViews[subBoardX][subBoardY];
+                    boolean isOnStartBoard = boardWidth <= 3 || boardHeight <= 3;
                     Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board Pieces/emptyStart.png" : "Board Pieces/empty.png");
 
                     // BoardElement
                     BoardElement boardElement = getBoardElementFromSpaceView(spaceView);
-                    // Add space
-                    addSpace(x, y, boardElement, spaces);
+
+                    // Add space to board and subboard
+                    int boardX = (int)(boardRelativePos.getX() + subBoardX);
+                    int boardY = (int)(boardRelativePos.getY() + subBoardY);
+                    //System.out.println("Local coordinates: " + subBoardX + ", " + subBoardY + ". Board coordinates: " + boardX + ", " + boardY);
+                    addSpace(boardSpaces, boardX, boardY, subBoardSpaces, subBoardX, subBoardY, boardElement);
+
                     // Set background image
-                    spaces[x][y].setBackgroundImage(backgroundImage);
+                    subBoardSpaces[subBoardX][subBoardY].setBackgroundImage(backgroundImage);
+
                     // Add walls if any
                     if (spaceView != null) {
                         for (Heading wall : spaceView.getPlacedWalls()) {
-                            spaces[x][y].addWall(wall);
+                            subBoardSpaces[subBoardX][subBoardY].addWall(wall);
                         }
                     }
                 }
             }
         }
 
+        // Calculate new conveyorBelt images.
         for (int x = 0; x < boardWidth; x++) {
             for (int y = 0; y < boardHeight; y++) {
-                if (spaces[x][y] == null || spaces[x][y].getBoardElement() == null) continue;
-                if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
-                    conveyorBelt.calculateImage(x, y, spaces);
+                if (boardSpaces[x][y] == null || boardSpaces[x][y].getBoardElement() == null) continue;
+                if (boardSpaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
+                    conveyorBelt.calculateImage(x, y, boardSpaces);
                 }
             }
         }
 
-        return new Pair<>(subBoardList, spaces);
+        return new Pair<>(subBoardList, boardSpaces);
     }
 
-    private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
-        spaces[x][y] = new Space(null, x, y, boardElement);
+    private void addSpace(Space[][] boardSpaces, int boardX, int boardY, Space[][] subBoardSpaces, int subBoardX, int subBoardY,  BoardElement boardElement) {
+        Space newSpace = new Space(null, boardX, boardY, boardElement);
+        boardSpaces[boardX][boardY] = newSpace;
+        subBoardSpaces[subBoardX][subBoardY] = newSpace;
     }
 
     private BoardElement getBoardElementFromSpaceView(CC_SpaceView spaceView) {
@@ -149,38 +156,30 @@ public class CC_CourseData {
     }
 
     public Point2D[] getBounds() {
-        Point2D[] points = new Point2D[subBoards.size()];
-
-        for (int i = 0; i < subBoards.size(); i++) {
-            points[i] = subBoards.get(i).getPosition();
-            /*System.out.println(subBoards.get(i).getSpaceViews().length);
-            System.out.println(subBoards.get(i).getPosition());*/
-        }
-
         double minY = Double.MAX_VALUE;
-        double maxY = 0;
         double minX = Double.MAX_VALUE;
+        double maxY = 0;
         double maxX = 0;
-        for (int i = 0; i < points.length; i++) {
-            if (points[i].getY() < minY) {
-                minY = points[i].getY();
+        for (CC_SubBoard subBoard : subBoards) {
+            Point2D point = subBoard.getPosition();
+            Point2D subBoardMin = new Point2D(point.getX() * 5, point.getY() * 5);
+            Point2D subBoardMax = new Point2D(subBoardMin.getX() + subBoard.getSpaceViews().length, subBoardMin.getY() + subBoard.getSpaceViews()[0].length);
+            if (subBoardMin.getY() < minY) {
+                minY = subBoardMin.getY();
             }
-            if (points[i].getY() > maxY) {
-                maxY = points[i].getY();
-                maxY += (subBoards.get(i).getSpaceViews()[0].length > 3 ? 1 : 0);
+            if (subBoardMax.getY() > maxY) {
+                maxY = subBoardMax.getY();
             }
-            if (points[i].getX() < minX) {
-                minX = points[i].getX();
+            if (subBoardMin.getX() < minX) {
+                minX = subBoardMin.getX();
             }
-            if (points[i].getX() > maxX) {
-                maxX = points[i].getX();
-                maxX += (subBoards.get(i).getSpaceViews().length > 3 ? 1 : 0);
+            if (subBoardMax.getX() > maxX) {
+                maxX = subBoardMax.getX();
             }
         }
 
-        Point2D topLeft = new Point2D(minX, minY);
-        Point2D bottomRight = new Point2D(maxX, maxY);
-        //System.out.println("topLeft: " + topLeft + ", bottomRight: " + bottomRight);
-        return new Point2D[] { topLeft, bottomRight };
+        Point2D min = new Point2D(minX, minY);
+        Point2D max = new Point2D(maxX, maxY);
+        return new Point2D[] { min, max };
     }
 }
