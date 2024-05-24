@@ -53,7 +53,7 @@
                      <children>
                         <VBox alignment="TOP_CENTER" prefHeight="940.0" prefWidth="350.0">
                            <children>
-                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Courses">
+                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Courses" textAlignment="CENTER">
                                  <font>
                                     <Font name="OCR A Extended" size="64.0" />
                                  </font>
@@ -61,10 +61,17 @@
                                     <Insets bottom="25.0" />
                                  </VBox.margin>
                               </Text>
-                              <ScrollPane fx:id="scrollPaneForMaps" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: #0A0B0B;" vbarPolicy="ALWAYS">
+                              <ScrollPane fx:id="scrollPaneForMaps" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER">
                                  <VBox.margin>
                                     <Insets />
                                  </VBox.margin>
+                                 <content>
+                                    <VBox fx:id="coursesVBox" alignment="TOP_CENTER" spacing="35.0" style="-fx-background-color: transparent;">
+                                       <padding>
+                                          <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                       </padding>
+                                    </VBox>
+                                 </content>
                               </ScrollPane>
                            </children>
                         </VBox>
@@ -321,10 +328,13 @@
                <children>
                   <StackPane mouseTransparent="true">
                      <children>
-                        <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course">
+                        <Text fx:id="selectedCourseText" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course" textAlignment="CENTER">
                            <font>
-                              <Font name="OCR A Extended" size="36.0" />
+                              <Font name="OCR A Extended" size="40.0" />
                            </font>
+                           <StackPane.margin>
+                              <Insets bottom="10.0" />
+                           </StackPane.margin>
                         </Text>
                      </children>
                   </StackPane>

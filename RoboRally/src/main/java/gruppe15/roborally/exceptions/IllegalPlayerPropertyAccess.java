@@ -1,4 +1,4 @@
-package gruppe15.roborally.model.exceptions;
+package gruppe15.roborally.exceptions;
 
 public class IllegalPlayerPropertyAccess extends Exception {
     /**

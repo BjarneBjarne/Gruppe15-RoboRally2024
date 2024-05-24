@@ -4,11 +4,14 @@ import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.coursecreator.CC_CourseData;
 import gruppe15.roborally.coursecreator.CC_JsonUtil;
-import gruppe15.roborally.model.Course;
 import gruppe15.roborally.model.Robots;
+import gruppe15.roborally.exceptions.NoCoursesException;
 import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.model.utils.TextUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -18,10 +21,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,15 +37,15 @@ import static gruppe15.roborally.model.utils.GameSettings.*;
  * @author Maximillian Bjørn Mortensen
  */
 public class SetupView {
-    private ArrayList<CC_CourseData> courses = new ArrayList<>();
-    private ArrayList<ComboBox> charSelection = new ArrayList<>();
+    private List<CC_CourseData> courses = new ArrayList<>();
+    private List<ComboBox> charSelection = new ArrayList<>();
     private ImageView[] playerRobotImageViews = new ImageView[6];
     private HBox[] playerHBoxes = new HBox[6];
 
     @FXML
     AnchorPane selection_menu;
     @FXML
-    ScrollPane scrollPaneForMaps;
+    VBox coursesVBox;
     @FXML
     VBox playersVBox;
     @FXML
@@ -49,6 +54,8 @@ public class SetupView {
     Button start;
     @FXML
     Button selection_back;
+    @FXML
+    Text selectedCourseText;
 
     @FXML
     ComboBox settings_noOfPlayers;
@@ -97,39 +104,57 @@ public class SetupView {
     public void initialize() {
         // Course
         Platform.runLater(() -> {
-            for (Course course : Course.values()) {
-                String coursePath = "courses/" + course.name + ".json";
-                URL resource = RoboRally.class.getResource(coursePath);
-                try {
-                    File courseFile = new File(resource.toURI());
-                    CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(courseFile);
-                    courses.add(courseData);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                } catch (NullPointerException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
+            // Loading courses
+            courses = CC_JsonUtil.getCoursesInFolder("courses");
 
-            int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 25);
-            map.setImage(courses.getFirst().getImage());
-            VBox coursesVBox = new VBox();
-            for(int i = 0; i < courses.size(); i++){
-                Button b = new Button();
-                ImageView courseImageView = new ImageView(courses.get(i).getImage());
-                b.setPrefWidth(scrollPaneSize);
-                b.setPrefHeight(scrollPaneSize);
-                courseImageView.setFitWidth(scrollPaneSize);
-                courseImageView.setFitHeight(scrollPaneSize);
-                b.setGraphic(courseImageView);
-                int temp = i;
-                b.setOnMouseClicked(e -> {
-                    map.setImage(courses.get(temp).getImage());
-                    mapIndex = temp;
-                });
-                coursesVBox.getChildren().add(b);
+            int courseButtonSize = (int)(coursesVBox.getWidth() - coursesVBox.getPadding().getLeft() - coursesVBox.getPadding().getRight());
+            Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
+
+            // Making course button
+            if (!courses.isEmpty()) {
+                for(int i = 0; i < courses.size(); i++){
+                    CC_CourseData course = courses.get(i);
+
+                    // Course name text
+                    Text courseNameText = new Text();
+                    courseNameText.setFont(textFont);
+                    courseNameText.setFill(Color.WHITE);
+                    courseNameText.setStroke(Color.BLACK);
+                    courseNameText.setStrokeWidth(2);
+                    courseNameText.setStrokeType(StrokeType.OUTSIDE);
+                    courseNameText.setText(course.getCourseName().toUpperCase());
+                    courseNameText.setWrappingWidth(courseButtonSize);
+                    courseNameText.setTextAlignment(TextAlignment.CENTER);
+
+                    // Button
+                    Button courseButton = new Button();
+                    ImageView courseImageView = new ImageView(course.getImage());
+                    courseButton.setMinSize(courseButtonSize, courseButtonSize);
+                    courseButton.setPrefSize(courseButtonSize, courseButtonSize);
+                    courseButton.setMaxSize(courseButtonSize, courseButtonSize);
+                    courseImageView.setFitWidth(courseButtonSize);
+                    courseImageView.setFitHeight(courseButtonSize);
+                    courseButton.setGraphic(courseImageView);
+
+                    // VBox
+                    VBox newCourseVBox = new VBox(courseNameText, courseButton);
+                    newCourseVBox.setSpacing(5);
+                    newCourseVBox.setAlignment(Pos.CENTER);
+
+                    // Buttons OnMouseClicked
+                    int courseIndex = i;
+                    courseButton.setOnMouseClicked(e -> {
+                        map.setImage(courses.get(courseIndex).getImage());
+                        mapIndex = courseIndex;
+                        selectedCourseText.setText(course.getCourseName().toUpperCase());
+                    });
+                    coursesVBox.getChildren().add(newCourseVBox);
+                }
+                selectedCourseText.setText(courses.getFirst().getCourseName().toUpperCase());
+                map.setImage(courses.getFirst().getImage());
+            } else {
+                System.out.println(new NoCoursesException().getMessage());
             }
-            scrollPaneForMaps.setContent(coursesVBox);
         });
 
         // Players

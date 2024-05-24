@@ -1,33 +1,32 @@
 package gruppe15.roborally.coursecreator;
 
-import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Laser;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.utils.ImageUtils;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 
 import javafx.geometry.Point2D;
 import javafx.util.Pair;
 
-import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
 public class CC_CourseData {
+    private String courseName;
     private List<CC_SubBoard> subBoards;
     private String snapshotAsBase64;
 
-    public CC_CourseData(List<CC_SubBoard> subBoards, String snapshotAsBase64) {
+    public CC_CourseData(String courseName, List<CC_SubBoard> subBoards, String snapshotAsBase64) {
+        this.courseName = courseName;
         this.subBoards = subBoards;
         this.snapshotAsBase64 = snapshotAsBase64;
+    }
+
+    public String getCourseName() {
+        return courseName;
     }
 
     public List<CC_SubBoard> getSubBoards() {
@@ -49,17 +48,9 @@ public class CC_CourseData {
         return null;
     }
 
-    public void saveImageToFile() {
+    public void saveImageToFile(String path) {
         Image courseImage = getImage();
-        // Save the writable image to a file
-        WritableImage writableImage = new WritableImage(courseImage.getPixelReader(), (int) courseImage.getWidth(), (int) courseImage.getHeight());
-        File file = new File("savedImage.png");
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
-            System.out.println("Image saved to " + file.getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ImageUtils.saveImageToFile(courseImage, courseName, path);
     }
 
     public Pair<List<Space[][]>, Space[][]> getGameSubBoards() {
@@ -67,10 +58,12 @@ public class CC_CourseData {
         Point2D topLeft = bounds[0];
         Point2D bottomRight = bounds[1];
 
-        int boardWidth = (int)(bottomRight.getX() - topLeft.getX());
-        int boardHeight = (int)(bottomRight.getY() - topLeft.getY());
+        double boardWidth = (bottomRight.getX() - topLeft.getX() + 1) * 5;
+        double boardHeight = (bottomRight.getY() - topLeft.getY() + 1) * 5;
 
-        Space[][] spaces = new Space[boardWidth][boardHeight];
+        //System.out.println("boardWidth: " + boardWidth + " boardHeight: " + boardHeight);
+
+        Space[][] spaces = new Space[(int)boardWidth][(int)boardHeight];
 
         List<Space[][]> subBoardList = new ArrayList<>();
 
@@ -84,27 +77,33 @@ public class CC_CourseData {
 
             for (int x = subBoardStartX; x < subBoardStartX + subBoardSpaceViews.length; x++) {
                 for (int y = subBoardStartY; y < subBoardStartY + subBoardSpaceViews[0].length; y++) {
+                    int localX = x - subBoardStartX;
+                    int localY = y - subBoardStartY;
+                    System.out.println(localX + ", " + localY);
                     // Initializing values
-                    CC_SpaceView spaceView = subBoardSpaceViews[x][y];
+                    CC_SpaceView spaceView = subBoardSpaceViews[localX][localY];
                     boolean isOnStartBoard = subBoardSpaceViews.length <= 3 || subBoardSpaceViews[0].length <= 3;
                     Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board Pieces/emptyStart.png" : "Board Pieces/empty.png");
 
                     // BoardElement
                     BoardElement boardElement = getBoardElementFromSpaceView(spaceView);
+                    // Add space
+                    addSpace(x, y, boardElement, spaces);
                     // Set background image
                     spaces[x][y].setBackgroundImage(backgroundImage);
                     // Add walls if any
-                    for (Heading wall : spaceView.getPlacedWalls()) {
-                        spaces[x][y].addWall(wall);
+                    if (spaceView != null) {
+                        for (Heading wall : spaceView.getPlacedWalls()) {
+                            spaces[x][y].addWall(wall);
+                        }
                     }
-                    // Add space
-                    addSpace(x, y, boardElement, spaces);
                 }
             }
         }
 
         for (int x = 0; x < boardWidth; x++) {
             for (int y = 0; y < boardHeight; y++) {
+                if (spaces[x][y] == null || spaces[x][y].getBoardElement() == null) continue;
                 if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
                     conveyorBelt.calculateImage(x, y, spaces);
                 }
@@ -114,8 +113,17 @@ public class CC_CourseData {
         return new Pair<>(subBoardList, spaces);
     }
 
+    private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
+        spaces[x][y] = new Space(null, x, y, boardElement);
+    }
+
     private BoardElement getBoardElementFromSpaceView(CC_SpaceView spaceView) {
-        CC_Controller.CC_Items item = CC_Controller.CC_Items.values()[spaceView.getPlacedBoardElement()];
+        if (spaceView == null) return null;
+        int itemBoardElement = spaceView.getPlacedBoardElement();
+        if (itemBoardElement == -1) {
+            return null;
+        }
+        CC_Items item = CC_Items.values()[itemBoardElement];
 
         return switch (item) {
             case SpawnPoint -> new BE_SpawnPoint(spaceView.getDirection());
@@ -128,7 +136,7 @@ public class CC_CourseData {
             case PushPanel24 -> new BE_PushPanel("24", spaceView.getDirection());
             case GearRight -> new BE_Gear("Right");
             case GearLeft -> new BE_Gear("Left");
-            case Laser -> new BE_BoardLaser(spaceView.getDirection());
+            case BoardLaser -> new BE_BoardLaser(spaceView.getDirection());
             case EnergySpace -> new BE_EnergySpace();
             case Checkpoint1 -> new BE_Checkpoint(1);
             case Checkpoint2 -> new BE_Checkpoint(2);
@@ -140,41 +148,39 @@ public class CC_CourseData {
         };
     }
 
-    private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
-        spaces[x][y] = new Space(null, x, y, boardElement);
-    }
-
     public Point2D[] getBounds() {
-        List<Point2D> points = new ArrayList<>();
+        Point2D[] points = new Point2D[subBoards.size()];
 
-        for (CC_SubBoard subBoard : subBoards) {
-            points.add(subBoard.getPosition());
+        for (int i = 0; i < subBoards.size(); i++) {
+            points[i] = subBoards.get(i).getPosition();
+            /*System.out.println(subBoards.get(i).getSpaceViews().length);
+            System.out.println(subBoards.get(i).getPosition());*/
         }
 
-        if (points.isEmpty()) {
-            return null;
+        double minY = Double.MAX_VALUE;
+        double maxY = 0;
+        double minX = Double.MAX_VALUE;
+        double maxX = 0;
+        for (int i = 0; i < points.length; i++) {
+            if (points[i].getY() < minY) {
+                minY = points[i].getY();
+            }
+            if (points[i].getY() > maxY) {
+                maxY = points[i].getY();
+                maxY += (subBoards.get(i).getSpaceViews()[0].length > 3 ? 1 : 0);
+            }
+            if (points[i].getX() < minX) {
+                minX = points[i].getX();
+            }
+            if (points[i].getX() > maxX) {
+                maxX = points[i].getX();
+                maxX += (subBoards.get(i).getSpaceViews().length > 3 ? 1 : 0);
+            }
         }
 
-        double minY = points.get(0).getY();
-        double maxY = points.get(0).getY();
-        double minX = points.get(0).getX();
-        double maxX = points.get(0).getX();
-        for (Point2D point : points) {
-            if (point.getY() < minY) {
-                minY = point.getY();
-            }
-            if (point.getY() > maxY) {
-                maxY = point.getY();
-            }
-            if (point.getX() < minX) {
-                minX = point.getX();
-            }
-            if (point.getX() > maxX) {
-                maxX = point.getX();
-            }
-        }
         Point2D topLeft = new Point2D(minX, minY);
         Point2D bottomRight = new Point2D(maxX, maxY);
+        //System.out.println("topLeft: " + topLeft + ", bottomRight: " + bottomRight);
         return new Point2D[] { topLeft, bottomRight };
     }
 }

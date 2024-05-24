@@ -41,12 +41,12 @@ class CC_SpaceViewDeserializer implements JsonDeserializer<CC_SpaceView> {
         Heading direction = context.deserialize(jsonObject.get("direction"), Heading.class);
         Image boardElementImage = null;
         if (placedBoardElement != -1) {
-            boardElementImage = CC_Controller.CC_Items.values()[placedBoardElement].image;
+            boardElementImage = CC_Items.values()[placedBoardElement].image;
         }
         spaceView.CC_setBoardElement(boardElementImage, direction, placedBoardElement);
 
         Heading[] walls = context.deserialize(jsonObject.get("placedWalls"), Heading[].class);
-        Image wallImage = CC_Controller.CC_Items.Wall.image;
+        Image wallImage = CC_Items.Wall.image;
         for (Heading wallDirection : walls) {
             if (wallDirection != null) {
                 spaceView.CC_setWall(wallImage, wallDirection);

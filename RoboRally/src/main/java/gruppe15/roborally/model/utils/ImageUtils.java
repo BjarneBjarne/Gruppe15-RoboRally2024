@@ -1,15 +1,19 @@
 package gruppe15.roborally.model.utils;
 
-import gruppe15.roborally.model.Player;
+import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.Heading;
+import gruppe15.roborally.exceptions.EmptyCourseException;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.*;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -115,5 +119,137 @@ public class ImageUtils {
         double blue = color.getBlue() * multiplier.getBlue();
         double opacity = color.getOpacity(); // Keep the original opacity
         return new Color(red, green, blue, opacity);
+    }
+
+    public static void saveImageToFile(Image courseImage, String imageName, String path) {
+        WritableImage writableImage = new WritableImage(courseImage.getPixelReader(), (int) courseImage.getWidth(), (int) courseImage.getHeight());
+        File file = new File(path + "\\" + imageName + ".png");
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+            System.out.println("Image saved to " + file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getSnapshotAsBase64(Node node, int padding) throws EmptyCourseException {
+        // Taking snapshot
+        BufferedImage bufferedImage = takeSnapshot(node);
+
+        // Crop image to fit the course
+        Rectangle bounds = findBounds(bufferedImage);
+        BufferedImage croppedImage = cropImage(bufferedImage, bounds);
+        BufferedImage scaledImage = scaleImage(croppedImage, 256 - 2 * padding);
+
+        // Make the background transparent
+        makeWhiteTransparent(scaledImage);
+
+        // Get background image
+        BufferedImage backgroundImage;
+        try {
+            backgroundImage = loadBackgroundImage("images/Icon/RobotRallyIconCourseBackground.png");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Overlay the course image on top of the background image
+        BufferedImage finalImage = overlayImages(backgroundImage, scaledImage, padding);
+        try {
+            return encodeImageToBase64(finalImage);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public static BufferedImage takeSnapshot(Node node) {
+        WritableImage snapshot = node.snapshot(new SnapshotParameters(), null);
+        return SwingFXUtils.fromFXImage(snapshot, null);
+    }
+
+    public static Rectangle findBounds(BufferedImage image) throws EmptyCourseException {
+        int minX = image.getWidth(), minY = image.getHeight();
+        int maxX = 0, maxY = 0;
+        boolean foundNonWhitePixel = false;
+
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int argb = image.getRGB(x, y);
+                if (!isWhite(argb)) {
+                    foundNonWhitePixel = true;
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+        }
+
+        Rectangle bounds = foundNonWhitePixel ? new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1) : null;
+
+        if (bounds == null) {
+            throw new EmptyCourseException("No course pieces found for snapshot.");
+        }
+
+        return bounds;
+    }
+
+    public static int WHITE_THRESHOLD = 250;
+    public static boolean isWhite(int argb) {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+        return r >= WHITE_THRESHOLD && g >= WHITE_THRESHOLD && b >= WHITE_THRESHOLD;
+    }
+
+    public static BufferedImage cropImage(BufferedImage image, Rectangle bounds) {
+        return image.getSubimage(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
+
+    public static BufferedImage scaleImage(BufferedImage image, int targetSize) {
+        int scaledWidth = (int) (image.getWidth() * ((double) targetSize / Math.max(image.getWidth(), image.getHeight())));
+        int scaledHeight = (int) (image.getHeight() * ((double) targetSize / Math.max(image.getWidth(), image.getHeight())));
+
+        BufferedImage scaledImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = scaledImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
+        g2d.dispose();
+        return scaledImage;
+    }
+
+    public static void makeWhiteTransparent(BufferedImage image) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int argb = image.getRGB(x, y);
+                if (isWhite(argb)) {
+                    image.setRGB(x, y, (argb & 0x00FFFFFF));
+                }
+            }
+        }
+    }
+
+    public static BufferedImage loadBackgroundImage(String path) throws IOException {
+        InputStream backgroundImageStream = RoboRally.class.getResourceAsStream(path);
+        if (backgroundImageStream == null) {
+            throw new IOException("Failed to load background image.");
+        }
+        return ImageIO.read(backgroundImageStream);
+    }
+
+    public static BufferedImage overlayImages(BufferedImage background, BufferedImage overlay, int padding) {
+        int x = (background.getWidth() - overlay.getWidth()) / 2;
+        int y = (background.getHeight() - overlay.getHeight()) / 2;
+
+        Graphics2D g2d = background.createGraphics();
+        g2d.drawImage(overlay, x, y, null);
+        g2d.dispose();
+        return background;
+    }
+
+    public static String encodeImageToBase64(BufferedImage image) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", outputStream);
+        return Base64.getEncoder().encodeToString(outputStream.toByteArray());
     }
 }

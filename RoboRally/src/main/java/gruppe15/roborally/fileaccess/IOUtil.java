@@ -23,8 +23,15 @@ package gruppe15.roborally.fileaccess;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
+import gruppe15.roborally.RoboRally;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A utility class reading strings from resources and arbitrary input streams.
@@ -71,4 +78,26 @@ public class IOUtil {
         return IOUtil.readString(inputStream);
     }
 
+    public static List<File> loadJsonFilesFromResources(String folderName) throws URISyntaxException, IOException {
+        URL resource = RoboRally.class.getResource(folderName);
+
+        if (resource == null) {
+            throw new IllegalArgumentException("Folder not found! " + folderName);
+        }
+
+        File folder = Paths.get(resource.toURI()).toFile();
+        List<File> jsonFiles = new ArrayList<>();
+
+        FilenameFilter jsonFilter = (dir, name) -> name.toLowerCase().endsWith(".json");
+
+        // Get list of JSON files
+        File[] files = folder.listFiles(jsonFilter);
+        if (files != null) {
+            for (File file : files) {
+                jsonFiles.add(file);
+            }
+        }
+
+        return jsonFiles;
+    }
 }

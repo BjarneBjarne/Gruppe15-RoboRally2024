@@ -7,16 +7,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-
-import javax.imageio.ImageIO;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 
 public class CC_CourseDataAdapter extends TypeAdapter<CC_CourseData> {
@@ -31,17 +23,19 @@ public class CC_CourseDataAdapter extends TypeAdapter<CC_CourseData> {
     @Override
     public void write(JsonWriter out, CC_CourseData courseData) throws IOException {
         out.beginObject();
+        out.name("courseName").value(courseData.getCourseName());
         out.name("subBoards").jsonValue(gson.toJson(courseData.getSubBoards()));
         out.name("snapshotAsBase64").value(courseData.getSnapshotAsBase64());
         out.endObject();
     }
 
     @Override
-    public CC_CourseData read(JsonReader in) throws IOException {
+    public CC_CourseData read(JsonReader in) {
         JsonObject jsonObject = gson.fromJson(in, JsonObject.class);
+        String courseName = jsonObject.get("courseName").getAsString();
         List<CC_SubBoard> subBoards = gson.fromJson(jsonObject.get("subBoards"), new TypeToken<List<CC_SubBoard>>(){}.getType());
         String snapshotAsBase64 = jsonObject.get("snapshotAsBase64").getAsString();
 
-        return new CC_CourseData(subBoards, snapshotAsBase64);
+        return new CC_CourseData(courseName, subBoards, snapshotAsBase64);
     }
 }
