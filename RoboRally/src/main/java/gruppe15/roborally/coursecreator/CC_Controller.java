@@ -1,9 +1,8 @@
 package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.exceptions.EmptyCourseException;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
@@ -12,14 +11,12 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -27,11 +24,11 @@ import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import org.jetbrains.annotations.NotNull;
 
-import javax.imageio.ImageIO;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
+import java.util.List;
+
+import static gruppe15.roborally.model.utils.ImageUtils.*;
 
 public class CC_Controller extends VBox {
     @FXML
@@ -84,7 +81,6 @@ public class CC_Controller extends VBox {
             CC_boardScrollPane.setHvalue(0.5);
 
             CC_boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
-            //CC_boardScrollPane.setStyle("-fx-border-width: 50; -fx-border-color: RED");
 
             CC_boardPane.setOnMouseMoved(spaceEventHandler);
             CC_boardPane.setOnMouseClicked(spaceEventHandler);
@@ -135,42 +131,11 @@ public class CC_Controller extends VBox {
     public void keyPressed(KeyEvent keyEvent) {
         if (keyEvent.getCode() == KeyCode.E) {
             currentRotation = currentRotation.next();
-            System.out.println(currentRotation.name());
+            spaceEventHandler.rotationChanged();
         }
         if (keyEvent.getCode() == KeyCode.Q) {
             currentRotation = currentRotation.prev();
-            System.out.println(currentRotation.name());
-        }
-
-        // TODO: If CTRL + S, then save
-    }
-
-    private String getSnapshotAsBase64(Node node) {
-        WritableImage snapshot = node.snapshot(new SnapshotParameters(), null);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", outputStream);
-            byte[] bytes = outputStream.toByteArray();
-            return Base64.getEncoder().encodeToString(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private void initializeLoadedBoard(List<CC_SubBoard> loadedBoard) {
-        // Remove old
-        for (CC_SubBoard subBoard : subBoards) {
-            CC_boardPane.getChildren().remove(subBoard.getGridPane());
-        }
-        subBoards.clear();
-
-        // Add new
-        subBoards.addAll(loadedBoard);
-        for (CC_SubBoard subBoard : loadedBoard) {
-            initializeSpaceViews(subBoard);
-            CC_boardPane.getChildren().add(subBoard.getGridPane());
-            subBoards.add(subBoard);
+            spaceEventHandler.rotationChanged();
         }
     }
 
@@ -209,8 +174,8 @@ public class CC_Controller extends VBox {
     }
 
     public static @NotNull GridPane getNewGridPane(Point2D position, Heading direction, CC_SpaceView[][] spaceViews) {
-        double spaceViewWidth = canvasSize / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
-        double spaceViewHeight = canvasSize / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
+        double spaceViewWidth = (double) canvasSize / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
+        double spaceViewHeight = (double) canvasSize / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
         double subBoardWidth = spaceViewWidth * spaceViews.length;
         double subBoardHeight = spaceViewHeight * spaceViews[0].length;
 
@@ -349,29 +314,34 @@ public class CC_Controller extends VBox {
         private CC_SpaceView previousSpaceView = null;
         private Point2D previousSubBoardPosition = new Point2D(-1, -1);
         private final List<Line> highlightedSubBoardPositionLines = new ArrayList<>();
+        private boolean rotationChanged = false;
+        private MouseEvent previousMoveEvent = null;
 
         @Override
         public void handle(MouseEvent event) {
+            previousMoveEvent = event;
             // SubBoards
             if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) {
                 handleSubBoardMouseEvent(event);
             } else {
                 // SpaceViews
-                if (previousSpaceView != null) {
-                    previousSpaceView.CC_removeGhost();
-                    previousSpaceView = null;
-                }
                 handleSpaceViewMouseEvent(event);
             }
 
+            rotationChanged = false;
             event.consume();
+        }
+
+        public void rotationChanged() {
+            rotationChanged = true;
+            handle(previousMoveEvent);
         }
 
         private void handleSubBoardMouseEvent(MouseEvent event) {
             Point2D hoveredSubBoardPosition = getSubBoardPositionOnMouse(event);
 
             if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
-                if (hoveredSubBoardPosition.distance(previousSubBoardPosition) >= 1) {
+                if (hoveredSubBoardPosition.distance(previousSubBoardPosition) >= 1 || rotationChanged) {
                     removeSubBoardHighlight();
                     highlightSubBoard(hoveredSubBoardPosition);
                     previousSubBoardPosition = hoveredSubBoardPosition;
@@ -391,6 +361,10 @@ public class CC_Controller extends VBox {
         }
 
         private void handleSpaceViewMouseEvent(MouseEvent event) {
+            if (previousSpaceView != null) {
+                previousSpaceView.CC_removeGhost();
+                previousSpaceView = null;
+            }
             List<CC_SpaceView> CC_SpaceViewsOnMouse = getSpacesAtMouse(event);
             // SpaceViews
             if (CC_SpaceViewsOnMouse.isEmpty()) {
@@ -398,8 +372,8 @@ public class CC_Controller extends VBox {
             }
             CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
             if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
-                if (previousSpaceView == null) {
-                    hoveredSpaceView.CC_setGhost(selectedItem.image, currentRotation);
+                if (previousSpaceView == null || rotationChanged) {
+                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : Heading.NORTH);
                     previousSpaceView = hoveredSpaceView;
                 }
             }
@@ -414,9 +388,9 @@ public class CC_Controller extends VBox {
                 } else {
                     // Placement of item at space
                     if (selectedItem == CC_Items.Wall) {
-                        hoveredSpaceView.CC_setWall(selectedItem.image, currentRotation);
+                        hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : Heading.NORTH);
                     } else {
-                        hoveredSpaceView.CC_setBoardElement(selectedItem.image, currentRotation, selectedItem.ordinal());
+                        hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : Heading.NORTH, selectedItem.ordinal());
                     }
                 }
                 // Remove ghost on this space when mouse clicked
@@ -519,6 +493,21 @@ public class CC_Controller extends VBox {
         }
     }
 
+    private void initializeLoadedBoard(List<CC_SubBoard> loadedBoard) {
+        // Remove old
+        for (CC_SubBoard subBoard : subBoards) {
+            CC_boardPane.getChildren().remove(subBoard.getGridPane());
+        }
+        subBoards.clear();
+
+        // Add new
+        for (CC_SubBoard subBoard : loadedBoard) {
+            initializeSpaceViews(subBoard);
+            CC_boardPane.getChildren().add(subBoard.getGridPane());
+            subBoards.add(subBoard);
+        }
+    }
+
     private void saveCourse() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Course");
@@ -542,42 +531,42 @@ public class CC_Controller extends VBox {
         File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
 
         if (saveFile != null) {
-            CC_CourseData courseData = new CC_CourseData(subBoards, getSnapshotAsBase64(CC_boardPane));
-            CC_JsonUtil.saveCourseDataToFile(courseData, saveFile);
+            try {
+                Dialog saveCourseImageDialog = new Dialog();
+                saveCourseImageDialog.setHeaderText("Do you also want to save the course image as its own file?");
+                saveCourseImageDialog.setTitle("Save course image as PNG");
+                ButtonType yesButton = new ButtonType("Save as PNG");
+                ButtonType noButton = new ButtonType("Don't Save");
+                saveCourseImageDialog.getDialogPane().getButtonTypes().addAll(yesButton, noButton);
+                Optional<ButtonType> saveGameResult = saveCourseImageDialog.showAndWait();
+                boolean saveImageAsPNG = saveGameResult.get() == yesButton;
+
+                setLinesVisible(false);
+                CC_CourseData courseData = new CC_CourseData(saveFile.getName().replace(".json", ""), subBoards, getSnapshotAsBase64(CC_boardPane, 10));
+                setLinesVisible(true);
+                System.out.println("Saving course data to: " + saveFile.getAbsolutePath());
+                CC_JsonUtil.saveCourseDataToFile(courseData, saveFile, saveImageAsPNG);
+            } catch (EmptyCourseException e) {
+                System.err.println(e.getMessage());
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setHeaderText("Error in saving course");
+                errorAlert.setContentText("Courses can't be empty. The course was not saved.");
+                errorAlert.showAndWait();
+            }
         }
+        setLinesVisible(true);
     }
 
-
-    // WARNING: Don't change the order of these. The CC_Items.ordinal() order determines the saved and loaded index of the space background, walls, and board elements.
-    enum CC_Items {
-        SubBoard("subBoard.png"),
-        StartSubBoard("startSubBoard.png"),
-
-        Wall("wall.png"),
-
-        SpawnPoint("startField.png"),
-        Reboot("reboot.png"),
-        Hole("hole.png"),
-        Antenna("antenna.png"),
-
-        BlueConveyorBelt("blueStraight.png"),
-        GreenConveyorBelt("greenStraight.png"),
-        PushPanel135("push135.png"),
-        PushPanel24("push24.png"),
-        GearRight("gearRight.png"),
-        GearLeft("gearLeft.png"),
-        Laser("boardLaser.png"),
-        EnergySpace("energySpace.png"),
-        Checkpoint1("1.png"),
-        Checkpoint2("2.png"),
-        Checkpoint3("3.png"),
-        Checkpoint4("4.png"),
-        Checkpoint5("5.png"),
-        Checkpoint6("6.png");
-
-        public final Image image;
-        CC_Items(String imageName) {
-            this.image = ImageUtils.getImageFromName("Board Pieces/" + imageName);
+    private void setLinesVisible(boolean visible) {
+        if (visible) {
+            CC_boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
+        } else {
+            CC_boardPane.setStyle("");
+        }
+        for (Node child : CC_boardPane.getChildren()) {
+            if (child instanceof Line line) {
+                line.setVisible(visible);
+            }
         }
     }
 }

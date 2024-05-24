@@ -22,15 +22,13 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.exceptions.*;
+import gruppe15.roborally.exceptions.IllegalPlayerPropertyAccess;
 import gruppe15.roborally.model.upgrades.*;
-import gruppe15.roborally.model.upgrades.upgrade_cards.Card_Brakes;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
