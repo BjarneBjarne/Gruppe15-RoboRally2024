@@ -71,7 +71,7 @@ public class AppController implements Observer {
         for (int x = 0; x < board.getSpaces().length; x++) {
             for (int y = 0; y < board.getSpaces()[x].length; y++) {
                 Space space = board.getSpace(x, y);
-                if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                if (space != null && space.getBoardElement() instanceof BE_SpawnPoint) {
                     spawnPoints.add(space);
                 }
             }

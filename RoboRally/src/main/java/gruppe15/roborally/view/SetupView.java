@@ -13,14 +13,9 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
@@ -44,6 +39,8 @@ public class SetupView {
 
     @FXML
     AnchorPane selection_menu;
+    @FXML
+    ScrollPane coursesScrollPane;
     @FXML
     VBox coursesVBox;
     @FXML
@@ -107,6 +104,13 @@ public class SetupView {
             // Loading courses
             courses = CC_JsonUtil.getCoursesInFolder("courses");
 
+            coursesScrollPane.setBackground(new Background(new BackgroundFill(
+                    Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+            coursesVBox.setBackground(new Background(new BackgroundFill(
+                    Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+            coursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+            coursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
+
             int courseButtonSize = (int)(coursesVBox.getWidth() - coursesVBox.getPadding().getLeft() - coursesVBox.getPadding().getRight());
             Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
 
@@ -135,6 +139,7 @@ public class SetupView {
                     courseImageView.setFitWidth(courseButtonSize);
                     courseImageView.setFitHeight(courseButtonSize);
                     courseButton.setGraphic(courseImageView);
+                    courseButton.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
                     // VBox
                     VBox newCourseVBox = new VBox(courseNameText, courseButton);

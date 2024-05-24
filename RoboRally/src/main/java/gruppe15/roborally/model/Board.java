@@ -330,6 +330,7 @@ public class Board extends Subject {
         }
         for (Space[] spaceColumn : spaces) {
             for (Space space : spaceColumn) {
+                if (space == null) continue;
                 BoardElement boardElement = space.getBoardElement();
                 if (boardElement instanceof BE_ConveyorBelt conveyorBelt) {
                     if (conveyorBelt.getStrength() == 2) {
@@ -359,6 +360,7 @@ public class Board extends Subject {
     public void clearLasers() {
         for (Space[] space : spaces) {
             for (Space value : space) {
+                if (value == null) continue;
                 value.clearLasersOnSpace();
             }
         }
@@ -421,9 +423,10 @@ public class Board extends Subject {
     public Space findAntenna() {
         for (int x = 0; x < spaces.length; x++) {
             for (int y = 0; y < spaces[x].length; y++) {
+                if (spaces[x][y] == null) continue;
                 BoardElement boardElement = spaces[x][y].getBoardElement();
                 if (boardElement instanceof BE_Antenna) {
-                    return  spaces[x][y];
+                    return spaces[x][y];
                 }
             }
         }
@@ -450,9 +453,7 @@ public class Board extends Subject {
     public Pair<Space, BE_Reboot> findRebootInSubBoard(Space[][] subBoardSpaces) {
         for (Space[] subBoardColumn : subBoardSpaces) {
             for (Space subBoardSpace : subBoardColumn) {
-                if (subBoardSpace == null)  {
-                    continue;
-                }
+                if (subBoardSpace == null) continue;
                 if (subBoardSpace.getBoardElement() instanceof BE_Reboot reboot) {
                     return new Pair<>(subBoardSpace, reboot);
                 } else if (subBoardSpace.getBoardElement() instanceof BE_SpawnPoint) {

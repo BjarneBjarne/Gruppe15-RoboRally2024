@@ -17,7 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this project; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 package gruppe15.roborally.view;
 
@@ -28,15 +27,17 @@ import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
 import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.utils.Constants.*;
@@ -57,7 +58,7 @@ public class BoardView extends VBox implements ViewObserver {
     private StackPane mainBoardPane;
 
     private GridPane boardTilesPane;
-    private SpaceView[][] spaces;
+    private SpaceView[][] spaceViews;
 
     private PlayersView playersView;
     private Label statusLabel;
@@ -71,12 +72,15 @@ public class BoardView extends VBox implements ViewObserver {
     private final GameController gameController;
     private final GridPane directionOptionsPane;
 
+    private ScrollPane scrollPane;
+    private StackPane scrollableView = new StackPane();
+
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         this.gameController = gameController;
         this.directionOptionsPane = directionOptionsPane;
         board = gameController.board;
         board.initializeUpgradeShop();
-        spaces = new SpaceView[board.width][board.height];
+        spaceViews = new SpaceView[board.width][board.height];
         spaceEventHandler = new SpaceEventHandler(gameController);
         this.directionOptionsPane.setPrefSize(Constants.SPACE_SIZE * 3, SPACE_SIZE * 3);
 
@@ -84,7 +88,6 @@ public class BoardView extends VBox implements ViewObserver {
         for (Node child : children) {
             if (child instanceof Button button) {
                 gameController.initializeDirectionButton(button, this);
-
                 ImageView buttonImage = new ImageView();
                 buttonImage.setFitWidth(Constants.SPACE_SIZE);
                 buttonImage.setFitHeight(SPACE_SIZE);
@@ -102,8 +105,34 @@ public class BoardView extends VBox implements ViewObserver {
         StackPane playersViewStackPane = new StackPane(playersView);
         statusLabel = new Label("<no status>");
         AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
-        mainBoardPane = new StackPane(boardTilesPane, anchorPane);
+        scrollableView = new StackPane(boardTilesPane, anchorPane);
+        StackPane.setAlignment(anchorPane, Pos.CENTER);
+        scrollPane = new ScrollPane(scrollableView);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        mainBoardPane = new StackPane(scrollPane);
         mainBoardPane.setAlignment(Pos.CENTER);
+
+        scrollableView.getStyleClass().add("transparent-scroll-pane");
+        scrollPane.getStyleClass().add("transparent-scroll-pane");
+        mainBoardPane.getStyleClass().add("transparent-scroll-pane");
+        scrollableView.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        scrollPane.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        mainBoardPane.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        scrollableView.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        Platform.runLater(() -> {
+            scrollableView.setPrefSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 1000);
+            mainBoardPane.setPrefHeight(895);
+            scrollPane.setPannable(true);
+        });
+
         playersViewStackPane.setAlignment(Pos.CENTER);
         this.getChildren().add(statusLabel);
         this.getChildren().add(mainBoardPane);
@@ -120,14 +149,12 @@ public class BoardView extends VBox implements ViewObserver {
         playersView.setPrefWidth(APP_BOUNDS.getWidth());
         playersView.setMinWidth(APP_BOUNDS.getWidth());
 
-        //mainBoardPane.setStyle("-fx-border-color: black;");
-        //mainBoardPane.setStyle("-fx-corder-color: gray;");
-
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
                 Space space = board.getSpace(x, y);
+                if (space == null) continue;
                 SpaceView spaceView = new SpaceView(space);
-                spaces[x][y] = spaceView;
+                spaceViews[x][y] = spaceView;
                 boardTilesPane.add(spaceView, x, y);
             }
         }
@@ -147,7 +174,7 @@ public class BoardView extends VBox implements ViewObserver {
     public BoardView(@NotNull GameController gameController) {
         this.gameController = gameController;
         board = gameController.board;
-        spaces = new SpaceView[board.width][board.height];
+        spaceViews = new SpaceView[board.width][board.height];
         spaceEventHandler = new SpaceEventHandler(gameController);
         this.directionOptionsPane = new GridPane();
 
@@ -162,18 +189,12 @@ public class BoardView extends VBox implements ViewObserver {
         this.setAlignment(Pos.TOP_CENTER);
         boardTilesPane.setAlignment(Pos.TOP_CENTER);
         mainBoardPane.setAlignment(Pos.TOP_CENTER);
-        //StackPane.setMargin(mainBoardPane, new Insets(30, 0, 0, 0));
-        //GridPane.setMargin(boardTilesPane, new Insets(30, 0, 0, 0));
-
-
-        //VBox.setVgrow(mainBoardPane, javafx.scene.layout.Priority.ALWAYS);
-        //VBox.setVgrow(playersView, javafx.scene.layout.Priority.ALWAYS);
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
                 Space space = board.getSpace(x, y);
                 SpaceView spaceView = new SpaceView(space);
-                spaces[x][y] = spaceView;
+                spaceViews[x][y] = spaceView;
                 boardTilesPane.add(spaceView, x, y);
             }
         }
@@ -244,9 +265,10 @@ public class BoardView extends VBox implements ViewObserver {
 
     private List<SpaceView> getSpaceViewsAtPosition(Point2D position) {
         List<SpaceView> spacesAtMouse = new ArrayList<>();
-        for (int x = 0; x < spaces.length; x++) {
-            for (int y = 0; y < spaces[x].length; y++) {
-                SpaceView space = spaces[x][y];
+        for (int x = 0; x < spaceViews.length; x++) {
+            for (int y = 0; y < spaceViews[x].length; y++) {
+                SpaceView space = spaceViews[x][y];
+                if (space == null) continue;
                 Bounds localBounds = space.getBoundsInLocal();
                 Bounds sceneBounds = space.localToScene(localBounds);
                 if (sceneBounds.contains(position)) {
@@ -266,7 +288,7 @@ public class BoardView extends VBox implements ViewObserver {
     }
 
     public void initializePlayerSpawnSpaceView(Space space) {
-        spaces[space.x][space.y].updateBoardElementImage();
+        spaceViews[space.x][space.y].updateBoardElementImage();
     }
 
     @Override
@@ -276,7 +298,7 @@ public class BoardView extends VBox implements ViewObserver {
 
             Space directionOptionsSpace = gameController.getDirectionOptionsSpace();
             if (directionOptionsSpace != null) {
-                setDirectionOptionsPane(spaces[directionOptionsSpace.x][directionOptionsSpace.y]);
+                setDirectionOptionsPane(spaceViews[directionOptionsSpace.x][directionOptionsSpace.y]);
             }
 
             if (board.getPhase() == Phase.UPGRADE) {
@@ -290,6 +312,13 @@ public class BoardView extends VBox implements ViewObserver {
     public void handleDirectionButtonClicked() {
         directionOptionsPane.setDisable(true);
         directionOptionsPane.setVisible(false);
+    }
+
+    public void centerBoard() {
+        Platform.runLater(() -> {
+            scrollPane.setVvalue(0.5);
+            scrollPane.setHvalue(0.5);
+        });
     }
 
 

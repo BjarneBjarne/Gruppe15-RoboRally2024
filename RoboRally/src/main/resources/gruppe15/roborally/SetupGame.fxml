@@ -61,7 +61,7 @@
                                     <Insets bottom="25.0" />
                                  </VBox.margin>
                               </Text>
-                              <ScrollPane fx:id="scrollPaneForMaps" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER">
+                              <ScrollPane fx:id="coursesScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER">
                                  <VBox.margin>
                                     <Insets />
                                  </VBox.margin>

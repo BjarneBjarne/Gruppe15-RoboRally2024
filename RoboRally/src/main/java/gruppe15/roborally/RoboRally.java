@@ -146,6 +146,7 @@ public class RoboRally extends Application {
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
             primaryScene = new Scene(stackPane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
+            primaryScene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
             primaryStage.setWidth(initialWidth);
             primaryStage.setHeight(initialHeight);
             primaryStage.show();
@@ -354,7 +355,7 @@ public class RoboRally extends Application {
             } else {
                 boardView = new BoardView(gameController);
             }
-
+            boardView.getStyleClass().add("transparent-scroll-pane");
             StackPane boardViewStackPane = new StackPane(backgroundStackPane, boardView);
             root.setCenter(boardViewStackPane);
             //BorderPane.set
