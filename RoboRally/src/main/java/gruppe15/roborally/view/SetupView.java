@@ -98,32 +98,20 @@ public class SetupView {
         // Course
         Platform.runLater(() -> {
             for (Course course : Course.values()) {
-                String coursePath = "gruppe15/roborally/courses/" + course.name + ".json";
-                URL resource = SetupView.class.getClassLoader().getResource(coursePath);
-
-                if (resource != null) {
-                    System.out.println("Resource URL: " + resource);
-                    try {
-                        File courseFile = new File(resource.toURI());
-                        System.out.println("Course file path: " + courseFile.getAbsolutePath());
-
-                        if (courseFile.exists()) {
-                            System.out.println("Course file exists: " + courseFile.getAbsolutePath());
-                            CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(courseFile);
-                            courses.add(courseData);
-                            System.out.println("Loaded course data for: " + course.name);
-                        } else {
-                            System.out.println("Course file does not exist: " + courseFile.getAbsolutePath());
-                        }
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.out.println("File not found: " + coursePath);
+                String coursePath = "courses/" + course.name + ".json";
+                URL resource = RoboRally.class.getResource(coursePath);
+                try {
+                    File courseFile = new File(resource.toURI());
+                    CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(courseFile);
+                    courses.add(courseData);
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                } catch (NullPointerException e) {
+                    System.out.println(e.getMessage());
                 }
             }
 
-            int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 17);
+            int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 25);
             map.setImage(courses.getFirst().getImage());
             VBox coursesVBox = new VBox();
             for(int i = 0; i < courses.size(); i++){
@@ -131,6 +119,8 @@ public class SetupView {
                 ImageView courseImageView = new ImageView(courses.get(i).getImage());
                 b.setPrefWidth(scrollPaneSize);
                 b.setPrefHeight(scrollPaneSize);
+                courseImageView.setFitWidth(scrollPaneSize);
+                courseImageView.setFitHeight(scrollPaneSize);
                 b.setGraphic(courseImageView);
                 int temp = i;
                 b.setOnMouseClicked(e -> {
