@@ -868,4 +868,10 @@ public class GameController {
 
         return couldMove;
     }
+
+    public void checkpointReached(Player player, int number) {
+        if(number >= board.getNumberOfCheckpoints()){
+            setWinner(player.getName(), player.getCharImage());
+        }
+    }
 }

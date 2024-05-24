@@ -77,7 +77,7 @@ public class LoadBoard {
             }
 
             BoardTemplate template = gson.fromJson(testJson, BoardTemplate.class);
-			result = new Board(template.width, template.height, -1);
+			result = new Board(template.width, template.height);
 			for (SpaceTemplate spaceTemplate: template.spaces) {
 			    Space space = result.getSpace(spaceTemplate.x, spaceTemplate.y);
 			    if (space != null) {

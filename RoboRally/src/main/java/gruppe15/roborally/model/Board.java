@@ -22,6 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.coursecreator.CC_SubBoard;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.events.PhaseChangeListener;
@@ -75,158 +76,36 @@ public class Board extends Subject {
     private int numberOfCheckPoints;
     private UpgradeShop upgradeShop;
 
-
     public Board(int width, int height) {
-        this(width, height, 0);
-    }
-
-    public Board(int width, int height, int mapIndex) {
+        super();
         this.width = width;
         this.height = height;
-        spaces = new Space[width][height];
+        this.spaces = new Space[width][height];
 
-        // Empty spaces for loading board
-        if (mapIndex == -1) {
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    // Add empty space
-                    if (spaces[x][y] == null) {
-                        addSpace(x, y, null, spaces);
-                    }
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // Add empty space
+                if (spaces[x][y] == null) {
+                    addSpace(x, y, null, spaces);
                 }
             }
         }
+    }
 
-        // Courses
-        if (mapIndex == 0) {
-            // BE_Antenna
-            addSpace(0, 4, new BE_Antenna(), spaces);
-            // BE_SpawnPoint points
-            Point2D[] startFieldPoints = {
-                    new Point2D(1,1),
-                    new Point2D(0, 3),
-                    new Point2D(1, 4),
-                    new Point2D(1, 5),
-                    new Point2D(0, 6),
-                    new Point2D(1, 8)
-            };
-            for (Point2D startFieldPoint : startFieldPoints) {
-                int x = (int) startFieldPoint.getX();
-                int y = (int) startFieldPoint.getY();
-                addSpace(x, y, new BE_SpawnPoint(EAST), spaces);
-            }
-            // BE_Reboot
-            addSpace(7, 3, new BE_Reboot(SOUTH), spaces);
+    public Board(Pair<List<Space[][]>, Space[][]> courseSpaces) {
+        this(courseSpaces.getKey(), courseSpaces.getValue());
+    }
+    public Board(List<Space[][]> subBoards, Space[][] spaces) {
+        this.subBoards = subBoards;
+        this.spaces = spaces;
+        this.width = spaces.length;
+        this.height = spaces[0].length;
 
-            // Energy spaces
-            addSpace(12, 0, new BE_EnergySpace(), spaces);
-            addSpace(5, 2, new BE_EnergySpace(), spaces);
-            addSpace(8, 4, new BE_EnergySpace(), spaces);
-            addSpace(7, 5, new BE_EnergySpace(), spaces);
-            addSpace(10, 7, new BE_EnergySpace(), spaces);
-            addSpace(3, 9, new BE_EnergySpace(), spaces);
-
-            // Conveyor belts
-            addSpace(2, 0, new BE_ConveyorBelt(EAST, 1), spaces);
-            addSpace(2, 9, new BE_ConveyorBelt(EAST, 1), spaces);
-
-            for (int i = 3; i <= 10; i++) {
-                addSpace(i, 8, new BE_ConveyorBelt(EAST, 2), spaces);
-            }
-            for (int i = 2; i <= 9; i++) {
-                addSpace(11, i, new BE_ConveyorBelt(NORTH, 2), spaces);
-            }
-            for (int i = 5; i <= 12; i++) {
-                addSpace(i, 1, new BE_ConveyorBelt(WEST, 2), spaces);
-            }
-            for (int i = 0; i <= 7; i++) {
-                addSpace(4, i, new BE_ConveyorBelt(SOUTH, 2), spaces);
-            }
-            addSpace(3, 7, new BE_ConveyorBelt(EAST, 2), spaces);
-            addSpace(10, 9, new BE_ConveyorBelt(NORTH, 2), spaces);
-            addSpace(12, 2, new BE_ConveyorBelt(WEST, 2), spaces);
-            addSpace(5, 0, new BE_ConveyorBelt(SOUTH, 2), spaces);
-
-            // Board lasers
-            addSpace(6, 4, new BE_BoardLaser(NORTH), spaces);
-            addSpace(9, 5, new BE_BoardLaser(SOUTH), spaces);
-            addSpace(8, 3, new BE_BoardLaser(EAST), spaces);
-            addSpace(7, 6, new BE_BoardLaser(WEST), spaces);
-
-            // Holes
-            addSpace(1, 3, new BE_Hole(), spaces);
-
-            // Checkpoints
-            numberOfCheckPoints = 4;
-            addSpace(12, 3, new BE_Checkpoint(1, numberOfCheckPoints), spaces);
-            addSpace(10, 4, new BE_Checkpoint(2, numberOfCheckPoints), spaces);
-            addSpace(3, 3, new BE_Checkpoint(3, numberOfCheckPoints), spaces);
-            addSpace(5, 7, new BE_Checkpoint(4, numberOfCheckPoints), spaces);
-
-            // Gears
-            addSpace(0, 0, new BE_Gear("Left"), spaces);
-            addSpace(2, 2, new BE_Gear("Right"), spaces);
-
-            // Pushpanels
-            addSpace(10, 0, new BE_PushPanel("24", SOUTH), spaces);
-            addSpace(11, 0, new BE_PushPanel("135", SOUTH), spaces);
-            addSpace(7, 7, new BE_PushPanel("24", NORTH), spaces);
-            addSpace(12, 5, new BE_PushPanel("135", WEST), spaces);
-
-            // Walls
-            //Heading[][] walls = new Heading[this.width][this.height];
-            List<Heading>[][] walls = new ArrayList[this.width][this.height];
-            for (int x = 0; x < this.width; x++) {
-                for (int y = 0; y < this.height; y++) {
-                    walls[x][y] = new ArrayList<>();
-                }
-            }
-            walls[1][2].add(NORTH);
-            walls[6][3].add(NORTH);
-            walls[9][5].add(NORTH);
-            walls[1][7].add(SOUTH);
-            walls[6][4].add(SOUTH);
-            walls[9][6].add(SOUTH);
-            walls[2][4].add(EAST);
-            walls[2][5].add(EAST);
-            walls[7][6].add(EAST);
-            walls[9][3].add(EAST);
-            walls[6][6].add(WEST);
-            walls[8][3].add(WEST);
-
-            // Fill the rest of the spaces with empty spaces and set background images
-            Image backgroundStart = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
-            Image background = ImageUtils.getImageFromName("Board Pieces/empty.png");
-            this.subBoards = new ArrayList<>();
-            Space[][] startBoard = new Space[width][height];
-            Space[][] mainBoard = new Space[width][height];
-            for (int x = 0; x < width; x++) {
-                for(int y = 0; y < height; y++) {
-                    // Add empty space
-                    if (spaces[x][y] == null) {
-                        addSpace(x, y, null, spaces);
-                    }
-                    // Set background image
-                    if (x < 3) {
-                        spaces[x][y].setBackgroundImage(backgroundStart);
-                        startBoard[x][y] = spaces[x][y];
-                    } else {
-                        spaces[x][y].setBackgroundImage(background);
-                        mainBoard[x][y] = spaces[x][y];
-                    }
-                    // Add walls if any
-                    for (Heading wall : walls[x][y]) {
-                        spaces[x][y].addWall(wall);
-                    }
-                }
-            }
-            this.subBoards.add(startBoard);
-            this.subBoards.add(mainBoard);
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    if (spaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
-                        conveyorBelt.calculateImage(x, y, spaces);
-                    }
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (spaces[x][y] != null) {
+                    Space space = spaces[x][y];
+                    space.setBoard(this);
                 }
             }
         }
@@ -466,7 +345,8 @@ public class Board extends Subject {
                     boardElementsSpaces[4].add(space);
                 } else if (boardElement instanceof BE_EnergySpace) {
                     boardElementsSpaces[5].add(space);
-                } else if (boardElement instanceof BE_Checkpoint) {
+                } else if (boardElement instanceof BE_Checkpoint checkpoint) {
+                    if (checkpoint.number > numberOfCheckPoints) numberOfCheckPoints = checkpoint.number;
                     boardElementsSpaces[6].add(space);
                 }
             }
@@ -581,5 +461,9 @@ public class Board extends Subject {
             }
         }
         return null;
+    }
+
+    public int getNumberOfCheckpoints() {
+        return numberOfCheckPoints;
     }
 }

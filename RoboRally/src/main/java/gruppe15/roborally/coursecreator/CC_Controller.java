@@ -50,6 +50,8 @@ public class CC_Controller extends VBox {
 
     private double zoomSpeed = 0.1;
 
+    private static int canvasSize = 5000;
+
     /**
      * Since subboards can be placed half a step, this makes up 5x5 subboards.
      */
@@ -207,8 +209,8 @@ public class CC_Controller extends VBox {
     }
 
     public static @NotNull GridPane getNewGridPane(Point2D position, Heading direction, CC_SpaceView[][] spaceViews) {
-        double spaceViewWidth = CC_static_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
-        double spaceViewHeight = CC_static_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
+        double spaceViewWidth = canvasSize / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
+        double spaceViewHeight = canvasSize / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
         double subBoardWidth = spaceViewWidth * spaceViews.length;
         double subBoardHeight = spaceViewHeight * spaceViews[0].length;
 
@@ -217,8 +219,8 @@ public class CC_Controller extends VBox {
         subBoardGridPane.setPrefSize(subBoardWidth, subBoardHeight);
 
         Point2D positionInScene = new Point2D(
-                (position.getX() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY * CC_static_boardPane.getWidth()) + (direction == Heading.EAST ? (5 - spaceViews.length) * spaceViewWidth : 0),
-                (position.getY() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY * CC_static_boardPane.getHeight()) + (direction == Heading.SOUTH ? (5 - spaceViews[0].length) * spaceViewHeight : 0)
+                (position.getX() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY * canvasSize) + (direction == Heading.EAST ? (5 - spaceViews.length) * spaceViewWidth : 0),
+                (position.getY() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY * canvasSize) + (direction == Heading.SOUTH ? (5 - spaceViews[0].length) * spaceViewHeight : 0)
         );
 
         subBoardGridPane.setLayoutX(positionInScene.getX());

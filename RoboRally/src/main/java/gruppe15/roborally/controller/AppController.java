@@ -24,6 +24,7 @@ package gruppe15.roborally.controller;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.coursecreator.CC_CourseData;
 import gruppe15.roborally.fileaccess.LoadBoard;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
@@ -33,6 +34,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -58,8 +60,10 @@ public class AppController implements Observer {
         roboRally.createSetupMenu(this);
     }
 
-    public void beginCourse(int mapIndex, String[] playerNames, String[] playerCharacters) {
-        Board board = new Board(13,10, mapIndex);
+    public void beginCourse(CC_CourseData courseData, String[] playerNames, String[] playerCharacters) {
+        Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
+        Board board = new Board(courseSpaces);
+
         gameController = new GameController(board, this);
 
         // Finding spawns

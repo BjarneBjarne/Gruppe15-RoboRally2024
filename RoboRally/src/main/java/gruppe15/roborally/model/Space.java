@@ -40,7 +40,7 @@ import static gruppe15.roborally.model.Heading.*;
  */
 public class Space extends Subject {
 
-    transient public final Board board;
+    transient public Board board;
 
     public final int x;
     public final int y;
@@ -64,6 +64,10 @@ public class Space extends Subject {
 
     public Space(Board board, int x, int y, BoardElement boardElement) {
         this(board, x, y, boardElement, null);
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 
     public void setBackgroundImage(Image backgroundImage) {

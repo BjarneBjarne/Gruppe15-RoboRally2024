@@ -15,21 +15,18 @@ import java.util.LinkedList;
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
 public class BE_Checkpoint extends BoardElement {
-
-    private final int number;
-    private final int total;
+    public final int number;
 
     /**
      * Constructor for the checkpoint
      * @param number the number of the checkpoint
      * @param total the total number of checkpoints on the board
      */
-    public BE_Checkpoint(int number, int total) {
+    public BE_Checkpoint(int number) {
         super(number + ".png");
         if (number < 1 || 6 < number)
             throw new IllegalArgumentException("Invalid checkpoint number: " + number);
         this.number = number;
-        this.total = total;
     }
 
     /**
@@ -48,9 +45,7 @@ public class BE_Checkpoint extends BoardElement {
         if (player.getCheckpoints() == number - 1) {
             player.setCheckpoint(number);
             System.out.println(player.getName() + " has reached checkpoint " + number);
-            if(number == total){
-                gameController.setWinner(player.getName(), player.getCharImage());
-            }
+            gameController.checkpointReached(player, number);
         }
         return true;
     }
