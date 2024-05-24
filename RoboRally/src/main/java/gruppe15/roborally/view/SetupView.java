@@ -2,6 +2,9 @@ package gruppe15.roborally.view;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
+import gruppe15.roborally.coursecreator.CC_CourseData;
+import gruppe15.roborally.coursecreator.CC_JsonUtil;
+import gruppe15.roborally.model.Course;
 import gruppe15.roborally.model.Robots;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.application.Platform;
@@ -11,16 +14,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static gruppe15.roborally.model.utils.GameSettings.*;
 
@@ -28,7 +32,7 @@ import static gruppe15.roborally.model.utils.GameSettings.*;
  * @author Maximillian Bjørn Mortensen
  */
 public class SetupView {
-    private ArrayList<Image> mapGraphics = new ArrayList<>();
+    private ArrayList<CC_CourseData> courses = new ArrayList<>();
     private ArrayList<ComboBox> charSelection = new ArrayList<>();
     private ImageView[] playerRobotImageViews = new ImageView[6];
     private HBox[] playerHBoxes = new HBox[6];
@@ -73,7 +77,7 @@ public class SetupView {
         // Start button
         start.setOnMouseClicked(e -> {
             if(isReady()){
-                appController.beginCourse(mapIndex, playerNames, playerCharacters);
+                appController.beginCourse(courses.get(mapIndex), playerNames, playerCharacters);
             }
         });
     }
@@ -91,24 +95,46 @@ public class SetupView {
      */
     @FXML
     public void initialize() {
-        // Courses
+        // Course
         Platform.runLater(() -> {
-            NO_OF_PLAYERS = 2;
-            int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 17);
-            for(int i = 1; i < 7; i++){
-                mapGraphics.add(ImageUtils.getImageFromName("Courses/Course_" + i + ".png"));
+            for (Course course : Course.values()) {
+                String coursePath = "gruppe15/roborally/courses/" + course.name + ".json";
+                URL resource = SetupView.class.getClassLoader().getResource(coursePath);
+
+                if (resource != null) {
+                    System.out.println("Resource URL: " + resource);
+                    try {
+                        File courseFile = new File(resource.toURI());
+                        System.out.println("Course file path: " + courseFile.getAbsolutePath());
+
+                        if (courseFile.exists()) {
+                            System.out.println("Course file exists: " + courseFile.getAbsolutePath());
+                            CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(courseFile);
+                            courses.add(courseData);
+                            System.out.println("Loaded course data for: " + course.name);
+                        } else {
+                            System.out.println("Course file does not exist: " + courseFile.getAbsolutePath());
+                        }
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("File not found: " + coursePath);
+                }
             }
-            map.setImage(mapGraphics.getFirst());
+
+            int scrollPaneSize = (int)(scrollPaneForMaps.getWidth() - 17);
+            map.setImage(courses.getFirst().getImage());
             VBox coursesVBox = new VBox();
-            for(int i = 0; i < mapGraphics.size(); i++){
+            for(int i = 0; i < courses.size(); i++){
                 Button b = new Button();
-                ImageView courseImageView = new ImageView(mapGraphics.get(i));
+                ImageView courseImageView = new ImageView(courses.get(i).getImage());
                 b.setPrefWidth(scrollPaneSize);
                 b.setPrefHeight(scrollPaneSize);
                 b.setGraphic(courseImageView);
                 int temp = i;
                 b.setOnMouseClicked(e -> {
-                    map.setImage(mapGraphics.get(temp));
+                    map.setImage(courses.get(temp).getImage());
                     mapIndex = temp;
                 });
                 coursesVBox.getChildren().add(b);
@@ -117,6 +143,7 @@ public class SetupView {
         });
 
         // Players
+        NO_OF_PLAYERS = 2;
         playerHBoxes = new HBox[6];
         int playerIndex = 0;
         for (int i = 0; i < 3; i++) {

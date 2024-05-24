@@ -22,7 +22,11 @@ public class CC_SpaceView extends StackPane {
     private ImageView ghostImageView = new ImageView();
 
     public CC_SpaceView() {
-
+        for (int i = 0; i < wallImageViews.length; i++) {
+            wallImageViews[i] = new ImageView();
+            wallImageViews[i].setFitWidth(100);
+            wallImageViews[i].setFitHeight(100);
+        }
     }
 
     public void initialize(double size, boolean isOnStartSubBoard) {
@@ -38,11 +42,7 @@ public class CC_SpaceView extends StackPane {
         backgroundImageView.setFitHeight(size);
         backgroundImageView.setImage(isOnStartSubBoard ? backgroundStartImage : backgroundImage);
 
-        for (int i = 0; i < wallImageViews.length; i++) {
-            wallImageViews[i] = new ImageView();
-            wallImageViews[i].setFitWidth(size);
-            wallImageViews[i].setFitHeight(size);
-        }
+
         boardElementImageView.setFitWidth(size);
         boardElementImageView.setFitHeight(size);
         this.getChildren().addAll(backgroundImageView, boardElementImageView);
