@@ -23,5 +23,5 @@ public class Constants {
     public static double MAX_ZOOM = 10;
 
     // Debug
-    public final static boolean SHOW_DEBUG_COORDINATES = true;
+    public final static boolean SHOW_DEBUG_COORDINATES = false;
 }
