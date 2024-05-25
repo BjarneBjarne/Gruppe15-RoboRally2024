@@ -247,19 +247,32 @@ public class EventHandler {
             System.out.println("old space null for " + player.getName());
             oldSpace = player.getTemporarySpace();
         }
-        int subBoardIndex = gc.board.getSubBoardIndexOfSpace(oldSpace);
-        Space[][] subBoard = gc.board.getSubBoards().get(subBoardIndex);
-        Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(subBoard);
+        Space[][] currentSubBoard = null;
         Space rebootSpace;
-        if (rebootSpaceFinder != null) {
-            rebootSpace = rebootSpaceFinder.getKey();
-            List<Player> playersToPush = new ArrayList<>();
-            boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
-            if (couldPush) {
-                EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
+        try {
+            currentSubBoard = gc.board.getSubBoardOfSpace(oldSpace);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+        if (currentSubBoard != null) {
+            Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(currentSubBoard);
+            if (rebootSpaceFinder != null) {
+                rebootSpace = rebootSpaceFinder.getKey();
+
+                // If player reboots on reboot element, check if player push is needed
+                Player playerOnRebootSpace = rebootSpace.getPlayer();
+                if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
+                    List<Player> playersToPush = new ArrayList<>();
+                    boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+                    if (couldPush) {
+                        EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
+                    } else {
+                        // There is a wall at the end of player chain
+                        System.out.println("ERROR: Can't place player on reboot.");
+                        rebootSpace = player.getSpawnPoint();
+                    }
+                }
             } else {
-                // There is a wall at the end of player chain
-                System.out.println("ERROR: Can't place player on reboot.");
                 rebootSpace = player.getSpawnPoint();
             }
         } else {

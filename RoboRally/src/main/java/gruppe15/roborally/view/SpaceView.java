@@ -35,6 +35,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -60,6 +63,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     private GridPane directionOptionsPane = null;
     private boolean usingPlayerRebootImage = false;
     private Image playerRebootImage;
+    private Text spaceCoords = new Text();
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -108,6 +112,15 @@ public class SpaceView extends StackPane implements ViewObserver {
         playerImageView.setFitWidth(Constants.SPACE_SIZE);
         playerImageView.setFitHeight(SPACE_SIZE);
         this.getChildren().add(playerImageView);
+
+        if (SHOW_DEBUG_COORDINATES) {
+            spaceCoords.setTextAlignment(TextAlignment.CENTER);
+            spaceCoords.setText("Board: (" + space.x + ", " + space.y + ")");
+            spaceCoords.setFill(new Color(.35, .35, .35, .7));
+            spaceCoords.setStyle("-fx-font-size: 20px; ");
+            spaceCoords.setWrappingWidth(Constants.SPACE_SIZE * 0.9);
+            this.getChildren().add(spaceCoords);
+        }
 
         // This space view should listen to changes of the space
         space.attach(this);
@@ -166,6 +179,10 @@ public class SpaceView extends StackPane implements ViewObserver {
             ImageView laserImageView = newLaserImageView(laserOnSpace);
             this.laserImageViews.add(laserImageView);
             this.getChildren().add(laserImageView);
+        }
+
+        if (SHOW_DEBUG_COORDINATES) {
+            this.getChildren().add(spaceCoords);
         }
     }
 

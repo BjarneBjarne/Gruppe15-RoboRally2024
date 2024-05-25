@@ -17,4 +17,6 @@ public class Constants {
         SPACE_SIZE = 120 * 0.75;
         CARDFIELD_SIZE = 225 * 0.75;
     }
+
+    public final static boolean SHOW_DEBUG_COORDINATES = true;
 }

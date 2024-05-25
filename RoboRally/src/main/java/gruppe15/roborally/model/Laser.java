@@ -68,35 +68,37 @@ public class Laser {
         boolean hitSomething = false;
         while (!hitSomething && (x >= 0 && x < boardSpaces.length && y >= 0 && y < boardSpaces[0].length)) {
             Space space = boardSpaces[x][y];
-            spacesHit.add(space);
-            Player playerOnSpace = space.getPlayer();
-            nextSpace = space.getSpaceNextTo(direction, boardSpaces);
-            String laserName = "Laser_";
+            if (space != null) {
+                spacesHit.add(space);
+                Player playerOnSpace = space.getPlayer();
+                nextSpace = space.getSpaceNextTo(direction, boardSpaces);
+                String laserName = "Laser_";
 
-            if (x == origin.x && y == origin.y) {
-                laserName += "Start";
-                if (owner != null) { // If there is an owner, a player shot the laser.
-                    laserName += "Player";
-                } else { // Else, board laser
-                    laserName += "Board";
-                }
-            } else if (playerOnSpace != null) { // Player hit
-                if (playerOnSpace != owner) {
+                if (x == origin.x && y == origin.y) {
+                    laserName += "Start";
+                    if (owner != null) { // If there is an owner, a player shot the laser.
+                        laserName += "Player";
+                    } else { // Else, board laser
+                        laserName += "Board";
+                    }
+                } else if (playerOnSpace != null) { // Player hit
+                    if (playerOnSpace != owner) {
+                        hitSomething = true;
+                        laserName += "PlayerHit";
+                    }
+                } else if (space.getWalls().contains(direction)) { // Wall
                     hitSomething = true;
-                    laserName += "PlayerHit";
+                    laserName += "WallHitUpper";
+                } else if (nextSpace != null && nextSpace.getWalls().contains(direction.opposite())) {
+                    hitSomething = true;
+                    laserName += "Full";
+                    addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.
+                } else {
+                    laserName += "Full";
                 }
-            } else if (space.getWalls().contains(direction)) { // Wall
-                hitSomething = true;
-                laserName += "WallHitUpper";
-            } else if (nextSpace != null && nextSpace.getWalls().contains(direction.opposite())) {
-                hitSomething = true;
-                laserName += "Full";
-                addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.
-            } else {
-                laserName += "Full";
-            }
 
-            addLaserPiece(space, laserName);
+                addLaserPiece(space, laserName);
+            }
 
             // Move to the next space
             x += dx;
