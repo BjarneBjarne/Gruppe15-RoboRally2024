@@ -55,13 +55,13 @@ public class CC_CourseData {
 
     public Pair<List<Space[][]>, Space[][]> getGameSubBoards() {
         // Board variables
-        Point2D[] bounds = getBounds();
-        Point2D topLeft = bounds[0];
-        Point2D bottomRight = bounds[1];
-        //System.out.println("topLeft: " + topLeft + ", bottomRight: " + bottomRight);
+        Pair<Point2D, Point2D> boardBounds = getBoardBounds();
+        Point2D boardTopLeft = boardBounds.getKey();
+        Point2D boardBottomRight = boardBounds.getValue();
+        //System.out.println("boardTopLeft: " + boardTopLeft + ", boardBottomRight: " + boardBottomRight);
 
-        int boardWidth = (int)(bottomRight.getX() - topLeft.getX());
-        int boardHeight = (int)(bottomRight.getY() - topLeft.getY());
+        int boardWidth = (int)(boardBottomRight.getX() - boardTopLeft.getX());
+        int boardHeight = (int)(boardBottomRight.getY() - boardTopLeft.getY());
         List<Space[][]> subBoardList = new ArrayList<>();
         Space[][] boardSpaces = new Space[boardWidth][boardHeight];
         //System.out.println("boardWidth: " + boardWidth + ", boardHeight: " + boardHeight);
@@ -72,13 +72,15 @@ public class CC_CourseData {
             int subBoardWidth = subBoardSpaceViews.length;
             int subBoardHeight = subBoardSpaceViews[0].length;
             Space[][] subBoardSpaces = new Space[subBoardWidth][subBoardHeight];
-            Point2D boardRelativePos = new Point2D(subBoard.getPosition().getX() * 5 - topLeft.getX(), subBoard.getPosition().getY() * 5 - topLeft.getY());
-            /*System.out.println("boardRelativePos: " + boardRelativePos);
-            System.out.println("subBoardWidth: " + subBoardWidth + ", subBoardHeight: " + subBoardHeight);*/
+            Pair<Point2D, Point2D> subBoardBounds = getSubBoardBounds(subBoard);
+            Point2D subBoardTopLeft = subBoardBounds.getKey();
+            Point2D boardRelativePos = subBoardTopLeft.subtract(boardTopLeft);
+            //System.out.println("boardRelativePos: " + boardRelativePos);
+            //System.out.println("subBoardWidth: " + subBoardWidth + ", subBoardHeight: " + subBoardHeight);
 
             for (int subBoardX = 0; subBoardX < subBoardWidth; subBoardX++) {
                 for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
-                    // SubBoard spaces
+                    // Spaces in subboard
                     CC_SpaceView spaceView = subBoardSpaceViews[subBoardX][subBoardY];
                     boolean isOnStartBoard = boardWidth <= 3 || boardHeight <= 3;
                     Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board Pieces/emptyStart.png" : "Board Pieces/empty.png");
@@ -103,6 +105,8 @@ public class CC_CourseData {
                     }
                 }
             }
+
+            subBoardList.add(subBoardSpaces);
         }
 
         // Calculate new conveyorBelt images.
@@ -155,31 +159,64 @@ public class CC_CourseData {
         };
     }
 
-    public Point2D[] getBounds() {
+    private Pair<Point2D, Point2D> getBoardBounds() {
         double minY = Double.MAX_VALUE;
         double minX = Double.MAX_VALUE;
         double maxY = 0;
         double maxX = 0;
+
         for (CC_SubBoard subBoard : subBoards) {
-            Point2D point = subBoard.getPosition();
-            Point2D subBoardMin = new Point2D(point.getX() * 5, point.getY() * 5);
-            Point2D subBoardMax = new Point2D(subBoardMin.getX() + subBoard.getSpaceViews().length, subBoardMin.getY() + subBoard.getSpaceViews()[0].length);
-            if (subBoardMin.getY() < minY) {
-                minY = subBoardMin.getY();
+            Pair<Point2D, Point2D> subBoardBounds = getSubBoardBounds(subBoard);
+            Point2D subBoardTopLeft = subBoardBounds.getKey();
+            Point2D subBoardBottomRight = subBoardBounds.getValue();
+
+            //Point2D subBoardBottomRight = new Point2D(subBoardTopLeft.getX() + subBoard.getSpaceViews().length, subBoardTopLeft.getY() + subBoard.getSpaceViews()[0].length);
+            if (subBoardTopLeft.getY() < minY) {
+                minY = subBoardTopLeft.getY();
             }
-            if (subBoardMax.getY() > maxY) {
-                maxY = subBoardMax.getY();
+            if (subBoardBottomRight.getY() > maxY) {
+                maxY = subBoardBottomRight.getY();
             }
-            if (subBoardMin.getX() < minX) {
-                minX = subBoardMin.getX();
+            if (subBoardTopLeft.getX() < minX) {
+                minX = subBoardTopLeft.getX();
             }
-            if (subBoardMax.getX() > maxX) {
-                maxX = subBoardMax.getX();
+            if (subBoardBottomRight.getX() > maxX) {
+                maxX = subBoardBottomRight.getX();
             }
         }
 
-        Point2D min = new Point2D(minX, minY);
-        Point2D max = new Point2D(maxX, maxY);
-        return new Point2D[] { min, max };
+        Point2D topLeft = new Point2D(minX, minY);
+        Point2D bottomRight = new Point2D(maxX, maxY);
+        return new Pair<>(topLeft, bottomRight);
+    }
+
+    private Pair<Point2D, Point2D> getSubBoardBounds(CC_SubBoard subBoard) {
+        Point2D point = subBoard.getPosition();
+        Point2D subBoardMin = new Point2D(point.getX() * 5, point.getY() * 5);
+        Point2D subBoardMax = new Point2D(point.getX() * 5, point.getY() * 5);
+        if (!subBoard.isStartSubBoard()) {
+            // Square subboard
+            subBoardMax = new Point2D(subBoardMax.getX() + 10, subBoardMax.getY() + 10);
+        } else {
+            // Start subboard
+            //System.out.println("*** FOUND START SUBBOARD ***: Direction: " + subBoard.getDirection());
+            switch (subBoard.getDirection()) {
+                case NORTH -> {
+                    subBoardMax = new Point2D(subBoardMax.getX() + 10, subBoardMax.getY() + 3);
+                }
+                case EAST -> {
+                    subBoardMin = new Point2D(subBoardMin.getX() + 2, subBoardMin.getY());
+                    subBoardMax = new Point2D(subBoardMax.getX() + 5, subBoardMax.getY() + 10);
+                }
+                case SOUTH -> {
+                    subBoardMin = new Point2D(subBoardMin.getX(), subBoardMin.getY() + 2);
+                    subBoardMax = new Point2D(subBoardMax.getX() + 10, subBoardMax.getY() + 5);
+                }
+                case WEST -> {
+                    subBoardMax = new Point2D(subBoardMax.getX() + 3, subBoardMax.getY() + 10);
+                }
+            }
+        }
+        return new Pair<>(subBoardMin, subBoardMax);
     }
 }

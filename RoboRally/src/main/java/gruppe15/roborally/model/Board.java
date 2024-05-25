@@ -22,24 +22,15 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.coursecreator.CC_SubBoard;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.events.PhaseChangeListener;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
-import gruppe15.roborally.model.utils.ImageUtils;
-import javafx.application.Platform;
-import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static gruppe15.roborally.model.Heading.*;
-import static gruppe15.roborally.model.Heading.WEST;
 import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 /**
@@ -437,30 +428,36 @@ public class Board extends Subject {
     public List<Space[][]> getSubBoards() {
         return this.subBoards;
     }
-    public int getSubBoardIndexOfSpace(Space space) {
-        for (int i = 0; i < this.subBoards.size(); i++) {
-            for (Space[] subBoardColumn : this.subBoards.get(i)) {
+
+    public Space[][] getSubBoardOfSpace(Space space) throws RuntimeException {
+        System.out.println("Looking for subboard");
+        System.out.println("Playerspace: " + space.x + ", " + space.y);
+        for (Space[][] subBoard : subBoards) {
+            for (Space[] subBoardColumn : subBoard) {
                 for (Space subBoardSpace : subBoardColumn) {
-                    if (subBoardSpace == space && subBoardSpace != null) {
-                        return i;
+                    if (subBoardSpace != null) {
+                        if (subBoardSpace == space) {
+                            System.out.println("Found subboard with index: " + subBoards.indexOf(subBoard));
+                            return subBoard;
+                        }
                     }
                 }
             }
         }
-        System.out.println("ERROR: Can't find space in sub boards.");
-        return -1;
+        throw new RuntimeException("Can't find space in sub boards.");
     }
-    public Pair<Space, BE_Reboot> findRebootInSubBoard(Space[][] subBoardSpaces) {
-        for (Space[] subBoardColumn : subBoardSpaces) {
+    public Pair<Space, BE_Reboot> findRebootInSubBoard(Space[][] subBoard) {
+        for (Space[] subBoardColumn : subBoard) {
             for (Space subBoardSpace : subBoardColumn) {
                 if (subBoardSpace == null) continue;
+                // Since there can be both reboot element and spawnpoint on the same subboard, we first check for reboot
                 if (subBoardSpace.getBoardElement() instanceof BE_Reboot reboot) {
                     return new Pair<>(subBoardSpace, reboot);
-                } else if (subBoardSpace.getBoardElement() instanceof BE_SpawnPoint) {
-                    return null;
                 }
             }
         }
+
+        // If no reboot element on subboard, return null and let the player reboot on their spawnpoint
         return null;
     }
 

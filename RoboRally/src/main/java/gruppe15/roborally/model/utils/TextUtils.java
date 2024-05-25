@@ -26,15 +26,14 @@ public class TextUtils {
         }
     }
 
-    public static TextFlow createStyledText(String text, Font font) {
+    public static Text createStyledText(String text, Font font) {
         Text styledText = new Text(text);
         styledText.setFont(font);
         styledText.setFill(Color.WHITE);
         styledText.setStroke(Color.BLACK);
         styledText.setStrokeWidth(2);
         styledText.setStrokeType(StrokeType.OUTSIDE);
-        styledText.setTextAlignment(TextAlignment.LEFT);
 
-        return new TextFlow(styledText);
+        return styledText;
     }
 }

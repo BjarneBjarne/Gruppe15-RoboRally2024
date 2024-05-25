@@ -146,6 +146,7 @@ public class BE_ConveyorBelt extends BoardElement {
         for (int x = 0; x < boardSpaces.length; x++) {
             for (int y = 0; y < boardSpaces[x].length; y++) {
                 Space originalSpace = boardSpaces[x][y];
+                if (originalSpace == null) continue;
                 SimulatedSpace simulatedSpace = new SimulatedSpace(x, y);
                 simulatedSpaces[x][y] = simulatedSpace;
                 if (originalSpace.getBoardElement() instanceof BE_ConveyorBelt belt && belt.strength == this.strength) {
