@@ -2,6 +2,7 @@ package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
+import gruppe15.roborally.view.ZoomableScrollPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -30,11 +30,7 @@ import java.util.List;
 
 import static gruppe15.roborally.model.utils.ImageUtils.*;
 
-public class CC_Controller extends VBox {
-    @FXML
-    ScrollPane CC_boardScrollPane;
-    @FXML
-    AnchorPane CC_boardPane; // Course creator board pane
+public class CC_Controller extends BorderPane {
     static AnchorPane CC_static_boardPane;
     @FXML
     HBox CC_elementButtonsHBox;
@@ -42,10 +38,12 @@ public class CC_Controller extends VBox {
     MenuItem CC_saveCourse;
     @FXML
     MenuItem CC_loadCourse;
+    @FXML
+    Pane CC_boardView;
+    ZoomableScrollPane zoomableScrollPane;
+    AnchorPane CC_boardPane;
 
     private Scene primaryScene;
-
-    private double zoomSpeed = 0.1;
 
     private static int canvasSize = 5000;
 
@@ -73,24 +71,34 @@ public class CC_Controller extends VBox {
 
     @FXML
     public void initialize() {
+        CC_boardPane = new AnchorPane();
+        CC_static_boardPane = CC_boardPane;
+
+        zoomableScrollPane = new ZoomableScrollPane(CC_boardPane);
+
+        CC_boardView.getChildren().add(zoomableScrollPane);
+
+
+        CC_boardView.setStyle("-fx-border-width: 20; -fx-border-color: red");
+        zoomableScrollPane.setStyle("-fx-border-width: 20; -fx-border-color: blue");
+        CC_boardPane.setStyle("-fx-border-width: 20; -fx-border-color: BLACK");
+
+        CC_boardPane.setOnMouseMoved(spaceEventHandler);
+        CC_boardPane.setOnMouseClicked(spaceEventHandler);
         Platform.runLater(() -> {
-            CC_static_boardPane = CC_boardPane;
             drawSubBoardPositionLines();
-            CC_boardPane.setPrefSize(5000, 5000);
-            CC_boardScrollPane.setBackground(new Background(new BackgroundFill(
-                    Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-            CC_boardPane.setBackground(new Background(new BackgroundFill(
-                    Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-            CC_boardScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-            CC_boardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-            CC_boardScrollPane.setVvalue(0.5);
-            CC_boardScrollPane.setHvalue(0.5);
-
-            CC_boardPane.setStyle("-fx-border-width: 20; -fx-border-color: BLACK");
-
-            CC_boardPane.setOnMouseMoved(spaceEventHandler);
-            CC_boardPane.setOnMouseClicked(spaceEventHandler);
             registerKeyEventHandlers();
+
+            Platform.runLater(() -> {
+                CC_boardPane.setMinSize(canvasSize, canvasSize);
+                CC_boardPane.setPrefSize(canvasSize, canvasSize);
+                CC_boardPane.setMaxSize(canvasSize, canvasSize);
+
+                StackPane.setAlignment(CC_boardPane, Pos.CENTER);
+
+                zoomableScrollPane.setVvalue(0.5);
+                zoomableScrollPane.setHvalue(0.5);
+            });
 
             for (int i = 0; i < CC_Items.values().length; i++) {
                 CC_Items item = CC_Items.values()[i];
@@ -120,17 +128,6 @@ public class CC_Controller extends VBox {
                 });
             }
         });
-    }
-
-    public void zoom(ScrollEvent event) {
-        double scaleFactor = (event.getDeltaY() > 0) ? 1 + zoomSpeed : 1 - zoomSpeed;
-        CC_boardPane.setScaleX(CC_boardPane.getScaleX() * scaleFactor);
-        CC_boardPane.setScaleY(CC_boardPane.getScaleY() * scaleFactor);
-        if (CC_boardPane.getScaleX() <= 0.2) {
-            CC_boardPane.setScaleX(0.2);
-            CC_boardPane.setScaleY(0.2);
-        }
-        event.consume();
     }
 
     public void keyPressed(KeyEvent keyEvent) {

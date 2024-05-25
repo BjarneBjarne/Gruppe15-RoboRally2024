@@ -68,12 +68,12 @@ public class BoardView extends VBox implements ViewObserver {
     private Button finishUpgradingButton;
     private CardFieldView[] upgradeShopCardViews;
 
-    private SpaceEventHandler spaceEventHandler;
+    private final SpaceEventHandler spaceEventHandler;
     private final GameController gameController;
     private final GridPane directionOptionsPane;
 
-    private ScrollPane scrollPane;
-    private StackPane scrollableView = new StackPane();
+    private ZoomableScrollPane zoomableScrollPane;
+    private StackPane interactablePane = new StackPane();
 
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         this.gameController = gameController;
@@ -103,35 +103,37 @@ public class BoardView extends VBox implements ViewObserver {
         boardTilesPane.setAlignment(Pos.CENTER);
         playersView = new PlayersView(gameController);
         StackPane playersViewStackPane = new StackPane(playersView);
-        statusLabel = new Label("<no status>");
+
         AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
-        scrollableView = new StackPane(boardTilesPane, anchorPane);
+        interactablePane = new StackPane(boardTilesPane, anchorPane);
+        StackPane.setAlignment(boardTilesPane, Pos.CENTER);
         StackPane.setAlignment(anchorPane, Pos.CENTER);
-        scrollPane = new ScrollPane(scrollableView);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-        mainBoardPane = new StackPane(scrollPane);
+        zoomableScrollPane = new ZoomableScrollPane(interactablePane);
+        zoomableScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        zoomableScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        mainBoardPane = new StackPane(zoomableScrollPane);
         mainBoardPane.setAlignment(Pos.CENTER);
-
-        scrollableView.getStyleClass().add("transparent-scroll-pane");
-        scrollPane.getStyleClass().add("transparent-scroll-pane");
+        interactablePane.getStyleClass().add("transparent-scroll-pane");
+        zoomableScrollPane.getStyleClass().add("transparent-scroll-pane");
         mainBoardPane.getStyleClass().add("transparent-scroll-pane");
-        scrollableView.setBackground(new Background(new BackgroundFill(
+        interactablePane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        scrollPane.setBackground(new Background(new BackgroundFill(
+        zoomableScrollPane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         mainBoardPane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        scrollableView.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        interactablePane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        zoomableScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-
         Platform.runLater(() -> {
-            scrollableView.setPrefSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 1000);
+            interactablePane.setMinSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 1000);
+            interactablePane.setPrefSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 1000);
             mainBoardPane.setPrefHeight(895);
-            scrollPane.setPannable(true);
+            zoomableScrollPane.setPannable(true);
+            centerBoard();
         });
+
+        statusLabel = new Label("<no status>");
 
         playersViewStackPane.setAlignment(Pos.CENTER);
         this.getChildren().add(statusLabel);
@@ -316,8 +318,8 @@ public class BoardView extends VBox implements ViewObserver {
 
     public void centerBoard() {
         Platform.runLater(() -> {
-            scrollPane.setVvalue(0.5);
-            scrollPane.setHvalue(0.5);
+            zoomableScrollPane.setVvalue(0.5);
+            zoomableScrollPane.setHvalue(0.5);
         });
     }
 
