@@ -115,7 +115,7 @@ public class SpaceView extends StackPane implements ViewObserver {
 
         if (SHOW_DEBUG_COORDINATES) {
             spaceCoords.setTextAlignment(TextAlignment.CENTER);
-            spaceCoords.setText("Board: (" + space.x + ", " + space.y + ")");
+            spaceCoords.setText("(" + space.x + ", " + space.y + ")");
             spaceCoords.setFill(new Color(.35, .35, .35, .7));
             spaceCoords.setStyle("-fx-font-size: 20px; ");
             spaceCoords.setWrappingWidth(Constants.SPACE_SIZE * 0.9);
