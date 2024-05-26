@@ -474,7 +474,8 @@ public class GameController {
             Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
             if (nextPlayer.getSpawnPoint() != null) {
-                startUpgradingPhase();
+                //startUpgradingPhase();
+                beginGame();
             }
         } else if (board.getPhase() == REBOOTING) {
             Player player = playersRebooting.poll();
