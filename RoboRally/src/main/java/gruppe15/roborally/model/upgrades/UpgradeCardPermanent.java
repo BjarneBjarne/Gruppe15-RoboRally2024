@@ -11,6 +11,9 @@ import java.util.List;
 public abstract class UpgradeCardPermanent extends UpgradeCard {
     protected final List<EventListener> eventListeners = new ArrayList<>();
 
+    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, boolean hasActivateButton) {
+        super(title, purchaseCost, useCost, maxUses, refreshedOn, hasActivateButton);
+    }
     public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
         super(title, purchaseCost, useCost, maxUses, refreshedOn);
     }

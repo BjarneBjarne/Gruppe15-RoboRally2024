@@ -13,13 +13,18 @@ public abstract class UpgradeCard extends Card {
     protected int useCost;
     private int maxUses;
     protected Phase refreshedOn;
+    private boolean hasActivateButton;
     protected Player owner;
     public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
+        this(title, purchaseCost, useCost, maxUses, refreshedOn, false);
+    }
+    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, boolean hasActivateButton) {
         this.title = title;
         this.purchaseCost = purchaseCost;
         this.useCost = useCost;
         this.maxUses = maxUses;
         this.refreshedOn = refreshedOn;
+        this.hasActivateButton = hasActivateButton;
     }
 
     private boolean enabled = false;
@@ -88,5 +93,9 @@ public abstract class UpgradeCard extends Card {
 
     public int getPurchaseCost() {
         return purchaseCost;
+    }
+
+    public boolean getHasActivateButton() {
+        return hasActivateButton;
     }
 }

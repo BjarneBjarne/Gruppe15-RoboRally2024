@@ -142,8 +142,8 @@ public class RoboRally extends Application {
         } else {
             stage.setResizable(false);
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
-            double initialWidth = primaryScreenBounds.getWidth() * 0.75;
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
+            double initialWidth = initialHeight * (16.0 / 9.0);
             primaryScene = new Scene(stackPane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
             primaryScene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());

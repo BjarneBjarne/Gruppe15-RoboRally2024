@@ -31,6 +31,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -65,14 +66,26 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     private final GameController gameController;
 
-    private final ImageView grafics;
+    private final StackPane cardPane;
+    private final ImageView graphicsImageView = new ImageView();
+    private final Button useButton = new Button();
 
     public CardFieldView(@NotNull GameController gameController, @NotNull CardField field, double cardWidthMultiplier, double cardHeightMultiplier) {
-        grafics = new ImageView();
-        grafics.setMouseTransparent(true);
-        grafics.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
-        grafics.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
-        this.getChildren().add(grafics);
+        graphicsImageView.setMouseTransparent(true);
+        graphicsImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
+        graphicsImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
+
+        useButton.setText("Use");
+        useButton.setOnAction(event -> {
+            field.activateCard();
+        });
+        useButton.setDisable(true);
+        useButton.setVisible(false);
+        StackPane.setAlignment(useButton, Pos.BOTTOM_RIGHT);
+
+        cardPane = new StackPane(graphicsImageView, useButton);
+        cardPane.setPrefSize(graphicsImageView.getFitWidth(), graphicsImageView.getFitHeight());
+        this.getChildren().add(cardPane);
 
         this.gameController = gameController;
         this.field = field;
@@ -215,6 +228,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
         if (subject == field && subject != null) {
             Card card = field.getCard();
             if (card != null && field.isVisible()) {
+                useButton.setDisable(!field.getHasActivateButton());
+                useButton.setVisible(field.getHasActivateButton());
                 String cardName = card.getName();
                 String cardImageName = "Card_Error.png";
                 if (card instanceof CommandCard) {
@@ -224,13 +239,13 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 }
                 Image cardImage = ImageUtils.getImageFromName(cardImageName);
                 if (cardImage != null) {
-                    grafics.setImage(cardImage);
+                    graphicsImageView.setImage(cardImage);
                 } else{
                     label.setText(card.getName());
                 }
             } else {
                 label.setText("");
-                grafics.setImage(null);
+                graphicsImageView.setImage(null);
             }
         }
     }
