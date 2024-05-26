@@ -18,7 +18,7 @@ public class ActionWithDelay {
 
     public Runnable getAction(boolean displayActionName) {
         if (!actionName.isEmpty() && displayActionName) {
-            System.out.println("Executing action: \"" + actionName + "\"");
+            System.out.println("Executing action: \"" + actionName + "\".");
         }
         return action;
     }

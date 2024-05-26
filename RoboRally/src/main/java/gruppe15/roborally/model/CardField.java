@@ -22,7 +22,7 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
 
 import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 
@@ -118,7 +118,22 @@ public class CardField extends Subject {
         return false;
     }
 
-    public void activateCard() {
+    public boolean getCanBeActivated() {
+        if (card == null) {
+            return false;
+        }
+        if (card instanceof UpgradeCard upgradeCard) {
+            return upgradeCard.canBeActivated();
+        }
+        return false;
+    }
 
+    public void activateCard() {
+        if (card == null) {
+            return;
+        }
+        if (card instanceof UpgradeCard upgradeCard) {
+            upgradeCard.tryActivate();
+        }
     }
 }

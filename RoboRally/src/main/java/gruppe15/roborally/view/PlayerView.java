@@ -132,6 +132,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 );
                 GridPane.setMargin(cardFieldView, new Insets(2, 2, 2, 2));
                 cardsPane.add(cardViews[i], i % (Player.NO_OF_CARDS / 2), i / (Player.NO_OF_CARDS / 2));
+                player.board.attach(cardFieldView);
             }
         }
         cardsPane.setAlignment(Pos.CENTER);
@@ -150,6 +151,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 //GridPane.setHalignment(cardFieldView, HPos.CENTER);
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
                 programPane.add(cardFieldView, i, 0);
+                player.board.attach(cardFieldView);
             }
         }
         programPane.setAlignment(Pos.BOTTOM_CENTER);
@@ -171,6 +173,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 //GridPane.setHalignment(cardFieldView, HPos.CENTER);
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
                 permanentUpgradeCardsPane.add(cardFieldView, i, 0);
+                player.board.attach(cardFieldView);
             }
         }
         permanentUpgradeCardsPane.setAlignment(Pos.CENTER);
@@ -192,6 +195,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 //GridPane.setHalignment(cardFieldView, HPos.CENTER);
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
                 temporaryUpgradeCardsPane.add(cardFieldView, i, 0);
+                player.board.attach(cardFieldView);
             }
         }
         temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);

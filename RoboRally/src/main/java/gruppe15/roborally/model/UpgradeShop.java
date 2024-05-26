@@ -2,8 +2,8 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
-import gruppe15.roborally.model.upgrades.UpgradeCards;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCards;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;

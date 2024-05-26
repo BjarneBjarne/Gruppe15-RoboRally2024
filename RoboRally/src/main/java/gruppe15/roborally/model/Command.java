@@ -34,7 +34,7 @@ import java.util.List;
  *
  */
 public enum Command {
-    // This is a very simplistic way of realizing different commands.
+    // Normal programming cards
     MOVE_0("Move 0"), // Do nothing
     MOVE_1("Move 1"),
     MOVE_2("Move 2"),
@@ -46,12 +46,21 @@ public enum Command {
     AGAIN("Again"),
     POWER_UP("Power Up"),
 
-    // Special commands
-    OPTION_LEFT_RIGHT("Left OR Right", LEFT_TURN, RIGHT_TURN),
-    //UPGRADE("Upgrade"),
+    // Utility commands for UpgradeCards
+    MOVE_RIGHT("Move Right"),
+    MOVE_LEFT("Move Left"),
+
+    // Special programming cards
+    ENERGY_ROUTINE("Energy Routine"),
+    SANDBOX_ROUTINE("Sandbox Routine", MOVE_1, MOVE_2, MOVE_3, MOVE_BACK, LEFT_TURN, RIGHT_TURN, U_TURN),
+    WEASEL_ROUTINE("Weasel Routine", LEFT_TURN, RIGHT_TURN, U_TURN),
+    SPEED_ROUTINE("Speed Routine"),
+    SPAM_FOLDER("Spam Folder"),
+    REPEAT_ROUTINE("Repeat Routine"),
 
     // UpgradeCards commands
     BRAKES("Brakes", MOVE_0, MOVE_1),
+    CRAB_LEGS("Brakes", MOVE_LEFT, MOVE_RIGHT),
 
     // Damage commands
     SPAM(DamageTypes.SPAM.displayName),

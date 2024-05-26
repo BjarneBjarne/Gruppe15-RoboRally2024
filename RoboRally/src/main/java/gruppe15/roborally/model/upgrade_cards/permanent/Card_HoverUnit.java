@@ -1,9 +1,10 @@
-package gruppe15.roborally.model.upgrades.upgrade_cards;
+package gruppe15.roborally.model.upgrade_cards.permanent;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_Hole;
 import gruppe15.roborally.model.events.PlayerMoveListener;
-import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 import javafx.util.Pair;
 
 public class Card_HoverUnit extends UpgradeCardPermanent {
@@ -13,8 +14,8 @@ public class Card_HoverUnit extends UpgradeCardPermanent {
     }
 
     @Override
-    public void initialize(Board board, Player owner) {
-        super.initialize(board, owner);
+    public void initialize(Player owner, GameController gameController) {
+        super.initialize(owner, gameController);
         // Defining effects on events
         // OnDamageDealt
         eventListeners.add(EventHandler.subscribe((PlayerMoveListener) (space, shouldReboot) -> {
@@ -22,7 +23,7 @@ public class Card_HoverUnit extends UpgradeCardPermanent {
                 if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
                     Velocity playerVel = owner.getVelocity();
                     if ((Math.abs(playerVel.forward) + Math.abs(playerVel.right)) > 0) {
-                        System.out.println("Player \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                        System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
                         shouldReboot = false;
                     }
                 }

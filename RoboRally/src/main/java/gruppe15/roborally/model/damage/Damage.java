@@ -19,6 +19,7 @@ public class Damage {
     }
 
     public void setAmount(DamageTypes damageType, int newAmount) {
+        if (newAmount < 0) newAmount = 0;
         for (DamageTypeAmount dt : damageTypeAmountList) {
             if (dt.type == damageType) {
                 dt.setAmount(newAmount);

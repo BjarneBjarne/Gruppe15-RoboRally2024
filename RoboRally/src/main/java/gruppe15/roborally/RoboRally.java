@@ -45,6 +45,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -73,9 +74,13 @@ public class RoboRally extends Application {
     private CC_Controller courseCreator;
 
     @FXML
-    public HBox upgradeShopCardsHBox;
+    StackPane upgradeShopTitelPane;
     @FXML
-    public Button finishUpgradingButton;
+    StackPane upgradeShopMainPane;
+    @FXML
+    HBox upgradeShopCardsHBox;
+    @FXML
+    Button finishUpgradingButton;
 
     // private RoboRallyMenuBar menuBar;
     // private AppController appController;
@@ -351,7 +356,7 @@ public class RoboRally extends Application {
                     System.out.println(e.getMessage());
                 }
                 boardView = new BoardView(gameController, directionOptionsPane);
-                boardView.setUpgradeShopFXML(upgradeShopPane, upgradeShopCardsHBox, finishUpgradingButton);
+                boardView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
             } else {
                 boardView = new BoardView(gameController);
             }

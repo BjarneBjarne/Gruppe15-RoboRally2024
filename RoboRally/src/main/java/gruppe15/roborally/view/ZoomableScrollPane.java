@@ -25,6 +25,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
 import static gruppe15.roborally.model.utils.Constants.*;
@@ -40,7 +41,7 @@ public class ZoomableScrollPane extends ScrollPane {
         this.zoomNode = new Group(target);
         setContent(outerNode(zoomNode));
 
-        setPannable(true);
+        setPannable(false);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         setFitToHeight(true); //center
@@ -51,7 +52,7 @@ public class ZoomableScrollPane extends ScrollPane {
 
     private Node outerNode(Node node) {
         Node outerNode = centeredNode(node);
-        outerNode.setOnScroll(event -> {
+        outerNode.addEventFilter(ScrollEvent.SCROLL, event -> {
             if (event.isControlDown()) {
                 event.consume();
                 onScroll(event.getTextDeltaY(), new Point2D(event.getX(), event.getY()));

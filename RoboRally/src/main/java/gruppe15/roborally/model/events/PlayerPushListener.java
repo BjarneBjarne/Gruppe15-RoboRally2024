@@ -10,5 +10,5 @@ public interface PlayerPushListener extends EventListener {
      *
      * @return
      */
-    void onPush(Player playerToPush);
+    void onPush(Player playerPushing, Player playerToPush);
 }
