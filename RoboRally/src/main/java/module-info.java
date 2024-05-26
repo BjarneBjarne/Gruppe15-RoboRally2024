@@ -7,6 +7,7 @@ module gruppe15.roborally {
     requires javafx.swing;
     requires javafx.graphics;
     requires com.google.common;
+    requires org.checkerframework.checker.qual;
 
     exports gruppe15.roborally;
     exports gruppe15.roborally.view;

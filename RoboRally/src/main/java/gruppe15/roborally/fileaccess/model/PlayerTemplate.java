@@ -1,7 +1,5 @@
 package gruppe15.roborally.fileaccess.model;
 
-import static gruppe15.roborally.model.Heading.SOUTH;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -11,7 +9,7 @@ import gruppe15.roborally.model.CommandCard;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Robots;
 import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
 
 public class PlayerTemplate {
     public String name;

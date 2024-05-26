@@ -22,16 +22,19 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.exceptions.IllegalPlayerPropertyAccess;
-import gruppe15.roborally.model.upgrades.*;
+import gruppe15.roborally.model.upgrade_cards.*;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
+import static gruppe15.roborally.model.Phase.PLAYER_INTERACTION;
 import static gruppe15.roborally.model.utils.GameSettings.KEEP_HAND;
 
 /**
@@ -305,14 +308,14 @@ public class Player extends Subject {
         energyCubes++;
     }
 
-    public boolean attemptUpgradeCardPurchase(CardField shopField) {
+    public boolean attemptUpgradeCardPurchase(CardField shopField, GameController gameController) {
         UpgradeCard boughtCard = null;
         try {
             for (UpgradeCard ownedCards : upgradeCards) // First, check if player already has this card
                 if (ownedCards.getClass().isAssignableFrom(shopField.getCard().getClass())) return false;
             boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(shopField, this);
             if (boughtCard != null) {
-                addUpgradeCard(boughtCard);
+                addUpgradeCard(boughtCard, gameController);
             }
             board.updateBoard();
         } catch (Exception e) {
@@ -323,11 +326,11 @@ public class Player extends Subject {
 
         return boughtCard != null;
     }
-    public void addUpgradeCard(UpgradeCard upgradeCard) {
+    public void addUpgradeCard(UpgradeCard upgradeCard, GameController gameController) {
         try {
             System.out.println("Player: \"" + name + "\" bought: \"" + upgradeCard.getName() + "\".");
             upgradeCards.add(upgradeCard);
-            upgradeCard.initialize(board, this);
+            upgradeCard.initialize(this, gameController);
         } catch (NullPointerException e) {
             System.out.println("ERROR - Attempted to add upgradeCard of value NULL to player: \"" + name + "\".");
             System.out.println(e.getMessage());
@@ -456,20 +459,26 @@ public class Player extends Subject {
      * @author Maximillian Bjørn Mortensen
      */
     public void discardAll() {
+        discardProgram();
+        discardHand();
+    }
+
+    public void discardProgram() {
         for (CardField c: programFields) {
             if (c.getCard() != null) {
                 if(c.getCard() instanceof CommandCard commandCard && !commandCard.getCommand().isDamage()){
-                    discard((CommandCard) c.getCard()); // Discard used command cards
+                    discard(commandCard); // Discard used command cards
                 }
                 c.setCard(null);
             }
         }
-        if (!KEEP_HAND) {
-            for (CardField c: cardFields) {
-                if(c.getCard() != null) {
-                    discard((CommandCard) c.getCard());
-                    c.setCard(null);
-                }
+    }
+
+    public void discardHand() {
+        for (CardField c: cardFields) {
+            if(c.getCard() instanceof CommandCard commandCard) {
+                discard(commandCard);
+                c.setCard(null);
             }
         }
     }
@@ -491,5 +500,189 @@ public class Player extends Subject {
     }
     public void setCurrentOptions(List<Command> currentOptions) {
         this.currentOptions = currentOptions;
+    }
+
+    public void queueCommand(Command command, GameController gameController) {
+        queueCommand(command, true, gameController);
+    }
+
+    /**
+     * sets the players action from the command
+     * @param command
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {
+        if (command == null) return;
+
+        // Call the event handler, and let it modify the command
+        if (notifyUpgradeCards) {
+            command = EventHandler.event_RegisterActivate(this, command);
+        }
+
+        switch (command) {
+            case MOVE_1:
+                setVelocity(new Velocity(1, 0));
+                startMovement(gameController);
+                break;
+            case MOVE_2:
+                setVelocity(new Velocity(2, 0));
+                startMovement(gameController);
+                break;
+            case MOVE_3:
+                setVelocity(new Velocity(3, 0));
+                startMovement(gameController);
+                break;
+            case RIGHT_TURN:
+                turn(1);
+                break;
+            case LEFT_TURN:
+                turn(-1);
+                break;
+            case U_TURN:
+                turn(2);
+                break;
+            case MOVE_BACK:
+                setVelocity(new Velocity(-1, 0));
+                startMovement(gameController);
+                break;
+            case AGAIN:
+                queueCommand(getLastCmd(), gameController);
+                break;
+            case POWER_UP:
+                addEnergyCube();
+                break;
+
+            // Damage
+            case SPAM:
+                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                    CommandCard topCard = drawFromDeck();
+                    queueCommand(topCard.getCommand(), gameController);
+                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                break;
+            case TROJAN_HORSE:
+                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                    for (int i = 0; i < 2; i++) {
+                        discard(new CommandCard(Command.SPAM));
+                    }
+                    CommandCard topCard = drawFromDeck();
+                    queueCommand(topCard.getCommand(), gameController);
+                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                break;
+            case WORM:
+                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                    EventHandler.event_PlayerReboot(this, false, gameController);
+                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                break;
+            case VIRUS:
+                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                    for (Player foundPlayer : board.getPlayers()) {
+                        if (space.getDistanceFromOtherSpace(foundPlayer.space) <= 6) {
+                            foundPlayer.discard(new CommandCard(Command.VIRUS));
+                            foundPlayer.discard(new CommandCard(Command.SPAM));
+                        }
+                    }
+                    CommandCard topCard = drawFromDeck();
+                    queueCommand(topCard.getCommand(), gameController);
+                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                break;
+
+            // Special programming cards
+            case ENERGY_ROUTINE:
+                addEnergyCube();
+                break;
+            case SPEED_ROUTINE:
+                setVelocity(new Velocity(3, 0));
+                startMovement(gameController);
+                break;
+            case SPAM_FOLDER:
+                boolean inDiscardDeck = false;
+                for (CommandCard card : programmingDeck) {
+                    if (inDiscardDeck) {
+                        if (card.command == Command.SPAM) {
+                            programmingDeck.remove(card);
+                        }
+                    }
+                    if (card == null) inDiscardDeck = true;
+                }
+                break;
+            case REPEAT_ROUTINE:
+                queueCommand(getLastCmd(), gameController);
+                break;
+
+            // Options
+            default:
+                if (command.isInteractive()) {
+                    board.setPhase(PLAYER_INTERACTION);
+                    setCurrentOptions(command.getOptions());
+                    board.updateBoard();
+                } else {
+                    System.out.println("Can't find command: " + command.displayName);
+                }
+                break;
+        }
+
+        Set<Command> commandsToNotRepeat = Set.of(
+                Command.AGAIN,
+                Command.SPAM,
+                Command.TROJAN_HORSE,
+                Command.WORM,
+                Command.VIRUS
+        );
+        if (!commandsToNotRepeat.contains(command) && !notifyUpgradeCards) {
+            setLastCmd(command);
+        }
+
+        // The current move counter is set to the "old movecounter" + "1"
+        board.setMoveCounter(board.getMoveCounter() + 1); // Increase the move counter by one
+    }
+
+    /**
+     * Moves the player based on heading and velocity
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void startMovement(GameController gameController) {
+        // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
+
+        // For each forward movement
+        for (int i = 0; i < Math.abs(velocity.forward); i++) {
+            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                Heading direction = (velocity.forward > 0) ? heading : heading.opposite();
+                // Decrement
+                velocity.forward -= (velocity.forward > 0) ? 1 : -1;
+                if (!getIsRebooting()) {
+                    board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
+                }
+            }, Duration.millis(150), "Player movement: " + getName()));
+        }
+
+        // For each sideways movement
+        for (int i = 0; i < Math.abs(velocity.right); i++) {
+            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                Heading direction = (velocity.right > 0) ? heading.next() : heading.prev();
+                // Decrement
+                velocity.right -= (velocity.right > 0) ? 1 : -1;
+                if (!getIsRebooting()) {
+                    board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
+                }
+            }, Duration.millis(150), "Player movement: " + getName()));
+        }
+    }
+
+    /**
+     * sets heading for player based on paramater
+     * @param quarterRotationClockwise
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void turn(int quarterRotationClockwise) {
+        boolean rotateClockwise = quarterRotationClockwise > 0;
+        for (int i = 0; i < Math.abs(quarterRotationClockwise); i++) {
+            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                Heading prevOrientation = heading;
+                Heading newOrientation = rotateClockwise ? prevOrientation.next() : prevOrientation.prev();
+                if (!getIsRebooting()) {
+                    setHeading(newOrientation);
+                }
+            }, Duration.millis(150), "Player rotation: " + getName()));
+        }
     }
 }

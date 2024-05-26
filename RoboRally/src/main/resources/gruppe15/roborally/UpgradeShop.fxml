@@ -2,41 +2,54 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: ffffff; -fx-background-radius: 15;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-   <VBox spacing="25.0">
-      <StackPane alignment="TOP_CENTER">
-         <Label alignment="CENTER" contentDisplay="CENTER" text="Upgrade Shop">
-            <font>
-               <Font name="System Italic" size="36.0" />
-            </font>
-         </Label>
-         <VBox.margin>
-            <Insets bottom="25.0" left="50.0" right="50.0" top="25.0" />
-         </VBox.margin>
-      </StackPane>
-      <HBox fx:id="upgradeShopCardsHBox" alignment="CENTER" fillHeight="false" spacing="25.0">
-         <padding>
-            <Insets left="25.0" right="25.0" />
-         </padding>
-         <VBox.margin>
-            <Insets left="50.0" right="50.0" />
-         </VBox.margin>
-      </HBox>
-      <StackPane alignment="BOTTOM_CENTER">
-         <Button fx:id="finishUpgradingButton" alignment="CENTER" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 5;" text="Finish Upgrading">
-            <font>
-               <Font size="18.0" />
-            </font>
-         </Button>
-         <VBox.margin>
-            <Insets bottom="25.0" top="25.0" />
-         </VBox.margin>
-      </StackPane>
-   </VBox>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <StackPane fx:id="upgradeShopTitelPane" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-radius: 15;" StackPane.alignment="TOP_CENTER">
+      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Upgrade Shop" textAlignment="CENTER">
+         <font>
+            <Font name="OCR A Extended" size="64.0" />
+         </font>
+         <StackPane.margin>
+            <Insets />
+         </StackPane.margin>
+      </Text>
+      <StackPane.margin>
+         <Insets />
+      </StackPane.margin>
+      <padding>
+         <Insets bottom="25.0" left="50.0" right="50.0" top="25.0" />
+      </padding>
+   </StackPane>
+   <StackPane fx:id="upgradeShopMainPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="682.0" style="-fx-background-radius: 15;" StackPane.alignment="BOTTOM_CENTER">
+      <children>
+         <HBox fx:id="upgradeShopCardsHBox" alignment="CENTER" fillHeight="false" spacing="25.0" StackPane.alignment="CENTER">
+            <padding>
+               <Insets left="25.0" right="25.0" />
+            </padding>
+            <StackPane.margin>
+               <Insets bottom="130.0" left="200.0" right="200.0" />
+            </StackPane.margin>
+         </HBox>
+         <StackPane alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="BOTTOM_CENTER">
+            <Button fx:id="finishUpgradingButton" alignment="CENTER" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 5;" textAlignment="CENTER">
+               <font>
+                  <Font name="OCR A Extended" size="36.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+               <padding>
+                  <Insets bottom="20.0" left="50.0" right="50.0" top="20.0" />
+               </padding>
+            </Button>
+            <padding>
+               <Insets bottom="50.0" />
+            </padding>
+         </StackPane>
+      </children>
+   </StackPane>
 </StackPane>

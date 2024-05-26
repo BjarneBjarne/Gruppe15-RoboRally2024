@@ -1,25 +1,26 @@
-package gruppe15.roborally.model.upgrades.upgrade_cards;
+package gruppe15.roborally.model.upgrade_cards.permanent;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.events.PlayerCommandListener;
-import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
 public class Card_Brakes extends UpgradeCardPermanent {
 
     public Card_Brakes() {
-        super("Brakes", 3, 0, 0, null, true);
+        super("Brakes", 3, 0, 0, null);
     }
 
     @Override
-    public void initialize(Board board, Player owner) {
-        super.initialize(board, owner);
+    public void initialize(Player owner, GameController gameController) {
+        super.initialize(owner, gameController);
 
         // Defining effects on events
 
         // OnMoveStart
         eventListeners.add(EventHandler.subscribe((PlayerCommandListener) command -> {
             if (command == Command.MOVE_1) {
-                System.out.println("Player \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
                 return Command.BRAKES;
             } else {
                 return command;

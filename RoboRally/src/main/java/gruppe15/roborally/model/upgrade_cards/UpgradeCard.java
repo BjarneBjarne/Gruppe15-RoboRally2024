@@ -1,6 +1,12 @@
-package gruppe15.roborally.model.upgrades;
+package gruppe15.roborally.model.upgrade_cards;
 
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is the superclass for any upgrade card.
@@ -8,40 +14,49 @@ import gruppe15.roborally.model.*;
  * This way, any player will invoke events, but the card will only trigger, if the player invoking the event, is also the initializing owner of the card.
  */
 public abstract class UpgradeCard extends Card {
-    protected String title;
-    protected int purchaseCost;
-    protected int useCost;
-    private int maxUses;
-    protected Phase refreshedOn;
-    private boolean hasActivateButton;
+    protected final String title;
+    protected final int purchaseCost;
+
+    // Uses handling
+    protected final int useCost;
+    protected final int maxUses;
+    protected int currentUses;
+    protected final Phase refreshedOn;
+
+    // Activating
+    protected final List<Phase> activatableOn;
+    private boolean enabled = false;
+
     protected Player owner;
-    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
-        this(title, purchaseCost, useCost, maxUses, refreshedOn, false);
-    }
-    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, boolean hasActivateButton) {
+    protected GameController gameController;
+
+    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, Phase... activatableOn) {
         this.title = title;
         this.purchaseCost = purchaseCost;
         this.useCost = useCost;
         this.maxUses = maxUses;
         this.refreshedOn = refreshedOn;
-        this.hasActivateButton = hasActivateButton;
+        this.activatableOn = Collections.unmodifiableList(Arrays.asList(activatableOn));
     }
 
-    private boolean enabled = false;
-    private int currentUses = maxUses;
-
+    protected abstract void onEnabled();
+    protected abstract void onDisabled();
+    protected abstract void onActivated();
 
     /**
      * Cards must override this method.
-     * Initializes the card to respond to actions performed by the owner. Can "maybe" be initialized to multiple owners?
+     * Initializes the card to respond to actions performed by the owner.
      */
-    public void initialize(Board board, Player owner) {
+    public void initialize(Player owner, GameController gameController) {
         this.owner = owner;
-        board.setOnPhaseChange(phase -> {
+        this.gameController = gameController;
+        owner.board.setOnPhaseChange(phase -> {
             if (phase == refreshedOn) {
                 refresh();
             }
+            setEnabled(activatableOn.contains(phase));
         });
+        refresh();
     }
 
     public void unInitialize() {
@@ -49,7 +64,7 @@ public abstract class UpgradeCard extends Card {
     }
 
     protected void refresh() {
-
+        currentUses = maxUses;
     }
 
     @Override
@@ -64,12 +79,10 @@ public abstract class UpgradeCard extends Card {
         else
             this.onDisabled();
     }
-    protected abstract void onEnabled();
-    protected abstract void onDisabled();
+
     public boolean isEnabled() {
         return this.enabled;
     }
-    protected abstract void onActivated();
 
     public boolean onCooldown() {
         return currentUses == 0;
@@ -82,13 +95,15 @@ public abstract class UpgradeCard extends Card {
      * <br>
      * For temporary cards, this typically includes most of their behavior.
      */
-    protected boolean tryActivate() {
-        if (enabled && !onCooldown()) {
+    public void tryActivate() {
+        if (canBeActivated()) {
             this.onActivated();
             this.currentUses--;
-            return true;
         }
-        return false;
+    }
+
+    public boolean canBeActivated() {
+        return enabled && !onCooldown();
     }
 
     public int getPurchaseCost() {
@@ -96,6 +111,6 @@ public abstract class UpgradeCard extends Card {
     }
 
     public boolean getHasActivateButton() {
-        return hasActivateButton;
+        return activatableOn != null;
     }
 }

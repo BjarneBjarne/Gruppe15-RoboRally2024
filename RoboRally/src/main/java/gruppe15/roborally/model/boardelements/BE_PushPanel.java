@@ -67,11 +67,10 @@ public class BE_PushPanel extends BoardElement {
     @Override
     public boolean doAction(Space space, GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Player player = space.getPlayer();
-        if (player == null)
-            return false;
+        if (player == null) return false;
         int currentRegister = gameController.board.getCurrentRegister();
         if (contains(pushRegisters, currentRegister + 1)) {
-            gameController.movePlayerToSpace(player, space.getSpaceNextTo(direction, gameController.board.getSpaces()));
+            gameController.board.movePlayerToSpace(player, space.getSpaceNextTo(direction, gameController.board.getSpaces()), gameController);
         }
         return true;
     }

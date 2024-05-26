@@ -22,9 +22,11 @@
 package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.events.PhaseChangeListener;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,6 +63,8 @@ public class Board extends Subject {
     private int moveCounter = 0;
 
     private boolean stepMode = false;
+
+    private final LinkedList<ActionWithDelay> boardActionQueue = new LinkedList<>();
 
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private List<Space[][]> subBoards;
@@ -170,6 +174,11 @@ public class Board extends Subject {
        return priorityList;
     }
 
+    public void setPriorityList(List<Player> newPriorityList) {
+        priorityList.clear();
+        priorityList.addAll(newPriorityList);
+    }
+
     public Player getCurrentPlayer() {
         return current;
     }
@@ -196,8 +205,8 @@ public class Board extends Subject {
     public void setPhase(Phase phase) {
         if (phase != this.phase) {
             this.phase = phase;
-            notifyChange();
             phaseChangeListeners.forEach(listener -> listener.onPhaseChange(phase));
+            notifyChange();
         }
     }
 
@@ -348,13 +357,29 @@ public class Board extends Subject {
         return boardElementsSpaces;
     }
 
-    public void clearLasers() {
-        for (Space[] space : spaces) {
-            for (Space value : space) {
-                if (value == null) continue;
-                value.clearLasersOnSpace();
+    public void queueBoardElementsWithIndex(GameController gameController, int boardElementsIndex, String debugBoardElementName) {
+        if (boardElementsIndex < 0 || boardElementsIndex >= boardElementsSpaces.length) return;
+
+        boardActionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space space : boardElementsSpaces[boardElementsIndex]) {
+                space.getBoardElement().doAction(space, gameController, boardActionQueue);
             }
-        }
+            for (int i = 0; i < getNoOfPlayers(); i++) {
+                Player player = getPlayer(i);
+                player.goToTemporarySpace();
+            }
+        }, Duration.millis(100), debugBoardElementName));
+    }
+
+    public void queueClearLasers() {
+        boardActionQueue.addLast(new ActionWithDelay(() -> {
+            for (Space[] space : spaces) {
+                for (Space value : space) {
+                    if (value == null) continue;
+                    value.clearLasersOnSpace();
+                }
+            }
+        }, Duration.millis(0)));
     }
 
     /**
@@ -463,5 +488,102 @@ public class Board extends Subject {
 
     public int getNumberOfCheckpoints() {
         return numberOfCheckPoints;
+    }
+
+    public void queuePlayerLasers() {
+        updatePriorityList();
+        while (!priorityList.isEmpty()) {
+            Player player = priorityList.poll();
+            boardActionQueue.addLast(new ActionWithDelay(() -> {
+                EventHandler.event_PlayerShoot(this, player, boardActionQueue);
+            }, Duration.millis(150), "Player laser"));
+        }
+    }
+
+    public LinkedList<ActionWithDelay> getBoardActionQueue() {
+        return boardActionQueue;
+    }
+
+    /**
+     * Takes the current player of the board and sets the players position to the given space
+     * if the space is free. The current player is then set to the player following the current player.
+     *
+     * @param player
+     * @param nextSpace the space to which the current player should move
+     * @return void
+     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
+     */
+    public void movePlayerToSpace(Player player, Space nextSpace, GameController gameController) {
+        // TODO Task1: method should be implemented by the students:
+        //   - the current player should be moved to the given space
+        //     (if it is free())
+        //   - and the current player should be set to the player
+        //     following the current player
+        //   - the counter of moves in the game should be increased by one
+        //     if the player is moved
+        Space currentSpace = player.getSpace();
+        if (currentSpace == null) {
+            System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
+            return;
+        }
+
+        boolean couldMove = true;
+        if (nextSpace != null) {
+            boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
+            if (!isWallBetween) { // If it isn't a wall
+                if (nextSpace.getPlayer() != null) { // If there is a player on the nextSpace
+                    List<Player> playersToPush = new ArrayList<>();
+                    Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
+                    boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
+                    if (couldPush) {
+                        // Handle pushing players in EventHandler
+                        EventHandler.event_PlayerPush(spaces, player, playersToPush, pushDirection, gameController); // WARNING: Can lead to infinite loop
+                    } else {
+                        // There is a wall at the end of player chain
+                        couldMove = false;
+                    }
+                }
+            } else {
+                // There is a wall between currentSpace and nextSpace
+                couldMove = false;
+            }
+        }
+
+        if (!couldMove) {
+            nextSpace = currentSpace;
+        }
+
+        // Setting the players position to nextSpace in the EventHandler
+        EventHandler.event_PlayerMove(player, nextSpace, gameController);
+    }
+
+    /**
+     * Tries to push players recursively.
+     * @param space The current space being checked.
+     * @param direction The direction we want to push.
+     * @return A list of players being pushed.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public boolean tryMovePlayerInDirection(Space space, Heading direction, List<Player> playersToPush)  {
+        Player playerOnSpace = space.getPlayer();
+        Space nextSpace = space.getSpaceNextTo(direction, spaces);
+        if (nextSpace == null) {                                // Base case, player fell off LULW
+            playersToPush.add(playerOnSpace);
+            return true;
+        }
+        boolean isWallBetween = space.getIsWallBetween(nextSpace);
+        if (nextSpace.getPlayer() == null && !isWallBetween) {  // Base case, no player on next space and no wall between
+            playersToPush.add(playerOnSpace);
+            return true;
+        }
+        if (nextSpace.getPlayer() != null) {                    // In case more players to move
+            if (tryMovePlayerInDirection(nextSpace, direction, playersToPush)) {
+                // If all other players have moved, we also move.
+                playersToPush.add(playerOnSpace);
+                return true;
+            } return false;  // If push chain was stopped by wall
+        } else {                                                // In case of wall
+            return false;
+        }
     }
 }

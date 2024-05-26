@@ -24,7 +24,7 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.upgrades.UpgradeCard;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -46,7 +46,7 @@ import static gruppe15.roborally.model.utils.Constants.*;
 /**
  * @author Ekkart Kindler, ekki@dtu.dk
  */
-public class CardFieldView extends GridPane implements ViewObserver {
+public class CardFieldView extends StackPane implements ViewObserver {
     // This data format helps avoiding transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
     final public static DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
@@ -62,11 +62,10 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     private final CardField field;
 
-    private final Label label;
+    /*private final Label label;*/
 
     private final GameController gameController;
 
-    private final StackPane cardPane;
     private final ImageView graphicsImageView = new ImageView();
     private final Button useButton = new Button();
 
@@ -83,9 +82,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
         useButton.setVisible(false);
         StackPane.setAlignment(useButton, Pos.BOTTOM_RIGHT);
 
-        cardPane = new StackPane(graphicsImageView, useButton);
-        cardPane.setPrefSize(graphicsImageView.getFitWidth(), graphicsImageView.getFitHeight());
-        this.getChildren().add(cardPane);
+        this.setPrefSize((CARDFIELD_SIZE - 5) * cardWidthMultiplier, (CARDFIELD_SIZE - 3) * cardHeightMultiplier);
+        this.getChildren().addAll(graphicsImageView, useButton);
 
         this.gameController = gameController;
         this.field = field;
@@ -93,7 +91,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
         this.setAlignment(Pos.CENTER);
         this.setPadding(new Insets(5, 5, 5, 5));
 
-        //this.setBorder(BORDER);
         this.setBackground(BG_DEFAULT);
 
         this.setPrefWidth(CARDFIELD_SIZE * cardWidthMultiplier);
@@ -103,10 +100,10 @@ public class CardFieldView extends GridPane implements ViewObserver {
         this.setMaxWidth(CARDFIELD_SIZE * cardWidthMultiplier);
         this.setMaxHeight(CARDFIELD_SIZE * cardHeightMultiplier);
 
-        label = new Label(); //"This is a slightly longer text"
+        /*label = new Label();
         label.setWrapText(true);
         label.setMouseTransparent(true);
-        this.add(label, 0, 0);
+        this.add(label, 0, 0);*/
 
         this.setOnDragDetected(new OnDragDetectedHandler());
         this.setOnDragOver(new OnDragOverHandler());
@@ -124,13 +121,13 @@ public class CardFieldView extends GridPane implements ViewObserver {
             for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardField other = cardField.player.getProgramField(i);
                 if (other == cardField) {
-                    return "P," + i;
+                    return "P," + i;    // Program cards
                 }
             }
             for (int i = 0; i < Player.NO_OF_CARDS; i++) {
                 CardField other = cardField.player.getCardField(i);
                 if (other == cardField) {
-                    return "C," + i;
+                    return "C," + i;    // Cards in hand
                 }
             }
             for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
@@ -225,26 +222,29 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     @Override
     public void updateView(Subject subject) {
-        if (subject == field && subject != null) {
+        if ((subject == field || subject == field.player.board) && subject != null) {
             Card card = field.getCard();
+            useButton.setDisable(true);
+            useButton.setVisible(false);
             if (card != null && field.isVisible()) {
-                useButton.setDisable(!field.getHasActivateButton());
+                useButton.setDisable(!field.getCanBeActivated());
                 useButton.setVisible(field.getHasActivateButton());
+
                 String cardName = card.getName();
                 String cardImageName = "Card_Error.png";
                 if (card instanceof CommandCard) {
-                    cardImageName = "Cards/Programming Cards/" + cardName + ".png";
+                    cardImageName = "Cards/Programming Cards/" + cardName.toUpperCase() + ".png";
                 } else if (card instanceof UpgradeCard) {
-                    cardImageName = "Cards/Upgrade Cards/" + cardName + ".png";
+                    cardImageName = "Cards/Upgrade Cards/" + cardName.toUpperCase() + ".png";
                 }
                 Image cardImage = ImageUtils.getImageFromName(cardImageName);
                 if (cardImage != null) {
                     graphicsImageView.setImage(cardImage);
                 } else{
-                    label.setText(card.getName());
+                    /*label.setText(card.getName());*/
                 }
             } else {
-                label.setText("");
+                /*label.setText("");*/
                 graphicsImageView.setImage(null);
             }
         }

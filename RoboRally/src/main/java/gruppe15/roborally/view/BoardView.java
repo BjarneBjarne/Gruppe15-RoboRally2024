@@ -23,10 +23,11 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
-import gruppe15.roborally.model.upgrades.UpgradeCardTemporary;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
+import gruppe15.roborally.model.upgrade_cards.UpgradeCardTemporary;
 import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.model.utils.TextUtils;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
@@ -38,6 +39,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import static gruppe15.roborally.model.utils.Constants.*;
@@ -64,6 +69,8 @@ public class BoardView extends VBox implements ViewObserver {
     private Label statusLabel;
 
     private StackPane upgradeShopPane;
+    private StackPane upgradeShopTitelPane;
+    private StackPane upgradeShopMainPane;
     private HBox upgradeShopCardsHBox;
     private Button finishUpgradingButton;
     private CardFieldView[] upgradeShopCardViews;
@@ -126,8 +133,9 @@ public class BoardView extends VBox implements ViewObserver {
         zoomableScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         Platform.runLater(() -> {
-            interactablePane.setMinSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 1000);
-            interactablePane.setPrefSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 1000);
+            interactablePane.setMinSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 750);
+            interactablePane.setPrefSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 750);
+            interactablePane.setMaxSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 750);
             mainBoardPane.setPrefHeight(895);
             zoomableScrollPane.setPannable(true);
             centerBoard();
@@ -207,10 +215,14 @@ public class BoardView extends VBox implements ViewObserver {
         update(board);
     }
 
-    public void setUpgradeShopFXML(StackPane upgradeShopPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
+    public void setUpgradeShopFXML(StackPane upgradeShopPane, StackPane upgradeShopTitelPane, StackPane upgradeShopMainPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
         this.upgradeShopPane = upgradeShopPane;
+        this.upgradeShopTitelPane = upgradeShopTitelPane;
+        this.upgradeShopMainPane = upgradeShopMainPane;
         this.upgradeShopCardsHBox = upgradeShopCardsHBox;
         this.finishUpgradingButton = finishUpgradingButton;
+
+        mainBoardPane.getChildren().add(upgradeShopPane);
 
         if (this.upgradeShopCardsHBox == null) {
             System.out.println("upgradeShopCardsHBox not initialized in BoardView - setUpgradeShopFXML()");
@@ -221,37 +233,56 @@ public class BoardView extends VBox implements ViewObserver {
 
         finishUpgradingButton.setOnMouseClicked(event -> {
             gameController.startProgrammingPhase();
+            upgradeShopPane.setVisible(false);
+            upgradeShopPane.setMouseTransparent(true);
         });
+
+        // Button text
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 36);
+        Text buttonText = new Text();
+        buttonText.setFont(textFont);
+        buttonText.setFill(Color.WHITE);
+        buttonText.setStroke(Color.BLACK);
+        buttonText.setStrokeWidth(2);
+        buttonText.setStrokeType(StrokeType.OUTSIDE);
+        buttonText.setText("Finish Upgrading");
+        buttonText.setTextAlignment(TextAlignment.CENTER);
+
+        finishUpgradingButton.setGraphic(buttonText);
+
+        upgradeShopTitelPane.setStyle(
+                "-fx-background-color: rgba(0,0,0,.35); " +
+                "-fx-background-radius: 15px"
+        );
+        upgradeShopMainPane.setStyle(
+                "-fx-background-color: rgba(0,0,0,.35); " +
+                        "-fx-background-radius: 15px"
+        );
     }
     
     public void setUpgradeShop() {
-        if (!mainBoardPane.getChildren().contains(upgradeShopPane)) {
-            mainBoardPane.getChildren().add(upgradeShopPane);
-        }
         upgradeShopCardsHBox.getChildren().clear();
         UpgradeShop upgradeShop = board.getUpgradeShop();
-
         upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
-
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
-            CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.2, 1.6 * 1.2);
+            CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
             upgradeShopCardViews[i] = cardFieldView;
             upgradeShopCardsHBox.getChildren().add(cardFieldView);
             cardFieldView.setAlignment(Pos.CENTER);
-            String boarderColorString = "-fx-border-color: black; ";
+            //String boarderColorString = "-fx-border-color: black; ";
             if (cardField.getCard() instanceof UpgradeCardPermanent) {
-                boarderColorString = "-fx-border-color: #dfcb45; ";
+                //boarderColorString = "-fx-border-color: #dfcb45; ";
             } else if (cardField.getCard() instanceof UpgradeCardTemporary) {
-                boarderColorString = "-fx-border-color: #a62a24; ";
+                //boarderColorString = "-fx-border-color: #a62a24; ";
             } else if (cardField.getCard() == null) {
-                boarderColorString = "-fx-border-color: transparent; ";
+                //boarderColorString = "-fx-border-color: transparent; ";
             } else {
                 System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getName() + ". Check card and BoardView.setUpgradeShop().");
             }
             cardFieldView.setStyle(
                     "-fx-background-color: transparent; " +
-                            boarderColorString +
+                            //boarderColorString +
                             "-fx-border-width: 2px 2px 2px 2px;" +
                             "-fx-border-radius: 5"
             );
@@ -303,11 +334,18 @@ public class BoardView extends VBox implements ViewObserver {
                 setDirectionOptionsPane(spaceViews[directionOptionsSpace.x][directionOptionsSpace.y]);
             }
 
-            if (board.getPhase() == Phase.UPGRADE) {
-                setUpgradeShop();
-            } else {
-                mainBoardPane.getChildren().remove(upgradeShopPane);
-            }
+            Platform.runLater(() -> {
+                if (board.getPhase() == Phase.UPGRADE) {
+                    setUpgradeShop();
+                    upgradeShopPane.setVisible(true);
+                    upgradeShopPane.setMouseTransparent(false);
+                } else {
+                    if (upgradeShopPane != null) {
+                        upgradeShopPane.setVisible(false);
+                        upgradeShopPane.setMouseTransparent(true);
+                    }
+                }
+            });
         }
     }
 

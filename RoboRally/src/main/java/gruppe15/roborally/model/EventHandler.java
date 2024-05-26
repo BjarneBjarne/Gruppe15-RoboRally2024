@@ -9,6 +9,7 @@ import gruppe15.roborally.model.events.EventListener;
 import gruppe15.roborally.model.events.*;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -85,7 +86,7 @@ public class EventHandler {
             return;
         }
         // Clearing lasers in between player lasers
-        board.clearLasers();
+        board.queueClearLasers();
 
         Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting);
         laser.startLaser(board.getSpaces()).run();
@@ -186,19 +187,26 @@ public class EventHandler {
      */
     public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection, GameController gc) {
         for (Player playerToPush : playersToPush) {
-            if (playerToPush == playerPushing) {
-                continue;
+            if (playerToPush == playerPushing) continue; // Player can't push themselves.
+
+            // Players being pushed modifiers
+            List<PlayerPushListener> playerPushedListeners = getPlayerCardEventListeners(playerToPush, PlayerPushListener.class);
+            for (PlayerPushListener listener : playerPushedListeners) {
+                listener.onPush(playerPushing, playerToPush);
             }
+
+            // Player pushing modifiers
             if (playerPushing != null) {
-                List<PlayerPushListener> playerPushListeners = getPlayerCardEventListeners(playerPushing, PlayerPushListener.class);
-                for (PlayerPushListener listener : playerPushListeners) {
-                    listener.onPush(playerToPush);
+                List<PlayerPushListener> playerPushingListeners = getPlayerCardEventListeners(playerPushing, PlayerPushListener.class);
+                for (PlayerPushListener listener : playerPushingListeners) {
+                    listener.onPush(playerPushing, playerToPush);
                 }
             }
+
             // Set players new position
             Space nextSpace = playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces);
             if (nextSpace == null || nextSpace.getBoardElement() instanceof BE_Hole) {
-                event_PlayerReboot(playerToPush, gc);
+                event_PlayerReboot(playerToPush, true, gc);
             } else {
                 playerToPush.setSpace(nextSpace);
             }
@@ -224,7 +232,7 @@ public class EventHandler {
         }
 
         if (shouldReboot) {
-            event_PlayerReboot(playerMoving, gc);
+            event_PlayerReboot(playerMoving, true, gc);
         } else {
             playerMoving.setSpace(space);
         }
@@ -237,8 +245,11 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    public static void event_PlayerReboot(Player player, GameController gc) {
+    public static void event_PlayerReboot(Player player, boolean takeDamage, GameController gc) {
         System.out.println(player.getName() + " rebooting");
+        if (takeDamage) {
+            player.discard(new CommandCard(Command.SPAM));
+        }
         gc.board.setPhase(Phase.REBOOTING);
         player.startRebooting();
         gc.addPlayerToRebootQueue(player);
@@ -263,7 +274,7 @@ public class EventHandler {
                 Player playerOnRebootSpace = rebootSpace.getPlayer();
                 if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
                     List<Player> playersToPush = new ArrayList<>();
-                    boolean couldPush = gc.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+                    boolean couldPush = gc.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
                     if (couldPush) {
                         EventHandler.event_PlayerPush(gc.board.getSpaces(), null, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
                     } else {
