@@ -107,4 +107,18 @@ public class CardField extends Subject {
             notifyChange();
         }
     }
+
+    public boolean getHasActivateButton() {
+        if (card == null) {
+            return false;
+        }
+        if (card instanceof UpgradeCard upgradeCard) {
+            return upgradeCard.getHasActivateButton();
+        }
+        return false;
+    }
+
+    public void activateCard() {
+
+    }
 }

@@ -7,7 +7,7 @@ import gruppe15.roborally.model.upgrades.UpgradeCardPermanent;
 public class Card_Brakes extends UpgradeCardPermanent {
 
     public Card_Brakes() {
-        super("Brakes", 3, 0, 0, null);
+        super("Brakes", 3, 0, 0, null, true);
     }
 
     @Override

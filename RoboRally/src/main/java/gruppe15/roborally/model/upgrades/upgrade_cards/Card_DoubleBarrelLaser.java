@@ -10,7 +10,7 @@ import gruppe15.roborally.model.events.PlayerDamageListener;
 public class Card_DoubleBarrelLaser extends UpgradeCardPermanent {
 
     public Card_DoubleBarrelLaser() {
-        super("Double Barrel Laser", 2, 0, 0, null);
+        super("Double Barrel Laser", 2, 0, 0, null, true);
     }
 
     @Override
