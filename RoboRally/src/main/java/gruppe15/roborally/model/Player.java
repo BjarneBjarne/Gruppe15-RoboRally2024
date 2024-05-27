@@ -222,9 +222,11 @@ public class Player extends Subject {
 
     public void setSpace(Space space) {
         Space oldSpace = this.space;
-        if (space != oldSpace &&
-                (space == null || space.board == this.board)) {
+        if (space != oldSpace && (space == null || space.board == this.board)) {
             this.space = space;
+            if (space == null) {
+                setTemporarySpace(oldSpace);
+            }
             if (oldSpace != null) {
                 oldSpace.setPlayer(null);
             }
@@ -242,15 +244,18 @@ public class Player extends Subject {
         this.temporarySpace = space;
     }
     public void goToTemporarySpace() {
-        if (this.temporarySpace != null) {
-            // Surpass the setSpace() checks.
-            if (this.space != null) {
-                this.space.setPlayer(null);
-            }
-            this.space = this.temporarySpace;
-            this.space.setPlayer(this);
-            this.temporarySpace = null;
+        // Surpass the setSpace() checks
+        // Set old space
+        if (this.space != null && this.space.getPlayer() == this) {
+            this.space.setPlayer(null);
         }
+        // Go to temporarySpace
+        this.space = this.temporarySpace;
+        // Also tell the new space that this is where the player is
+        if (this.space != null) {
+            this.space.setPlayer(this);
+        }
+        this.temporarySpace = null;
     }
 
     public void setVelocity(Velocity velocity) {
@@ -275,6 +280,7 @@ public class Player extends Subject {
     }
 
     public void startRebooting(GameController gameController, boolean takeDamage) {
+        System.out.println(name + " rebooting.");
         if (takeDamage) {
             for (int i = 0; i < 2; i++) {
                 discard(new CommandCard(Command.SPAM));
@@ -284,6 +290,7 @@ public class Player extends Subject {
             gameController.addPlayerInteraction(new RebootInteraction(gameController, this));
         }
         this.rebooting = true;
+        space.updateSpace();
     }
     public void stopRebooting() {
         this.rebooting = false;

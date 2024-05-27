@@ -24,7 +24,7 @@ package gruppe15.roborally.model;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.boardelements.*;
-import gruppe15.roborally.model.damage.DamageTypes;
+import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.events.PhaseChangeListener;
 import javafx.util.Duration;
 import javafx.util.Pair;
@@ -303,7 +303,7 @@ public class Board extends Subject {
             if (commandCard == null) {
                 continue;
             }
-            for (DamageTypes damageType : DamageTypes.values()) {
+            for (DamageType damageType : DamageType.values()) {
                 if (damageType.getCommandCardType() == commandCard.command) {
                     noOfDamageCards.getAndIncrement();
                 }
@@ -455,14 +455,11 @@ public class Board extends Subject {
     }
 
     public Space[][] getSubBoardOfSpace(Space space) throws RuntimeException {
-        System.out.println("Looking for subboard");
-        System.out.println("Playerspace: " + space.x + ", " + space.y);
         for (Space[][] subBoard : subBoards) {
             for (Space[] subBoardColumn : subBoard) {
                 for (Space subBoardSpace : subBoardColumn) {
                     if (subBoardSpace != null) {
                         if (subBoardSpace == space) {
-                            System.out.println("Found subboard with index: " + subBoards.indexOf(subBoard));
                             return subBoard;
                         }
                     }

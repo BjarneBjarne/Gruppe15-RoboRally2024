@@ -12,13 +12,13 @@ public class Damage {
 
     public Damage(int spamDamageAmount, int trojanHorseDamageAmount, int wormDamageAmount, int virusDamageAmount) {
         // Initialize instances for each damage type
-        damageTypeAmountList.add(new DamageTypeAmount(spamDamageAmount, DamageTypes.SPAM));
-        damageTypeAmountList.add(new DamageTypeAmount(trojanHorseDamageAmount, DamageTypes.TROJAN_HORSE));
-        damageTypeAmountList.add(new DamageTypeAmount(wormDamageAmount, DamageTypes.WORM));
-        damageTypeAmountList.add(new DamageTypeAmount(virusDamageAmount, DamageTypes.VIRUS));
+        damageTypeAmountList.add(new DamageTypeAmount(spamDamageAmount, DamageType.SPAM));
+        damageTypeAmountList.add(new DamageTypeAmount(trojanHorseDamageAmount, DamageType.TROJAN_HORSE));
+        damageTypeAmountList.add(new DamageTypeAmount(wormDamageAmount, DamageType.WORM));
+        damageTypeAmountList.add(new DamageTypeAmount(virusDamageAmount, DamageType.VIRUS));
     }
 
-    public void setAmount(DamageTypes damageType, int newAmount) {
+    public void setAmount(DamageType damageType, int newAmount) {
         if (newAmount < 0) newAmount = 0;
         for (DamageTypeAmount damageTypeAmount : damageTypeAmountList) {
             if (damageTypeAmount.type == damageType) {
@@ -26,29 +26,31 @@ public class Damage {
             }
         }
     }
-    public void addAmount(DamageTypes damageType, int amount) {
-        if (amount <= 0) {
-            System.out.println("ERROR: Can't add negative amount in Damage.addAmount(). Amount gotten: " + amount + ", for damageType: " + damageType.displayName);
-            return;
-        }
+    public void addAmount(DamageType damageType, int amount) {
         for (DamageTypeAmount damageTypeAmount : damageTypeAmountList) {
             if (damageTypeAmount.type == damageType) {
+                if (amount < 0) {
+                    System.out.println("ERROR: Can't add negative amount in Damage.addAmount(). Amount gotten: " + amount + ", for damageType: " + damageType.displayName);
+                    return;
+                }
                 damageTypeAmount.addAmount(amount);
+                break;
             }
         }
     }
-    public void subtractAmount(DamageTypes damageType, int amount) {
-        if (amount <= 0) {
-            System.out.println("ERROR: Can't subtract negative amount in Damage.subtractAmount(). Amount gotten: " + amount + ", for damageType: " + damageType.displayName);
-            return;
-        }
+    public void subtractAmount(DamageType damageType, int amount) {
         for (DamageTypeAmount damageTypeAmount : damageTypeAmountList) {
             if (damageTypeAmount.type == damageType) {
+                if (amount < 0) {
+                    System.out.println("ERROR: Can't subtract negative amount in Damage.subtractAmount(). Amount gotten: " + amount + ", for damageType: " + damageType.displayName);
+                    return;
+                }
                 damageTypeAmount.subtractAmount(amount);
+                break;
             }
         }
     }
-    public int getAmount(DamageTypes damageType) {
+    public int getAmount(DamageType damageType) {
         for (DamageTypeAmount dt : damageTypeAmountList) {
             if (dt.type == damageType) {
                 return dt.getAmount();

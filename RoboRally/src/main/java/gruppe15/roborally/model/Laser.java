@@ -61,7 +61,7 @@ public class Laser {
         boolean thisHasWall = origin.getWalls().contains(direction);
         boolean otherHasWall = nextSpace != null && nextSpace.getWalls().contains(direction.opposite());
 
-        if (thisHasWall || otherHasWall) { // If the source is looking into a wall, stop here
+        if (origin.getIsWallBetween(nextSpace)) { // If the source is looking into a wall, stop here
             if (owner != null) { // If there is an owner, a player shot the laser.
                 addLaserPiece(origin, "Laser_StartPlayerBlocked");
             } else { // Else, board laser
@@ -82,16 +82,16 @@ public class Laser {
                 nextSpace = space.getSpaceNextTo(direction, boardSpaces);
                 String laserName = "Laser_";
 
-                if (x == origin.x && y == origin.y) {
+                if (playerOnSpace != null && playerOnSpace != owner && objectTypesToCollideWith.contains(Player.class)) { // Player hit
+                    hitSomething = true;
+                    laserName += "PlayerHit";
+                } else if (x == origin.x && y == origin.y) {
                     laserName += "Start";
                     if (owner != null) { // If there is an owner, a player shot the laser.
                         laserName += "Player";
                     } else { // Else, board laser
                         laserName += "Board";
                     }
-                } else if (playerOnSpace != null && playerOnSpace != owner && objectTypesToCollideWith.contains(Player.class)) { // Player hit
-                    hitSomething = true;
-                    laserName += "PlayerHit";
                 } else if (space.getWalls().contains(direction) && objectTypesToCollideWith.contains(Space.class)) { // Wall
                     hitSomething = true;
                     laserName += "WallHitUpper";

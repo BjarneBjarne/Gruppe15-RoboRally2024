@@ -3,7 +3,7 @@ package gruppe15.roborally.model.upgrade_cards.permanent;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.damage.DamageTypes;
+import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.events.PlayerLaserHitListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
@@ -22,11 +22,11 @@ public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
         // OnDamageDealt
         eventListeners.add(EventHandler.subscribe((PlayerLaserHitListener) (damage, playerTakingDamage) -> {
             if (owner != playerTakingDamage) {
-                if (damage.getAmount(DamageTypes.SPAM) > 0) {
+                if (damage.getAmount(DamageType.SPAM) > 0) {
                     printUsage();
                     // Modifying damage
-                    damage.subtractAmount(DamageTypes.SPAM,1);
-                    damage.addAmount(DamageTypes.WORM, 1);
+                    damage.subtractAmount(DamageType.SPAM,1);
+                    damage.addAmount(DamageType.WORM, 1);
                 }
             }
             return damage;

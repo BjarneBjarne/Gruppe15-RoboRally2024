@@ -22,7 +22,7 @@ public enum UpgradeCards {
     SCRAMBLER(Card_Scrambler.class),
     TRACTOR_BEAM(Card_TractorBeam.class),
     TROJAN_NEEDLER(Card_TrojanNeedler.class),
-    VIRUS_MODULE(Card_MemoryStick.class),
+    VIRUS_MODULE(Card_VirusModule.class),
 
     // Temporary upgrade cards
     ENERGY_ROUTINE(Card_EnergyRoutine.class),

@@ -171,19 +171,25 @@ public class BE_ConveyorBelt extends BoardElement {
                 // If we get here, it means we can move the player once.
                 BE_ConveyorBelt currentConveyorBelt = ((BE_ConveyorBelt)currentSpace.getBoardElement());
                 Space nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.getDirection(), boardSpaces);
-                // Rotate the robot.
-                if (nextSpace.getBoardElement() instanceof BE_ConveyorBelt nextBelt) {
-                    if (nextBelt.direction != currentConveyorBelt.getDirection()) {
-                        int clockwiseOrdinal = (currentConveyorBelt.getDirection().ordinal() + 1) % Heading.values().length;
-                        if (nextBelt.getDirection().ordinal() == clockwiseOrdinal) {
-                            player.setHeading(player.getHeading().next());
-                        } else {
-                            player.setHeading(player.getHeading().prev());
-                        }
-                    }
-                }
                 player.setTemporarySpace(nextSpace);
                 currentSpace = nextSpace;
+                if (nextSpace != null) {
+                    // Rotate the robot.
+                    if (nextSpace.getBoardElement() instanceof BE_ConveyorBelt nextBelt) {
+                        if (nextBelt.direction != currentConveyorBelt.getDirection()) {
+                            int clockwiseOrdinal = (currentConveyorBelt.getDirection().ordinal() + 1) % Heading.values().length;
+                            if (nextBelt.getDirection().ordinal() == clockwiseOrdinal) {
+                                player.setHeading(player.getHeading().next());
+                            } else {
+                                player.setHeading(player.getHeading().prev());
+                            }
+                        }
+                    }
+                } else {
+                    player.setSpace(null);
+                    player.setTemporarySpace(currentSpace);
+                    return true;
+                }
             }
         }
         return true;
@@ -196,6 +202,9 @@ public class BE_ConveyorBelt extends BoardElement {
         }
         if (currentSpace.isSameType) {
             SimulatedSpace nextSpace = currentSpace.getSpaceNextTo(currentSpace.heading, spaces);
+            if (nextSpace == null) {
+                return true;
+            }
             if (!currentSpace.getIsWallBetween(nextSpace)) {
                 if (nextSpace.player == null) { // Next space is free!
                     // Move the simulation

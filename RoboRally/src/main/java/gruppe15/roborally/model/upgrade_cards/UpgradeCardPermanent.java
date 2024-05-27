@@ -35,7 +35,6 @@ public abstract class UpgradeCardPermanent extends UpgradeCard {
         for (EventListener eventListener : eventListeners) {
             EventHandler.unsubscribe(eventListener, owner);
         }
-
         // Remove from player UI
         for (CardField cardField : owner.getPermanentUpgradeCardFields()) {
             if (cardField.getCard() == this) {

@@ -3,7 +3,7 @@ package gruppe15.roborally.model.upgrade_cards.permanent;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.damage.DamageTypes;
+import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.events.PlayerPushListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
@@ -22,7 +22,7 @@ public class Card_RammingGear extends UpgradeCardPermanent {
         eventListeners.add(EventHandler.subscribe((PlayerPushListener) (playerPushing, playerToPush, damage) -> {
             if (owner == playerPushing) {
                 printUsage();
-                damage.addAmount(DamageTypes.SPAM, 1);
+                damage.addAmount(DamageType.SPAM, 1);
             }
             return damage;
         }, owner));
