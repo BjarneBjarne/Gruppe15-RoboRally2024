@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.io.File;
 
-import static gruppe15.roborally.model.utils.GameSettings.*;
+import static gruppe15.roborally.GameSettings.*;
 
 /**
  * ...

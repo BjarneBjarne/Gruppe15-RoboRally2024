@@ -39,7 +39,7 @@ import java.util.*;
 import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 import static gruppe15.roborally.model.Phase.*;
 import static gruppe15.roborally.GameVariables.*;
-import static gruppe15.roborally.model.utils.GameSettings.*;
+import static gruppe15.roborally.GameSettings.*;
 
 /**
  * ...
