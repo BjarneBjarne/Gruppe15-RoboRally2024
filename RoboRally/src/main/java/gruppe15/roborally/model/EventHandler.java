@@ -298,33 +298,31 @@ public class EventHandler {
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
+        Pair<Space, BE_Reboot> rebootSpaceFinder = null;
         if (currentSubBoard != null) {
-            Pair<Space, BE_Reboot> rebootSpaceFinder = gc.board.findRebootInSubBoard(currentSubBoard);
-            if (rebootSpaceFinder == null) {
-                // If no reboot token on current subboard, look for reboot token on start subboard
-                rebootSpaceFinder = gc.board.findRebootInSubBoard(gc.board.getSubBoardOfSpace(player.getSpawnPoint()));
-            }
-            if (rebootSpaceFinder != null) {
-                rebootSpace = rebootSpaceFinder.getKey();
-
-                // If player reboots on reboot element, check if player push is needed
-                Player playerOnRebootSpace = rebootSpace.getPlayer();
-                if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
-                    List<Player> playersToPush = new ArrayList<>();
-                    boolean couldPush = gc.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
-                    if (couldPush) {
-                        EventHandler.event_PlayerPush(gc.board.getSpaces(), player, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
-                    } else {
-                        // There is a wall at the end of player chain
-                        System.out.println("ERROR: Can't place player on reboot.");
-                        rebootSpace = player.getSpawnPoint();
-                    }
+            rebootSpaceFinder = gc.board.findRebootInSubBoard(currentSubBoard);
+        }
+        if (rebootSpaceFinder == null) {
+            // If no reboot token on current subboard, or the currentSubBoard couldn't be found, look for reboot token on start subboard
+            rebootSpaceFinder = gc.board.findRebootInSubBoard(gc.board.getSubBoardOfSpace(player.getSpawnPoint()));
+        }
+        if (rebootSpaceFinder != null) {
+            rebootSpace = rebootSpaceFinder.getKey();
+            // If player reboots on reboot element, check if player push is needed
+            Player playerOnRebootSpace = rebootSpace.getPlayer();
+            if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
+                List<Player> playersToPush = new ArrayList<>();
+                boolean couldPush = gc.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+                if (couldPush) {
+                    EventHandler.event_PlayerPush(gc.board.getSpaces(), player, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
+                } else {
+                    // There is a wall at the end of player chain
+                    System.out.println("ERROR: Can't place player on reboot.");
+                    rebootSpace = player.getSpawnPoint();
                 }
-            } else {
-                // If no reboot token on start subboard, start on player spawn
-                rebootSpace = player.getSpawnPoint();
             }
         } else {
+            // If no reboot token on start subboard, start on player spawn
             rebootSpace = player.getSpawnPoint();
         }
 
