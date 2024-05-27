@@ -21,11 +21,11 @@
 package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.GameVariables;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardTemporary;
-import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.model.utils.TextUtils;
 import javafx.application.Platform;
@@ -45,7 +45,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,14 +89,14 @@ public class BoardView extends VBox implements ViewObserver {
         board.initializeUpgradeShop();
         spaceViews = new SpaceView[board.width][board.height];
         spaceEventHandler = new SpaceEventHandler(gameController);
-        this.directionOptionsPane.setPrefSize(Constants.SPACE_SIZE * 3, SPACE_SIZE * 3);
+        this.directionOptionsPane.setPrefSize(GameVariables.SPACE_SIZE * 3, SPACE_SIZE * 3);
 
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
                 gameController.initializeDirectionButton(button, this);
                 ImageView buttonImage = new ImageView();
-                buttonImage.setFitWidth(Constants.SPACE_SIZE);
+                buttonImage.setFitWidth(GameVariables.SPACE_SIZE);
                 buttonImage.setFitHeight(SPACE_SIZE);
                 Heading direction = Heading.valueOf(button.getId());
                 buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));

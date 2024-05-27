@@ -2,7 +2,6 @@ package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
-import gruppe15.roborally.view.ZoomableScrollPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -28,7 +27,7 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 import static gruppe15.roborally.model.utils.ImageUtils.*;
 
 public class CC_Controller extends BorderPane {

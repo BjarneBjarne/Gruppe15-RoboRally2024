@@ -25,13 +25,10 @@ import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
-import gruppe15.roborally.model.player_interaction.PlayerInteraction;
 import gruppe15.roborally.model.utils.ImageUtils;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.effect.DropShadow;
@@ -41,11 +38,10 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static gruppe15.roborally.model.Phase.*;
-import static gruppe15.roborally.model.utils.Constants.CARDFIELD_SIZE;
+import static gruppe15.roborally.GameVariables.CARDFIELD_SIZE;
 
 /**
  * ...

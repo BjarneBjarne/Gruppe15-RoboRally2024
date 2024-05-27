@@ -32,7 +32,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -41,7 +40,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 
 /**
  * @author Ekkart Kindler, ekki@dtu.dk

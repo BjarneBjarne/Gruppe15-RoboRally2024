@@ -1,8 +1,8 @@
-package gruppe15.roborally.model.utils;
+package gruppe15.roborally;
 
 import javafx.geometry.Rectangle2D;
 
-public class Constants {
+public class GameVariables {
     // Action delay
     public final static int NEXT_REGISTER_DELAY = 1000; // In milliseconds.
     public final static boolean WITH_ACTION_DELAY = true;
