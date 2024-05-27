@@ -23,7 +23,7 @@ public class Card_HoverUnit extends UpgradeCardPermanent {
                 if (space.getBoardElement() != null && space.getBoardElement() instanceof BE_Hole) {
                     Velocity playerVel = owner.getVelocity();
                     if ((Math.abs(playerVel.forward) + Math.abs(playerVel.right)) > 0) {
-                        System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                        printUsage();
                         shouldReboot = false;
                     }
                 }

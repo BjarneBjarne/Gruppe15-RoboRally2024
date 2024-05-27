@@ -111,7 +111,7 @@ public class AppController implements Observer {
                     CardField field = player.getProgramField(j);
                     field.setVisible(true);
                 }
-                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
+                for (int j = 0; j < NO_OF_CARDS_IN_HAND; j++) {
                     CardField field = player.getCardField(j);
                     field.setVisible(true);
                 }

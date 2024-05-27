@@ -22,7 +22,7 @@ public class Card_CrabLegs extends UpgradeCardPermanent {
         // OnMoveStart
         eventListeners.add(EventHandler.subscribe((PlayerCommandListener) command -> {
             if (command == Command.MOVE_1) {
-                System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                printUsage();
                 owner.queueCommand(Command.CRAB_LEGS, gameController);
                 owner.queueCommand(Command.MOVE_1, false, gameController);
                 return Command.BRAKES;

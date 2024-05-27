@@ -4,7 +4,7 @@ import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.damage.Damage;
 
 @FunctionalInterface
-public interface PlayerDamageListener extends EventListener {
+public interface PlayerLaserHitListener extends EventListener {
     /**
      * Called when any player deals damage to one or more players.
      *

@@ -29,4 +29,5 @@ public class GameVariables {
     // Debug
     public final static boolean SHOW_DEBUG_COORDINATES = false;
     public final static boolean WITH_ACTION_MESSAGE = false;
+    public static final boolean SHOW_DEBUG_UPGRADE_CARD_USAGE = true;
 }

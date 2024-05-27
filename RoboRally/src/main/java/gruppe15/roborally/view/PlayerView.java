@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static gruppe15.roborally.GameSettings.NO_OF_CARDS_IN_HAND;
 import static gruppe15.roborally.model.Phase.*;
 import static gruppe15.roborally.GameVariables.CARDFIELD_SIZE;
 
@@ -116,8 +117,8 @@ public class PlayerView extends Tab implements ViewObserver {
         double programPaneOffset = CARDFIELD_SIZE * 1.12;
 
         cardsPane = new GridPane();
-        cardViews = new CardFieldView[Player.NO_OF_CARDS];
-        for (int i = 0; i < Player.NO_OF_CARDS; i++) {
+        cardViews = new CardFieldView[NO_OF_CARDS_IN_HAND];
+        for (int i = 0; i < NO_OF_CARDS_IN_HAND; i++) {
             CardField cardField = player.getCardField(i);
             if (cardField != null) {
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 0.7, 1.4 * 0.7);
@@ -129,7 +130,7 @@ public class PlayerView extends Tab implements ViewObserver {
                                 "-fx-border-radius: 5"
                 );
                 GridPane.setMargin(cardFieldView, new Insets(2, 2, 2, 2));
-                cardsPane.add(cardViews[i], i % (Player.NO_OF_CARDS / 2), i / (Player.NO_OF_CARDS / 2));
+                cardsPane.add(cardViews[i], i % (NO_OF_CARDS_IN_HAND / 2), i / (NO_OF_CARDS_IN_HAND / 2));
                 player.board.attach(cardFieldView);
             }
         }

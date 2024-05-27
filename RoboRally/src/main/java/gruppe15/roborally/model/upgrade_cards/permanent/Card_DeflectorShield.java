@@ -1,16 +1,16 @@
 package gruppe15.roborally.model.upgrade_cards.permanent;
 
+import gruppe15.roborally.GameVariables;
 import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.model.EventHandler;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.damage.DamageTypes;
+import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.events.PlayerLaserHitListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
-public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
+public class Card_DeflectorShield extends UpgradeCardPermanent {
+    private boolean activated = true;
 
-    public Card_BlueScreenOfDeath() {
-        super("Blue Screen of Death", 4, 0, 0, null);
+    public Card_DeflectorShield() {
+        super("Deflector Shield", 2, 1, 1, Phase.PLAYER_ACTIVATION, Phase.PLAYER_ACTIVATION);
     }
 
     @Override
@@ -21,12 +21,13 @@ public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
 
         // OnDamageDealt
         eventListeners.add(EventHandler.subscribe((PlayerLaserHitListener) (damage, playerTakingDamage) -> {
-            if (owner != playerTakingDamage) {
-                if (damage.getAmount(DamageTypes.SPAM) > 0) {
-                    printUsage();
-                    // Modifying damage
-                    damage.subtractAmount(DamageTypes.SPAM,1);
-                    damage.addAmount(DamageTypes.WORM, 1);
+            if (owner == playerTakingDamage) {
+                if (activated) {
+                    activated = false;
+                    if (GameVariables.SHOW_DEBUG_UPGRADE_CARD_USAGE) {
+                        System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\" to negate laser damage.");
+                    }
+                    damage.clear();
                 }
             }
             return damage;
@@ -45,6 +46,7 @@ public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
 
     @Override
     protected void onActivated() {
-
+        super.onActivated();
+        activated = true;
     }
 }

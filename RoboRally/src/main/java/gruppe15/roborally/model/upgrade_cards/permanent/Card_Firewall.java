@@ -4,7 +4,7 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.damage.DamageTypes;
-import gruppe15.roborally.model.events.PlayerDamageListener;
+import gruppe15.roborally.model.events.PlayerLaserHitListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
 public class Card_Firewall extends UpgradeCardPermanent {
@@ -20,9 +20,9 @@ public class Card_Firewall extends UpgradeCardPermanent {
         // Defining effects on events
 
         // OnDamageDealt
-        eventListeners.add(EventHandler.subscribe((PlayerDamageListener) (damage, playerTakingDamage) -> {
+        eventListeners.add(EventHandler.subscribe((PlayerLaserHitListener) (damage, playerTakingDamage) -> {
             if (owner == playerTakingDamage && owner.getIsRebooting()) {
-                System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                printUsage();
                 // Modifying damage
                 damage.setAmount(DamageTypes.SPAM, 0);
             }

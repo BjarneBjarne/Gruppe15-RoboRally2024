@@ -14,26 +14,25 @@ public abstract class UpgradeCardTemporary extends UpgradeCard {
     }
 
     @Override
-    public void tryActivate() {
-        if (canBeActivated()) {
-            this.currentUses--;
-            this.onActivated();
+    protected void onActivated() {
+        printUsage();
+    }
 
-            // Remove card on use
-            if (refreshedOn == null && this.currentUses == 0) {
-                unInitialize();
-            }
+    @Override
+    public void tryActivate() {
+        super.tryActivate();
+        // Remove card on use
+        if (refreshedOn == null && this.currentUses - 1 == 0) {
+            unInitialize();
         }
     }
 
     @Override
-    protected void onActivated() {
-        System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
-        if (this.currentUses == 0) {
-            for (CardField cardField : owner.getTemporaryUpgradeCardFields()) {
-                if (cardField.getCard() == this) {
-                    cardField.setCard(null);
-                }
+    public void unInitialize() {
+        super.unInitialize();
+        for (CardField cardField : owner.getTemporaryUpgradeCardFields()) {
+            if (cardField.getCard() == this) {
+                cardField.setCard(null);
             }
         }
     }

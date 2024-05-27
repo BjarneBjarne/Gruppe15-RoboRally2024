@@ -24,11 +24,10 @@ package gruppe15.roborally.model;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.exceptions.IllegalPlayerPropertyAccess;
-import gruppe15.roborally.model.events.PlayerShootListener;
+import gruppe15.roborally.model.damage.Damage;
 import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
 import gruppe15.roborally.model.player_interaction.RebootInteraction;
 import gruppe15.roborally.model.upgrade_cards.*;
-import gruppe15.roborally.model.upgrade_cards.permanent.Card_RearLaser;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
@@ -47,10 +46,10 @@ import static gruppe15.roborally.model.Heading.SOUTH;
  */
 public class Player extends Subject {
     final public static int NO_OF_REGISTERS = 5;
-    final public static int NO_OF_CARDS = 8;
     final public static int NO_OF_PERMANENT_UPGRADE_CARDS = 3;
     final public static int NO_OF_TEMPORARY_UPGRADE_CARDS = 3;
     final public static int NO_OF_ENERGY_CUBES = 10;
+    private int maxNoOfCardsInHand = 9;
 
     final public Board board;
 
@@ -64,7 +63,7 @@ public class Player extends Subject {
     transient private Command lastCmd;
 
     transient private final CardField[] programFields;
-    transient private final CardField[] cardFields;
+    transient private final CardField[] cardHandFields;
     transient private final CardField[] permanentUpgradeCardFields;
     transient private final CardField[] temporaryUpgradeCardFields;
     private int energyCubes = 5;
@@ -80,6 +79,9 @@ public class Player extends Subject {
     transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
+    private final Damage temporaryBonusDamage = new Damage(0, 0, 0, 0);
+    private final Damage permanentBonusDamage = new Damage(0, 0, 0, 0);
+
 
     public Player(@NotNull Board board, @NotNull Robots robot, @NotNull String name) {
         this.board = board;
@@ -93,9 +95,9 @@ public class Player extends Subject {
         for (int i = 0; i < programFields.length; i++) {
             programFields[i] = new CardField(this,i+1);
         }
-        cardFields = new CardField[NO_OF_CARDS];
-        for (int i = 0; i < cardFields.length; i++) {
-            cardFields[i] = new CardField(this, CardField.CardFieldTypes.COMMAND_CARD_FIELD);
+        cardHandFields = new CardField[10];
+        for (int i = 0; i < cardHandFields.length; i++) {
+            cardHandFields[i] = new CardField(this, CardField.CardFieldTypes.COMMAND_CARD_FIELD);
         }
         permanentUpgradeCardFields = new CardField[NO_OF_PERMANENT_UPGRADE_CARDS];
         for (int i = 0; i < permanentUpgradeCardFields.length; i++) {
@@ -180,6 +182,13 @@ public class Player extends Subject {
                 space.playerChanged();
             }
         }
+    }
+
+    public int getMaxNoOfCardsInHand() {
+        return maxNoOfCardsInHand;
+    }
+    public void setMaxNoOfCardsInHand(int maxNoOfCardsInHand) {
+        this.maxNoOfCardsInHand = maxNoOfCardsInHand;
     }
 
     public int getPriority() {return priority;}
@@ -291,10 +300,10 @@ public class Player extends Subject {
     }
 
     public CardField getCardField(int i) {
-        return cardFields[i];
+        return cardHandFields[i];
     }
-    public CardField[] getCardFields() {
-        return cardFields;
+    public CardField[] getCardHandFields() {
+        return cardHandFields;
     }
 
     public CardField getPermanentUpgradeCardField(int i) {
@@ -483,9 +492,9 @@ public class Player extends Subject {
      * @author Maximillian Bjørn Mortensen
      */
     public void drawHand() {
-        for (CardField c: cardFields) {
-            if (c.getCard() == null) {
-                c.setCard(drawFromDeck());
+        for (int i = 0; i < maxNoOfCardsInHand; i++) {
+            if (cardHandFields[i].getCard() == null) {
+                cardHandFields[i].setCard(drawFromDeck());
             }
         }
     }
@@ -511,10 +520,12 @@ public class Player extends Subject {
     }
 
     public void discardHand() {
-        for (CardField c: cardFields) {
-            if(c.getCard() instanceof CommandCard commandCard) {
-                discard(commandCard);
-                c.setCard(null);
+        for (CardField c: cardHandFields) {
+            if (c.getCard() != null) {
+                if(c.getCard() instanceof CommandCard commandCard) {
+                    discard(commandCard);
+                    c.setCard(null);
+                }
             }
         }
     }
@@ -722,5 +733,28 @@ public class Player extends Subject {
         Laser laser = new Laser(space, direction, this, Player.class, Space.class);
 
         EventHandler.event_PlayerShootHandle(this, laser);
+    }
+
+    public void addPermanentBonusDamage(Damage bonusDamage) {
+        this.permanentBonusDamage.add(bonusDamage);
+    }
+    public void removePermanentBonusDamage(Damage bonusDamage) {
+        this.permanentBonusDamage.subtract(bonusDamage);
+    }
+    public void clearPermanentBonusDamage() {
+        this.permanentBonusDamage.clear();
+    }
+    public Damage getPermanentBonusDamage() {
+        return this.permanentBonusDamage;
+    }
+
+    public void addTemporaryBonusDamage(Damage bonusDamage) {
+        this.temporaryBonusDamage.add(bonusDamage);
+    }
+    public Damage useTemporaryBonusDamage() {
+        Damage usedTemporaryBonusDamage = new Damage(0, 0, 0, 0);
+        usedTemporaryBonusDamage.add(this.temporaryBonusDamage);
+        this.temporaryBonusDamage.clear();
+        return usedTemporaryBonusDamage;
     }
 }

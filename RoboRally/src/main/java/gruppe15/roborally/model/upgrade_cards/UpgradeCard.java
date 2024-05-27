@@ -1,9 +1,9 @@
 package gruppe15.roborally.model.upgrade_cards;
 
+import gruppe15.roborally.GameVariables;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +63,7 @@ public abstract class UpgradeCard extends Card {
             if (phase == refreshedOn) {
                 refresh();
             }
+            // Enables and disables on corresponding phases
             setEnabled(activatableOn.contains(phase));
         });
         refresh();
@@ -93,7 +94,7 @@ public abstract class UpgradeCard extends Card {
         return this.enabled;
     }
 
-    public boolean onCooldown() {
+    public boolean isOnCooldown() {
         return currentUses == 0;
     }
 
@@ -106,14 +107,14 @@ public abstract class UpgradeCard extends Card {
      */
     public void tryActivate() {
         if (canBeActivated()) {
-            this.onActivated();
             this.currentUses--;
+            this.onActivated();
             owner.setEnergyCubes(owner.getEnergyCubes() - useCost);
         }
     }
 
     public boolean canBeActivated() {
-        return enabled && !onCooldown() && owner.getEnergyCubes() >= useCost;
+        return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost;
     }
 
     public int getPurchaseCost() {
@@ -122,5 +123,11 @@ public abstract class UpgradeCard extends Card {
 
     public boolean getHasActivateButton() {
         return activatableOn != null;
+    }
+
+    public void printUsage() {
+        if (GameVariables.SHOW_DEBUG_UPGRADE_CARD_USAGE) {
+            System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+        }
     }
 }

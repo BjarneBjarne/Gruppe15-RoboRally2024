@@ -27,7 +27,7 @@ public class Card_SpamBlocker extends UpgradeCardTemporary {
 
     @Override
     protected void onActivated() {
-        CardField[] playerCardFields = owner.getCardFields();
+        CardField[] playerCardFields = owner.getCardHandFields();
         for (CardField playerCardField : playerCardFields) {
             if (playerCardField.getCard() instanceof CommandCard card) {
                 if (card.command == Command.SPAM) {

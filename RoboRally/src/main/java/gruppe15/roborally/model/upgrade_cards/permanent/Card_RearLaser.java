@@ -21,7 +21,7 @@ public class Card_RearLaser extends UpgradeCardPermanent {
 
         eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser) -> {
             if (playerShooting == owner) {
-                System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                printUsage();
                 // Adding another laser
                 owner.shootLaser(owner.getHeading().opposite());
             }

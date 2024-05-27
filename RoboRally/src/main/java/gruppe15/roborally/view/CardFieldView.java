@@ -40,6 +40,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
+import static gruppe15.roborally.GameSettings.NO_OF_CARDS_IN_HAND;
 import static gruppe15.roborally.GameVariables.*;
 
 /**
@@ -123,7 +124,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                     return "P," + i;    // Program cards
                 }
             }
-            for (int i = 0; i < Player.NO_OF_CARDS; i++) {
+            for (int i = 0; i < NO_OF_CARDS_IN_HAND; i++) {
                 CardField other = cardField.player.getCardField(i);
                 if (other == cardField) {
                     return "C," + i;    // Cards in hand
@@ -171,7 +172,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                             }
                         }
                         case "C" -> {
-                            if (i < Player.NO_OF_CARDS) {
+                            if (i < NO_OF_CARDS_IN_HAND) {
                                 return field.player.getCardField(i);
                             }
                         }

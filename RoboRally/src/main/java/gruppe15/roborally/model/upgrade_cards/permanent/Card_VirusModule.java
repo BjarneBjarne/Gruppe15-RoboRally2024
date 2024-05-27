@@ -4,13 +4,13 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.damage.DamageTypes;
-import gruppe15.roborally.model.events.PlayerLaserHitListener;
+import gruppe15.roborally.model.events.PlayerPushListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
-public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
+public class Card_VirusModule extends UpgradeCardPermanent {
 
-    public Card_BlueScreenOfDeath() {
-        super("Blue Screen of Death", 4, 0, 0, null);
+    public Card_VirusModule() {
+        super("Virus Module", 2);
     }
 
     @Override
@@ -19,15 +19,10 @@ public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
 
         // Defining effects on events
 
-        // OnDamageDealt
-        eventListeners.add(EventHandler.subscribe((PlayerLaserHitListener) (damage, playerTakingDamage) -> {
-            if (owner != playerTakingDamage) {
-                if (damage.getAmount(DamageTypes.SPAM) > 0) {
-                    printUsage();
-                    // Modifying damage
-                    damage.subtractAmount(DamageTypes.SPAM,1);
-                    damage.addAmount(DamageTypes.WORM, 1);
-                }
+        eventListeners.add(EventHandler.subscribe((PlayerPushListener) (playerPushing, playerToPush, damage) -> {
+            if (owner == playerPushing) {
+                printUsage();
+                damage.addAmount(DamageTypes.VIRUS, 1);
             }
             return damage;
         }, owner));

@@ -123,7 +123,7 @@ public class GameController {
                     field.setVisible(true);
                 }
                 player.drawHand();
-                for (int j = 0; j < Player.NO_OF_CARDS; j++) {
+                for (int j = 0; j < NO_OF_CARDS_IN_HAND; j++) {
                     CardField field = player.getCardField(j);
                     field.setVisible(true);
                 }
@@ -176,6 +176,7 @@ public class GameController {
      *     These methods are the main flow of a register.
      */
     private void handlePlayerRegister() {
+        board.setPhase(PLAYER_ACTIVATION);
         System.out.println();
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
@@ -217,6 +218,7 @@ public class GameController {
      * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
      */
     private void handleEndOfRegister() {
+        board.setPhase(BOARD_ACTIVATION);
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
         handleBoardElementActions();
