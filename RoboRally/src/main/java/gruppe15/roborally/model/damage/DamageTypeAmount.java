@@ -11,6 +11,12 @@ public class DamageTypeAmount {
     public void setAmount(int newAmount) {
         this.amount = newAmount;
     }
+    public void addAmount(int amount) {
+        this.amount += amount;
+    }
+    public void subtractAmount(int amount) {
+        this.amount -= amount;
+    }
     public int getAmount() {
         return this.amount;
     }

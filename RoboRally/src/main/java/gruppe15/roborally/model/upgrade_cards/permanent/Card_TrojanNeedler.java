@@ -5,12 +5,13 @@ import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.damage.DamageTypes;
 import gruppe15.roborally.model.events.PlayerLaserHitListener;
+import gruppe15.roborally.model.events.PlayerPushListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
-public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
+public class Card_TrojanNeedler extends UpgradeCardPermanent {
 
-    public Card_BlueScreenOfDeath() {
-        super("Blue Screen of Death", 4, 0, 0, null);
+    public Card_TrojanNeedler() {
+        super("Trojan Needler", 3, 0, 0, null);
     }
 
     @Override
@@ -22,11 +23,24 @@ public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
         // OnDamageDealt
         eventListeners.add(EventHandler.subscribe((PlayerLaserHitListener) (damage, playerTakingDamage) -> {
             if (owner != playerTakingDamage) {
+                printUsage();
+                if (damage.getAmount(DamageTypes.SPAM) > 0) {
+                    // Modifying damage
+                    damage.subtractAmount(DamageTypes.SPAM, 1);
+                    damage.addAmount(DamageTypes.TROJAN_HORSE, 1);
+                }
+            }
+            return damage;
+        }, owner));
+
+        // On push
+        eventListeners.add(EventHandler.subscribe((PlayerPushListener) (playerPushing, playerToPush, damage) -> {
+            if (owner == playerPushing) {
                 if (damage.getAmount(DamageTypes.SPAM) > 0) {
                     printUsage();
                     // Modifying damage
-                    damage.subtractAmount(DamageTypes.SPAM,1);
-                    damage.addAmount(DamageTypes.WORM, 1);
+                    damage.subtractAmount(DamageTypes.SPAM, 1);
+                    damage.addAmount(DamageTypes.TROJAN_HORSE, 1);
                 }
             }
             return damage;

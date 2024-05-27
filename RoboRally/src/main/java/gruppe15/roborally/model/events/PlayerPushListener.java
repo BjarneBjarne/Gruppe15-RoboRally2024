@@ -1,6 +1,7 @@
 package gruppe15.roborally.model.events;
 
 import gruppe15.roborally.model.Player;
+import gruppe15.roborally.model.damage.Damage;
 
 @FunctionalInterface
 
@@ -10,5 +11,5 @@ public interface PlayerPushListener extends EventListener {
      *
      * @return
      */
-    void onPush(Player playerPushing, Player playerToPush);
+    Damage onPush(Player playerPushing, Player playerToPush, Damage damage);
 }

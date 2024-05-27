@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static gruppe15.roborally.GameSettings.STANDARD_DAMAGE;
+
 /**
  * This static class is for handling whenever an event takes place. Each "event" is defined as an extension of the EventListener.
  * <br>
@@ -73,6 +75,9 @@ public class EventHandler {
     }
 
 
+
+
+
     /**
      * Method for letting a player laser start at the EventManager, letting PlayerShootListeners modify the "original" laser.
      * This should ONLY be called from within player.queueLaser().
@@ -115,14 +120,17 @@ public class EventHandler {
                 if (target == playerShooting) {
                     continue;
                 }
-                Damage damage = new Damage(1, 0, 0, 0);
+                Damage damage = new Damage(0, 0, 0, 0);
+                damage.add(STANDARD_DAMAGE);
+                damage.add(playerShooting.getPermanentBonusDamage());
+                damage.add(playerShooting.useTemporaryBonusDamage());
 
                 // Apply any modifications to damage based on player's cards
-                List<PlayerDamageListener> playerPlayerDamageListeners = getPlayerCardEventListeners(playerShooting, PlayerDamageListener.class);
-                for (PlayerDamageListener listener : playerPlayerDamageListeners) {
+                List<PlayerLaserHitListener> playerPlayerLaserHitListeners = getPlayerCardEventListeners(playerShooting, PlayerLaserHitListener.class);
+                for (PlayerLaserHitListener listener : playerPlayerLaserHitListeners) {
                     damage = listener.onPlayerDamage(damage, null);
                 }
-                event_PlayerDamage(target, playerShooting, damage, actionQueue);
+                event_PlayerDamage(target, playerShooting, damage);
             }
         } catch (InterruptedException e) {
             // Handle InterruptedException
@@ -152,9 +160,10 @@ public class EventHandler {
      * @param damage The damage to deal to the playerTakingDamage.
      * @param actionQueue
      */
-    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage, LinkedList<ActionWithDelay> actionQueue) {
-        List<PlayerDamageListener> playerDamageListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerDamageListener.class);
-        for (PlayerDamageListener listener : playerDamageListeners) {
+    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage) {
+        LinkedList<ActionWithDelay> actionQueue = playerInflictingTheDamage.board.getBoardActionQueue();
+        List<PlayerLaserHitListener> playerLaserHitListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerLaserHitListener.class);
+        for (PlayerLaserHitListener listener : playerLaserHitListeners) {
             damage = listener.onPlayerDamage(damage, playerTakingDamage);
         }
 
@@ -207,19 +216,24 @@ public class EventHandler {
         for (Player playerToPush : playersToPush) {
             if (playerToPush == playerPushing) continue; // Player can't push themselves.
 
+            // Normally there is no damage on push.
+            Damage damage = new Damage(0, 0, 0, 0);
+
             // Players being pushed modifiers
             List<PlayerPushListener> playerPushedListeners = getPlayerCardEventListeners(playerToPush, PlayerPushListener.class);
             for (PlayerPushListener listener : playerPushedListeners) {
-                listener.onPush(playerPushing, playerToPush);
+                listener.onPush(playerPushing, playerToPush, damage);
             }
 
             // Player pushing modifiers
             if (playerPushing != null) {
                 List<PlayerPushListener> playerPushingListeners = getPlayerCardEventListeners(playerPushing, PlayerPushListener.class);
                 for (PlayerPushListener listener : playerPushingListeners) {
-                    listener.onPush(playerPushing, playerToPush);
+                    listener.onPush(playerPushing, playerToPush, damage);
                 }
             }
+
+            event_PlayerDamage(playerToPush, playerPushing, damage);
 
             // Set players new position
             Space nextSpace = playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces);

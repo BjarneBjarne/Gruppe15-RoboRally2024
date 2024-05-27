@@ -21,7 +21,7 @@ public class Card_RailGun extends UpgradeCardPermanent {
 
         eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser) -> {
             if (playerShooting == owner) {
-                System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
+                printUsage();
                 // Modifying laser
                 laser = new Laser(laser.origin, laser.direction, laser.owner); // No collision
             }

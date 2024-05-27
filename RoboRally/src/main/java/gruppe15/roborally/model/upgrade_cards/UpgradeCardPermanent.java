@@ -1,5 +1,6 @@
 package gruppe15.roborally.model.upgrade_cards;
 
+import gruppe15.roborally.model.CardField;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Phase;
 import gruppe15.roborally.model.events.EventListener;
@@ -24,11 +25,23 @@ public abstract class UpgradeCardPermanent extends UpgradeCard {
     }
 
     @Override
-    public void unInitialize() {
-        super.unInitialize();
+    protected void onActivated() {
+        printUsage();
+    }
 
+    @Override
+    public void unInitialize() {
+        // Unsubscribe
         for (EventListener eventListener : eventListeners) {
             EventHandler.unsubscribe(eventListener, owner);
         }
+
+        // Remove from player UI
+        for (CardField cardField : owner.getPermanentUpgradeCardFields()) {
+            if (cardField.getCard() == this) {
+                cardField.setCard(null);
+            }
+        }
+        super.unInitialize();
     }
 }
