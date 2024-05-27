@@ -10,7 +10,7 @@ import java.util.Queue;
 
 public class Card_AdminPrivilege extends UpgradeCardPermanent {
     public Card_AdminPrivilege() {
-        super("Admin Privilege", 3, 0, 1, Phase.PROGRAMMING, Phase.ACTIVATION);
+        super("Admin Privilege", 3, 0, 1, Phase.PROGRAMMING, Phase.PLAYER_ACTIVATION);
     }
 
     @Override

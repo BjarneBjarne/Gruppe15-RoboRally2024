@@ -7,7 +7,7 @@ import gruppe15.roborally.model.upgrade_cards.UpgradeCardTemporary;
 public class Card_Recharge extends UpgradeCardTemporary {
 
     public Card_Recharge() {
-        super("Recharge", 0, 0, 1, null, Phase.PROGRAMMING, Phase.ACTIVATION, Phase.UPGRADE, Phase.PLAYER_INTERACTION);
+        super("Recharge", 0, 0, 1, null, Phase.PROGRAMMING, Phase.PLAYER_ACTIVATION, Phase.BOARD_ACTIVATION, Phase.UPGRADE);
     }
 
     @Override

@@ -24,6 +24,8 @@ package gruppe15.roborally.view;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
+import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
+import gruppe15.roborally.model.player_interaction.PlayerInteraction;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -283,7 +285,7 @@ public class PlayerView extends Tab implements ViewObserver {
         if (subject == board) {
             for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardFieldView cardFieldView = programCardViews[i];
-                if (cardFieldView != null && board.getPhase() == ACTIVATION) {
+                if (cardFieldView != null && board.getPhase() == PLAYER_ACTIVATION) {
                     if (i < board.getCurrentRegister()) {
                         cardFieldView.setBackground(CardFieldView.BG_DONE);
                     } else if (i == board.getCurrentRegister()) {
@@ -296,7 +298,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 }
             }
 
-            if (board.getPhase() != PLAYER_INTERACTION) {
+            if (gameController.getPlayerInteractionQueue().isEmpty()) {
                 interactionPane.getChildren().remove(playerOptionsPanel);
                 if (!interactionPane.getChildren().contains(executePanel)) {
                     interactionPane.getChildren().add(executePanel);
@@ -307,7 +309,12 @@ public class PlayerView extends Tab implements ViewObserver {
                         executeButton.setDisable(true);
                         stepButton.setDisable(true);
                         break;
-                    case ACTIVATION:
+                    case PLAYER_ACTIVATION:
+                        finishButton.setDisable(true);
+                        executeButton.setDisable(gameController.getIsRegisterPlaying());
+                        stepButton.setDisable(gameController.getIsRegisterPlaying());
+                        break;
+                    case BOARD_ACTIVATION:
                         finishButton.setDisable(true);
                         executeButton.setDisable(gameController.getIsRegisterPlaying());
                         stepButton.setDisable(gameController.getIsRegisterPlaying());
@@ -317,21 +324,18 @@ public class PlayerView extends Tab implements ViewObserver {
                         executeButton.setDisable(true);
                         stepButton.setDisable(true);
                 }
-            } else {
+            } else if (gameController.getCurrentPlayerInteraction() instanceof CommandOptionsInteraction commandOptionsInteraction) {
                 interactionPane.getChildren().remove(executePanel);
                 if (!interactionPane.getChildren().contains(playerOptionsPanel)) {
                     interactionPane.getChildren().add(playerOptionsPanel);
                 }
 
                 playerOptionsPanel.getChildren().clear();
-                if (board.getCurrentPlayer() == player) {
-                    List<Command> options = player.getCurrentOptions();
+                if (commandOptionsInteraction.player == player) {
+                    List<Command> options = commandOptionsInteraction.getOptions();
                     for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(e -> {
-                            gameController.executeCommandOptionAndContinue(command);
-                            player.setCurrentOptions(new ArrayList<>());
-                        });
+                        optionButton.setOnAction(e -> gameController.executeCommandOptionAndContinue(command));
                         optionButton.setDisable(false);
                         playerOptionsPanel.getChildren().add(optionButton);
                     }

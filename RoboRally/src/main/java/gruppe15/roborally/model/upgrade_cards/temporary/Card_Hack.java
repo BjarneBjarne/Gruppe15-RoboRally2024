@@ -8,7 +8,7 @@ import gruppe15.roborally.model.upgrade_cards.UpgradeCardTemporary;
 public class Card_Hack extends UpgradeCardTemporary {
 
     public Card_Hack() {
-        super("Hack", 1, 0, 1, null, Phase.ACTIVATION);
+        super("Hack", 1, 0, 1, null, Phase.PLAYER_ACTIVATION);
     }
 
     @Override

@@ -30,6 +30,15 @@ public abstract class UpgradeCard extends Card {
     protected Player owner;
     protected GameController gameController;
 
+    /**
+     * Constructor for any Upgrade Card.
+     * @param title The name of the card.
+     * @param purchaseCost The amount of energy cubes it costs to purchase the card.
+     * @param useCost The amount of energy cubes it costs to use the card.
+     * @param maxUses The uses the upgrade card has, before it needs to be refreshed. Temporary cards don't refresh.
+     * @param refreshedOn The Phase that the card is refreshed.
+     * @param activatableOn Leave as NULL if the card can't be activated. If it can, it will have a "Use"-button that can be clicked to activate the card on the activatableOn phase(s).
+     */
     public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, Phase... activatableOn) {
         this.title = title;
         this.purchaseCost = purchaseCost;
@@ -99,11 +108,12 @@ public abstract class UpgradeCard extends Card {
         if (canBeActivated()) {
             this.onActivated();
             this.currentUses--;
+            owner.setEnergyCubes(owner.getEnergyCubes() - useCost);
         }
     }
 
     public boolean canBeActivated() {
-        return enabled && !onCooldown();
+        return enabled && !onCooldown() && owner.getEnergyCubes() >= useCost;
     }
 
     public int getPurchaseCost() {

@@ -12,7 +12,7 @@ import java.util.Queue;
 public class Card_ManualSort extends UpgradeCardTemporary {
 
     public Card_ManualSort() {
-        super("Manual Sort", 1, 0, 1, null, Phase.ACTIVATION);
+        super("Manual Sort", 1, 0, 1, null, Phase.PLAYER_ACTIVATION);
     }
 
     @Override

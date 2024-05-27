@@ -12,10 +12,10 @@ import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Card_PressorBeam extends UpgradeCardPermanent {
+public class Card_TractorBeam extends UpgradeCardPermanent {
 
-    public Card_PressorBeam() {
-        super("Pressor Beam", 3, 0, 0, null);
+    public Card_TractorBeam() {
+        super("Tractor Beam", 3, 0, 0, null);
     }
 
     @Override
@@ -27,28 +27,27 @@ public class Card_PressorBeam extends UpgradeCardPermanent {
         // OnDamageDealt
         eventListeners.add(EventHandler.subscribe((PlayerDamageListener) (damage, playerTakingDamage) -> {
             if (owner != playerTakingDamage) {
-                // pushDirection calculated for compatibility with e.g. "REAR LASER" UpgradeCardPermanent.
-                List<Player> playerToPush = new ArrayList<>();
-                playerToPush.add(playerTakingDamage);
-                Heading pushDirection;
                 Space ownerSpace = owner.getSpace();
                 Space targetSpace = playerTakingDamage.getSpace();
-                if (ownerSpace.y > targetSpace.y) {
-                    pushDirection = Heading.NORTH;
-                } else if (ownerSpace.y < targetSpace.y) {
-                    pushDirection = Heading.SOUTH;
-                } else if (ownerSpace.x < targetSpace.x) {
-                    pushDirection = Heading.EAST;
-                } else {
-                    pushDirection = Heading.WEST;
+
+                if (targetSpace.getDistanceFromOtherSpace(ownerSpace) <= 1) {
+                    return damage;
                 }
 
-                EventHandler.event_PlayerPush(owner.board.getSpaces(), owner, playerToPush, pushDirection, gameController);
-                if (damage.getAmount(DamageTypes.SPAM) > 0) {
-                    System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
-                    // Modifying damage
-                    damage.setAmount(DamageTypes.SPAM, damage.getAmount(DamageTypes.SPAM) - 1);
-                    damage.setAmount(DamageTypes.WORM, damage.getAmount(DamageTypes.WORM) + 1);
+                // pullDirection calculated for compatibility with e.g. "REAR LASER" UpgradeCardPermanent.
+                Heading pullDirection;
+                if (ownerSpace.y > targetSpace.y) {
+                    pullDirection = Heading.SOUTH;
+                } else if (ownerSpace.y < targetSpace.y) {
+                    pullDirection = Heading.NORTH;
+                } else if (ownerSpace.x < targetSpace.x) {
+                    pullDirection = Heading.WEST;
+                } else {
+                    pullDirection = Heading.EAST;
+                }
+
+                if (!targetSpace.getIsWallBetween(targetSpace.getSpaceNextTo(pullDirection, owner.board.getSpaces()))) {
+                    // TODO: Queue action with pull
                 }
             }
             return damage;

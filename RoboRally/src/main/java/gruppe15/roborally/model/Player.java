@@ -24,7 +24,11 @@ package gruppe15.roborally.model;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.exceptions.IllegalPlayerPropertyAccess;
+import gruppe15.roborally.model.events.PlayerShootListener;
+import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
+import gruppe15.roborally.model.player_interaction.RebootInteraction;
 import gruppe15.roborally.model.upgrade_cards.*;
+import gruppe15.roborally.model.upgrade_cards.permanent.Card_RearLaser;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
@@ -34,8 +38,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static gruppe15.roborally.model.Heading.SOUTH;
-import static gruppe15.roborally.model.Phase.PLAYER_INTERACTION;
-import static gruppe15.roborally.model.utils.GameSettings.KEEP_HAND;
 
 /**
  * ...
@@ -263,9 +265,14 @@ public class Player extends Subject {
         }
     }
 
-    public void startRebooting() {
-        for (int i = 0; i < 2; i++) {
-            discard(new CommandCard(Command.SPAM));
+    public void startRebooting(GameController gameController, boolean takeDamage) {
+        if (takeDamage) {
+            for (int i = 0; i < 2; i++) {
+                discard(new CommandCard(Command.SPAM));
+            }
+        }
+        if (board.getPhase() != Phase.INITIALIZATION) {
+            gameController.addPlayerInteraction(new RebootInteraction(gameController, this));
         }
         this.rebooting = true;
     }
@@ -315,6 +322,7 @@ public class Player extends Subject {
                 if (ownedCards.getClass().isAssignableFrom(shopField.getCard().getClass())) return false;
             boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(shopField, this);
             if (boughtCard != null) {
+                System.out.println("Player: \"" + name + "\" bought: \"" + boughtCard.getName() + "\".");
                 addUpgradeCard(boughtCard, gameController);
             }
             board.updateBoard();
@@ -328,7 +336,6 @@ public class Player extends Subject {
     }
     public void addUpgradeCard(UpgradeCard upgradeCard, GameController gameController) {
         try {
-            System.out.println("Player: \"" + name + "\" bought: \"" + upgradeCard.getName() + "\".");
             upgradeCards.add(upgradeCard);
             upgradeCard.initialize(this, gameController);
         } catch (NullPointerException e) {
@@ -352,6 +359,35 @@ public class Player extends Subject {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public boolean tryAddFreeUpgradeCard(UpgradeCard card, GameController gameController) {
+        boolean couldAdd = false;
+
+        if (card instanceof UpgradeCardPermanent) {
+            for (int i = 0; i < permanentUpgradeCardFields.length; i++) {
+                if (permanentUpgradeCardFields[i].getCard() == null) {
+                    permanentUpgradeCardFields[i].setCard(card);
+                    couldAdd = true;
+                    break;
+                }
+            }
+        } else if (card instanceof UpgradeCardTemporary) {
+            for (int i = 0; i < temporaryUpgradeCardFields.length; i++) {
+                if (temporaryUpgradeCardFields[i].getCard() == null) {
+                    temporaryUpgradeCardFields[i].setCard(card);
+                    couldAdd = true;
+                    break;
+                }
+            }
+        }
+
+        if (couldAdd) {
+            System.out.println("Player: \"" + name + "\" got: \"" + card.getName() + "\" for free.");
+            addUpgradeCard(card, gameController);
+        }
+
+        return couldAdd;
     }
 
     /**
@@ -495,20 +531,20 @@ public class Player extends Subject {
         }
     }
 
-    public List<Command> getCurrentOptions() {
-        return currentOptions;
-    }
-    public void setCurrentOptions(List<Command> currentOptions) {
-        this.currentOptions = currentOptions;
-    }
-
+    /**
+     * Method for queuing a player command, that upgrade cards should listen to. (That means commands that are not a command option.)
+     * @param command
+     * @param gameController
+     */
     public void queueCommand(Command command, GameController gameController) {
         queueCommand(command, true, gameController);
     }
 
     /**
-     * sets the players action from the command
+     * * sets the players action from the command
      * @param command
+     * @param notifyUpgradeCards Set to true, is the player is executing a programming card. If the player is executing an interaction option, we don't want to notify the UpgradeCards (again).
+     * @param gameController
      * @author Maximillian Bjørn Mortensen
      */
     public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {
@@ -609,26 +645,18 @@ public class Player extends Subject {
                 queueCommand(getLastCmd(), gameController);
                 break;
 
-            // Options
+            // Commands with options
             default:
                 if (command.isInteractive()) {
-                    board.setPhase(PLAYER_INTERACTION);
-                    setCurrentOptions(command.getOptions());
-                    board.updateBoard();
+                    gameController.addPlayerInteraction(new CommandOptionsInteraction(gameController, this, command.getOptions()));
                 } else {
                     System.out.println("Can't find command: " + command.displayName);
                 }
                 break;
         }
 
-        Set<Command> commandsToNotRepeat = Set.of(
-                Command.AGAIN,
-                Command.SPAM,
-                Command.TROJAN_HORSE,
-                Command.WORM,
-                Command.VIRUS
-        );
-        if (!commandsToNotRepeat.contains(command) && !notifyUpgradeCards) {
+        // If the card is repeatable and wasn't an option command.
+        if (command.repeatable && notifyUpgradeCards) {
             setLastCmd(command);
         }
 
@@ -684,5 +712,15 @@ public class Player extends Subject {
                 }
             }, Duration.millis(150), "Player rotation: " + getName()));
         }
+    }
+
+    /**
+     * Method for immediately shooting a laser. It is used to make multiple lasers at the same time or forcing a laser to be fired.
+     * @param direction The direction the laser should fire.
+     */
+    public void shootLaser(Heading direction) {
+        Laser laser = new Laser(space, direction, this, Player.class, Space.class);
+
+        EventHandler.event_PlayerShootHandle(this, laser);
     }
 }
