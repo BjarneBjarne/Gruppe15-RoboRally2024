@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static gruppe15.roborally.GameSettings.*;
+import static gruppe15.roborally.RoboRally.logger;
 
 /**
  * @author Maximillian Bjørn Mortensen
@@ -101,7 +102,13 @@ public class SetupView {
         // Course
         Platform.runLater(() -> {
             // Loading courses
+
             courses = CC_JsonUtil.getCoursesInFolder("courses");
+            if (courses.isEmpty()) {
+                logger.info("No courses found in courses folder.");
+            } else {
+                courses.forEach(course -> logger.debug(course.toString()));
+            }
 
             coursesScrollPane.setBackground(new Background(new BackgroundFill(
                     Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
@@ -268,6 +275,9 @@ public class SetupView {
                 if(playerCharacters[i].equals(playerCharacters[j])) return false;
             }
         }
+        if (courses.isEmpty()) return false;
+        if (courses.size() <= mapIndex) return false;
+
         return true;
     }
 }

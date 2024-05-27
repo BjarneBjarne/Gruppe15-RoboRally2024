@@ -5,13 +5,13 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.fileaccess.IOUtil;
 import javafx.geometry.Point2D;
+
+import static gruppe15.roborally.RoboRally.logger;
 
 public class CC_JsonUtil {
     private static final Gson gson = new GsonBuilder()
@@ -43,17 +43,31 @@ public class CC_JsonUtil {
         return null;
     }
 
+    public static CC_CourseData loadCourseDataFromInputStream(InputStream inputStream) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+            return gson.fromJson(reader, CC_CourseData.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static List<CC_CourseData> getCoursesInFolder(String folderName) {
-        List<File> courseFiles;
+        List<InputStream> courseFiles;
         try {
-            courseFiles = IOUtil.loadJsonFilesFromResources("courses");
-        } catch (URISyntaxException | IOException e) {
+            courseFiles = IOUtil.loadJsonFilesFromResources("gruppe15/roborally/" + folderName);
+        } catch (IOException | URISyntaxException e) {
+            logger.error("Error loading JSON files from resources", e);
             throw new RuntimeException(e);
         }
         List<CC_CourseData> courses = new ArrayList<>();
-        for (File courseFile : courseFiles) {
-            CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(courseFile);
-            courses.add(courseData);
+        for (InputStream courseFile : courseFiles) {
+            CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromInputStream(courseFile);
+            if (courseData != null) {
+                courses.add(courseData);
+            } else {
+                logger.warn("Failed to load course data from input stream");
+            }
         }
         return courses;
     }

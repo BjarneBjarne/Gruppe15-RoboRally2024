@@ -46,6 +46,8 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +71,8 @@ public class RoboRally extends Application {
     private AnchorPane mainMenu;
     private AnchorPane selectionMenu;
     private CC_Controller courseCreator;
+
+    public static final Logger logger = LoggerFactory.getLogger(RoboRally.class);
 
     @FXML
     StackPane upgradeShopTitelPane;

@@ -106,7 +106,7 @@ public class BE_ConveyorBelt extends BoardElement {
                 if (relativeNeighbors[2]) {
                     imageNameBuilder.append("Straight");
                 } else {
-                    imageNameBuilder.append("turn").append(relativeNeighbors[1] ? "Right" : "Left");
+                    imageNameBuilder.append("Turn").append(relativeNeighbors[1] ? "Right" : "Left");
                 }
                 break;
             case 3:

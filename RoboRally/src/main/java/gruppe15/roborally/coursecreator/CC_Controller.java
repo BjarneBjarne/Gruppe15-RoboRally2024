@@ -476,11 +476,11 @@ public class CC_Controller extends BorderPane {
         fileChooser.setTitle("Load Course");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
         String userHome = System.getProperty("user.home");
-        String relativePath = "\\RoboRally\\courses";
-        String directoryPath = userHome + relativePath;
+        String relativePath = "RoboRally/courses";
+        String directoryPath = userHome + File.separator + relativePath;
 
         File folderFile = new File(directoryPath);
-        // Create saves folder if it doesn't exist
+        // Create the courses directory if it doesn't exist
         if (!folderFile.exists()) {
             if (folderFile.mkdirs()) {
                 System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
@@ -489,13 +489,17 @@ public class CC_Controller extends BorderPane {
             }
         }
 
-        fileChooser.setInitialDirectory(new File(directoryPath));
+        fileChooser.setInitialDirectory(folderFile);
         File loadedFile = fileChooser.showOpenDialog(primaryScene.getWindow());
         if (loadedFile != null) {
-            // Load course
+            // Load course data from the selected file
             CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(loadedFile);
-            List<CC_SubBoard> loadedBoard = courseData.getSubBoards();
-            initializeLoadedBoard(loadedBoard);
+            if (courseData != null) {
+                List<CC_SubBoard> loadedBoard = courseData.getSubBoards();
+                initializeLoadedBoard(loadedBoard);
+            } else {
+                System.err.println("Failed to load course data from file: " + loadedFile.getAbsolutePath());
+            }
         }
     }
 
@@ -518,12 +522,14 @@ public class CC_Controller extends BorderPane {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Course");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
+
+        // Determine the user's home directory and set the relative path for RoboRally courses
         String userHome = System.getProperty("user.home");
-        String relativePath = "\\RoboRally\\courses";
-        String directoryPath = userHome + relativePath;
+        String relativePath = "RoboRally/courses";
+        String directoryPath = userHome + File.separator + relativePath;
 
         File folderFile = new File(directoryPath);
-        // Create saves folder if it doesn't exist
+        // Create the courses directory if it doesn't exist
         if (!folderFile.exists()) {
             if (folderFile.mkdirs()) {
                 System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
@@ -532,24 +538,29 @@ public class CC_Controller extends BorderPane {
             }
         }
 
-        fileChooser.setInitialDirectory(new File(directoryPath));
+        fileChooser.setInitialDirectory(folderFile);
         fileChooser.setInitialFileName("New course.json");
         File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
 
         if (saveFile != null) {
             try {
-                Dialog saveCourseImageDialog = new Dialog();
+                Dialog<ButtonType> saveCourseImageDialog = new Dialog<>();
                 saveCourseImageDialog.setHeaderText("Do you also want to save the course image as its own file?");
                 saveCourseImageDialog.setTitle("Save course image as PNG");
                 ButtonType yesButton = new ButtonType("Save as PNG");
                 ButtonType noButton = new ButtonType("Don't Save");
                 saveCourseImageDialog.getDialogPane().getButtonTypes().addAll(yesButton, noButton);
                 Optional<ButtonType> saveGameResult = saveCourseImageDialog.showAndWait();
-                boolean saveImageAsPNG = saveGameResult.get() == yesButton;
+                boolean saveImageAsPNG = saveGameResult.isPresent() && saveGameResult.get() == yesButton;
 
                 setLinesVisible(false);
-                CC_CourseData courseData = new CC_CourseData(saveFile.getName().replace(".json", ""), subBoards, getSnapshotAsBase64(CC_boardPane, 10));
+                CC_CourseData courseData = new CC_CourseData(
+                        saveFile.getName().replace(".json", ""),
+                        subBoards,
+                        getSnapshotAsBase64(CC_boardPane, 10)
+                );
                 setLinesVisible(true);
+
                 System.out.println("Saving course data to: " + saveFile.getAbsolutePath());
                 CC_JsonUtil.saveCourseDataToFile(courseData, saveFile, saveImageAsPNG);
             } catch (EmptyCourseException e) {
