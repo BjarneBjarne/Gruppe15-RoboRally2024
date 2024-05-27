@@ -63,20 +63,20 @@ public enum Command {
     CRAB_LEGS("Brakes", MOVE_LEFT, MOVE_RIGHT),
 
     // Damage commands
-    SPAM(DamageTypes.SPAM.displayName),
-    TROJAN_HORSE(DamageTypes.TROJAN_HORSE.displayName),
-    WORM(DamageTypes.WORM.displayName),
-    VIRUS(DamageTypes.VIRUS.displayName);
+    SPAM(DamageType.SPAM.displayName),
+    TROJAN_HORSE(DamageType.TROJAN_HORSE.displayName),
+    WORM(DamageType.WORM.displayName),
+    VIRUS(DamageType.VIRUS.displayName);
 
     public final String displayName;
     public final boolean repeatable;
     private final List<Command> options;
 
     static {
-        DamageTypes.SPAM.setCommandCardType(SPAM);
-        DamageTypes.TROJAN_HORSE.setCommandCardType(TROJAN_HORSE);
-        DamageTypes.WORM.setCommandCardType(WORM);
-        DamageTypes.VIRUS.setCommandCardType(VIRUS);
+        DamageType.SPAM.setCommandCardType(SPAM);
+        DamageType.TROJAN_HORSE.setCommandCardType(TROJAN_HORSE);
+        DamageType.WORM.setCommandCardType(WORM);
+        DamageType.VIRUS.setCommandCardType(VIRUS);
     }
     Command(String displayName, boolean repeatable, Command... options) {
         this.displayName = displayName;

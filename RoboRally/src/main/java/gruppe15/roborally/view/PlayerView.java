@@ -295,7 +295,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 }
             }
 
-            if (gameController.getPlayerInteractionQueue().isEmpty()) {
+            if (!gameController.getIsPlayerInteracting()) {
                 interactionPane.getChildren().remove(playerOptionsPanel);
                 if (!interactionPane.getChildren().contains(executePanel)) {
                     interactionPane.getChildren().add(executePanel);

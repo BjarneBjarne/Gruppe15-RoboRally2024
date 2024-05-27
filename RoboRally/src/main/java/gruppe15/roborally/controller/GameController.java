@@ -198,7 +198,7 @@ public class GameController {
     }
 
     private void handleEndOfPlayerTurn() {
-        if (!playerInteractionQueue.isEmpty()) {
+        if (getIsPlayerInteracting()) {
             // Return and wait for player interaction.
             return;
         }
@@ -228,7 +228,7 @@ public class GameController {
         runActionsAndCallback(this::nextRegister, board.getBoardActionQueue());
     }
     public void nextRegister() {
-        if (!playerInteractionQueue.isEmpty()) {
+        if (getIsPlayerInteracting()) {
             // Return and wait for player interaction.
             return;
         }
@@ -286,11 +286,15 @@ public class GameController {
                 System.out.println("Possible error? Phase is: \"" + board.getPhase() + "\", but currently running actions.");
             }
         } else {
-            handleNextInteration();
+            handleNextInteraction();
         }
     }
 
-    public void handleNextInteration() {
+    public boolean getIsPlayerInteracting() {
+        return currentPlayerInteraction != null || !playerInteractionQueue.isEmpty();
+    }
+
+    public void handleNextInteraction() {
         // Check if there are more interactions.
         if (playerInteractionQueue.isEmpty()) {
             // If not, continue
@@ -303,6 +307,7 @@ public class GameController {
         } else {
             currentPlayerInteraction = playerInteractionQueue.poll();
             currentPlayerInteraction.initializeInteraction();
+            board.updateBoard();
         }
     }
 
@@ -420,21 +425,7 @@ public class GameController {
 
 
 
-    public void setDirectionOptionsPane(Space space, Player playerRebooting) {
-        // Quirk fix for showing the player when another player is on the respawning players' spawn
-        Player playerOnSpawnPoint = space.getPlayer();
-        if (playerOnSpawnPoint != null) {
-            if (playerOnSpawnPoint != playerRebooting) {
-                if (playerRebooting.getSpawnPoint() == space) {
-                    Space otherSpawnPoint = playerOnSpawnPoint.getSpawnPoint();
-                    playerOnSpawnPoint.setSpace(otherSpawnPoint);
-                    playerOnSpawnPoint.setTemporarySpace(otherSpawnPoint);
-                    EventHandler.event_PlayerReboot(playerOnSpawnPoint, false, this);
-                    otherSpawnPoint.updateSpace();
-                }
-            }
-        }
-        playerRebooting.goToTemporarySpace();
+    public void setDirectionOptionsPane(Space space) {
         space.updateSpace();
 
         directionOptionsSpace = space;
@@ -447,7 +438,7 @@ public class GameController {
                 Player currentPlayer = board.getCurrentPlayer();
                 if (space.getPlayer() == null) {
                     space.setPlayer(currentPlayer);
-                    setDirectionOptionsPane(space, currentPlayer);
+                    setDirectionOptionsPane(space);
                 }
             }
         }

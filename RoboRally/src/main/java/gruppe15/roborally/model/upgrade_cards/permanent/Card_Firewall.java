@@ -3,7 +3,7 @@ package gruppe15.roborally.model.upgrade_cards.permanent;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.EventHandler;
 import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.damage.DamageTypes;
+import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.events.PlayerLaserHitListener;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 
@@ -24,7 +24,7 @@ public class Card_Firewall extends UpgradeCardPermanent {
             if (owner == playerTakingDamage && owner.getIsRebooting()) {
                 printUsage();
                 // Modifying damage
-                damage.setAmount(DamageTypes.SPAM, 0);
+                damage.setAmount(DamageType.SPAM, 0);
             }
             return damage;
         }, owner));

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static gruppe15.roborally.GameSettings.STANDARD_DAMAGE;
+
 /**
  * This class represents a board laser on the board and when a player is hit by
  * the laser, the player takes damage. The laser iterates through the board
@@ -44,29 +46,22 @@ public class BE_BoardLaser extends BoardElement {
         // Start the laser iteration asynchronously
         laser.startLaser(spaces).run();
         // Once the laser iteration is complete, calculate the damage
-        calculateDamage(space, laser, actionQueue);
+        dealDamage(laser, actionQueue);
         return true;
     }
 
     /**
-     * This method calculates the damage to the players hit by the board laser.
-     * 
-     * @param space       the space the board laser is on
+     * This method deals damage to the players hit by the board laser.
      * @param laser       the laser object
      * @param actionQueue the action queue
      */
-    private void calculateDamage(Space space, Laser laser, LinkedList<ActionWithDelay> actionQueue) {
-        // Calculate players on the laser synchronously
+    private void dealDamage(Laser laser, LinkedList<ActionWithDelay> actionQueue) {
         try {
-            List<Player> playersHit = new ArrayList<>();
-            for (Space ignored : laser.getSpacesHit()) {
-                Player target = space.getPlayer();
-                if (target != null) {
-                    playersHit.add(target);
-                }
-            }
-            Damage damage = new Damage(1, 0, 0, 0);
+            List<Player> playersHit = calculatePlayersHit(laser);
+            // Deal damage to each target player
             for (Player playerHit : playersHit) {
+                Damage damage = new Damage(0, 0, 0, 0);
+                damage.add(STANDARD_DAMAGE);
                 actionQueue.addFirst(new ActionWithDelay(() -> {
                     damage.applyDamage(playerHit, null);
                     System.out.println(playerHit.getName() + " hit by board laser!");
@@ -74,7 +69,21 @@ public class BE_BoardLaser extends BoardElement {
             }
         } catch (InterruptedException e) {
             // Handle InterruptedException
-            System.out.println("Board laser interrupted: " + e.getMessage());
+            System.out.println("Player laser interrupted: " + e.getMessage());
         }
+    }
+
+    private static List<Player> calculatePlayersHit(Laser laser) throws InterruptedException {
+        List<Player> playersHit = new ArrayList<>();
+        // Wait for the laser iteration to complete and get the spaces hit
+        for (Space space : laser.getSpacesHit()) {
+            Player target = space.getPlayer();
+            if (target != null) {
+                if (!playersHit.contains(target)) {
+                    playersHit.add(target);
+                }
+            }
+        }
+        return playersHit;
     }
 }

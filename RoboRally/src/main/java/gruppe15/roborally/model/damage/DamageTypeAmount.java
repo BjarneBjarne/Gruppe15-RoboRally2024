@@ -2,8 +2,8 @@ package gruppe15.roborally.model.damage;
 
 public class DamageTypeAmount {
     private int amount;
-    public final DamageTypes type;
-    public DamageTypeAmount(int amount, DamageTypes type) {
+    public final DamageType type;
+    public DamageTypeAmount(int amount, DamageType type) {
         this.amount = amount;
         this.type = type;
     }

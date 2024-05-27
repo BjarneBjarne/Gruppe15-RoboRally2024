@@ -10,7 +10,7 @@ public abstract class PlayerInteraction {
 
     public PlayerInteraction(GameController gameController, Player player) {
         this.gameController = gameController;
-        this.callback = gameController::handleNextInteration;
+        this.callback = gameController::handleNextInteraction;
         this.player = player;
     }
 

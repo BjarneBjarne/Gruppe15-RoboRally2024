@@ -22,18 +22,19 @@ public abstract class UpgradeCardTemporary extends UpgradeCard {
     public void tryActivate() {
         super.tryActivate();
         // Remove card on use
-        if (refreshedOn == null && this.currentUses - 1 == 0) {
+        if (refreshedOn == null && this.currentUses <= 0) {
             unInitialize();
         }
     }
 
     @Override
     public void unInitialize() {
-        super.unInitialize();
+        // Remove from player UI
         for (CardField cardField : owner.getTemporaryUpgradeCardFields()) {
             if (cardField.getCard() == this) {
                 cardField.setCard(null);
             }
         }
+        super.unInitialize();
     }
 }
