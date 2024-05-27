@@ -10,7 +10,6 @@ import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.model.utils.TextUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static gruppe15.roborally.model.utils.GameSettings.*;
+import static gruppe15.roborally.GameSettings.*;
 
 /**
  * @author Maximillian Bjørn Mortensen

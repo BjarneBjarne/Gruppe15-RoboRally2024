@@ -1,4 +1,4 @@
-package gruppe15.roborally.model.utils;
+package gruppe15.roborally;
 
 import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
 

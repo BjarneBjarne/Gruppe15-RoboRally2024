@@ -29,5 +29,4 @@ public class GameVariables {
     // Debug
     public final static boolean SHOW_DEBUG_COORDINATES = false;
     public final static boolean WITH_ACTION_MESSAGE = false;
-
 }
