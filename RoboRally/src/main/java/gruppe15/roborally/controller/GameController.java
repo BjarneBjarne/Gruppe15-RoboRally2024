@@ -27,7 +27,6 @@ import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.player_interaction.PlayerInteraction;
 import gruppe15.roborally.model.upgrade_cards.*;
 import gruppe15.roborally.view.BoardView;
-import gruppe15.roborally.view.SpaceView;
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -39,7 +38,7 @@ import java.util.*;
 
 import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 import static gruppe15.roborally.model.Phase.*;
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 import static gruppe15.roborally.model.utils.GameSettings.*;
 
 /**

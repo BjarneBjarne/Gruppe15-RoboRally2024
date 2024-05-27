@@ -24,8 +24,6 @@ package gruppe15.roborally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.coursecreator.CC_Controller;
 import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.coursecreator.CC_CourseData;
-import gruppe15.roborally.coursecreator.CC_JsonUtil;
 import gruppe15.roborally.model.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
@@ -45,7 +43,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -54,7 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 
 /**
  * ...

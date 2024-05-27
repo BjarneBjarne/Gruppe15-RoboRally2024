@@ -22,20 +22,19 @@
 package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
+import gruppe15.roborally.GameVariables;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Laser;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
 import gruppe15.roborally.model.boardelements.BoardElement;
-import gruppe15.roborally.model.utils.Constants;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 
 /**
  * ...
@@ -69,29 +68,29 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.space = space;
 
         // XXX the following styling should better be done with styles
-        this.setPrefWidth(Constants.SPACE_SIZE);
-        this.setMinWidth(Constants.SPACE_SIZE);
-        this.setMaxWidth(Constants.SPACE_SIZE);
+        this.setPrefWidth(GameVariables.SPACE_SIZE);
+        this.setMinWidth(GameVariables.SPACE_SIZE);
+        this.setMaxWidth(GameVariables.SPACE_SIZE);
 
         this.setPrefHeight(SPACE_SIZE);
         this.setMinHeight(SPACE_SIZE);
         this.setMaxHeight(SPACE_SIZE);
 
-        backgroundImageView.setFitWidth(Constants.SPACE_SIZE);
+        backgroundImageView.setFitWidth(GameVariables.SPACE_SIZE);
         backgroundImageView.setFitHeight(SPACE_SIZE);
         backgroundImageView.setImage(space.getImage());
         this.getChildren().add(backgroundImageView);
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
-            boardElementImageView.setFitWidth(Constants.SPACE_SIZE);
+            boardElementImageView.setFitWidth(GameVariables.SPACE_SIZE);
             boardElementImageView.setFitHeight(SPACE_SIZE);
 
             boardElementImageView.setImage(boardElement.getImage());
             this.getChildren().add(boardElementImageView);
 
             if (boardElement instanceof BE_EnergySpace) {
-                energyCubeImageView.setFitWidth(Constants.SPACE_SIZE);
+                energyCubeImageView.setFitWidth(GameVariables.SPACE_SIZE);
                 energyCubeImageView.setFitHeight(SPACE_SIZE);
                 energyCubeImageView.setImage(ImageUtils.getImageFromName("Board Pieces/energyCube.png"));
                 energyCubeImageView.xProperty();
@@ -102,14 +101,14 @@ public class SpaceView extends StackPane implements ViewObserver {
         Image wallImage = ImageUtils.getImageFromName("Board Pieces/wall.png");
         for (Heading wall : space.getWalls()) {
             ImageView wallImageView = new ImageView();
-            wallImageView.setFitWidth(Constants.SPACE_SIZE);
+            wallImageView.setFitWidth(GameVariables.SPACE_SIZE);
             wallImageView.setFitHeight(SPACE_SIZE);
             wallImageView.setImage(ImageUtils.getRotatedImageByHeading(wallImage, wall));
             wallImageViews.add(wallImageView);
             this.getChildren().add(wallImageView);
         }
 
-        playerImageView.setFitWidth(Constants.SPACE_SIZE);
+        playerImageView.setFitWidth(GameVariables.SPACE_SIZE);
         playerImageView.setFitHeight(SPACE_SIZE);
         this.getChildren().add(playerImageView);
 
@@ -118,7 +117,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             spaceCoords.setText("(" + space.x + ", " + space.y + ")");
             spaceCoords.setFill(new Color(.35, .35, .35, .7));
             spaceCoords.setStyle("-fx-font-size: 20px; ");
-            spaceCoords.setWrappingWidth(Constants.SPACE_SIZE * 0.9);
+            spaceCoords.setWrappingWidth(GameVariables.SPACE_SIZE * 0.9);
             this.getChildren().add(spaceCoords);
         }
 
@@ -188,7 +187,7 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private ImageView newLaserImageView(Laser.LaserOnSpace laserOnSpace) {
         ImageView laserImageView = new ImageView();
-        laserImageView.setFitWidth(Constants.SPACE_SIZE);
+        laserImageView.setFitWidth(GameVariables.SPACE_SIZE);
         laserImageView.setFitHeight(SPACE_SIZE);
         laserImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName(laserOnSpace.getImageName()), laserOnSpace.getDirection()));
         return laserImageView;

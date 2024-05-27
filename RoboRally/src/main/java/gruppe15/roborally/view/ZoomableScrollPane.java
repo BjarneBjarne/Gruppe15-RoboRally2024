@@ -8,8 +8,8 @@
  *
  * Description of Modifications:
  * - Set scroll event to only zoom when the CTRL button is pressed.
- * - Using ZOOM_SPEED constant from the Constants.java class.
- * - Clamped the scaleValue between MIN_ZOOM and MAX_ZOOM, also from the Constants.java class.
+ * - Using ZOOM_SPEED constant from the GameVariables.java class.
+ * - Clamped the scaleValue between MIN_ZOOM and MAX_ZOOM, also from the GameVariables.java class.
  *
  * This file is used for an academic project at DTU - Danmarks Tekniske Universitet.
  *
@@ -28,7 +28,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 
-import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.GameVariables.*;
 
 public class ZoomableScrollPane extends ScrollPane {
     private double scaleValue = 1;
