@@ -1,6 +1,7 @@
 package gruppe15.roborally.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -8,11 +9,13 @@ import java.util.List;
  * A new laser should be created each time a laser should be fired, to calculate the spaces hit depending on card modifier, etc.
  */
 public class Laser {
-    private final Space origin;
-    private final Heading direction;
-    private final List<Space> spacesHit = new ArrayList<>();
+    public final Space origin;
+    public final Heading direction;
+    public final List<Space> spacesHit = new ArrayList<>();
+    public final Player owner;
+    public final List<Class<?>> objectTypesToCollideWith = new ArrayList<>();
+
     private boolean iterationComplete = false;
-    private final Player owner;
 
     public class LaserOnSpace {
         private final String imageName;
@@ -27,23 +30,28 @@ public class Laser {
         }
     }
 
-    public Laser(Space origin, Heading direction, Player owner) {
+    /**
+     * Constructor for a new laser. This is used for both player lasers and board lasers.
+     * @param origin The space where the laser should start.
+     * @param direction The direction the laser is going .
+     * @param owner Indicates that the laser came from a player. The owner is the player shooting the laser.
+     * @param objectTypesToCollideWith The class types to collide with. Check the Laser class to see which classes are being looked for. Currently only looks for Player.class and Space.class.
+     */
+    public Laser(Space origin, Heading direction, Player owner, Class<?>... objectTypesToCollideWith) {
         this.origin = origin;
         this.direction = direction;
         this.owner = owner;
-    }
-    public Laser(Space origin, Heading direction) {
-        this(origin, direction, null);
+        this.objectTypesToCollideWith.addAll(List.of(objectTypesToCollideWith)); // Arrays.asList(objectTypesToCollideWith)
     }
 
     public Runnable startLaser(Space[][] boardSpaces) {
         return () -> {
-            performSpaceIteration(boardSpaces, direction, spacesHit);
+            performSpaceIteration(boardSpaces, direction);
             setIterationComplete(true);
         };
     }
 
-    private void performSpaceIteration(Space[][] boardSpaces, Heading direction, List<Space> spacesHit) {
+    private void performSpaceIteration(Space[][] boardSpaces, Heading direction) {
         int dx = direction == Heading.WEST ? -1 : direction == Heading.EAST ? 1 : 0;
         int dy = direction == Heading.NORTH ? -1 : direction == Heading.SOUTH ? 1 : 0;
         int x = origin.x;
@@ -81,12 +89,10 @@ public class Laser {
                     } else { // Else, board laser
                         laserName += "Board";
                     }
-                } else if (playerOnSpace != null) { // Player hit
-                    if (playerOnSpace != owner) {
-                        hitSomething = true;
-                        laserName += "PlayerHit";
-                    }
-                } else if (space.getWalls().contains(direction)) { // Wall
+                } else if (playerOnSpace != null && playerOnSpace != owner && objectTypesToCollideWith.contains(Player.class)) { // Player hit
+                    hitSomething = true;
+                    laserName += "PlayerHit";
+                } else if (space.getWalls().contains(direction) && objectTypesToCollideWith.contains(Space.class)) { // Wall
                     hitSomething = true;
                     laserName += "WallHitUpper";
                 } else if (nextSpace != null && nextSpace.getWalls().contains(direction.opposite())) {

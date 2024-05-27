@@ -9,7 +9,6 @@ import gruppe15.roborally.model.events.EventListener;
 import gruppe15.roborally.model.events.*;
 import javafx.util.Duration;
 import javafx.util.Pair;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -74,22 +73,41 @@ public class EventHandler {
     }
 
 
-
     /**
-     * Method for whenever a player shoots.
-     * @param board
-     * @param playerShooting
-     * @param actionQueue
+     * Method for letting a player laser start at the EventManager, letting PlayerShootListeners modify the "original" laser.
+     * This should ONLY be called from within player.queueLaser().
+     * @param playerShooting The player to begin shooting a laser.
      */
-    public static void event_PlayerShoot(Board board, Player playerShooting, LinkedList<ActionWithDelay> actionQueue) {
+    public static void event_PlayerShootStart(Player playerShooting) {
         if (playerShooting.getIsRebooting()) {
             return;
         }
-        // Clearing lasers in between player lasers
-        board.queueClearLasers();
 
-        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting);
+        // Making new laser
+        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting, Player.class, Space.class);
+        // Modify laser
+        List<PlayerShootListener> playerShootListeners = getPlayerCardEventListeners(playerShooting, PlayerShootListener.class);
+        for (PlayerShootListener listener : playerShootListeners) {
+            laser = listener.onPlayerShoot(playerShooting, laser);
+        }
+
+        event_PlayerShootHandle(playerShooting, laser);
+    }
+
+    /**
+     * Method for whenever a player has begun to shoot. Mainly calculates and distributes damage.
+     * @param playerShooting The player who is currently shooting.
+     * @param laser The laser that playerShooting fired.
+     */
+    public static void event_PlayerShootHandle(Player playerShooting, Laser laser) {
+        if (laser == null) return;
+
+        Board board = playerShooting.board;
+        LinkedList<ActionWithDelay> actionQueue = board.getBoardActionQueue();
+
+        // Start the laser
         laser.startLaser(board.getSpaces()).run();
+
         try {
             List<Player> playersHit = calculatePlayersHit(laser);
             // Deal damage to each target player
@@ -205,11 +223,7 @@ public class EventHandler {
 
             // Set players new position
             Space nextSpace = playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces);
-            if (nextSpace == null || nextSpace.getBoardElement() instanceof BE_Hole) {
-                event_PlayerReboot(playerToPush, true, gc);
-            } else {
-                playerToPush.setSpace(nextSpace);
-            }
+            playerToPush.setSpace(nextSpace);
         }
     }
 
@@ -221,11 +235,12 @@ public class EventHandler {
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
     public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
-        List<PlayerMoveListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerMoveListener.class);
+        playerMoving.setSpace(space);
+        /*List<PlayerEndOfActionListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerEndOfActionListener.class);
         boolean shouldReboot = (space == null || space.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
 
         // Handle listener logic
-        for (PlayerMoveListener listener : playerMoveListeners) {
+        for (PlayerEndOfActionListener listener : playerMoveListeners) {
             Pair<Space, Boolean> movePair = listener.onPlayerMove(space, shouldReboot);
             space = movePair.getKey();
             shouldReboot = movePair.getValue();
@@ -235,7 +250,7 @@ public class EventHandler {
             event_PlayerReboot(playerMoving, true, gc);
         } else {
             playerMoving.setSpace(space);
-        }
+        }*/
     }
 
 
@@ -247,12 +262,7 @@ public class EventHandler {
      */
     public static void event_PlayerReboot(Player player, boolean takeDamage, GameController gc) {
         System.out.println(player.getName() + " rebooting");
-        if (takeDamage) {
-            player.discard(new CommandCard(Command.SPAM));
-        }
-        gc.board.setPhase(Phase.REBOOTING);
-        player.startRebooting();
-        gc.addPlayerToRebootQueue(player);
+        player.startRebooting(gc, takeDamage);
         Space oldSpace = player.getSpace();
         if (oldSpace == null) {
             System.out.println("old space null for " + player.getName());
@@ -291,5 +301,21 @@ public class EventHandler {
         }
 
         player.setTemporarySpace(rebootSpace);
+    }
+
+    public static void event_EndOfAction(GameController gameController) {
+        for (Player player : gameController.board.getPlayers()) {
+            // Handle if a player should reboot
+            Space playerSpace = player.getSpace();
+            List<PlayerEndOfActionListener> playerEndOfActionListeners = getPlayerCardEventListeners(player, PlayerEndOfActionListener.class);
+            boolean shouldReboot = (playerSpace == null || playerSpace.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
+            // Handle listener logic
+            for (PlayerEndOfActionListener listener : playerEndOfActionListeners) {
+                shouldReboot = listener.onEndOfAction(playerSpace, shouldReboot);
+            }
+            if (shouldReboot) {
+                event_PlayerReboot(player, true, gameController);
+            }
+        }
     }
 }

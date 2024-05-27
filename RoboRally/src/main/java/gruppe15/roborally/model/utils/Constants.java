@@ -3,6 +3,10 @@ package gruppe15.roborally.model.utils;
 import javafx.geometry.Rectangle2D;
 
 public class Constants {
+    // Action delay
+    public final static int NEXT_REGISTER_DELAY = 1000; // In milliseconds.
+    public final static boolean WITH_ACTION_DELAY = true;
+
     // UI
     public final static double REFERENCE_HEIGHT = 1440.0;
     public final static double MIN_APP_WIDTH = 1280;
@@ -24,4 +28,6 @@ public class Constants {
 
     // Debug
     public final static boolean SHOW_DEBUG_COORDINATES = false;
+    public final static boolean WITH_ACTION_MESSAGE = false;
+
 }

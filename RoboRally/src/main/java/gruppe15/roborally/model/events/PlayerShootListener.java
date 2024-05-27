@@ -1,6 +1,7 @@
 package gruppe15.roborally.model.events;
 
 import gruppe15.roborally.model.Laser;
+import gruppe15.roborally.model.Player;
 
 @FunctionalInterface
 public interface PlayerShootListener extends EventListener {
@@ -9,5 +10,5 @@ public interface PlayerShootListener extends EventListener {
      *
      * @return
      */
-    Laser onPlayerShoot(Laser laser);
+    Laser onPlayerShoot(Player playerShooting, Laser laser);
 }

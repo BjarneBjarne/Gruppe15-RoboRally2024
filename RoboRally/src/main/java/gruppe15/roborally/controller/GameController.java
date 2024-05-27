@@ -21,11 +21,11 @@
  */
 package gruppe15.roborally.controller;
 
+import gruppe15.roborally.exceptions.UnhandledPhaseInteractionException;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.*;
-import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
-import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
-import gruppe15.roborally.model.upgrade_cards.UpgradeCardTemporary;
+import gruppe15.roborally.model.player_interaction.PlayerInteraction;
+import gruppe15.roborally.model.upgrade_cards.*;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.SpaceView;
 import javafx.animation.PauseTransition;
@@ -39,7 +39,8 @@ import java.util.*;
 
 import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 import static gruppe15.roborally.model.Phase.*;
-import static gruppe15.roborally.model.utils.GameSettings.KEEP_HAND;
+import static gruppe15.roborally.model.utils.Constants.*;
+import static gruppe15.roborally.model.utils.GameSettings.*;
 
 /**
  * ...
@@ -51,16 +52,14 @@ public class GameController {
     public final Board board;
     private final AppController appController;
 
-    private final Queue<Player> playersRebooting = new ArrayDeque<>();
     private Space directionOptionsSpace;
     private String winnerName;
     private Image winnerIMG;
     private boolean isRegisterPlaying = false;
 
-    // Actions
-    private final int nextRegisterDelay = 1000; // In milliseconds.
-    private final boolean WITH_ACTION_DELAY = true;
-    private final boolean WITH_ACTION_MESSAGE = false;
+    // Player interaction
+    private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
+    private PlayerInteraction currentPlayerInteraction = null;
 
     public boolean getIsRegisterPlaying() {
         return isRegisterPlaying;
@@ -84,6 +83,12 @@ public class GameController {
      * Method for starting the game. Called when players have chosen a start space and direction.
      */
     private void beginGame() {
+        for (Player player : board.getPlayers()) {
+            for (UpgradeCard card : STARTING_UPGRADE_CARDS) {
+                player.tryAddFreeUpgradeCard(card, this);
+            }
+        }
+
         startProgrammingPhase();
     }
 
@@ -128,7 +133,7 @@ public class GameController {
     }
 
     public void finishProgrammingPhase() {
-        board.setPhase(ACTIVATION);
+        board.setPhase(PLAYER_ACTIVATION);
 
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
@@ -193,8 +198,8 @@ public class GameController {
     }
 
     private void handleEndOfPlayerTurn() {
-        if (board.getPhase() == PLAYER_INTERACTION) {
-            // Return and wait for PLAYER_INTERACTION.
+        if (!playerInteractionQueue.isEmpty()) {
+            // Return and wait for player interaction.
             return;
         }
         // When player command is executed, check if there are more player turns this register.
@@ -222,6 +227,10 @@ public class GameController {
         runActionsAndCallback(this::nextRegister, board.getBoardActionQueue());
     }
     public void nextRegister() {
+        if (!playerInteractionQueue.isEmpty()) {
+            // Return and wait for player interaction.
+            return;
+        }
         int currentRegister = board.getCurrentRegister();
         if (currentRegister < Player.NO_OF_REGISTERS - 1) {
             // Set next register
@@ -241,7 +250,7 @@ public class GameController {
 
     private void handleEndOfRound() {
         // If all registers are done
-        PauseTransition pause = new PauseTransition(Duration.millis(nextRegisterDelay));
+        PauseTransition pause = new PauseTransition(Duration.millis(NEXT_REGISTER_DELAY));
         pause.setOnFinished(event -> {
             for (Player player : board.getPlayers()) {
                 player.stopRebooting();
@@ -254,23 +263,62 @@ public class GameController {
     }
 
     private void runActionsAndCallback(Runnable callback, LinkedList<ActionWithDelay> actionQueue) {
-        if (board.getPhase() == ACTIVATION) {
-            if (!actionQueue.isEmpty()) {
-                // Handle the next action
-                ActionWithDelay nextAction = actionQueue.removeFirst();
-                nextAction.getAction(WITH_ACTION_MESSAGE).run();
-                Duration delay = nextAction.getDelay();
-                PauseTransition pause = new PauseTransition(delay);
-                pause.setOnFinished(event -> runActionsAndCallback(callback, actionQueue)); // Continue actions
-                if (WITH_ACTION_DELAY) {
-                    pause.play();
+        if (playerInteractionQueue.isEmpty()) {
+            if (board.getPhase() == PLAYER_ACTIVATION || board.getPhase() == BOARD_ACTIVATION) {
+                if (!actionQueue.isEmpty()) { // As long as there are more actions.
+                    // Handle the next action
+                    ActionWithDelay nextAction = actionQueue.removeFirst();
+                    nextAction.getAction(WITH_ACTION_MESSAGE).run();
+                    Duration delay = nextAction.getDelay();
+                    PauseTransition pause = new PauseTransition(delay);
+                    pause.setOnFinished(event -> {
+                        EventHandler.event_EndOfAction(this);
+                        runActionsAndCallback(callback, actionQueue);
+                    }); // Continue actions
+                    if (WITH_ACTION_DELAY) {
+                        pause.play();
+                    }
+                } else { // When we have exhausted the actions, call the callback method.
+                    callback.run();
                 }
-            } else { // When we have exhausted the actions, call the callback method.
-                callback.run();
+            } else {
+                System.out.println("Possible error? Phase is: \"" + board.getPhase() + "\", but currently running actions.");
             }
-        } else if (board.getPhase() == REBOOTING) {
-            startRebootPhase();
+        } else {
+            handleNextInteration();
         }
+    }
+
+    public void handleNextInteration() {
+        // Check if there are more interactions.
+        if (playerInteractionQueue.isEmpty()) {
+            // If not, continue
+            try {
+                continueActions();
+            } catch (UnhandledPhaseInteractionException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            currentPlayerInteraction = playerInteractionQueue.poll();
+            currentPlayerInteraction.initializeInteraction();
+        }
+    }
+
+    private void continueActions() throws UnhandledPhaseInteractionException {
+        if (board.getPhase() == PLAYER_ACTIVATION) {
+            currentPlayerInteraction = null;
+            handlePlayerActions();
+        } else if (board.getPhase() == BOARD_ACTIVATION) {
+            currentPlayerInteraction = null;
+            handleBoardElementActions();
+        } else {
+            throw new UnhandledPhaseInteractionException(board.getPhase(), currentPlayerInteraction);
+        }
+    }
+
+    public PlayerInteraction getCurrentPlayerInteraction() {
+        return currentPlayerInteraction;
     }
 
     private void queuePlayerCommandFromCommandCard(Player currentPlayer) {
@@ -294,38 +342,9 @@ public class GameController {
      *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
      *  @param option the option the player have chosen, and sets the activation phase active again
      */
-    public void executeCommandOptionAndContinue(Command option){
-        board.getCurrentPlayer().queueCommand(option, false, this);
-        board.setPhase(ACTIVATION);
-        handlePlayerActions();
-    }
-
-
-    public void startRebootPhase() {
-        board.setPhase(REBOOTING);
-        handleNextReboot();
-    }
-
-    public void addPlayerToRebootQueue(Player player) {
-        if (!playersRebooting.contains(player)) {
-            playersRebooting.offer(player);
-        }
-    }
-
-    private void handleNextReboot() {
-        if (playersRebooting.isEmpty()) {
-            handleEndOfReboot();
-        } else {
-            Player playerRebooting = playersRebooting.peek();
-            if (playerRebooting.getIsRebooting()) {
-                setDirectionOptionsPane(playerRebooting.getTemporarySpace());
-            }
-        }
-    }
-
-    private void handleEndOfReboot() {
-        board.setPhase(ACTIVATION);
-        handlePlayerActions();
+    public void executeCommandOptionAndContinue(Command option) {
+        currentPlayerInteraction.player.queueCommand(option, false, this);
+        currentPlayerInteraction.interactionFinished();
     }
 
     public void queueBoardElementsAndRobotLasers() {
@@ -339,6 +358,19 @@ public class GameController {
         board.queueClearLasers();
         board.queueBoardElementsWithIndex(this, 5, "Energy spaces");
         board.queueBoardElementsWithIndex(this, 6, "Checkpoints");
+    }
+
+    public Queue<PlayerInteraction> getPlayerInteractionQueue() {
+        return playerInteractionQueue;
+    }
+
+    /**
+     * Method for making a new player interaction. This stops all "_ACTIVATION" loops and begins the interaction.
+     * When the player interaction is done, the previous "_ACTIVATION" loop will continue.
+     */
+    public void addPlayerInteraction(PlayerInteraction interaction) {
+        playerInteractionQueue.offer(interaction);
+        board.updateBoard();
     }
 
     /**
@@ -387,38 +419,34 @@ public class GameController {
 
 
 
-    private void setDirectionOptionsPane(Space space) {
+    public void setDirectionOptionsPane(Space space, Player playerRebooting) {
         // Quirk fix for showing the player when another player is on the respawning players' spawn
-        if (board.getPhase() == REBOOTING) {
-            Player playerRebooting = playersRebooting.peek();
-            assert playerRebooting != null;
-            Player playerOnSpawnPoint = space.getPlayer();
-            if (playerOnSpawnPoint != null) {
-                if (playerOnSpawnPoint != playerRebooting) {
-                    if (playerRebooting.getSpawnPoint() == space) {
-                        Space otherSpawnPoint = playerOnSpawnPoint.getSpawnPoint();
-                        playerOnSpawnPoint.setSpace(otherSpawnPoint);
-                        playerOnSpawnPoint.setTemporarySpace(otherSpawnPoint);
-                        EventHandler.event_PlayerReboot(playerOnSpawnPoint, false, this);
-                        otherSpawnPoint.updateSpace();
-                    }
+        Player playerOnSpawnPoint = space.getPlayer();
+        if (playerOnSpawnPoint != null) {
+            if (playerOnSpawnPoint != playerRebooting) {
+                if (playerRebooting.getSpawnPoint() == space) {
+                    Space otherSpawnPoint = playerOnSpawnPoint.getSpawnPoint();
+                    playerOnSpawnPoint.setSpace(otherSpawnPoint);
+                    playerOnSpawnPoint.setTemporarySpace(otherSpawnPoint);
+                    EventHandler.event_PlayerReboot(playerOnSpawnPoint, false, this);
+                    otherSpawnPoint.updateSpace();
                 }
             }
-            playerRebooting.goToTemporarySpace();
-            space.updateSpace();
         }
+        playerRebooting.goToTemporarySpace();
+        space.updateSpace();
 
         directionOptionsSpace = space;
         board.updateBoard();
     }
 
-    public void spacePressed(MouseEvent event, SpaceView spaceView, Space space) {
+    public void spacePressed(MouseEvent event, Space space) {
         if (board.getPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
                 Player currentPlayer = board.getCurrentPlayer();
                 if (space.getPlayer() == null) {
                     space.setPlayer(currentPlayer);
-                    setDirectionOptionsPane(space);
+                    setDirectionOptionsPane(space, currentPlayer);
                 }
             }
         }
@@ -477,11 +505,9 @@ public class GameController {
                 //startUpgradingPhase();
                 beginGame();
             }
-        } else if (board.getPhase() == REBOOTING) {
-            Player player = playersRebooting.poll();
-            player.setHeading(direction);
-
-            handleNextReboot();
+        } else {
+            currentPlayerInteraction.player.setHeading(direction);
+            currentPlayerInteraction.interactionFinished();
         }
     }
 

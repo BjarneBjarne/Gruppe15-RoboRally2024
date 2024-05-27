@@ -263,7 +263,7 @@ public class SetupView {
      */
     private boolean isReady(){
         for(int i = 0; i < NO_OF_PLAYERS; i++){
-            if(playerNames[i] == null || playerCharacters[i] == null) return false;
+            if(playerNames[i] == null || playerNames[i].isBlank() || playerCharacters[i] == null) return false;
             for(int j = i-1; j >= 0; j--){
                 if(playerNames[i].equals(playerNames[j])) return false;
                 if(playerCharacters[i].equals(playerCharacters[j])) return false;

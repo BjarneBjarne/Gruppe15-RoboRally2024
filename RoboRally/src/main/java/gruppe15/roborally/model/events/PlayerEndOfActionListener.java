@@ -4,11 +4,11 @@ import gruppe15.roborally.model.Space;
 import javafx.util.Pair;
 
 @FunctionalInterface
-public interface PlayerMoveListener extends EventListener {
+public interface PlayerEndOfActionListener extends EventListener {
     /**
      * Called when any player is about to move.
      * @param space The space to calculate.
      * @return The newly calculated space.
      */
-    Pair<Space, Boolean> onPlayerMove(Space space, Boolean shouldReboot);
+    boolean onEndOfAction(Space space, Boolean shouldReboot);
 }

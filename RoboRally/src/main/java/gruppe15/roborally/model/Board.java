@@ -490,13 +490,22 @@ public class Board extends Subject {
         return numberOfCheckPoints;
     }
 
+    /**
+     * Method for queuing all players lasers.
+     * This is the default way to make a player shoots their laser.
+     */
     public void queuePlayerLasers() {
         updatePriorityList();
         while (!priorityList.isEmpty()) {
             Player player = priorityList.poll();
+
+            // First we make an action that lasts 150ms.
             boardActionQueue.addLast(new ActionWithDelay(() -> {
-                EventHandler.event_PlayerShoot(this, player, boardActionQueue);
-            }, Duration.millis(150), "Player laser"));
+                // When the player is about to shoot, we immediately queue to clear the lasers as the next action, ensuring the lasers are cleared in between player lasers.
+                boardActionQueue.addFirst(new ActionWithDelay(this::queueClearLasers, Duration.millis(0), ""));
+                // Tell the EventHandler that we want to shoot.
+                EventHandler.event_PlayerShootStart(player);
+            }, Duration.millis(150), "Player: \"" + player.getName() + "\" laser"));
         }
     }
 

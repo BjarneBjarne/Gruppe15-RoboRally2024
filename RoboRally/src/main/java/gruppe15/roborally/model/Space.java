@@ -265,4 +265,13 @@ public class Space extends Subject {
     public void updateSpace() {
         notifyChange();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("Board Space - ");
+        str.append("Global coordinates: : (").append(x).append(", ").append(y).append(")");
+        str.append(".");
+        return str.toString();
+    }
 }

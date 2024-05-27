@@ -35,28 +35,28 @@ import java.util.List;
  */
 public enum Command {
     // Normal programming cards
-    MOVE_0("Move 0"), // Do nothing
-    MOVE_1("Move 1"),
-    MOVE_2("Move 2"),
-    MOVE_3("Move 3"),
-    RIGHT_TURN("Right Turn"),
-    LEFT_TURN("Left Turn"),
-    U_TURN("U-Turn"),
-    MOVE_BACK("Move Back"),
+    MOVE_1("Move 1", true),
+    MOVE_2("Move 2", true),
+    MOVE_3("Move 3", true),
+    RIGHT_TURN("Right Turn", true),
+    LEFT_TURN("Left Turn", true),
+    U_TURN("U-Turn", true),
+    MOVE_BACK("Move Back", true),
     AGAIN("Again"),
-    POWER_UP("Power Up"),
-
-    // Utility commands for UpgradeCards
-    MOVE_RIGHT("Move Right"),
-    MOVE_LEFT("Move Left"),
+    POWER_UP("Power Up", true),
 
     // Special programming cards
-    ENERGY_ROUTINE("Energy Routine"),
-    SANDBOX_ROUTINE("Sandbox Routine", MOVE_1, MOVE_2, MOVE_3, MOVE_BACK, LEFT_TURN, RIGHT_TURN, U_TURN),
-    WEASEL_ROUTINE("Weasel Routine", LEFT_TURN, RIGHT_TURN, U_TURN),
-    SPEED_ROUTINE("Speed Routine"),
-    SPAM_FOLDER("Spam Folder"),
+    ENERGY_ROUTINE("Energy Routine", true),
+    SANDBOX_ROUTINE("Sandbox Routine", true, MOVE_1, MOVE_2, MOVE_3, MOVE_BACK, LEFT_TURN, RIGHT_TURN, U_TURN),
+    WEASEL_ROUTINE("Weasel Routine", true, LEFT_TURN, RIGHT_TURN, U_TURN),
+    SPEED_ROUTINE("Speed Routine", true),
+    SPAM_FOLDER("Spam Folder", true),
     REPEAT_ROUTINE("Repeat Routine"),
+
+    // Utility commands for UpgradeCards
+    MOVE_0("Move 0"), // Do nothing
+    MOVE_RIGHT("Move Right"),
+    MOVE_LEFT("Move Left"),
 
     // UpgradeCards commands
     BRAKES("Brakes", MOVE_0, MOVE_1),
@@ -69,6 +69,7 @@ public enum Command {
     VIRUS(DamageTypes.VIRUS.displayName);
 
     public final String displayName;
+    public final boolean repeatable;
     private final List<Command> options;
 
     static {
@@ -77,8 +78,14 @@ public enum Command {
         DamageTypes.WORM.setCommandCardType(WORM);
         DamageTypes.VIRUS.setCommandCardType(VIRUS);
     }
+    Command(String displayName, boolean repeatable, Command... options) {
+        this.displayName = displayName;
+        this.repeatable = repeatable;
+        this.options = Collections.unmodifiableList(Arrays.asList(options));
+    }
     Command(String displayName, Command... options) {
         this.displayName = displayName;
+        this.repeatable = false;
         this.options = Collections.unmodifiableList(Arrays.asList(options));
     }
 

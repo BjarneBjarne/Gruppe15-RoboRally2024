@@ -385,7 +385,7 @@ public class BoardView extends VBox implements ViewObserver {
                 Board board = space.board;
 
                 if (board == gameController.board) {
-                    gameController.spacePressed(event, spaceView, space);
+                    gameController.spacePressed(event, space);
                     event.consume();
                 }
             }

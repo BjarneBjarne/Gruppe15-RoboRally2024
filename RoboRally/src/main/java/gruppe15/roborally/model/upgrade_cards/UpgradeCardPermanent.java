@@ -16,6 +16,12 @@ public abstract class UpgradeCardPermanent extends UpgradeCard {
     public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
         super(title, purchaseCost, useCost, maxUses, refreshedOn);
     }
+    public UpgradeCardPermanent(String title, int purchaseCost, int useCost) {
+        super(title, purchaseCost, useCost, 0, null);
+    }
+    public UpgradeCardPermanent(String title, int purchaseCost) {
+        super(title, purchaseCost, 0, 0, null);
+    }
 
     @Override
     public void unInitialize() {
