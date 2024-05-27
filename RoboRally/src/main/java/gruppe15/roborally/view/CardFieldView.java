@@ -233,7 +233,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 String cardName = card.getName();
                 String cardImageName = "Card_Error.png";
                 if (card instanceof CommandCard) {
-                    cardImageName = "Cards/Programming Cards/" + cardName.toUpperCase() + ".png";
+                    cardImageName = "Cards/Programming Cards/" + cardName + ".png";
                 } else if (card instanceof UpgradeCard) {
                     cardImageName = "Cards/Upgrade Cards/" + cardName.toUpperCase() + ".png";
                 }

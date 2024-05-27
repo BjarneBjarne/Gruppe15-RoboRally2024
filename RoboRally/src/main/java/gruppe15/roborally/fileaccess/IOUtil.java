@@ -26,12 +26,31 @@ import com.google.common.io.ByteSource;
 import gruppe15.roborally.RoboRally;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * A utility class reading strings from resources and arbitrary input streams.
@@ -78,26 +97,54 @@ public class IOUtil {
         return IOUtil.readString(inputStream);
     }
 
-    public static List<File> loadJsonFilesFromResources(String folderName) throws URISyntaxException, IOException {
-        URL resource = RoboRally.class.getResource(folderName);
+    public static List<InputStream> loadJsonFilesFromResources(String folderName) throws IOException, URISyntaxException {
+        List<InputStream> jsonFiles = new ArrayList<>();
 
-        if (resource == null) {
-            throw new IllegalArgumentException("Folder not found! " + folderName);
-        }
+        // Get the URL of the directory
+        URL dirURL = IOUtil.class.getClassLoader().getResource(folderName);
+        if (dirURL != null) {
+            if (dirURL.getProtocol().equals("file")) {
+                // Load resources from the file system
+                Files.walk(Paths.get(dirURL.toURI()))
+                        .filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(".json"))
+                        .forEach(path -> {
+                            try {
+                                jsonFiles.add(Files.newInputStream(path));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+            } else if (dirURL.getProtocol().equals("jar")) {
+                // Load resources from the JAR file
+                String[] parts = dirURL.toString().split("!");
+                URI jarUri = URI.create(parts[0]);
 
-        File folder = Paths.get(resource.toURI()).toFile();
-        List<File> jsonFiles = new ArrayList<>();
+                Map<String, String> env = new HashMap<>();
+                env.put("create", "true");
 
-        FilenameFilter jsonFilter = (dir, name) -> name.toLowerCase().endsWith(".json");
+                try (FileSystem fs = FileSystems.newFileSystem(jarUri, env)) {
+                    Path pathInJar = fs.getPath(parts[1]);
 
-        // Get list of JSON files
-        File[] files = folder.listFiles(jsonFilter);
-        if (files != null) {
-            for (File file : files) {
-                jsonFiles.add(file);
+                    Files.walk(pathInJar)
+                            .filter(Files::isRegularFile)
+                            .filter(path -> path.toString().endsWith(".json"))
+                            .forEach(path -> {
+                                try {
+                                    // Read the file content into a byte array
+                                    byte[] fileContent = Files.readAllBytes(path);
+                                    // Create an InputStream from the byte array
+                                    InputStream inputStream = new ByteArrayInputStream(fileContent);
+                                    jsonFiles.add(inputStream);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                }
             }
+        } else {
+            System.err.println("Directory not found: " + folderName);
         }
-
         return jsonFiles;
     }
 }
