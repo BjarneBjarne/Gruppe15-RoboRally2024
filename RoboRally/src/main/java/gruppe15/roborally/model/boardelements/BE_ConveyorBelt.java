@@ -68,8 +68,7 @@ public class BE_ConveyorBelt extends BoardElement {
     }
 
     public void updateConveyorBeltImage(int x, int y, Space[][] spaces) {
-        this.image = ImageUtils.getImageFromName("Board Pieces/" + ImageUtils.getUpdatedConveyorBeltImage(this, x, y, spaces));
-        setDirection(this.direction);
+        setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Board Pieces/" + ImageUtils.getUpdatedConveyorBeltImage(this, x, y, spaces)), this.direction));
     }
 
     /**
