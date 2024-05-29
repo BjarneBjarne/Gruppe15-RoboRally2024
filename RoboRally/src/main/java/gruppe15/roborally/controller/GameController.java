@@ -137,8 +137,10 @@ public class GameController {
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
 
-        for (Player player : board.getPlayers()) {
-            player.fillRestOfRegisters();
+        if (DRAW_ON_EMPTY_REGISTER) {
+            for (Player player : board.getPlayers()) {
+                player.fillRestOfRegisters();
+            }
         }
     }
 
