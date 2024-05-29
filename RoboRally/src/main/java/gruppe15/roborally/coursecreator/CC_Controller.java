@@ -2,6 +2,8 @@ package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
+import gruppe15.roborally.model.boardelements.BoardElement;
+import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,12 +17,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -28,6 +32,7 @@ import java.util.*;
 import java.util.List;
 
 import static gruppe15.roborally.GameVariables.*;
+import static gruppe15.roborally.model.Heading.*;
 import static gruppe15.roborally.model.utils.ImageUtils.*;
 
 public class CC_Controller extends BorderPane {
@@ -46,6 +51,7 @@ public class CC_Controller extends BorderPane {
     private Scene primaryScene;
 
     private static int canvasSize = 5000;
+    private static CC_SpaceView[][] spaces;
 
     /**
      * Since subboards can be placed half a step, this makes up 5x5 subboards.
@@ -56,7 +62,7 @@ public class CC_Controller extends BorderPane {
     private final SpaceEventHandler spaceEventHandler;
 
     private CC_Items selectedItem = CC_Items.SubBoard;
-    private Heading currentRotation = Heading.NORTH;
+    private Heading currentRotation = NORTH;
 
     private final List<CC_SubBoard> subBoards;
 
@@ -113,6 +119,13 @@ public class CC_Controller extends BorderPane {
                 });
             }
         });
+
+        spaces = new CC_SpaceView[NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY * 5][NO_OF_SUBBOARD_POSITIONS_VERTICALLY * 5];
+        for (int x = 0; x < spaces.length; x++) {
+            for (int y = 0; y < spaces[0].length; y++) {
+                spaces[x][y] = null;
+            }
+        }
     }
 
     public void zoom(ScrollEvent event) {
@@ -141,28 +154,39 @@ public class CC_Controller extends BorderPane {
     }
 
     private void newSubBoard(Point2D position) {
-        newSubBoard(position, false, Heading.NORTH);
+        newSubBoard(position, false, NORTH);
     }
     private void newStartSubBoard(Point2D position) {
         newSubBoard(position, true, currentRotation);
     }
     private void newSubBoard(Point2D position, boolean isStartSubBoard, Heading direction) {
-        // Making SpaceViews
-        int xLength = 10;
-        int yLength = 10;
+        int subBoardWidth = 10;
+        int subBoardHeight = 10;
         if (isStartSubBoard) {
-            xLength = (direction == Heading.NORTH || direction == Heading.SOUTH) ? 10 : 3;
-            yLength = (direction == Heading.EAST || direction == Heading.WEST) ? 10 : 3;
+            subBoardWidth = (direction == NORTH || direction == Heading.SOUTH) ? 10 : 3;
+            subBoardHeight = (direction == Heading.EAST || direction == Heading.WEST) ? 10 : 3;
         }
-
         // Can't put new subboard where one already exists.
-        if (isOverlapping(position, xLength, yLength)) {
-            return;
+        if (isOverlapping(position, subBoardWidth, subBoardHeight)) return;
+        // Can only place within bounds
+        if (position.getX() >= NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY || position.getY() >= NO_OF_SUBBOARD_POSITIONS_VERTICALLY) return;
+
+        CC_SpaceView[][] subBoardSpaceViews = new CC_SpaceView[subBoardWidth][subBoardHeight];
+        Pair<Point2D, Point2D> subBoardBounds = getSubBoardBounds(position, isStartSubBoard, direction);
+        Point2D boardRelativePos = subBoardBounds.getKey();
+
+        for (int subBoardX = 0; subBoardX < subBoardWidth; subBoardX++) {
+            for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
+                int boardX = (int)(boardRelativePos.getX() + subBoardX);
+                int boardY = (int)(boardRelativePos.getY() + subBoardY);
+                // Spaces in subboard
+                CC_SpaceView spaceView = new CC_SpaceView(boardX, boardY);
+                // Add space to board and subboard
+                spaces[boardX][boardY] = spaceView;
+                subBoardSpaceViews[subBoardX][subBoardY] = spaceView;
+            }
         }
 
-        // Making SpaceViews
-        CC_SpaceView[][] subBoardSpaceViews;
-        subBoardSpaceViews = new CC_SpaceView[xLength][yLength];
         // Making GridPane
         GridPane subBoardGridPane = getNewGridPane(position, direction, subBoardSpaceViews);
         // Instantiating the new subboard
@@ -172,6 +196,35 @@ public class CC_Controller extends BorderPane {
         CC_boardPane.getChildren().add(subBoardGridPane);
         subBoards.add(newSubBoard);
         //System.out.println("New subboard at: " + position.getX() + ", " + position.getY());
+    }
+
+    private Pair<Point2D, Point2D> getSubBoardBounds(Point2D position, boolean isStartSubBoard, Heading direction) {
+        Point2D subBoardMin = new Point2D(position.getX() * 5, position.getY() * 5);
+        Point2D subBoardMax = new Point2D(position.getX() * 5, position.getY() * 5);
+        if (!isStartSubBoard) {
+            // Square subboard
+            subBoardMax = new Point2D(subBoardMax.getX() + 10, subBoardMax.getY() + 10);
+        } else {
+            // Start subboard
+            //System.out.println("*** FOUND START SUBBOARD ***: Direction: " + subBoard.getDirection());
+            switch (direction) {
+                case NORTH -> {
+                    subBoardMax = new Point2D(subBoardMax.getX() + 10, subBoardMax.getY() + 3);
+                }
+                case EAST -> {
+                    subBoardMin = new Point2D(subBoardMin.getX() + 2, subBoardMin.getY());
+                    subBoardMax = new Point2D(subBoardMax.getX() + 5, subBoardMax.getY() + 10);
+                }
+                case SOUTH -> {
+                    subBoardMin = new Point2D(subBoardMin.getX(), subBoardMin.getY() + 2);
+                    subBoardMax = new Point2D(subBoardMax.getX() + 10, subBoardMax.getY() + 5);
+                }
+                case WEST -> {
+                    subBoardMax = new Point2D(subBoardMax.getX() + 3, subBoardMax.getY() + 10);
+                }
+            }
+        }
+        return new Pair<>(subBoardMin, subBoardMax);
     }
 
     public static @NotNull GridPane getNewGridPane(Point2D position, Heading direction, CC_SpaceView[][] spaceViews) {
@@ -199,19 +252,30 @@ public class CC_Controller extends BorderPane {
         double spaceViewWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
         double spaceViewHeight = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
         CC_SpaceView[][] subBoardSpaceViews = subBoard.getSpaceViews();
-        for (int x = 0; x < subBoardSpaceViews.length; x++) {
-            for (int y = 0; y < subBoardSpaceViews[x].length; y++) {
-                CC_SpaceView spaceView;
-                if (subBoardSpaceViews[x][y] == null) {
-                    spaceView = new CC_SpaceView();
-                } else {
-                    spaceView = subBoardSpaceViews[x][y];
-                }
+        boolean isStartSubBoard = subBoardSpaceViews.length <= 3 || subBoardSpaceViews[0].length <= 3;
+        Pair<Point2D, Point2D> subBoardBounds = getSubBoardBounds(subBoard.getPosition(), isStartSubBoard, subBoard.getDirection());
+        Point2D boardRelativePos = subBoardBounds.getKey();
 
-                spaceView.initialize(spaceViewWidth, subBoardSpaceViews.length <= 3 || subBoardSpaceViews[0].length <= 3);
+        int subBoardWidth = 10;
+        int subBoardHeight = 10;
+        if (isStartSubBoard) {
+            subBoardWidth = (subBoard.getDirection() == NORTH || subBoard.getDirection() == Heading.SOUTH) ? 10 : 3;
+            subBoardHeight = (subBoard.getDirection() == Heading.EAST || subBoard.getDirection() == Heading.WEST) ? 10 : 3;
+        }
+
+        for (int subBoardX = 0; subBoardX < subBoardWidth; subBoardX++) {
+            for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
+                int boardX = (int)(boardRelativePos.getX() + subBoardX);
+                int boardY = (int)(boardRelativePos.getY() + subBoardY);
+                // Spaces in subboard
+                CC_SpaceView spaceView = new CC_SpaceView(boardX, boardY);
+                // Add space to board and subboard
+                spaces[boardX][boardY] = spaceView;
+                subBoardSpaceViews[subBoardX][subBoardY] = spaceView;
+
+                spaceView.initialize(spaceViewWidth, isStartSubBoard);
                 spaceView.setPrefSize(spaceViewWidth, spaceViewHeight);
-                subBoard.getGridPane().add(spaceView, x, y);
-                subBoardSpaceViews[x][y] = spaceView;
+                subBoard.getGridPane().add(spaceView, subBoardX, subBoardY);
             }
         }
     }
@@ -368,7 +432,7 @@ public class CC_Controller extends BorderPane {
 
         private void handleSpaceViewMouseEvent(MouseEvent event) {
             if (previousSpaceView != null) {
-                previousSpaceView.CC_removeGhost();
+                previousSpaceView.CC_setGhost(null, null, -1, spaces);
                 previousSpaceView = null;
             }
             List<CC_SpaceView> CC_SpaceViewsOnMouse = getSpacesAtMouse(event);
@@ -379,7 +443,7 @@ public class CC_Controller extends BorderPane {
             CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
             if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
                 if (previousSpaceView == null || rotationChanged) {
-                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : Heading.NORTH);
+                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
                     previousSpaceView = hoveredSpaceView;
                 }
             }
@@ -389,19 +453,19 @@ public class CC_Controller extends BorderPane {
                     if (selectedItem == CC_Items.Wall) {
                         hoveredSpaceView.CC_setWall(null, currentRotation);
                     } else {
-                        hoveredSpaceView.CC_setBoardElement(null, null, -1);
+                        hoveredSpaceView.CC_setBoardElement(null, null, -1, spaces);
                     }
                 } else {
                     // Placement of item at space
                     if (selectedItem == CC_Items.Wall) {
-                        hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : Heading.NORTH);
+                        hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
                     } else {
-                        hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : Heading.NORTH, selectedItem.ordinal());
+                        hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
                     }
                 }
                 // Remove ghost on this space when mouse clicked
                 if (hoveredSpaceView != previousSpaceView) {
-                    hoveredSpaceView.CC_removeGhost();
+                    hoveredSpaceView.CC_setGhost(null, null, -1, spaces);
                 }
             }
         }
@@ -423,7 +487,7 @@ public class CC_Controller extends BorderPane {
             if (selectedItem == CC_Items.StartSubBoard) {
                 leftBorder += spaceViewWidth * (currentRotation == Heading.EAST ? 2 : 0);
                 topBorder += spaceViewWidth * (currentRotation == Heading.SOUTH ? 2 : 0);
-                int xLength = (currentRotation == Heading.NORTH || currentRotation == Heading.SOUTH) ? 10 : 3;
+                int xLength = (currentRotation == NORTH || currentRotation == Heading.SOUTH) ? 10 : 3;
                 int yLength = (currentRotation == Heading.EAST || currentRotation == Heading.WEST) ? 10 : 3;
                 subBoardWidth = spaceViewWidth * xLength;
                 subBoardHeight = spaceViewHeight * yLength;

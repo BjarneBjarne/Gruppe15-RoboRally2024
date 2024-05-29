@@ -35,7 +35,10 @@ class CC_SpaceViewDeserializer implements JsonDeserializer<CC_SpaceView> {
     @Override
     public CC_SpaceView deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
-        CC_SpaceView spaceView = new CC_SpaceView();
+
+        int boardX = jsonObject.get("boardX").getAsInt();
+        int boardY = jsonObject.get("boardY").getAsInt();
+        CC_SpaceView spaceView = new CC_SpaceView(boardX, boardY);
 
         int placedBoardElement = jsonObject.get("placedBoardElement").getAsInt();
         Heading direction = context.deserialize(jsonObject.get("direction"), Heading.class);
