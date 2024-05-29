@@ -69,11 +69,11 @@ public class CC_SpaceView extends StackPane {
     public void CC_setBoardElement(Image image, Heading direction, int placedBoardElement, CC_SpaceView[][] spaces) {
         this.placedBoardElement = placedBoardElement;
         this.direction = direction;
-        if (this.placedBoardElement == 7 || this.placedBoardElement == 8) {
+        if ((this.placedBoardElement == 7 || this.placedBoardElement == 8) && direction != null) {
             // Self
             updateConveyorBeltImage(this.boardElementImageView, spaces, this.direction);
             // Neighbors
-            updateNeighborsConveyorBeltImages(spaces);
+            updateNeighborsConveyorBeltImages(spaces, this.direction);
         } else {
             CC_setImageView(image, this.direction, this.boardElementImageView);
         }
@@ -92,13 +92,13 @@ public class CC_SpaceView extends StackPane {
     public void CC_setGhost(Image image, Heading ghostDirection, int ghostBoardElement, CC_SpaceView[][] spaces) {
         this.ghostBoardElement = ghostBoardElement;
         this.ghostDirection = ghostDirection;
-        if (this.ghostBoardElement == 7 || this.ghostBoardElement == 8) {
+        if ((this.ghostBoardElement == 7 || this.ghostBoardElement == 8) && direction != null) {
             // Self
             updateConveyorBeltImage(this.ghostImageView, spaces, this.ghostDirection);
             // Neighbors
-            updateNeighborsConveyorBeltImages(spaces);
+            updateNeighborsConveyorBeltImages(spaces, this.ghostDirection);
         } else {
-            CC_setImageView(image, this.direction, this.ghostImageView);
+            CC_setImageView(image, this.ghostDirection, this.ghostImageView);
         }
     }
 
@@ -106,26 +106,26 @@ public class CC_SpaceView extends StackPane {
         imageView.setImage(ImageUtils.getRotatedImageByHeading(image, direction));
     }
 
-    private void updateNeighborsConveyorBeltImages(CC_SpaceView[][] spaces) {
-        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces);
+    private void updateNeighborsConveyorBeltImages(CC_SpaceView[][] spaces, Heading d) {
+        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY], spaces, d);
+        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces, d);
+        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces, d);
+        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces, d);
     }
 
-    private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces) {
+    private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces, Heading d) {
         if (neighbor != null) {
-            neighbor.updateConveyorBeltImage(neighbor.ghostImageView, spaces, this.ghostDirection);
+            neighbor.updateConveyorBeltImage(neighbor.ghostImageView, spaces, d);
         }
     }
 
-    protected void updateConveyorBeltImage(ImageView imageView, CC_SpaceView[][] spaces, Heading direction) {
-        if (direction == null) {
+    protected void updateConveyorBeltImage(ImageView imageView, CC_SpaceView[][] spaces, Heading d) {
+        if (d == null) {
             imageView.setImage(null);
             return;
         }
         Image updatedConveyorImage = ImageUtils.getImageFromName("Board Pieces/" + this.getUpdatedConveyorBeltImage(boardX, boardY, spaces));
-        imageView.setImage(ImageUtils.getRotatedImageByHeading(updatedConveyorImage, direction));
+        imageView.setImage(ImageUtils.getRotatedImageByHeading(updatedConveyorImage, d));
     }
 
 
@@ -164,9 +164,9 @@ public class CC_SpaceView extends StackPane {
             }
             if (neighborSpace == null) continue;
 
-            int neighborBoardElement = neighborSpace.placedBoardElement != -1 ? neighborSpace.placedBoardElement : neighborSpace.ghostBoardElement;
-            Heading neighborDirection = neighborSpace.direction != null ? neighborSpace.direction : neighborSpace.ghostDirection;
-            if (neighborSpace.placedBoardElement == 7 || neighborSpace.placedBoardElement == 8) {
+            int neighborBoardElement = neighborSpace.ghostBoardElement != -1 ? neighborSpace.ghostBoardElement : neighborSpace.placedBoardElement;
+            Heading neighborDirection = neighborSpace.ghostDirection != null ? neighborSpace.ghostDirection : neighborSpace.direction;
+            if (neighborBoardElement == 7 || neighborBoardElement == 8) {
                 if (myBoardElement != neighborBoardElement) continue; // Only count same type
 
                 if (neighborDirection == relativeDirection || neighborDirection.opposite() == relativeDirection) {
