@@ -24,6 +24,7 @@ package gruppe15.roborally.model.boardelements;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 
+import gruppe15.roborally.model.utils.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -66,69 +67,9 @@ public class BE_ConveyorBelt extends BoardElement {
         return strength;
     }
 
-    /**
-     * Calculates the image of the conveyor belt based on the direction and the number of neighbors
-     * @param x the x-coordinate of the conveyor belt
-     * @param y the y-coordinate of the conveyor belt
-     * @param spaces the spaces on the board
-     * 
-     * @author Gustav
-     */
-    public void calculateImage(int x, int y, Space[][] spaces) {
-        StringBuilder imageNameBuilder = new StringBuilder();
-
-        // Green or blue
-        imageNameBuilder.append(strength == 1 ? "green" : "blue");
-
-        // Neighbors
-        int noOfNeighbors = 0;
-        boolean[] relativeNeighbors = new boolean[4];
-        Space space = spaces[x][y];
-
-        for (int i = 0; i < 4; i++) {
-            Heading relativeDirection = Heading.values()[(direction.ordinal() + i) % 4];
-            Space neighborSpace = space.getSpaceNextTo(relativeDirection, spaces);
-            // i = 0 always counts as a "neighbor".
-            if (i == 0) {
-                relativeNeighbors[i] = true;
-                noOfNeighbors++;
-                continue;
-            }
-            if (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighborConveyorBelt) {
-                if (neighborConveyorBelt.strength != this.strength) continue; // Only count same type
-
-                Heading neighborDirection = neighborConveyorBelt.getDirection();
-                if (neighborDirection == relativeDirection || neighborDirection.opposite() == relativeDirection) {
-                    relativeNeighbors[i] = true;
-                    noOfNeighbors++;
-                }
-            }
-        }
-
-        // Building string
-        switch (noOfNeighbors) {
-            case 1:
-                imageNameBuilder.append("Straight");
-                break;
-            case 2:
-                // Adjust the conditions for alignment based on the relative neighbors' indexes
-                if (relativeNeighbors[2]) {
-                    imageNameBuilder.append("Straight");
-                } else {
-                    imageNameBuilder.append("Turn").append(relativeNeighbors[1] ? "Right" : "Left");
-                }
-                break;
-            case 3:
-                // Adjust the conditions for alignment based on the relative neighbors' indexes
-                imageNameBuilder.append("T").append(relativeNeighbors[2] ? (relativeNeighbors[1] ? "Right" : "Left") : "Sides");
-                break;
-            default:
-                break;
-        }
-        imageNameBuilder.append(".png");
-        //System.out.println("Image: " + imageNameBuilder + " at '" + x + ", " + y + "' pointing " + heading + ", has " + noOfNeighbors + " neighbors!");
-        setDirection(direction);
-        setImage(imageNameBuilder.toString());
+    public void updateConveyorBeltImage(int x, int y, Space[][] spaces) {
+        this.image = ImageUtils.getImageFromName("Board Pieces/" + ImageUtils.getUpdatedConveyorBeltImage(this, x, y, spaces));
+        setDirection(this.direction);
     }
 
     /**
