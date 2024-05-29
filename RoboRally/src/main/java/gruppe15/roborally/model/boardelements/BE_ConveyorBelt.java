@@ -88,8 +88,17 @@ public class BE_ConveyorBelt extends BoardElement {
         for (int i = 0; i < 4; i++) {
             Heading relativeDirection = Heading.values()[(direction.ordinal() + i) % 4];
             Space neighborSpace = space.getSpaceNextTo(relativeDirection, spaces);
-            if (i == 0 || (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt)) {
-                if (i == 0 || ((BE_ConveyorBelt) neighborSpace.getBoardElement()).getDirection().opposite() == relativeDirection) {
+            // i = 0 always counts as a "neighbor".
+            if (i == 0) {
+                relativeNeighbors[i] = true;
+                noOfNeighbors++;
+                continue;
+            }
+            if (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighborConveyorBelt) {
+                if (neighborConveyorBelt.strength != this.strength) continue; // Only count same type
+
+                Heading neighborDirection = neighborConveyorBelt.getDirection();
+                if (neighborDirection == relativeDirection || neighborDirection.opposite() == relativeDirection) {
                     relativeNeighbors[i] = true;
                     noOfNeighbors++;
                 }
@@ -166,13 +175,13 @@ public class BE_ConveyorBelt extends BoardElement {
         SimulatedSpace toSpace = simulatedSpaces[space.x][space.y];
         // For each time this type of conveyor belt can move a player:
         for (int i = 0; i < strength; i++) {
+            Space nextSpace = null;
             // We check recursively if we can move this once in The Matrix starring Keanu Reeves.
             if (canMoveOnce(toSpace, simulatedSpaces, new ArrayList<>())) {
+                System.out.println("can move");
                 // If we get here, it means we can move the player once.
                 BE_ConveyorBelt currentConveyorBelt = ((BE_ConveyorBelt)currentSpace.getBoardElement());
-                Space nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.getDirection(), boardSpaces);
-                player.setTemporarySpace(nextSpace);
-                currentSpace = nextSpace;
+                nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.getDirection(), boardSpaces);
                 if (nextSpace != null) {
                     // Rotate the robot.
                     if (nextSpace.getBoardElement() instanceof BE_ConveyorBelt nextBelt) {
@@ -187,9 +196,12 @@ public class BE_ConveyorBelt extends BoardElement {
                     }
                 } else {
                     player.setSpace(null);
-                    player.setTemporarySpace(currentSpace);
                     return true;
                 }
+                player.setTemporarySpace(nextSpace);
+                currentSpace = nextSpace;
+            } else {
+                System.out.println("can't move :(");
             }
         }
         return true;

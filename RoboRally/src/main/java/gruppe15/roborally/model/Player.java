@@ -244,18 +244,35 @@ public class Player extends Subject {
         this.temporarySpace = space;
     }
     public void goToTemporarySpace() {
+        System.out.println("Player: " + this.name);
+        System.out.println("Temp: " + this.temporarySpace);
+        System.out.println("Real: " + this.space);
+        System.out.println();
+
         // Surpass the setSpace() checks
         // Set old space
         if (this.space != null && this.space.getPlayer() == this) {
             this.space.setPlayer(null);
         }
+        System.out.println("Temp: " + this.temporarySpace);
+        System.out.println("Real: " + this.space);
+        System.out.println();
         // Go to temporarySpace
         this.space = this.temporarySpace;
+        System.out.println("Temp: " + this.temporarySpace);
+        System.out.println("Real: " + this.space);
+        System.out.println();
         // Also tell the new space that this is where the player is
         if (this.space != null) {
             this.space.setPlayer(this);
         }
+        System.out.println("Temp: " + this.temporarySpace);
+        System.out.println("Real: " + this.space);
+        System.out.println();
         this.temporarySpace = null;
+        System.out.println("Temp: " + this.temporarySpace);
+        System.out.println("Real: " + this.space);
+        System.out.println();
     }
 
     public void setVelocity(Velocity velocity) {

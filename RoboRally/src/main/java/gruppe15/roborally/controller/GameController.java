@@ -138,7 +138,7 @@ public class GameController {
         makeProgramFieldsVisible(0);
 
         for (Player player : board.getPlayers()) {
-            player.fillRestOfRegisters();
+            //player.fillRestOfRegisters();
         }
     }
 
@@ -332,6 +332,7 @@ public class GameController {
         try {
             int currentRegister = board.getCurrentRegister();
             CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
+            if (card == null) return;
             commandToQueue = card.command;
             currentPlayer.queueCommand(commandToQueue, this);
         } catch (Exception e) {
