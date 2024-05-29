@@ -138,7 +138,7 @@ public class GameController {
         makeProgramFieldsVisible(0);
 
         for (Player player : board.getPlayers()) {
-            //player.fillRestOfRegisters();
+            player.fillRestOfRegisters();
         }
     }
 

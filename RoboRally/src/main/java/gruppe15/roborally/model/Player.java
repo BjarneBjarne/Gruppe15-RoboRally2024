@@ -69,7 +69,7 @@ public class Player extends Subject {
     private int energyCubes = 5;
     private int checkpoints = 0;
     transient private int priority = 0;
-    private Velocity velocity;
+    private Velocity velocity = new Velocity(0, 0);
     private boolean rebooting = false;
     private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
     transient private Image image;
@@ -224,9 +224,6 @@ public class Player extends Subject {
         Space oldSpace = this.space;
         if (space != oldSpace && (space == null || space.board == this.board)) {
             this.space = space;
-            if (space == null) {
-                setTemporarySpace(oldSpace);
-            }
             if (oldSpace != null) {
                 oldSpace.setPlayer(null);
             }
@@ -244,35 +241,19 @@ public class Player extends Subject {
         this.temporarySpace = space;
     }
     public void goToTemporarySpace() {
-        System.out.println("Player: " + this.name);
-        System.out.println("Temp: " + this.temporarySpace);
-        System.out.println("Real: " + this.space);
-        System.out.println();
-
+        if (temporarySpace == null) return;
         // Surpass the setSpace() checks
         // Set old space
         if (this.space != null && this.space.getPlayer() == this) {
             this.space.setPlayer(null);
         }
-        System.out.println("Temp: " + this.temporarySpace);
-        System.out.println("Real: " + this.space);
-        System.out.println();
         // Go to temporarySpace
         this.space = this.temporarySpace;
-        System.out.println("Temp: " + this.temporarySpace);
-        System.out.println("Real: " + this.space);
-        System.out.println();
         // Also tell the new space that this is where the player is
         if (this.space != null) {
             this.space.setPlayer(this);
         }
-        System.out.println("Temp: " + this.temporarySpace);
-        System.out.println("Real: " + this.space);
-        System.out.println();
         this.temporarySpace = null;
-        System.out.println("Temp: " + this.temporarySpace);
-        System.out.println("Real: " + this.space);
-        System.out.println();
     }
 
     public void setVelocity(Velocity velocity) {

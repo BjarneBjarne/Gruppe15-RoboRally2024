@@ -175,10 +175,10 @@ public class BE_ConveyorBelt extends BoardElement {
         SimulatedSpace toSpace = simulatedSpaces[space.x][space.y];
         // For each time this type of conveyor belt can move a player:
         for (int i = 0; i < strength; i++) {
-            Space nextSpace = null;
+            Space nextSpace;
             // We check recursively if we can move this once in The Matrix starring Keanu Reeves.
             if (canMoveOnce(toSpace, simulatedSpaces, new ArrayList<>())) {
-                System.out.println("can move");
+                System.out.println(player.getName() + " can move");
                 // If we get here, it means we can move the player once.
                 BE_ConveyorBelt currentConveyorBelt = ((BE_ConveyorBelt)currentSpace.getBoardElement());
                 nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.getDirection(), boardSpaces);
@@ -195,13 +195,13 @@ public class BE_ConveyorBelt extends BoardElement {
                         }
                     }
                 } else {
-                    player.setSpace(null);
+                    player.setSpace(null); // The player fell off the board
                     return true;
                 }
                 player.setTemporarySpace(nextSpace);
                 currentSpace = nextSpace;
             } else {
-                System.out.println("can't move :(");
+                System.out.println(player.getName() + " can't move :(");
             }
         }
         return true;
