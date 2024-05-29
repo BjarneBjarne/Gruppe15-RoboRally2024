@@ -3,7 +3,7 @@ package gruppe15.roborally.coursecreator;
 import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 
-// WARNING: Don't change the order of these. The CC_Items.ordinal() order determines the saved and loaded board elements.
+// WARNING: Don't change the order of these. The CC_Items.ordinal() order determines the saved and loaded board elements. Also used to calculate conveyor belt images.
 public enum CC_Items {
     SubBoard("subBoard.png"),
     StartSubBoard("startSubBoard.png", true),

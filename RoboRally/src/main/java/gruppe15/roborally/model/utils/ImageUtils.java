@@ -272,7 +272,7 @@ public class ImageUtils {
         // Neighbors
         int noOfNeighbors = 0;
         boolean[] relativeNeighbors = new boolean[4];
-        gruppe15.roborally.model.Space space = spaces[x][y];
+        Space space = spaces[x][y];
 
         for (int i = 0; i < 4; i++) {
             Heading relativeDirection = Heading.values()[(conveyorBelt.getDirection().ordinal() + i) % 4];
