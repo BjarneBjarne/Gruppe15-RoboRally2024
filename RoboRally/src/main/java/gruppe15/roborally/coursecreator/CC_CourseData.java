@@ -140,7 +140,7 @@ public class CC_CourseData {
             case SpawnPoint -> new BE_SpawnPoint(spaceView.getDirection());
             case Reboot -> new BE_Reboot(spaceView.getDirection());
             case Hole -> new BE_Hole();
-            case Antenna -> new BE_Antenna();
+            case Antenna -> new BE_Antenna(spaceView.getDirection());
             case BlueConveyorBelt -> new BE_ConveyorBelt(spaceView.getDirection(), 2);
             case GreenConveyorBelt -> new BE_ConveyorBelt(spaceView.getDirection(), 1);
             case PushPanel135 -> new BE_PushPanel("135", spaceView.getDirection());
