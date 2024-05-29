@@ -58,6 +58,8 @@ public class SetupView {
     ComboBox settings_noOfPlayers;
     @FXML
     ComboBox settings_keepHand;
+    @FXML
+    ComboBox settings_drawOnEmpty;
 
 
     private int mapIndex = 0;
@@ -230,6 +232,15 @@ public class SetupView {
         settings_keepHand.setOnAction(e -> {
             String keepHandString = settings_keepHand.getSelectionModel().getSelectedItem().toString();
             KEEP_HAND = keepHandString.equals("Yes");
+            updateUI();
+        });
+
+        // Draw on empty register
+        settings_drawOnEmpty.getItems().addAll(OPTIONS_DRAW_ON_EMPTY_REGISTER);
+        settings_drawOnEmpty.getSelectionModel().select(1);
+        settings_drawOnEmpty.setOnAction(e -> {
+            String keepHandString = settings_drawOnEmpty.getSelectionModel().getSelectedItem().toString();
+            DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI();
         });
 
