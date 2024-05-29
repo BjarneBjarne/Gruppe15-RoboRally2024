@@ -49,9 +49,9 @@
                         <Insets bottom="50.0" top="40.0" />
                      </VBox.margin>
                   </Text>
-                  <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="950.0">
+                  <AnchorPane>
                      <children>
-                        <VBox alignment="TOP_CENTER" prefHeight="940.0" prefWidth="350.0">
+                        <VBox alignment="TOP_CENTER" prefHeight="940.0" prefWidth="350.0" AnchorPane.leftAnchor="90.0">
                            <children>
                               <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Courses" textAlignment="CENTER">
                                  <font>
@@ -75,7 +75,7 @@
                               </ScrollPane>
                            </children>
                         </VBox>
-                        <VBox alignment="TOP_CENTER">
+                        <VBox alignment="TOP_CENTER" fillWidth="false" AnchorPane.leftAnchor="500.0" AnchorPane.rightAnchor="500.0">
                            <children>
                               <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Players">
                                  <font>
@@ -101,11 +101,13 @@
                                                       <TextField alignment="CENTER" prefHeight="50.0" promptText="Name" VBox.vgrow="SOMETIMES">
                                                          <font>
                                                             <Font name="OCR A Extended" size="24.0" />
-                                                         </font></TextField>
+                                                         </font>
+                                                      </TextField>
                                                       <ComboBox prefHeight="65.0" prefWidth="1000.0" promptText="Character" VBox.vgrow="SOMETIMES">
                                                          <VBox.margin>
                                                             <Insets />
-                                                         </VBox.margin></ComboBox>
+                                                         </VBox.margin>
+                                                      </ComboBox>
                                                    </children>
                                                    <HBox.margin>
                                                       <Insets />
@@ -120,7 +122,8 @@
                                                       <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="Name" VBox.vgrow="SOMETIMES">
                                                          <font>
                                                             <Font name="OCR A Extended" size="24.0" />
-                                                         </font></TextField>
+                                                         </font>
+                                                      </TextField>
                                                       <ComboBox prefHeight="65.0" prefWidth="1000.0" promptText="Character" VBox.vgrow="SOMETIMES" />
                                                    </children>
                                                    <HBox.margin>
@@ -150,7 +153,8 @@
                                                       <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="Name" VBox.vgrow="SOMETIMES">
                                                          <font>
                                                             <Font name="OCR A Extended" size="24.0" />
-                                                         </font></TextField>
+                                                         </font>
+                                                      </TextField>
                                                       <ComboBox prefHeight="65.0" prefWidth="1000.0" promptText="Character" VBox.vgrow="SOMETIMES" />
                                                    </children>
                                                    <HBox.margin>
@@ -166,7 +170,8 @@
                                                       <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="Name" VBox.vgrow="SOMETIMES">
                                                          <font>
                                                             <Font name="OCR A Extended" size="24.0" />
-                                                         </font></TextField>
+                                                         </font>
+                                                      </TextField>
                                                       <ComboBox prefHeight="65.0" prefWidth="1000.0" promptText="Character" VBox.vgrow="SOMETIMES" />
                                                    </children>
                                                    <HBox.margin>
@@ -196,7 +201,8 @@
                                                       <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="Name" VBox.vgrow="SOMETIMES">
                                                          <font>
                                                             <Font name="OCR A Extended" size="24.0" />
-                                                         </font></TextField>
+                                                         </font>
+                                                      </TextField>
                                                       <ComboBox prefHeight="65.0" prefWidth="1000.0" promptText="Character" VBox.vgrow="SOMETIMES" />
                                                    </children>
                                                    <HBox.margin>
@@ -212,7 +218,8 @@
                                                       <TextField alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="Name" VBox.vgrow="SOMETIMES">
                                                          <font>
                                                             <Font name="OCR A Extended" size="24.0" />
-                                                         </font></TextField>
+                                                         </font>
+                                                      </TextField>
                                                       <ComboBox prefHeight="65.0" prefWidth="1000.0" promptText="Character" VBox.vgrow="SOMETIMES" />
                                                    </children>
                                                    <HBox.margin>
@@ -235,7 +242,7 @@
                               </VBox>
                            </children>
                         </VBox>
-                        <VBox alignment="TOP_CENTER" prefWidth="350.0">
+                        <VBox alignment="TOP_CENTER" prefWidth="450.0" AnchorPane.rightAnchor="90.0">
                            <children>
                               <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Settings">
                                  <font>
@@ -287,10 +294,31 @@
                                     </ComboBox>
                                  </children>
                               </AnchorPane>
+                              <AnchorPane layoutX="10.0" layoutY="147.0" minWidth="400.0" prefWidth="1000.0">
+                                 <children>
+                                    <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                       <children>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Draw on empty register">
+                                             <font>
+                                                <Font name="OCR A Extended" size="24.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </StackPane>
+                                    <ComboBox fx:id="settings_drawOnEmpty" nodeOrientation="LEFT_TO_RIGHT" prefHeight="45.0" prefWidth="100.0" visibleRowCount="5" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </ComboBox>
+                                 </children>
+                              </AnchorPane>
                            </children>
                         </VBox>
                      </children>
-                  </HBox>
+                  </AnchorPane>
                </children>
             </VBox>
          </children>
