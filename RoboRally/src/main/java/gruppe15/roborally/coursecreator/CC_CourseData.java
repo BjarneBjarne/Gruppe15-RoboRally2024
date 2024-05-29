@@ -114,7 +114,7 @@ public class CC_CourseData {
             for (int y = 0; y < boardHeight; y++) {
                 if (boardSpaces[x][y] == null || boardSpaces[x][y].getBoardElement() == null) continue;
                 if (boardSpaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
-                    conveyorBelt.calculateImage(x, y, boardSpaces);
+                    conveyorBelt.updateConveyorBeltImage(x, y, boardSpaces);
                 }
             }
         }

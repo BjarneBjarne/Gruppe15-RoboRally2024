@@ -1,6 +1,8 @@
 package gruppe15.roborally.model.utils;
 
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.exceptions.EmptyCourseException;
@@ -251,5 +253,68 @@ public class ImageUtils {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "png", outputStream);
         return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+    }
+
+    /**
+     * Calculates the image of the conveyor belt based on the direction and the number of neighbors
+     * @param x the x-coordinate of the conveyor belt
+     * @param y the y-coordinate of the conveyor belt
+     * @param spaces the spaces on the board
+     *
+     * @author Carl Gustav Bjergaard Aggeboe, s235063
+     */
+    public static String getUpdatedConveyorBeltImage(BE_ConveyorBelt conveyorBelt, int x, int y, Space[][] spaces) {
+        StringBuilder imageNameBuilder = new StringBuilder();
+
+        // Green or blue
+        imageNameBuilder.append(conveyorBelt.getStrength() == 1 ? "green" : "blue");
+
+        // Neighbors
+        int noOfNeighbors = 0;
+        boolean[] relativeNeighbors = new boolean[4];
+        gruppe15.roborally.model.Space space = spaces[x][y];
+
+        for (int i = 0; i < 4; i++) {
+            Heading relativeDirection = Heading.values()[(conveyorBelt.getDirection().ordinal() + i) % 4];
+            Space neighborSpace = space.getSpaceNextTo(relativeDirection, spaces);
+            // i = 0 always counts as a "neighbor".
+            if (i == 0) {
+                relativeNeighbors[i] = true;
+                noOfNeighbors++;
+                continue;
+            }
+            if (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighborConveyorBelt) {
+                if (neighborConveyorBelt.getStrength() != conveyorBelt.getStrength()) continue; // Only count same type
+
+                Heading neighborDirection = neighborConveyorBelt.getDirection();
+                if (neighborDirection == relativeDirection || neighborDirection.opposite() == relativeDirection) {
+                    relativeNeighbors[i] = true;
+                    noOfNeighbors++;
+                }
+            }
+        }
+
+        // Building string
+        switch (noOfNeighbors) {
+            case 1:
+                imageNameBuilder.append("Straight");
+                break;
+            case 2:
+                // Adjust the conditions for alignment based on the relative neighbors' indexes
+                if (relativeNeighbors[2]) {
+                    imageNameBuilder.append("Straight");
+                } else {
+                    imageNameBuilder.append("Turn").append(relativeNeighbors[1] ? "Right" : "Left");
+                }
+                break;
+            case 3:
+                // Adjust the conditions for alignment based on the relative neighbors' indexes
+                imageNameBuilder.append("T").append(relativeNeighbors[2] ? (relativeNeighbors[1] ? "Right" : "Left") : "Sides");
+                break;
+            default:
+                break;
+        }
+        imageNameBuilder.append(".png");
+        return imageNameBuilder.toString();
     }
 }
