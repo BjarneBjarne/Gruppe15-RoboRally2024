@@ -41,6 +41,7 @@ import static gruppe15.roborally.model.Heading.*;
  * rotated 90 degrees compared to the conveyor belt the player was on.
  * 
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class BE_ConveyorBelt extends BoardElement {
     private final int strength;
@@ -74,11 +75,13 @@ public class BE_ConveyorBelt extends BoardElement {
     /**
      * When a player lands on a conveyor belt, the player is moved in the direction of the conveyor belt.
      * The strength of the conveyor belt determines how many times the player is moved in the direction of the conveyor belt.
-     * The conveyor belt can also rotate the player if the player lands on a conveyor belt that is rotated 90 degrees
-     * compared to the conveyor belt the player was on.
+     * The player will be rotated to face the same direction as the conveyor belt they land on, if it was connected to the previous
+     *     conveyor belt, and has a direction difference of 90 degrees.
+     *
      * @param space the space where the player is located
      * @param gameController the game controller
      * @param actionQueue the queue of actions
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
@@ -147,6 +150,16 @@ public class BE_ConveyorBelt extends BoardElement {
         return true;
     }
 
+    /**
+     * Recursively checking if the player standing on this conveyor belt can be moved, by determining the future of the position
+     *     of player's moving on the same type of conveyor belt.
+     *
+     * @param currentSpace The space the player starts on.
+     * @param spaces A bi-dimensional array of the simulated spaces.
+     * @param visitedSpaces Should be an empty array. Keeps track of the simulated spaces, in order to prevent an infinite loop/stack overflow.
+     * @return Returns whether a player standing on this conveyor belt will be able to be moved.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     private boolean canMoveOnce(SimulatedSpace currentSpace, SimulatedSpace[][] spaces, List<SimulatedSpace> visitedSpaces) {
         if (visitedSpaces.contains(currentSpace)) {
             // We have already checked here. This stops an infinite loop from happening.
@@ -191,6 +204,11 @@ public class BE_ConveyorBelt extends BoardElement {
         }
     }
 
+    /**
+     * A stripped down version of the Space class, used in conveyor belt logic to predict player movement on conveyor belts.
+     *
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     static class SimulatedSpace {
         protected int x, y;
         protected boolean isSameType = false;
@@ -238,45 +256,45 @@ public class BE_ConveyorBelt extends BoardElement {
             }
             Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);
             List<Heading> otherWallDirections = otherSpace.getWalls();
-            switch (directionToOtherSpace) {
-                case EAST:
-                    return (walls.contains(EAST) || otherWallDirections.contains(WEST));
-                case WEST:
-                    return (walls.contains(WEST) || otherWallDirections.contains(EAST));
-                case SOUTH:
-                    return (walls.contains(SOUTH) || otherWallDirections.contains(NORTH));
-                case NORTH:
-                    return (walls.contains(NORTH) || otherWallDirections.contains(SOUTH));
-                default:
-                    return false;
-            }
+            return switch (directionToOtherSpace) {
+                case EAST -> (walls.contains(EAST) || otherWallDirections.contains(WEST));
+                case WEST -> (walls.contains(WEST) || otherWallDirections.contains(EAST));
+                case SOUTH -> (walls.contains(SOUTH) || otherWallDirections.contains(NORTH));
+                case NORTH -> (walls.contains(NORTH) || otherWallDirections.contains(SOUTH));
+                default -> false;
+            };
         }
         protected SimulatedSpace getSpaceNextTo(Heading direction, SimulatedSpace[][] spaces) {
-            switch (direction) {
-                case SOUTH:
+            return switch (direction) {
+                case SOUTH -> {
                     if (this.y + 1 >= spaces[x].length) {
-                        return null; // out of bounds
+                        yield null;
                     }
-                    return spaces[this.x][this.y + 1];
-                case WEST:
+                    yield spaces[this.x][this.y + 1]; // out of bounds
+                }
+                case WEST -> {
                     if (this.x - 1 < 0) {
-                        return null; // out of bounds
+                        yield null;
                     }
-                    return spaces[this.x - 1][this.y];
-                case NORTH:
+                    yield spaces[this.x - 1][this.y]; // out of bounds
+                }
+                case NORTH -> {
                     if (this.y - 1 < 0) {
-                        return null; // out of bounds
+                        yield null;
                     }
-                    return spaces[this.x][this.y - 1];
-                case EAST:
+                    yield spaces[this.x][this.y - 1]; // out of bounds
+                }
+                case EAST -> {
                     if (this.x + 1 >= spaces.length) {
-                        return null; // out of bounds
+                        yield null;
                     }
-                    return spaces[this.x + 1][this.y];
-                default:
+                    yield spaces[this.x + 1][this.y]; // out of bounds
+                }
+                default -> {
                     System.out.println("ERROR in Space.getSpaceNextTo()");
-                    return null;
-            }
+                    yield null;
+                }
+            };
         }
     }
 }
