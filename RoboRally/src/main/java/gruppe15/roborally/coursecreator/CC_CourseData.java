@@ -104,12 +104,13 @@ public class CC_CourseData {
                     boolean isOnStartBoard = boardWidth <= 3 || boardHeight <= 3;
                     Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board Pieces/emptyStart.png" : "Board Pieces/empty.png");
                     BoardElement boardElement = getBoardElementFromSpaceView(spaceView);
+                    BE_Checkpoint checkpoint = getCheckpointFromSpaceView(spaceView);
                     int boardX = (int)(boardRelativePos.getX() + subBoardX);
                     int boardY = (int)(boardRelativePos.getY() + subBoardY);
                     //System.out.println("Local coordinates: " + subBoardX + ", " + subBoardY + ". Board coordinates: " + boardX + ", " + boardY);
 
                     // Add space to board and subboard
-                    Space newSpace = new Space(null, boardX, boardY, boardElement);
+                    Space newSpace = new Space(null, boardX, boardY, boardElement, null, checkpoint);
                     boardSpaces[boardX][boardY] = newSpace;
                     subBoardSpaces[subBoardX][subBoardY] = newSpace;
                     subBoardSpaces[subBoardX][subBoardY].setBackgroundImage(backgroundImage);
@@ -164,7 +165,7 @@ public class CC_CourseData {
         };
     }
 
-    private BoardElement getCheckpointFromSpaceView(CC_SpaceView spaceView) {
+    private BE_Checkpoint getCheckpointFromSpaceView(CC_SpaceView spaceView) {
         if (spaceView == null) return null;
         int itemBoardElement = spaceView.getCheckpoint();
         if (itemBoardElement == -1) {

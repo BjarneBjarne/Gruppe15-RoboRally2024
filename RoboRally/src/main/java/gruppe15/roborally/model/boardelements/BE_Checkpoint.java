@@ -37,8 +37,6 @@ public class BE_Checkpoint extends BoardElement {
      */
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
-        if (!(space.getBoardElement() instanceof BE_Checkpoint))
-            return false;
         Player player = space.getPlayer();
         if (player == null)
             return false;

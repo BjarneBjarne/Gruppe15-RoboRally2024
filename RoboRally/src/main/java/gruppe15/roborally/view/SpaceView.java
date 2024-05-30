@@ -81,12 +81,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         backgroundImageView.setImage(space.getImage());
         this.getChildren().add(backgroundImageView);
 
-        if (space.getCheckPoint() != null) {
-            checkpointImageView.setFitWidth(GameVariables.SPACE_SIZE);
-            checkpointImageView.setFitHeight(SPACE_SIZE);
-            checkpointImageView.setImage(space.getCheckPoint().getImage());
-            this.getChildren().add(checkpointImageView);
-        }
+        checkpointImageView.setFitWidth(GameVariables.SPACE_SIZE);
+        checkpointImageView.setFitHeight(SPACE_SIZE);
+        this.getChildren().add(checkpointImageView);
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
@@ -146,6 +143,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
 
         if (space.getCheckPoint() != null) {
+            checkpointImageView.setImage(space.getCheckPoint().getImage());
             this.getChildren().add(checkpointImageView);
         }
 

@@ -715,7 +715,18 @@
         null
       ]
     },
-    null,
+    {
+      "boardX": 29,
+      "boardY": 23,
+      "placedBoardElement": -1,
+      "checkpoint": 15,
+      "placedWalls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     null,
     null,
     null,
