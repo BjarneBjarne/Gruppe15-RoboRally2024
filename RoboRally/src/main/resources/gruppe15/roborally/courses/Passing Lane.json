@@ -1144,7 +1144,18 @@
       ]
     },
     null,
-    null,
+    {
+      "boardX": 34,
+      "boardY": 23,
+      "placedBoardElement": -1,
+      "checkpoint": 15,
+      "placedWalls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     {
       "boardX": 34,
       "boardY": 24,
@@ -1542,7 +1553,18 @@
     null,
     null,
     null,
-    null,
+    {
+      "boardX": 39,
+      "boardY": 27,
+      "placedBoardElement": -1,
+      "checkpoint": 17,
+      "placedWalls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     null,
     {
       "boardX": 39,

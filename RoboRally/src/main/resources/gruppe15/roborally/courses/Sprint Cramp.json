@@ -137,12 +137,34 @@
         null
       ]
     },
-    null
+    {
+      "boardX": 21,
+      "boardY": 29,
+      "placedBoardElement": -1,
+      "checkpoint": 17,
+      "placedWalls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
   ],
   [
     null,
     null,
-    null,
+    {
+      "boardX": 22,
+      "boardY": 22,
+      "placedBoardElement": -1,
+      "checkpoint": 16,
+      "placedWalls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     {
       "boardX": 22,
       "boardY": 23,
@@ -712,7 +734,18 @@
         null
       ]
     },
-    null,
+    {
+      "boardX": 29,
+      "boardY": 28,
+      "placedBoardElement": -1,
+      "checkpoint": 15,
+      "placedWalls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     null
   ]
 ],

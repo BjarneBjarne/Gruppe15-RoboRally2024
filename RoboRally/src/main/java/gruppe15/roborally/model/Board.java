@@ -349,7 +349,8 @@ public class Board extends Subject {
                     boardElementsSpaces[4].add(space);
                 } else if (boardElement instanceof BE_EnergySpace) {
                     boardElementsSpaces[5].add(space);
-                } else if (boardElement instanceof BE_Checkpoint checkpoint) {
+                } else if (space.getCheckPoint() != null) {
+                    BE_Checkpoint checkpoint = space.getCheckPoint();
                     if (checkpoint.number > numberOfCheckPoints) numberOfCheckPoints = checkpoint.number;
                     boardElementsSpaces[6].add(space);
                 }
@@ -368,6 +369,10 @@ public class Board extends Subject {
 
         boardActionQueue.addLast(new ActionWithDelay(() -> {
             for (Space space : boardElementsSpaces[boardElementsIndex]) {
+                if (space.getBoardElement() == null) {
+                    space.getCheckPoint().doAction(space, gameController, boardActionQueue);
+                    continue;
+                }
                 space.getBoardElement().doAction(space, gameController, boardActionQueue);
             }
             for (int i = 0; i < getNoOfPlayers(); i++) {
