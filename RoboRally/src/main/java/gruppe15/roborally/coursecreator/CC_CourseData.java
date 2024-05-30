@@ -160,6 +160,19 @@ public class CC_CourseData {
             case GearLeft -> new BE_Gear("Left");
             case BoardLaser -> new BE_BoardLaser(spaceView.getDirection());
             case EnergySpace -> new BE_EnergySpace();
+            default -> null;
+        };
+    }
+
+    private BoardElement getCheckpointFromSpaceView(CC_SpaceView spaceView) {
+        if (spaceView == null) return null;
+        int itemBoardElement = spaceView.getCheckpoint();
+        if (itemBoardElement == -1) {
+            return null;
+        }
+        CC_Items item = CC_Items.values()[itemBoardElement];
+
+        return switch (item) {
             case Checkpoint1 -> new BE_Checkpoint(1);
             case Checkpoint2 -> new BE_Checkpoint(2);
             case Checkpoint3 -> new BE_Checkpoint(3);
@@ -246,12 +259,12 @@ public class CC_CourseData {
                     if (space == null) continue;
                     if (space.getPlacedBoardElement() == CC_Items.SpawnPoint.ordinal()) noOfSpawnPoints++;
                     if (space.getPlacedBoardElement() == CC_Items.Antenna.ordinal()) noOfAntennas++;
-                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint1.ordinal()) hasCheckpoint[0] = true;
-                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint2.ordinal()) hasCheckpoint[1] = true;
-                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint3.ordinal()) hasCheckpoint[2] = true;
-                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint4.ordinal()) hasCheckpoint[3] = true;
-                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint5.ordinal()) hasCheckpoint[4] = true;
-                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint6.ordinal()) hasCheckpoint[5] = true;
+                    if (space.getCheckpoint() == CC_Items.Checkpoint1.ordinal()) hasCheckpoint[0] = true;
+                    if (space.getCheckpoint() == CC_Items.Checkpoint2.ordinal()) hasCheckpoint[1] = true;
+                    if (space.getCheckpoint() == CC_Items.Checkpoint3.ordinal()) hasCheckpoint[2] = true;
+                    if (space.getCheckpoint() == CC_Items.Checkpoint4.ordinal()) hasCheckpoint[3] = true;
+                    if (space.getCheckpoint() == CC_Items.Checkpoint5.ordinal()) hasCheckpoint[4] = true;
+                    if (space.getCheckpoint() == CC_Items.Checkpoint6.ordinal()) hasCheckpoint[5] = true;
                 }
             }
         }

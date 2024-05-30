@@ -59,7 +59,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     private final List<ImageView> laserImageViews = new ArrayList<>();
     private final List<ImageView> wallImageViews = new ArrayList<>();
     private final ImageView playerImageView = new ImageView();
-    private GridPane directionOptionsPane = null;
+    private final ImageView checkpointImageView = new ImageView();
     private boolean usingPlayerRebootImage = false;
     private Image playerRebootImage;
     private Text spaceCoords = new Text();
@@ -80,6 +80,13 @@ public class SpaceView extends StackPane implements ViewObserver {
         backgroundImageView.setFitHeight(SPACE_SIZE);
         backgroundImageView.setImage(space.getImage());
         this.getChildren().add(backgroundImageView);
+
+        if (space.getCheckPoint() != null) {
+            checkpointImageView.setFitWidth(GameVariables.SPACE_SIZE);
+            checkpointImageView.setFitHeight(SPACE_SIZE);
+            checkpointImageView.setImage(space.getCheckPoint().getImage());
+            this.getChildren().add(checkpointImageView);
+        }
 
         BoardElement boardElement = space.getBoardElement();
         if (boardElement != null) {
@@ -136,12 +143,16 @@ public class SpaceView extends StackPane implements ViewObserver {
         // Board element imageView
         if (boardElement != null) {
             this.getChildren().add(boardElementImageView);
+        }
 
-            // Energy cube imageView
-            if (boardElement instanceof BE_EnergySpace energySpace) {
-                if (energySpace.getHasEnergyCube()) {
-                    this.getChildren().add(energyCubeImageView);
-                }
+        if (space.getCheckPoint() != null) {
+            this.getChildren().add(checkpointImageView);
+        }
+
+        // Energy cube imageView
+        if (boardElement instanceof BE_EnergySpace energySpace) {
+            if (energySpace.getHasEnergyCube()) {
+                this.getChildren().add(energyCubeImageView);
             }
         }
 
@@ -205,14 +216,5 @@ public class SpaceView extends StackPane implements ViewObserver {
         if (subject == this.space) {
             updateSpace();
         }
-    }
-
-    public void setDirectionOptionsPane(GridPane directionOptionsPane) {
-        this.directionOptionsPane = directionOptionsPane;
-        System.out.println("Set space: " + space.x + ", " + space.y + " to choose.");
-    }
-
-    public void removeDirectionOptionsPane() {
-        this.directionOptionsPane = null;
     }
 }

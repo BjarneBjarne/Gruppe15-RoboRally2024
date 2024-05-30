@@ -19,11 +19,13 @@ public class CC_SpaceView extends StackPane {
     private int boardY;
 
     private int placedBoardElement = -1;
+    private int checkpoint = -1;
     private Heading direction;
     private final Heading[] placedWalls = new Heading[4];
 
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
+    private final ImageView checkpointImageView = new ImageView();
     private final ImageView[] wallImageViews = new ImageView[4];
     private boolean isOnStartSubBoard;
 
@@ -61,7 +63,9 @@ public class CC_SpaceView extends StackPane {
 
         boardElementImageView.setFitWidth(size);
         boardElementImageView.setFitHeight(size);
-        this.getChildren().addAll(backgroundImageView, boardElementImageView);
+        checkpointImageView.setFitWidth(size);
+        checkpointImageView.setFitHeight(size);
+        this.getChildren().addAll(backgroundImageView, boardElementImageView, checkpointImageView);
         this.getChildren().addAll(wallImageViews);
 
         ghostImageView.setFitWidth(size);
@@ -97,6 +101,16 @@ public class CC_SpaceView extends StackPane {
         } else {
             this.placedWalls[direction.ordinal()] = null;
             CC_setImageView(null, direction, wallImageViews[direction.ordinal()]);
+        }
+    }
+
+    public void CC_setCheckpoint(Image image, int checkpoint) {
+        if (checkpoint > 0) {
+            this.checkpoint = checkpoint;
+            CC_setImageView(image, Heading.NORTH, checkpointImageView);
+        } else {
+            this.checkpoint = -1;
+            CC_setImageView(null, Heading.NORTH, checkpointImageView);
         }
     }
 
@@ -146,6 +160,9 @@ public class CC_SpaceView extends StackPane {
     }
     public int getPlacedBoardElement() {
         return placedBoardElement;
+    }
+    public int getCheckpoint() {
+        return checkpoint;
     }
     public Heading[] getPlacedWalls() {
         return placedWalls;
