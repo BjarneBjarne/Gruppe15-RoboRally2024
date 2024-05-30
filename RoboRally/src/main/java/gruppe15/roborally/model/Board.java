@@ -392,7 +392,6 @@ public class Board extends Subject {
      * Sets the priority value for all players and puts them in the priority queue.
      * Sorted by the players distance to the antenna, with the closet going first.
      * On distance tiebreakers, priority is decided by the antennas angle to the player, going clockwise.
-     *
      * @author Michael Sylvest Bendtsen, s214954@dtu.dk
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -457,6 +456,7 @@ public class Board extends Subject {
      * @param player
      * @param antenna
      * @return Returns the angle in radians between (0 and 2 * Pi).
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private double getAngleToPlayerRadians(Player player, BE_Antenna antenna) {
         double deltaX = player.getSpace().x - antennaSpace.x;

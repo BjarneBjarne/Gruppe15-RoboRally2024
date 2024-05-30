@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+/**
+ * This class is what courses are saved as in memory, when a course JSON file is loaded.
+ * It also handles converting the course creator board into a playable one.
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+ */
 public class CC_CourseData {
     private String courseName;
     private List<CC_SubBoard> subBoards;
@@ -37,6 +42,10 @@ public class CC_CourseData {
         return snapshotAsBase64;
     }
 
+    /**
+     * Converts the course image from the JSON from Base64 to a JavaFX image.
+     * @return Returns the JavaFX image of the course.
+     */
     public Image getImage() {
         // Decode Base64 to Image and save to file
         if (snapshotAsBase64 != null && !snapshotAsBase64.isEmpty()) {
@@ -48,13 +57,22 @@ public class CC_CourseData {
         return null;
     }
 
+    /**
+     * Saves the course image as a PNG.
+     * @param path A system path for where to save the course image PNG.
+     */
     public void saveImageToFile(String path) {
         Image courseImage = getImage();
         ImageUtils.saveImageToFile(courseImage, courseName, path);
     }
 
+    /**
+     * Method for converting the course creator board and sub boards into a playable one.
+     * @return Returns the game board and its sub boards.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public Pair<List<Space[][]>, Space[][]> getGameSubBoards() {
-        // Board variables
+        // --- Board ---
         Pair<Point2D, Point2D> boardBounds = getBoardBounds();
         Point2D boardTopLeft = boardBounds.getKey();
         Point2D boardBottomRight = boardBounds.getValue();
@@ -66,8 +84,8 @@ public class CC_CourseData {
         Space[][] boardSpaces = new Space[boardWidth][boardHeight];
         //System.out.println("boardWidth: " + boardWidth + ", boardHeight: " + boardHeight);
 
+        // --- Sub boards ---
         for (CC_SubBoard subBoard : subBoards) {
-            // Sub board variables
             CC_SpaceView[][] subBoardSpaceViews = subBoard.getSpaceViews();
             int subBoardWidth = subBoardSpaceViews.length;
             int subBoardHeight = subBoardSpaceViews[0].length;
@@ -78,26 +96,24 @@ public class CC_CourseData {
             //System.out.println("boardRelativePos: " + boardRelativePos);
             //System.out.println("subBoardWidth: " + subBoardWidth + ", subBoardHeight: " + subBoardHeight);
 
+            // --- Spaces ---
             for (int subBoardX = 0; subBoardX < subBoardWidth; subBoardX++) {
                 for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
-                    // Spaces in subboard
                     CC_SpaceView spaceView = subBoardSpaceViews[subBoardX][subBoardY];
                     boolean isOnStartBoard = boardWidth <= 3 || boardHeight <= 3;
                     Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board Pieces/emptyStart.png" : "Board Pieces/empty.png");
-
-                    // BoardElement
                     BoardElement boardElement = getBoardElementFromSpaceView(spaceView);
-
-                    // Add space to board and subboard
                     int boardX = (int)(boardRelativePos.getX() + subBoardX);
                     int boardY = (int)(boardRelativePos.getY() + subBoardY);
                     //System.out.println("Local coordinates: " + subBoardX + ", " + subBoardY + ". Board coordinates: " + boardX + ", " + boardY);
-                    addSpace(boardSpaces, boardX, boardY, subBoardSpaces, subBoardX, subBoardY, boardElement);
 
-                    // Set background image
+                    // Add space to board and subboard
+                    Space newSpace = new Space(null, boardX, boardY, boardElement);
+                    boardSpaces[boardX][boardY] = newSpace;
+                    subBoardSpaces[subBoardX][subBoardY] = newSpace;
                     subBoardSpaces[subBoardX][subBoardY].setBackgroundImage(backgroundImage);
 
-                    // Add walls if any
+                    // Add walls
                     if (spaceView != null) {
                         for (Heading wall : spaceView.getPlacedWalls()) {
                             subBoardSpaces[subBoardX][subBoardY].addWall(wall);
@@ -120,12 +136,6 @@ public class CC_CourseData {
         }
 
         return new Pair<>(subBoardList, boardSpaces);
-    }
-
-    private void addSpace(Space[][] boardSpaces, int boardX, int boardY, Space[][] subBoardSpaces, int subBoardX, int subBoardY,  BoardElement boardElement) {
-        Space newSpace = new Space(null, boardX, boardY, boardElement);
-        boardSpaces[boardX][boardY] = newSpace;
-        subBoardSpaces[subBoardX][subBoardY] = newSpace;
     }
 
     private BoardElement getBoardElementFromSpaceView(CC_SpaceView spaceView) {

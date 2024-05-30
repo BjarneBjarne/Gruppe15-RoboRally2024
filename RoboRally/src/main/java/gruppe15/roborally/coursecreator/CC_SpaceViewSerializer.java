@@ -15,6 +15,8 @@ class CC_SpaceViewSerializer implements JsonSerializer<CC_SpaceView> {
         }
 
         JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("boardX", src.getBoardX());
+        jsonObject.addProperty("boardY", src.getBoardY());
         jsonObject.addProperty("placedBoardElement", src.getPlacedBoardElement());
         jsonObject.add("direction", context.serialize(src.getDirection()));
         jsonObject.add("placedWalls", context.serialize(src.getPlacedWalls()));
@@ -36,9 +38,14 @@ class CC_SpaceViewDeserializer implements JsonDeserializer<CC_SpaceView> {
     public CC_SpaceView deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
 
-        int boardX = jsonObject.get("boardX").getAsInt();
-        int boardY = jsonObject.get("boardY").getAsInt();
-        CC_SpaceView spaceView = new CC_SpaceView(boardX, boardY);
+        CC_SpaceView spaceView;
+        try {
+            int boardX = jsonObject.get("boardX").getAsInt();
+            int boardY = jsonObject.get("boardY").getAsInt();
+            spaceView = new CC_SpaceView(boardX, boardY);
+        } catch (NullPointerException e) {
+            spaceView = new CC_SpaceView();
+        }
 
         int placedBoardElement = jsonObject.get("placedBoardElement").getAsInt();
         Heading direction = context.deserialize(jsonObject.get("direction"), Heading.class);

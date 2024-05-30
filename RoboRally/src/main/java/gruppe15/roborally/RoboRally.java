@@ -70,7 +70,7 @@ public class RoboRally extends Application {
     private BoardView boardView;
     private AnchorPane mainMenu;
     private AnchorPane selectionMenu;
-    private CC_Controller courseCreator;
+    private static CC_Controller courseCreator;
 
     public static final Logger logger = LoggerFactory.getLogger(RoboRally.class);
 
@@ -157,14 +157,6 @@ public class RoboRally extends Application {
             primaryStage.setHeight(initialHeight);
             primaryStage.show();
 
-            primaryScene.addEventFilter(ScrollEvent.SCROLL, event -> {
-                if (event.isControlDown()) {
-                    if (courseCreator != null) {
-                        courseCreator.zoom(event);
-                    }
-                }
-            });
-
             primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
                 APP_SCALE = newVal.doubleValue() / REFERENCE_HEIGHT;
                 scaleRoot();
@@ -206,6 +198,8 @@ public class RoboRally extends Application {
      */
     public static void closeGame(AppController appController) {
         Boolean isGameRunning = appController.isGameRunning();
+        Boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
+
         if (isGameRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Exit RoboRally?");
@@ -261,6 +255,17 @@ public class RoboRally extends Application {
                     }
                 }
             }
+        } else if (isCourseCreatorRunning) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Exit RoboRally course creator?");
+            alert.setContentText("Are you sure you want to exit the RoboRally course creator?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (!result.isPresent() || result.get() != ButtonType.OK) {
+                return; // return without exiting the application
+            } else {
+                courseCreator.saveCourseDialog();
+            }
         }
         Platform.exit();
     }
@@ -286,6 +291,7 @@ public class RoboRally extends Application {
         // if present, remove old BoardView
         root.getChildren().clear();
         root.setCenter(mainMenu);
+        courseCreator = null;
     }
 
     /**
@@ -390,30 +396,29 @@ public class RoboRally extends Application {
     }
 
     public void createCourseCreator(Scene primaryScene) {
-        if (courseCreator != null) {
-            goToCourseCreator();
-        } else {
-            root.getChildren().clear();
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/CourseCreator.fxml"));
-
-            try {
-                // Load the FXML and set the controller
-                VBox loadedVBox = loader.load(); // Load the FXML file
-                courseCreator = loader.getController(); // Get the controller
-
-                courseCreator.setScene(primaryScene);
-
-                // Set the loaded VBox (which is your controller) as the center of the root layout
-                root.setCenter(loadedVBox);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    public void goToCourseCreator() {
-        // if present, remove old BoardView
         root.getChildren().clear();
-        root.setCenter(courseCreator);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/CourseCreator.fxml"));
+
+        try {
+            // Load the FXML and set the controller
+            VBox loadedVBox = loader.load(); // Load the FXML file
+            courseCreator = loader.getController(); // Get the controller
+
+            courseCreator.setScene(primaryScene);
+
+            // Set the loaded VBox (which is your controller) as the center of the root layout
+            root.setCenter(loadedVBox);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        primaryScene.addEventFilter(ScrollEvent.SCROLL, event -> {
+            if (event.isControlDown()) {
+                if (courseCreator != null) {
+                    courseCreator.zoom(event);
+                }
+            }
+        });
+        courseCreator.initializeExitButton(this::goToMainMenu);
     }
 }

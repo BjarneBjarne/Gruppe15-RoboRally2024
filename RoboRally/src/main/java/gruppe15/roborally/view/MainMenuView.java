@@ -114,7 +114,7 @@ public class MainMenuView {
 
     private void createCourseCreatorButton(){
         courseCreator = (Button) mainMenu.lookup("#courseCreator");
-        courseCreator.setOnMouseClicked(e -> appController.courseCreator(mainMenu.getScene()));
+        courseCreator.setOnMouseClicked(e -> appController.createCourseCreator(mainMenu.getScene()));
         buttons[2] = courseCreator;
 
         //courseCreator.setGraphic(createButtonTextPane(courseCreator.getText()));

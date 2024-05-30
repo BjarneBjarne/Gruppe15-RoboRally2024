@@ -1,6 +1,7 @@
 package gruppe15.roborally.model.utils;
 
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.coursecreator.CC_SpaceView;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BoardElement;
@@ -256,65 +257,90 @@ public class ImageUtils {
     }
 
     /**
-     * Calculates the image of the conveyor belt based on the direction and the number of neighbors
+     * Calculates the image of the conveyor belt based on the direction and the number of neighbors.
      * @param x the x-coordinate of the conveyor belt
      * @param y the y-coordinate of the conveyor belt
      * @param spaces the spaces on the board
      *
-     * @author Carl Gustav Bjergaard Aggeboe, s235063
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public static String getUpdatedConveyorBeltImage(BE_ConveyorBelt conveyorBelt, int x, int y, Space[][] spaces) {
-        StringBuilder imageNameBuilder = new StringBuilder();
+        if (spaces[x][y] == null) return "greenStraight.png"; // Returning default image to avoid error message when finding the image from string.
 
+        Space thisSpace = spaces[x][y];
+        Space spaceInFrontOfThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection(), spaces);
+        Space spaceBehindThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection().opposite(), spaces);
+        Space spaceToTheRightOfThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection().next(), spaces);
+        Space spaceToTheLeftOfThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection().prev(), spaces);
+        boolean thisHasFrontAndBack = false;
+        if (spaceInFrontOfThis != null && spaceBehindThis != null) {
+            thisHasFrontAndBack = (spaceInFrontOfThis.getBoardElement() instanceof BE_ConveyorBelt beltInFront && beltInFront.getStrength() == conveyorBelt.getStrength()) &&
+                    (spaceBehindThis.getBoardElement() instanceof BE_ConveyorBelt beltBehind && beltBehind.getStrength() == conveyorBelt.getStrength());
+        }
+
+        StringBuilder imageNameBuilder = new StringBuilder();
         // Green or blue
         imageNameBuilder.append(conveyorBelt.getStrength() == 1 ? "green" : "blue");
 
-        // Neighbors
-        int noOfNeighbors = 0;
-        boolean[] relativeNeighbors = new boolean[4];
-        Space space = spaces[x][y];
-
+        // Neighbors and connections
+        int noOfConnections = 0;
+        boolean[] relativeConnections = new boolean[4];
         for (int i = 0; i < 4; i++) {
             Heading relativeDirection = Heading.values()[(conveyorBelt.getDirection().ordinal() + i) % 4];
-            Space neighborSpace = space.getSpaceNextTo(relativeDirection, spaces);
-            // i = 0 always counts as a "neighbor".
+            Space neighborSpace = thisSpace.getSpaceNextTo(relativeDirection, spaces);
+            // i = 0, the direction this conveyor belt is facing, always counts as a "connection".
             if (i == 0) {
-                relativeNeighbors[i] = true;
-                noOfNeighbors++;
+                relativeConnections[i] = true;
+                noOfConnections++;
                 continue;
             }
             if (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighborConveyorBelt) {
                 if (neighborConveyorBelt.getStrength() != conveyorBelt.getStrength()) continue; // Only count same type
 
                 Heading neighborDirection = neighborConveyorBelt.getDirection();
-                if (neighborDirection == relativeDirection || neighborDirection.opposite() == relativeDirection) {
-                    relativeNeighbors[i] = true;
-                    noOfNeighbors++;
+                Space spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
+                Space spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
+
+                boolean eitherHasFrontOrBack = thisSpace.equals(spaceInFrontOfNeighbor) || thisSpace.equals(spaceBehindNeighbor) || neighborSpace.equals(spaceInFrontOfThis) || neighborSpace.equals(spaceBehindThis);
+                boolean neighborHasFrontAndBack = false;
+                if (spaceInFrontOfNeighbor != null && spaceBehindNeighbor != null) {
+                    neighborHasFrontAndBack = (spaceInFrontOfNeighbor.getBoardElement() instanceof BE_ConveyorBelt beltInFront && beltInFront.getStrength() == conveyorBelt.getStrength()) &&
+                            (spaceBehindNeighbor.getBoardElement() instanceof BE_ConveyorBelt beltBehind && beltBehind.getStrength() == conveyorBelt.getStrength());
+                }
+
+                if (eitherHasFrontOrBack || (!thisHasFrontAndBack && !neighborHasFrontAndBack &&
+                        (((neighborSpace.equals(spaceToTheRightOfThis) && spaceToTheRightOfThis.getBoardElement() instanceof BE_ConveyorBelt beltToRight && beltToRight.getDirection() != conveyorBelt.getDirection()) ||
+                        ((neighborSpace.equals(spaceToTheLeftOfThis) && spaceToTheLeftOfThis.getBoardElement() instanceof BE_ConveyorBelt beltToLeft && beltToLeft.getDirection() != conveyorBelt.getDirection())))))) {
+                    relativeConnections[i] = true;
+                    noOfConnections++;
                 }
             }
         }
 
         // Building string
+        buildConveyorBeltStringFromNeighbors(imageNameBuilder, noOfConnections, relativeConnections);
+
+        return imageNameBuilder.toString();
+    }
+
+    public static void buildConveyorBeltStringFromNeighbors(StringBuilder stringBuilder, int noOfNeighbors, boolean[] relativeNeighbors) {
         switch (noOfNeighbors) {
-            case 1:
-                imageNameBuilder.append("Straight");
-                break;
             case 2:
                 // Adjust the conditions for alignment based on the relative neighbors' indexes
                 if (relativeNeighbors[2]) {
-                    imageNameBuilder.append("Straight");
+                    stringBuilder.append("Straight");
                 } else {
-                    imageNameBuilder.append("Turn").append(relativeNeighbors[1] ? "Right" : "Left");
+                    stringBuilder.append("Turn").append(relativeNeighbors[1] ? "Right" : "Left");
                 }
                 break;
             case 3:
                 // Adjust the conditions for alignment based on the relative neighbors' indexes
-                imageNameBuilder.append("T").append(relativeNeighbors[2] ? (relativeNeighbors[1] ? "Right" : "Left") : "Sides");
+                stringBuilder.append("T").append(relativeNeighbors[2] ? (relativeNeighbors[1] ? "Right" : "Left") : "Sides");
                 break;
             default:
+                stringBuilder.append("Straight");
                 break;
         }
-        imageNameBuilder.append(".png");
-        return imageNameBuilder.toString();
+        stringBuilder.append(".png");
     }
 }

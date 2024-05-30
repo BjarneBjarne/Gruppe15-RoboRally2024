@@ -17,6 +17,7 @@
                <items>
                   <MenuItem fx:id="CC_saveCourse" mnemonicParsing="false" text="Save Course" />
                   <MenuItem fx:id="CC_loadCourse" mnemonicParsing="false" text="Load Course" />
+                <MenuItem fx:id="CC_exitToMainMenu" mnemonicParsing="false" text="Exit course creator" />
                </items>
             </Menu>
          </menus>
