@@ -32,7 +32,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+import static gruppe15.roborally.GameSettings.NO_OF_PLAYERS;
 import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 /**
@@ -387,47 +389,96 @@ public class Board extends Subject {
      *
      * @author Michael Sylvest Bendtsen, s214954@dtu.dk
      */
-    private Space antenna;
+    private Space antennaSpace;
     public void updatePriorityList() {
         priorityList.clear();
-        if (antenna == null) {
-            antenna = findAntenna();
+        if (antennaSpace == null) {
+            antennaSpace = findAntenna();
         }
-        ArrayList<Player> newPriorityList = new ArrayList<>();
-        for(int i = 0; i < getNoOfPlayers(); i++){
-            Player player = getPlayer(i);
-            player.setPriority(determinePlayerPriority(player, antenna));
-            newPriorityList.add(player);
+
+        BE_Antenna antenna = (BE_Antenna) antennaSpace.getBoardElement();
+
+        // Getting player distances
+        Map<Integer, List<Player>> distanceMap = new HashMap<>();
+        for (Player player : players) {
+            int playerDistance = getPlayerDistance(player, antennaSpace);
+            distanceMap.computeIfAbsent(playerDistance, k -> new ArrayList<>()).add(player);
         }
-        //sorting list
-        for (int i = 0; i < newPriorityList.size() - 1; i++){
-            if(newPriorityList.get(i).getPriority() > newPriorityList.get(i + 1).getPriority()) {
-                Collections.swap(newPriorityList, i, i + 1);
-                i = -1;
+
+        // Determining distance tie-breakers
+        Map<Integer, Player> priorityMap = new HashMap<>();
+        for (int distance : distanceMap.keySet()) {
+            List<Player> playersWithSameDistance = distanceMap.get(distance);
+
+            // If there is only one player at this distance, put them in the priorityMap and continue.
+            if (playersWithSameDistance.size() == 1) {
+                priorityMap.put(distance * NO_OF_PLAYERS, playersWithSameDistance.getFirst());
+                continue;
+            }
+
+            // Getting the angles from the antenna to players
+            Map<Double, Player> angleMap = new HashMap<>();
+            for (Player player : playersWithSameDistance) {
+                double angleToPlayerRadians = getAngleToPlayerRadians(player, antenna);
+                angleMap.put(angleToPlayerRadians, player);
+            }
+
+            // Putting the players with same distance in the priority list based on the antennas angle to them.
+            List<Map.Entry<Double, Player>> sortedByAngle = angleMap.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .toList();
+
+            for (int i = 0; i < sortedByAngle.size(); i++) {
+                priorityMap.put((distance * NO_OF_PLAYERS) + i, sortedByAngle.get(i).getValue());
             }
         }
-        /*for (int i =0;i<priorityList.size();i++){
-            System.out.println(priorityList.get(i).getName()+": "+priorityList.get(i).getPriority());
-        }*/
-        //TODO: Implement real tiebreaker
-        priorityList.addAll(newPriorityList);
+
+        List<Map.Entry<Integer, Player>> newPriorityList = priorityMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .toList();
+
+        //System.out.println("New priority:");
+        for (int i = 0; i < newPriorityList.size(); i++) {
+            Player player = newPriorityList.get(i).getValue();
+            player.setPriority(i);
+            priorityList.add(player);
+            //System.out.println("Player \"" + player.getName() + "\": " + i + ". Calculated priority: " + newPriorityList.get(i).getKey());
+        }
+    }
+
+    private double getAngleToPlayerRadians(Player player, BE_Antenna antenna) {
+        double deltaX = player.getSpace().x - antennaSpace.x;
+        double deltaY = player.getSpace().y - antennaSpace.y;
+
+        double angleToPlayerRadians = Math.atan2(deltaY, deltaX);
+        angleToPlayerRadians += Math.PI / 2; // Relative to Heading.SOUTH which is positive Y and is the first ordinal in the Heading enum.
+        angleToPlayerRadians += (Math.PI / 2) * antenna.getDirection().ordinal(); // Relative to antenna's direction
+        if (angleToPlayerRadians < 0) {
+            angleToPlayerRadians += 2 * Math.PI;
+        } else if (angleToPlayerRadians >= 2 * Math.PI) {
+            angleToPlayerRadians -= 2 * Math.PI;
+        }
+
+        return angleToPlayerRadians;
     }
 
     /**
-     * Determine the priority of an individual player, by determining their distance from the antenna
+     * Gets the players distance from the antenna
      *
      * @author Michael Sylvest Bendtsen, s214954@dtu.dk
      * @param player to determine the priority we need the players position
      * @param antenna to determine the priority we need the antennas position
      * @return the players distance from the antenna, which is also their priority
      */
-    public Integer determinePlayerPriority(Player player,Space antenna) {
+    public Integer getPlayerDistance(Player player, Space antenna) {
         Space space = player.getSpace();
         if (space == null) 
             return -1;
-        int x = antenna.x - space.x;
-        int y = antenna.y - space.y;
-        return Math.abs(x) + Math.abs(y);
+        int xDist = antenna.x - space.x;
+        int yDist = antenna.y - space.y;
+        return Math.abs(xDist) + Math.abs(yDist);
     }
 
     /**
@@ -437,12 +488,12 @@ public class Board extends Subject {
      * @return the location of the antenna
      */
     public Space findAntenna() {
-        for (int x = 0; x < spaces.length; x++) {
-            for (int y = 0; y < spaces[x].length; y++) {
-                if (spaces[x][y] == null) continue;
-                BoardElement boardElement = spaces[x][y].getBoardElement();
+        for (Space[] spaceColumns : spaces) {
+            for (Space space : spaceColumns) {
+                if (space == null) continue;
+                BoardElement boardElement = space.getBoardElement();
                 if (boardElement instanceof BE_Antenna) {
-                    return spaces[x][y];
+                    return space;
                 }
             }
         }
