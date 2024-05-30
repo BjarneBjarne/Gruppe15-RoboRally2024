@@ -14,6 +14,7 @@
       "boardX": 17,
       "boardY": 22,
       "placedBoardElement": 3,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -27,6 +28,7 @@
       "boardX": 17,
       "boardY": 24,
       "placedBoardElement": 6,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -41,6 +43,7 @@
       "boardX": 17,
       "boardY": 27,
       "placedBoardElement": 3,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -57,6 +60,7 @@
       "boardX": 18,
       "boardY": 20,
       "placedBoardElement": 3,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -69,6 +73,7 @@
       "boardX": 18,
       "boardY": 21,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -82,6 +87,7 @@
       "boardX": 18,
       "boardY": 24,
       "placedBoardElement": 3,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -94,6 +100,7 @@
       "boardX": 18,
       "boardY": 25,
       "placedBoardElement": 3,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -108,6 +115,7 @@
       "boardX": 18,
       "boardY": 28,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         "SOUTH",
         null,
@@ -119,6 +127,7 @@
       "boardX": 18,
       "boardY": 29,
       "placedBoardElement": 3,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -133,6 +142,7 @@
       "boardX": 19,
       "boardY": 20,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -145,6 +155,7 @@
       "boardX": 19,
       "boardY": 22,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         "SOUTH",
         null,
@@ -157,6 +168,7 @@
       "boardX": 19,
       "boardY": 24,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -168,6 +180,7 @@
       "boardX": 19,
       "boardY": 25,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -180,6 +193,7 @@
       "boardX": 19,
       "boardY": 27,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -192,6 +206,7 @@
       "boardX": 19,
       "boardY": 29,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -215,6 +230,7 @@
       "boardX": 20,
       "boardY": 20,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -227,6 +243,7 @@
       "boardX": 20,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -243,6 +260,7 @@
       "boardX": 20,
       "boardY": 26,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -254,6 +272,7 @@
       "boardX": 20,
       "boardY": 27,
       "placedBoardElement": 10,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -266,6 +285,7 @@
       "boardX": 20,
       "boardY": 28,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -277,6 +297,7 @@
       "boardX": 20,
       "boardY": 29,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -292,6 +313,7 @@
       "boardX": 21,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -304,6 +326,7 @@
       "boardX": 21,
       "boardY": 22,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -316,6 +339,7 @@
       "boardX": 21,
       "boardY": 23,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -328,6 +352,7 @@
       "boardX": 21,
       "boardY": 24,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -340,6 +365,7 @@
       "boardX": 21,
       "boardY": 25,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -352,6 +378,7 @@
       "boardX": 21,
       "boardY": 26,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -364,6 +391,7 @@
       "boardX": 21,
       "boardY": 27,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -381,6 +409,7 @@
       "boardX": 22,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -400,6 +429,7 @@
       "boardX": 22,
       "boardY": 29,
       "placedBoardElement": 5,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -415,6 +445,7 @@
       "boardX": 23,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -428,6 +459,7 @@
       "boardX": 23,
       "boardY": 23,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -441,8 +473,8 @@
     {
       "boardX": 23,
       "boardY": 26,
-      "placedBoardElement": 16,
-      "direction": "NORTH",
+      "placedBoardElement": -1,
+      "checkpoint": 16,
       "placedWalls": [
         "SOUTH",
         "WEST",
@@ -460,6 +492,7 @@
       "boardX": 24,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -478,6 +511,7 @@
       "boardX": 24,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -494,6 +528,7 @@
       "boardX": 25,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -512,6 +547,7 @@
       "boardX": 25,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -530,6 +566,7 @@
       "boardX": 26,
       "boardY": 23,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -544,6 +581,7 @@
       "boardX": 26,
       "boardY": 26,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         "SOUTH",
@@ -557,6 +595,7 @@
       "boardX": 26,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -572,6 +611,7 @@
       "boardX": 27,
       "boardY": 20,
       "placedBoardElement": 5,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -591,6 +631,7 @@
       "boardX": 27,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -603,6 +644,7 @@
       "boardX": 27,
       "boardY": 29,
       "placedBoardElement": 4,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -620,6 +662,7 @@
       "boardX": 28,
       "boardY": 23,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -632,6 +675,7 @@
       "boardX": 28,
       "boardY": 24,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -644,6 +688,7 @@
       "boardX": 28,
       "boardY": 25,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -656,6 +701,7 @@
       "boardX": 28,
       "boardY": 26,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -668,6 +714,7 @@
       "boardX": 28,
       "boardY": 27,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -680,6 +727,7 @@
       "boardX": 28,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -695,6 +743,7 @@
       "boardX": 29,
       "boardY": 20,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -707,6 +756,7 @@
       "boardX": 29,
       "boardY": 21,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         "WEST",
@@ -718,6 +768,7 @@
       "boardX": 29,
       "boardY": 22,
       "placedBoardElement": 10,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -730,6 +781,7 @@
       "boardX": 29,
       "boardY": 23,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         "WEST",
@@ -745,6 +797,7 @@
       "boardX": 29,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -757,6 +810,7 @@
       "boardX": 29,
       "boardY": 29,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -781,6 +835,7 @@
       "boardX": 30,
       "boardY": 20,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -799,6 +854,7 @@
       "boardX": 30,
       "boardY": 27,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -811,6 +867,7 @@
       "boardX": 30,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -826,6 +883,7 @@
       "boardX": 31,
       "boardY": 20,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -838,6 +896,7 @@
       "boardX": 31,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -850,6 +909,7 @@
       "boardX": 31,
       "boardY": 22,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -862,6 +922,7 @@
       "boardX": 31,
       "boardY": 23,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -874,6 +935,7 @@
       "boardX": 31,
       "boardY": 24,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -886,6 +948,7 @@
       "boardX": 31,
       "boardY": 25,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -898,6 +961,7 @@
       "boardX": 31,
       "boardY": 26,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -910,6 +974,7 @@
       "boardX": 31,
       "boardY": 27,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -922,6 +987,7 @@
       "boardX": 31,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -937,6 +1003,7 @@
       "boardX": 32,
       "boardY": 20,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -949,6 +1016,7 @@
       "boardX": 32,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -966,6 +1034,7 @@
       "boardX": 32,
       "boardY": 27,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -978,6 +1047,7 @@
       "boardX": 32,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -994,6 +1064,7 @@
       "boardX": 33,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1007,6 +1078,7 @@
       "boardX": 33,
       "boardY": 23,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -1018,6 +1090,7 @@
       "boardX": 33,
       "boardY": 24,
       "placedBoardElement": 13,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         "SOUTH",
@@ -1031,6 +1104,7 @@
       "boardX": 33,
       "boardY": 26,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         "WEST",
@@ -1043,6 +1117,7 @@
       "boardX": 33,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -1059,6 +1134,7 @@
       "boardX": 34,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1068,22 +1144,12 @@
       ]
     },
     null,
-    {
-      "boardX": 34,
-      "boardY": 23,
-      "placedBoardElement": 15,
-      "direction": "NORTH",
-      "placedWalls": [
-        null,
-        null,
-        null,
-        null
-      ]
-    },
+    null,
     {
       "boardX": 34,
       "boardY": 24,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1097,6 +1163,7 @@
       "boardX": 34,
       "boardY": 26,
       "placedBoardElement": 13,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1110,6 +1177,7 @@
       "boardX": 34,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -1125,6 +1193,7 @@
       "boardX": 35,
       "boardY": 20,
       "placedBoardElement": 4,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -1137,6 +1206,7 @@
       "boardX": 35,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1150,6 +1220,7 @@
       "boardX": 35,
       "boardY": 23,
       "placedBoardElement": 13,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -1163,6 +1234,7 @@
       "boardX": 35,
       "boardY": 25,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1177,6 +1249,7 @@
       "boardX": 35,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -1193,6 +1266,7 @@
       "boardX": 36,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1206,6 +1280,7 @@
       "boardX": 36,
       "boardY": 23,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         null,
         null,
@@ -1218,6 +1293,7 @@
       "boardX": 36,
       "boardY": 25,
       "placedBoardElement": 13,
+      "checkpoint": -1,
       "direction": "SOUTH",
       "placedWalls": [
         null,
@@ -1230,6 +1306,7 @@
       "boardX": 36,
       "boardY": 26,
       "placedBoardElement": -1,
+      "checkpoint": -1,
       "placedWalls": [
         "SOUTH",
         null,
@@ -1242,6 +1319,7 @@
       "boardX": 36,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -1258,6 +1336,7 @@
       "boardX": 37,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1270,6 +1349,7 @@
       "boardX": 37,
       "boardY": 22,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1287,6 +1367,7 @@
       "boardX": 37,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "EAST",
       "placedWalls": [
         null,
@@ -1299,6 +1380,7 @@
       "boardX": 37,
       "boardY": 29,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1314,6 +1396,7 @@
       "boardX": 38,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1326,6 +1409,7 @@
       "boardX": 38,
       "boardY": 22,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1338,6 +1422,7 @@
       "boardX": 38,
       "boardY": 23,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1350,6 +1435,7 @@
       "boardX": 38,
       "boardY": 24,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1362,6 +1448,7 @@
       "boardX": 38,
       "boardY": 25,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1374,6 +1461,7 @@
       "boardX": 38,
       "boardY": 26,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1386,6 +1474,7 @@
       "boardX": 38,
       "boardY": 27,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1398,6 +1487,7 @@
       "boardX": 38,
       "boardY": 28,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1410,6 +1500,7 @@
       "boardX": 38,
       "boardY": 29,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,
@@ -1425,6 +1516,7 @@
       "boardX": 39,
       "boardY": 21,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1437,6 +1529,7 @@
       "boardX": 39,
       "boardY": 22,
       "placedBoardElement": 7,
+      "checkpoint": -1,
       "direction": "WEST",
       "placedWalls": [
         null,
@@ -1449,23 +1542,13 @@
     null,
     null,
     null,
-    {
-      "boardX": 39,
-      "boardY": 27,
-      "placedBoardElement": 17,
-      "direction": "NORTH",
-      "placedWalls": [
-        null,
-        null,
-        null,
-        null
-      ]
-    },
+    null,
     null,
     {
       "boardX": 39,
       "boardY": 29,
       "placedBoardElement": 14,
+      "checkpoint": -1,
       "direction": "NORTH",
       "placedWalls": [
         null,

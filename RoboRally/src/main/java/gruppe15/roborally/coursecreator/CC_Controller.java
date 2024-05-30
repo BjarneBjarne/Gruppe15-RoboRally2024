@@ -509,6 +509,8 @@ public class CC_Controller extends BorderPane {
                         // Deletion of item at space
                         if (selectedItem == CC_Items.Wall) {
                             hoveredSpaceView.CC_setWall(null, currentRotation);
+                        } else if (selectedItem.ordinal() >= CC_Items.Checkpoint1.ordinal() && selectedItem.ordinal() <= CC_Items.Checkpoint6.ordinal()) {
+                            hoveredSpaceView.CC_setCheckpoint(null, -1);
                         } else {
                             hoveredSpaceView.CC_setBoardElement(null, null, -1, spaces);
                         }
@@ -516,6 +518,8 @@ public class CC_Controller extends BorderPane {
                         // Placement of item at space
                         if (selectedItem == CC_Items.Wall) {
                             hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
+                        } else if (selectedItem.ordinal() >= CC_Items.Checkpoint1.ordinal() && selectedItem.ordinal() <= CC_Items.Checkpoint6.ordinal()) {
+                            hoveredSpaceView.CC_setCheckpoint(selectedItem.image, selectedItem.ordinal());
                         } else {
                             hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
                         }
@@ -653,6 +657,11 @@ public class CC_Controller extends BorderPane {
             for (CC_SpaceView[] spaceColumn : subBoard.getSpaceViews()) {
                 for (CC_SpaceView space : spaceColumn) {
                     if (space.getPlacedBoardElement() == 7 || space.getPlacedBoardElement() == 8) {
+                        space.updateConveyorBeltImages(spaces);
+                    }
+                    if (space.getPlacedBoardElement() >= CC_Items.Checkpoint1.ordinal() && space.getPlacedBoardElement() <= CC_Items.Checkpoint6.ordinal()) {
+                        space.CC_setCheckpoint(CC_Items.values()[space.getPlacedBoardElement()].image, space.getPlacedBoardElement());
+                        space.CC_setBoardElement(null, null, -1);
                         space.updateConveyorBeltImages(spaces);
                     }
                 }

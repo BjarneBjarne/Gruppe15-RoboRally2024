@@ -23,6 +23,7 @@ package gruppe15.roborally.model;
 
 import gruppe15.observer.Subject;
 import gruppe15.roborally.model.boardelements.BE_Antenna;
+import gruppe15.roborally.model.boardelements.BE_Checkpoint;
 import gruppe15.roborally.model.boardelements.BE_PushPanel;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.scene.image.Image;
@@ -50,20 +51,26 @@ public class Space extends Subject {
     transient private Image backgroundImage;
     transient private final List<Heading> walls = new ArrayList<>();
     transient private final List<Laser.LaserOnSpace> lasersOnSpace = new ArrayList<>();
+    transient private final BE_Checkpoint checkpoint;
 
-    public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
+    public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls, BE_Checkpoint checkpoint) {
         this.board = board;
         this.x = x;
         this.y = y;
-        player = null;
+        this.player = null;
         this.boardElement = boardElement;
         if (walls != null) {
             this.walls.addAll(walls);
         }
+        this.checkpoint = checkpoint;
+    }
+
+    public Space(Board board, int x, int y, BoardElement boardElement, List<Heading> walls) {
+        this(board, x, y, boardElement, walls, null);
     }
 
     public Space(Board board, int x, int y, BoardElement boardElement) {
-        this(board, x, y, boardElement, null);
+        this(board, x, y, boardElement, null, null);
     }
 
     public void setBoard(Board board) {
@@ -258,8 +265,13 @@ public class Space extends Subject {
             }
         };
     }
+
     public Image getImage() {
         return backgroundImage;
+    }
+
+    public BE_Checkpoint getCheckPoint() {
+        return checkpoint;
     }
 
     public void updateSpace() {
