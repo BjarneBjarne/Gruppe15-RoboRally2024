@@ -71,9 +71,9 @@ public class CC_SpaceView extends StackPane {
         this.direction = direction;
         if ((this.placedBoardElement == 7 || this.placedBoardElement == 8) && direction != null) {
             // Self
-            updateConveyorBeltImage(this.boardElementImageView, spaces, this.direction);
+            updateConveyorBeltImage(this.boardElementImageView, this.boardX, this.boardY, spaces, this.placedBoardElement, this.direction);
             // Neighbors
-            updateNeighborsConveyorBeltImages(spaces, this.direction);
+            updateNeighborsConveyorBeltImages(spaces);
         } else {
             CC_setImageView(image, this.direction, this.boardElementImageView);
         }
@@ -92,11 +92,11 @@ public class CC_SpaceView extends StackPane {
     public void CC_setGhost(Image image, Heading ghostDirection, int ghostBoardElement, CC_SpaceView[][] spaces) {
         this.ghostBoardElement = ghostBoardElement;
         this.ghostDirection = ghostDirection;
-        if ((this.ghostBoardElement == 7 || this.ghostBoardElement == 8) && direction != null) {
+        if ((this.ghostBoardElement == 7 || this.ghostBoardElement == 8) && this.ghostDirection != null) {
             // Self
-            updateConveyorBeltImage(this.ghostImageView, spaces, this.ghostDirection);
+            updateConveyorBeltImage(this.ghostImageView, this.boardX, this.boardY, spaces, this.ghostBoardElement, this.ghostDirection);
             // Neighbors
-            updateNeighborsConveyorBeltImages(spaces, this.ghostDirection);
+            updateNeighborsConveyorBeltImages(spaces);
         } else {
             CC_setImageView(image, this.ghostDirection, this.ghostImageView);
         }
@@ -106,25 +106,25 @@ public class CC_SpaceView extends StackPane {
         imageView.setImage(ImageUtils.getRotatedImageByHeading(image, direction));
     }
 
-    private void updateNeighborsConveyorBeltImages(CC_SpaceView[][] spaces, Heading d) {
-        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY], spaces, d);
-        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces, d);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces, d);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces, d);
+    private void updateNeighborsConveyorBeltImages(CC_SpaceView[][] spaces) {
+        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces);
     }
 
-    private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces, Heading d) {
+    private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces) {
         if (neighbor != null) {
-            neighbor.updateConveyorBeltImage(neighbor.ghostImageView, spaces, d);
+            neighbor.updateConveyorBeltImage(neighbor.boardElementImageView, neighbor.boardX, neighbor.boardY, spaces, neighbor.placedBoardElement, neighbor.direction);
         }
     }
 
-    protected void updateConveyorBeltImage(ImageView imageView, CC_SpaceView[][] spaces, Heading d) {
+    protected void updateConveyorBeltImage(ImageView imageView, int x, int y, CC_SpaceView[][] spaces, int b, Heading d) {
         if (d == null) {
             imageView.setImage(null);
             return;
         }
-        Image updatedConveyorImage = ImageUtils.getImageFromName("Board Pieces/" + this.getUpdatedConveyorBeltImage(boardX, boardY, spaces));
+        Image updatedConveyorImage = ImageUtils.getImageFromName("Board Pieces/" + this.getUpdatedConveyorBeltImage(x, y, spaces, b, d));
         imageView.setImage(ImageUtils.getRotatedImageByHeading(updatedConveyorImage, d));
     }
 
@@ -141,10 +141,8 @@ public class CC_SpaceView extends StackPane {
 
 
     // Reused code from ImageUtils. Rewritten to be compatible with course creator, without creating BE_ConveyorBelt objects.
-    private String getUpdatedConveyorBeltImage(int x, int y, CC_SpaceView[][] spaces) {
+    private String getUpdatedConveyorBeltImage(int x, int y, CC_SpaceView[][] spaces, int myBoardElement, Heading myDirection) {
         StringBuilder imageNameBuilder = new StringBuilder();
-        int myBoardElement = this.ghostBoardElement != -1 ? this.ghostBoardElement : this.placedBoardElement;
-        Heading myDirection = this.ghostDirection != null ? this.ghostDirection : this.direction;
 
         // Green or blue
         imageNameBuilder.append(myBoardElement == 8 ? "green" : "blue");
@@ -164,8 +162,8 @@ public class CC_SpaceView extends StackPane {
             }
             if (neighborSpace == null) continue;
 
-            int neighborBoardElement = neighborSpace.ghostBoardElement != -1 ? neighborSpace.ghostBoardElement : neighborSpace.placedBoardElement;
-            Heading neighborDirection = neighborSpace.ghostDirection != null ? neighborSpace.ghostDirection : neighborSpace.direction;
+            int neighborBoardElement = neighborSpace.placedBoardElement;
+            Heading neighborDirection = neighborSpace.direction;
             if (neighborBoardElement == 7 || neighborBoardElement == 8) {
                 if (myBoardElement != neighborBoardElement) continue; // Only count same type
 
