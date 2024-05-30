@@ -25,6 +25,7 @@ public class CC_SpaceView extends StackPane {
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
     private final ImageView[] wallImageViews = new ImageView[4];
+    private boolean isOnStartSubBoard;
 
     private final ImageView ghostImageView = new ImageView();
 
@@ -78,13 +79,14 @@ public class CC_SpaceView extends StackPane {
         this.direction = direction;
         CC_setImageView(image, direction, boardElementImageView);
     }
+
     public void CC_setBoardElement(Image image, Heading direction, int placedBoardElement, CC_SpaceView[][] spaces) {
-        this.placedBoardElement = placedBoardElement;
-        this.direction = direction;
         if ((this.placedBoardElement == 7 || this.placedBoardElement == 8) && direction != null) {
+            this.placedBoardElement = placedBoardElement;
+            this.direction = direction;
             updateConveyorBeltImages(spaces);
         } else {
-            CC_setImageView(image, this.direction, this.boardElementImageView);
+            CC_setBoardElement(image, direction, placedBoardElement);
         }
     }
 

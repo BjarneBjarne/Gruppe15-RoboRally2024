@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 
 import javafx.geometry.Point2D;
 import javafx.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -228,5 +229,67 @@ public class CC_CourseData {
             }
         }
         return new Pair<>(subBoardMin, subBoardMax);
+    }
+
+    public String getIsPlayable() {
+        return getIsPlayable(this.subBoards);
+    }
+
+    public static String getIsPlayable(List<CC_SubBoard> subBoards) {
+        int noOfSpawnPoints = 0;
+        int noOfAntennas = 0;
+        boolean[] hasCheckpoint = new boolean[6];
+
+        for (CC_SubBoard subBoard : subBoards) {
+            for (CC_SpaceView[] spaceColumn : subBoard.getSpaceViews()) {
+                for (CC_SpaceView space : spaceColumn) {
+                    if (space == null) continue;
+                    if (space.getPlacedBoardElement() == CC_Items.SpawnPoint.ordinal()) noOfSpawnPoints++;
+                    if (space.getPlacedBoardElement() == CC_Items.Antenna.ordinal()) noOfAntennas++;
+                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint1.ordinal()) hasCheckpoint[0] = true;
+                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint2.ordinal()) hasCheckpoint[1] = true;
+                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint3.ordinal()) hasCheckpoint[2] = true;
+                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint4.ordinal()) hasCheckpoint[3] = true;
+                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint5.ordinal()) hasCheckpoint[4] = true;
+                    if (space.getPlacedBoardElement() == CC_Items.Checkpoint6.ordinal()) hasCheckpoint[5] = true;
+                }
+            }
+        }
+        boolean checkpointsAreInOrder = true;
+        boolean missingACheckpoint = false;
+        for (boolean c : hasCheckpoint) {
+            if (c) {
+                if (missingACheckpoint) {
+                    checkpointsAreInOrder = false;
+                }
+            } else {
+                missingACheckpoint = true;
+            }
+        }
+
+        boolean playable = noOfSpawnPoints >= 6 && noOfAntennas == 1 && hasCheckpoint[0] && checkpointsAreInOrder;
+        if (playable) return "playable";
+
+        String spawnPointsMessage = noOfSpawnPoints >= 6 ? "" : "Need at least 6 spawn points. Found " + noOfSpawnPoints + " spawn point" + (noOfSpawnPoints != 1 ? "s" : "" ) + ".\n";
+        String antennaMessage = noOfAntennas == 1 ? "" : noOfAntennas < 1 ? "Missing an antenna.\n" : "Can only have 1 antenna. Found : " + noOfAntennas + " antennas.\n";
+        String hasFirstCheckpointMessage = hasCheckpoint[0] ? "" : "Missing the first checkpoint.\n";
+        StringBuilder hasCheckpointsInMessage = getHasCheckpointsInMessage(checkpointsAreInOrder, hasCheckpoint);
+        return "\n" + spawnPointsMessage + antennaMessage + hasFirstCheckpointMessage + hasCheckpointsInMessage;
+    }
+
+    private static @NotNull StringBuilder getHasCheckpointsInMessage(boolean checkpointsAreInOrder, boolean[] hasCheckpoint) {
+        StringBuilder hasCheckpointsInMessage = new StringBuilder(checkpointsAreInOrder ? "" : "Checkpoints are not in order. Found checkpoints: ");
+        boolean foundCheckpoint = false;
+        for (int i = 0; i < hasCheckpoint.length; i++) {
+            if (foundCheckpoint)
+                hasCheckpointsInMessage.append(", ");
+            if (hasCheckpoint[i]) {
+                foundCheckpoint = true;
+                hasCheckpointsInMessage.append(i);
+            }
+        }
+        hasCheckpointsInMessage.append("\n");
+
+        return hasCheckpointsInMessage;
     }
 }

@@ -677,6 +677,18 @@ public class CC_Controller extends BorderPane {
     }
 
     public void saveCourse() {
+        String playableMessage = CC_CourseData.getIsPlayable(subBoards);
+
+        if (!playableMessage.equals("playable")) {
+            Alert notPlayableAlert = new Alert(Alert.AlertType.ERROR);
+            notPlayableAlert.setHeaderText("Course not playable");
+            notPlayableAlert.setContentText("The course can be saved, but is not playable. To make the course playable, the following conditions need to be met:\n" + playableMessage + "\nSave anyways?");
+            Optional<ButtonType> notPlayableResult = notPlayableAlert.showAndWait();
+
+            boolean saveAnyways = notPlayableResult.isPresent() && notPlayableResult.get() == ButtonType.OK;
+            if (!saveAnyways) return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Course");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));

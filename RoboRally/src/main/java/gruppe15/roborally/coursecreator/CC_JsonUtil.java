@@ -64,7 +64,12 @@ public class CC_JsonUtil {
         for (InputStream courseFile : courseFiles) {
             CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromInputStream(courseFile);
             if (courseData != null) {
-                courses.add(courseData);
+                String playableMessage = courseData.getIsPlayable();
+                if (playableMessage.equals("playable")) {
+                    courses.add(courseData);
+                } else {
+                    System.out.println("Can't load course: \"" + courseData.getCourseName() + "\". The following conditions need to be met:\n" + playableMessage);
+                }
             } else {
                 logger.warn("Failed to load course data from input stream");
             }
