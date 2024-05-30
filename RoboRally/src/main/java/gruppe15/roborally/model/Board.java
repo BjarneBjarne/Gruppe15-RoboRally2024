@@ -319,11 +319,12 @@ public class Board extends Subject {
                 //",  ";
     }
 
-    /*
-        Creating an array that holds "a list of spaces" for each different board element.
-        This way, we only calculate once, where the different board elements are on the board,
-            for when we execute board elements actions.
-    */
+    /**
+     * Creates an array that holds "a list of spaces" for each different board element.
+     * This way, we only calculate once, where the different board elements are on the board,
+     *     for when we need to execute board elements actions.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     private List<Space>[] boardElementsSpaces;
     private void updateBoardElementSpaces() {
         boardElementsSpaces = new List[7];
@@ -355,10 +356,13 @@ public class Board extends Subject {
             }
         }
     }
-    public List<Space>[] getBoardElementsSpaces() {
-        return boardElementsSpaces;
-    }
 
+    /**
+     * Adds the board element actions of all board elements of a board element type to the action queue.
+     * @param gameController
+     * @param boardElementsIndex The index in boardElementsSpaces that corresponds to a board element type.
+     * @param debugBoardElementName The action message.
+     */
     public void queueBoardElementsWithIndex(GameController gameController, int boardElementsIndex, String debugBoardElementName) {
         if (boardElementsIndex < 0 || boardElementsIndex >= boardElementsSpaces.length) return;
 
@@ -385,9 +389,12 @@ public class Board extends Subject {
     }
 
     /**
-     * Sets the priority value for all players, and sorts them in so the player closet to the antenna goes first
+     * Sets the priority value for all players and puts them in the priority queue.
+     * Sorted by the players distance to the antenna, with the closet going first.
+     * On distance tiebreakers, priority is decided by the antennas angle to the player, going clockwise.
      *
      * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private Space antennaSpace;
     public void updatePriorityList() {
@@ -409,20 +416,17 @@ public class Board extends Subject {
         Map<Integer, Player> priorityMap = new HashMap<>();
         for (int distance : distanceMap.keySet()) {
             List<Player> playersWithSameDistance = distanceMap.get(distance);
-
             // If there is only one player at this distance, put them in the priorityMap and continue.
             if (playersWithSameDistance.size() == 1) {
                 priorityMap.put(distance * NO_OF_PLAYERS, playersWithSameDistance.getFirst());
                 continue;
             }
-
             // Getting the angles from the antenna to players
             Map<Double, Player> angleMap = new HashMap<>();
             for (Player player : playersWithSameDistance) {
                 double angleToPlayerRadians = getAngleToPlayerRadians(player, antenna);
                 angleMap.put(angleToPlayerRadians, player);
             }
-
             // Putting the players with same distance in the priority list based on the antennas angle to them.
             List<Map.Entry<Double, Player>> sortedByAngle = angleMap.entrySet()
                     .stream()
@@ -434,12 +438,12 @@ public class Board extends Subject {
             }
         }
 
+        // Adding players to the priorityList
+        //System.out.println("New priority:");
         List<Map.Entry<Integer, Player>> newPriorityList = priorityMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .toList();
-
-        //System.out.println("New priority:");
         for (int i = 0; i < newPriorityList.size(); i++) {
             Player player = newPriorityList.get(i).getValue();
             player.setPriority(i);
@@ -448,6 +452,12 @@ public class Board extends Subject {
         }
     }
 
+    /**
+     * Method for getting the angle from the antenna direction to the player in a clockwise rotation.
+     * @param player
+     * @param antenna
+     * @return Returns the angle in radians between (0 and 2 * Pi).
+     */
     private double getAngleToPlayerRadians(Player player, BE_Antenna antenna) {
         double deltaX = player.getSpace().x - antennaSpace.x;
         double deltaY = player.getSpace().y - antennaSpace.y;
