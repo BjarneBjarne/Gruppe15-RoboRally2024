@@ -2,8 +2,6 @@ package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
-import gruppe15.roborally.model.boardelements.BoardElement;
-import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -17,7 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -35,6 +32,11 @@ import static gruppe15.roborally.GameVariables.*;
 import static gruppe15.roborally.model.Heading.*;
 import static gruppe15.roborally.model.utils.ImageUtils.*;
 
+/**
+ * The controller of the course creator. Manages the GUI, board, sub boards, space views, saving & loading, and input.
+ * Should eventually be broken up into two classes, a view and the controller.
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+ */
 public class CC_Controller extends BorderPane {
     @FXML
     ScrollPane CC_boardScrollPane;
@@ -47,10 +49,15 @@ public class CC_Controller extends BorderPane {
     MenuItem CC_saveCourse;
     @FXML
     MenuItem CC_loadCourse;
+    @FXML
+    MenuItem CC_exitToMainMenu;
 
     private Scene primaryScene;
 
-    private static int canvasSize = 5000;
+    private String latestFolderPath = "";
+    private String latestLoadedCourseName = "";
+
+    private static final int canvasSize = 5000;
     private static CC_SpaceView[][] spaces;
 
     /**
@@ -87,8 +94,10 @@ public class CC_Controller extends BorderPane {
             CC_boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
             //CC_boardScrollPane.setStyle("-fx-border-width: 50; -fx-border-color: RED");
 
-            CC_boardPane.setOnMouseMoved(spaceEventHandler);
-            CC_boardPane.setOnMouseClicked(spaceEventHandler);
+            CC_boardPane.addEventHandler(MouseEvent.MOUSE_MOVED, spaceEventHandler);
+            CC_boardPane.addEventHandler(MouseEvent.MOUSE_CLICKED, spaceEventHandler);
+            CC_boardPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, spaceEventHandler);
+            CC_boardPane.addEventHandler(MouseEvent.MOUSE_PRESSED, spaceEventHandler);
             registerKeyEventHandlers();
 
             for (int i = 0; i < CC_Items.values().length; i++) {
@@ -126,6 +135,13 @@ public class CC_Controller extends BorderPane {
                 spaces[x][y] = null;
             }
         }
+    }
+
+    public void initializeExitButton(Runnable goToMainMenu) {
+        CC_exitToMainMenu.setOnAction( e -> {
+            saveCourseDialog();
+            goToMainMenu.run();
+        });
     }
 
     public void zoom(ScrollEvent event) {
@@ -167,7 +183,7 @@ public class CC_Controller extends BorderPane {
             subBoardHeight = (direction == Heading.EAST || direction == Heading.WEST) ? 10 : 3;
         }
         // Can't put new subboard where one already exists.
-        if (isOverlapping(position, subBoardWidth, subBoardHeight)) return;
+        if (isOverlappingOrOOB(position, subBoardWidth, subBoardHeight)) return;
         // Can only place within bounds
         if (position.getX() >= NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY || position.getY() >= NO_OF_SUBBOARD_POSITIONS_VERTICALLY) return;
 
@@ -267,11 +283,20 @@ public class CC_Controller extends BorderPane {
             for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
                 int boardX = (int)(boardRelativePos.getX() + subBoardX);
                 int boardY = (int)(boardRelativePos.getY() + subBoardY);
-                // Spaces in subboard
-                CC_SpaceView spaceView = new CC_SpaceView(boardX, boardY);
-                // Add space to board and subboard
+
+                CC_SpaceView spaceView;
+                if (subBoardSpaceViews[subBoardX][subBoardY] == null) {
+                    // Create new space and add to the subboard
+                    spaceView = new CC_SpaceView(boardX, boardY);
+                    subBoardSpaceViews[subBoardX][subBoardY] = spaceView;
+                } else {
+                    // Get space from subboard and set its global position
+                    spaceView = subBoardSpaceViews[subBoardX][subBoardY];
+                    spaceView.setBoardXY(boardX, boardY);
+                }
+
+                // Add space to board
                 spaces[boardX][boardY] = spaceView;
-                subBoardSpaceViews[subBoardX][subBoardY] = spaceView;
 
                 spaceView.initialize(spaceViewWidth, isStartSubBoard);
                 spaceView.setPrefSize(spaceViewWidth, spaceViewHeight);
@@ -296,13 +321,22 @@ public class CC_Controller extends BorderPane {
         subBoards.remove(subBoardToRemove);
     }
 
-    private boolean isOverlapping(Point2D position, int xLength, int yLength) {
+    private boolean isOverlappingOrOOB(Point2D position, int xLength, int yLength) {
+        int otherWidth = Math.ceilDiv(xLength, 5);
+        int otherHeight = Math.ceilDiv(yLength, 5);
+
+        // Bounds
+        if (position.getX() < 0 || position.getX() + otherWidth > NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY ||
+                position.getY() < 0 || position.getY() + otherHeight > NO_OF_SUBBOARD_POSITIONS_VERTICALLY) {
+            System.out.println("Out of bounds");
+            return true;
+        }
+
+        // Overlap
         for (CC_SubBoard subBoard : subBoards) {
             Point2D existingPosition = subBoard.getPosition();
             int existingWidth = Math.ceilDiv(subBoard.getSpaceViews().length, 5);
             int existingHeight = Math.ceilDiv(subBoard.getSpaceViews()[0].length, 5);
-            int otherWidth = Math.ceilDiv(xLength, 5);
-            int otherHeight = Math.ceilDiv(yLength, 5);
 
             boolean overlaps = position.getX() < existingPosition.getX() + existingWidth &&
                     position.getX() + otherWidth > existingPosition.getX() &&
@@ -316,11 +350,18 @@ public class CC_Controller extends BorderPane {
         return false;
     }
 
-    private Point2D getSubBoardPositionOnMouse(MouseEvent event) {
+    private Point2D getSubBoardPositionOnMouse(MouseEvent event, boolean withXOffset, boolean withYOffset) {
         Point2D mousePosition = new Point2D(event.getSceneX(), event.getSceneY());
         Point2D localMousePosition = CC_boardPane.sceneToLocal(mousePosition);
-        int x = (int)(localMousePosition.getX() / CC_boardPane.getWidth() * NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY);
-        int y = (int)(localMousePosition.getY() / CC_boardPane.getHeight() * NO_OF_SUBBOARD_POSITIONS_VERTICALLY);
+        double cellWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
+        double cellHeight = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY;
+
+        double offsetX = withXOffset ? (cellWidth / 2) : 0;
+        double offsetY = withYOffset ? (cellHeight / 2) : 0;
+
+        int x = (int)((localMousePosition.getX() - offsetX) * NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / CC_boardPane.getWidth());
+        int y = (int)((localMousePosition.getY() - offsetY) * NO_OF_SUBBOARD_POSITIONS_VERTICALLY / CC_boardPane.getHeight());
+
         return new Point2D(x, y);
     }
 
@@ -374,18 +415,22 @@ public class CC_Controller extends BorderPane {
         });
     }
 
-
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
         private CC_SpaceView previousSpaceView = null;
         private Point2D previousSubBoardPosition = new Point2D(-1, -1);
         private final List<Line> highlightedSubBoardPositionLines = new ArrayList<>();
         private boolean rotationChanged = false;
         private MouseEvent previousMoveEvent = null;
+        private boolean dragging = false;
 
         @Override
         public void handle(MouseEvent event) {
-            // SubBoards
+            if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+                dragging = true;
+            }
+
             if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) {
+                // SubBoards
                 handleSubBoardMouseEvent(event);
             } else {
                 // SpaceViews
@@ -397,7 +442,14 @@ public class CC_Controller extends BorderPane {
             if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
                 previousMoveEvent = event;
             }
-            event.consume();
+
+            if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
+                dragging = false;
+            }
+
+            if (event.getEventType() != MouseEvent.MOUSE_DRAGGED && event.getEventType() != MouseEvent.MOUSE_PRESSED) {
+                event.consume();
+            }
         }
 
         public void rotationChanged() {
@@ -408,7 +460,9 @@ public class CC_Controller extends BorderPane {
         }
 
         private void handleSubBoardMouseEvent(MouseEvent event) {
-            Point2D hoveredSubBoardPosition = getSubBoardPositionOnMouse(event);
+            boolean withXOffset = selectedItem.ordinal() == 0 || (selectedItem.ordinal() == 1 && (currentRotation == NORTH || currentRotation == SOUTH));
+            boolean withYOffset = selectedItem.ordinal() == 0 || (selectedItem.ordinal() == 1 && (currentRotation == EAST || currentRotation == WEST));
+            Point2D hoveredSubBoardPosition = getSubBoardPositionOnMouse(event, withXOffset, withYOffset);
 
             if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
                 if (hoveredSubBoardPosition.distance(previousSubBoardPosition) >= 1 || rotationChanged) {
@@ -418,13 +472,15 @@ public class CC_Controller extends BorderPane {
                 }
             }
             if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                if (event.isShiftDown()) {
-                    removeSubBoard(hoveredSubBoardPosition);
-                } else {
-                    if (selectedItem == CC_Items.SubBoard) {
-                        newSubBoard(hoveredSubBoardPosition);
-                    } else if (selectedItem == CC_Items.StartSubBoard) {
-                        newStartSubBoard(hoveredSubBoardPosition);
+                if (!dragging) {
+                    if (event.isShiftDown()) {
+                        removeSubBoard(hoveredSubBoardPosition);
+                    } else {
+                        if (selectedItem == CC_Items.SubBoard) {
+                            newSubBoard(hoveredSubBoardPosition);
+                        } else if (selectedItem == CC_Items.StartSubBoard) {
+                            newStartSubBoard(hoveredSubBoardPosition);
+                        }
                     }
                 }
             }
@@ -432,7 +488,7 @@ public class CC_Controller extends BorderPane {
 
         private void handleSpaceViewMouseEvent(MouseEvent event) {
             if (previousSpaceView != null) {
-                previousSpaceView.CC_setGhost(null, null, -1, spaces);
+                previousSpaceView.CC_setGhost(null, null);
                 previousSpaceView = null;
             }
             List<CC_SpaceView> CC_SpaceViewsOnMouse = getSpacesAtMouse(event);
@@ -443,29 +499,31 @@ public class CC_Controller extends BorderPane {
             CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
             if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
                 if (previousSpaceView == null || rotationChanged) {
-                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
+                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
                     previousSpaceView = hoveredSpaceView;
                 }
             }
-            if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                if (event.isShiftDown()) {
-                    // Deletion of item at space
-                    if (selectedItem == CC_Items.Wall) {
-                        hoveredSpaceView.CC_setWall(null, currentRotation);
+            if (event.getEventType() == MouseEvent.MOUSE_CLICKED && event.getButton() == MouseButton.PRIMARY) {
+                if (!event.isControlDown() && !dragging) {
+                    if (event.isShiftDown()) {
+                        // Deletion of item at space
+                        if (selectedItem == CC_Items.Wall) {
+                            hoveredSpaceView.CC_setWall(null, currentRotation);
+                        } else {
+                            hoveredSpaceView.CC_setBoardElement(null, null, -1, spaces);
+                        }
                     } else {
-                        hoveredSpaceView.CC_setBoardElement(null, null, -1, spaces);
+                        // Placement of item at space
+                        if (selectedItem == CC_Items.Wall) {
+                            hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
+                        } else {
+                            hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
+                        }
                     }
-                } else {
-                    // Placement of item at space
-                    if (selectedItem == CC_Items.Wall) {
-                        hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
-                    } else {
-                        hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
+                    // Remove ghost on this space when mouse clicked
+                    if (hoveredSpaceView != previousSpaceView) {
+                        hoveredSpaceView.CC_setGhost(null, null);
                     }
-                }
-                // Remove ghost on this space when mouse clicked
-                if (hoveredSpaceView != previousSpaceView) {
-                    hoveredSpaceView.CC_setGhost(null, null, -1, spaces);
                 }
             }
         }
@@ -484,17 +542,24 @@ public class CC_Controller extends BorderPane {
             double leftBorder = positionInScene.getX();
             double topBorder = positionInScene.getY();
 
+            int xLength = 10;
+            int yLength = 10;
+
             if (selectedItem == CC_Items.StartSubBoard) {
                 leftBorder += spaceViewWidth * (currentRotation == Heading.EAST ? 2 : 0);
                 topBorder += spaceViewWidth * (currentRotation == Heading.SOUTH ? 2 : 0);
-                int xLength = (currentRotation == NORTH || currentRotation == Heading.SOUTH) ? 10 : 3;
-                int yLength = (currentRotation == Heading.EAST || currentRotation == Heading.WEST) ? 10 : 3;
+                xLength = (currentRotation == NORTH || currentRotation == Heading.SOUTH) ? 10 : 3;
+                yLength = (currentRotation == Heading.EAST || currentRotation == Heading.WEST) ? 10 : 3;
                 subBoardWidth = spaceViewWidth * xLength;
                 subBoardHeight = spaceViewHeight * yLength;
             }
 
             double rightBorder = leftBorder + subBoardWidth;
             double bottomBorder = topBorder + subBoardHeight;
+
+            if (isOverlappingOrOOB(position, xLength, yLength)) {
+                return;
+            }
 
             Line upperLine = new Line(leftBorder, topBorder, rightBorder, topBorder);
             upperLine.setStroke(Color.BLACK);
@@ -541,7 +606,7 @@ public class CC_Controller extends BorderPane {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
         String userHome = System.getProperty("user.home");
         String relativePath = "RoboRally/courses";
-        String directoryPath = userHome + File.separator + relativePath;
+        String directoryPath = latestFolderPath.isEmpty() ? (userHome + File.separator + relativePath) : latestFolderPath;
 
         File folderFile = new File(directoryPath);
         // Create the courses directory if it doesn't exist
@@ -556,9 +621,11 @@ public class CC_Controller extends BorderPane {
         fileChooser.setInitialDirectory(folderFile);
         File loadedFile = fileChooser.showOpenDialog(primaryScene.getWindow());
         if (loadedFile != null) {
+            latestFolderPath = loadedFile.getParent();
             // Load course data from the selected file
             CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromFile(loadedFile);
             if (courseData != null) {
+                latestLoadedCourseName = courseData.getCourseName();
                 List<CC_SubBoard> loadedBoard = courseData.getSubBoards();
                 initializeLoadedBoard(loadedBoard);
             } else {
@@ -580,9 +647,36 @@ public class CC_Controller extends BorderPane {
             CC_boardPane.getChildren().add(subBoard.getGridPane());
             subBoards.add(subBoard);
         }
+
+        // Updating conveyor belt images
+        for (CC_SubBoard subBoard : loadedBoard) {
+            for (CC_SpaceView[] spaceColumn : subBoard.getSpaceViews()) {
+                for (CC_SpaceView space : spaceColumn) {
+                    if (space.getPlacedBoardElement() == 7 || space.getPlacedBoardElement() == 8) {
+                        space.updateConveyorBeltImages(spaces);
+                    }
+                }
+            }
+        }
     }
 
-    private void saveCourse() {
+    public void saveCourseDialog() {
+        Dialog saveGameDialog = new Dialog();
+        saveGameDialog.setHeaderText("Do you want to save the course?");
+        saveGameDialog.setTitle("Save Course");
+        ButtonType saveButton = new ButtonType("Save");
+        ButtonType dontSaveButton = new ButtonType("Don't Save");
+        saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
+        Optional<ButtonType> saveCourseResult = saveGameDialog.showAndWait();
+
+        // Method appController.saveGame() will return false if the game is not in the programming
+        // phase, and an error message will be shown to the user. Game will then continue to run.
+        if (saveCourseResult.get() == saveButton){
+            saveCourse();
+        }
+    }
+
+    public void saveCourse() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Course");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
@@ -590,7 +684,7 @@ public class CC_Controller extends BorderPane {
         // Determine the user's home directory and set the relative path for RoboRally courses
         String userHome = System.getProperty("user.home");
         String relativePath = "RoboRally/courses";
-        String directoryPath = userHome + File.separator + relativePath;
+        String directoryPath = latestFolderPath.isEmpty() ? (userHome + File.separator + relativePath) : latestFolderPath;
 
         File folderFile = new File(directoryPath);
         // Create the courses directory if it doesn't exist
@@ -603,7 +697,7 @@ public class CC_Controller extends BorderPane {
         }
 
         fileChooser.setInitialDirectory(folderFile);
-        fileChooser.setInitialFileName("New course.json");
+        fileChooser.setInitialFileName(latestLoadedCourseName.isEmpty() ? "New course.json" : latestLoadedCourseName);
         File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
 
         if (saveFile != null) {
@@ -631,7 +725,7 @@ public class CC_Controller extends BorderPane {
                 System.err.println(e.getMessage());
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                 errorAlert.setHeaderText("Error in saving course");
-                errorAlert.setContentText("Courses can't be empty. The course was not saved.");
+                errorAlert.setContentText("Course name can not be empty. The course was not saved.");
                 errorAlert.showAndWait();
             }
         }

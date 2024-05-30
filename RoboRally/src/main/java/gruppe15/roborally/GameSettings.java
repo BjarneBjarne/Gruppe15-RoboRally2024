@@ -8,8 +8,8 @@ import java.util.List;
 
 public class GameSettings {
     public final static List<Integer> OPTIONS_NO_OF_PLAYERS = Arrays.asList(2, 3, 4, 5, 6);
-    public final static List<String> OPTIONS_KEEP_HAND = Arrays.asList("No", "Yes");
-    public final static List<String> OPTIONS_DRAW_ON_EMPTY_REGISTER = Arrays.asList("No", "Yes");
+    public final static List<String> OPTIONS_KEEP_HAND = Arrays.asList("Yes", "No");
+    public final static List<String> OPTIONS_DRAW_ON_EMPTY_REGISTER = Arrays.asList("Yes", "No");
     public static int NO_OF_PLAYERS = 0;
     public static int NO_OF_CARDS_IN_HAND = 10;
     public static boolean KEEP_HAND = false;

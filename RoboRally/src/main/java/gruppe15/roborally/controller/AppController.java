@@ -50,6 +50,7 @@ import static gruppe15.roborally.GameSettings.*;
  */
 public class AppController implements Observer {
     private final RoboRally roboRally;
+    public Boolean isCourseCreatorOpen;
     private GameController gameController;
 
     public AppController(@NotNull RoboRally roboRally) {
@@ -128,7 +129,6 @@ public class AppController implements Observer {
      * method returns true.
      * 
      * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param fileName the name of the file to which the game is saved
      * @return true if the game was saved, false otherwise
      */
     public boolean saveGame(File file) {
@@ -201,13 +201,13 @@ public class AppController implements Observer {
         return gameController != null;
     }
 
-
     @Override
     public void update(Subject subject) {
         // XXX do nothing for now
     }
 
-    public void courseCreator(Scene primaryScene) {
+    public void createCourseCreator(Scene primaryScene) {
         roboRally.createCourseCreator(primaryScene);
+        isCourseCreatorOpen = true;
     }
 }

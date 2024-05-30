@@ -104,12 +104,9 @@ public class SetupView {
         // Course
         Platform.runLater(() -> {
             // Loading courses
-
             courses = CC_JsonUtil.getCoursesInFolder("courses");
             if (courses.isEmpty()) {
                 logger.info("No courses found in courses folder.");
-            } else {
-                courses.forEach(course -> logger.debug(course.toString()));
             }
 
             coursesScrollPane.setBackground(new Background(new BackgroundFill(
@@ -228,7 +225,7 @@ public class SetupView {
 
         // Keep hand
         settings_keepHand.getItems().addAll(OPTIONS_KEEP_HAND);
-        settings_keepHand.getSelectionModel().select(0);
+        settings_keepHand.getSelectionModel().select(1);
         settings_keepHand.setOnAction(e -> {
             String keepHandString = settings_keepHand.getSelectionModel().getSelectedItem().toString();
             KEEP_HAND = keepHandString.equals("Yes");
@@ -237,7 +234,7 @@ public class SetupView {
 
         // Draw on empty register
         settings_drawOnEmpty.getItems().addAll(OPTIONS_DRAW_ON_EMPTY_REGISTER);
-        settings_drawOnEmpty.getSelectionModel().select(1);
+        settings_drawOnEmpty.getSelectionModel().select(0);
         settings_drawOnEmpty.setOnAction(e -> {
             String keepHandString = settings_drawOnEmpty.getSelectionModel().getSelectedItem().toString();
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
