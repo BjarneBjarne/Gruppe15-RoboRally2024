@@ -68,8 +68,11 @@ public class CC_Controller extends BorderPane {
 
     private final SpaceEventHandler spaceEventHandler;
 
-    private CC_Items selectedItem = CC_Items.SubBoard;
+    private CC_Items selectedItem = null;
     private Heading currentRotation = NORTH;
+
+    private List<Button> itemButtons = new ArrayList<>();
+    private Pane noHighLightPane = new Pane();
 
     private final List<CC_SubBoard> subBoards;
 
@@ -88,6 +91,9 @@ public class CC_Controller extends BorderPane {
             CC_static_boardPane = CC_boardPane;
             drawSubBoardPositionLines();
             CC_boardPane.setPrefSize(canvasSize, canvasSize);
+            CC_boardPane.getChildren().add(noHighLightPane);
+            noHighLightPane.setVisible(false);
+            noHighLightPane.setMouseTransparent(true);
             CC_boardScrollPane.setVvalue(0.5);
             CC_boardScrollPane.setHvalue(0.5);
 
@@ -114,14 +120,14 @@ public class CC_Controller extends BorderPane {
                 itemButton.setGraphic(itemButtonImageView);
 
                 CC_elementButtonsHBox.getChildren().add(itemButton);
+                itemButtons.add(itemButton);
                 itemButton.setOnMouseClicked(event -> {
                     selectedItem = item;
                     spaceEventHandler.removeSubBoardHighlight();
                 });
 
                 CC_elementButtonsHBox.setOnMouseClicked(event -> {
-                    selectedItem = null;
-                    spaceEventHandler.removeSubBoardHighlight();
+                    deselectItem();
                 });
 
                 CC_saveCourse.setOnAction( e -> {
@@ -175,6 +181,15 @@ public class CC_Controller extends BorderPane {
         if (keyEvent.getCode() == KeyCode.SHIFT) {
             spaceEventHandler.shiftPressed(true);
         }
+        if (keyEvent.getCode() == KeyCode.ESCAPE) {
+            deselectItem();
+        }
+    }
+
+    public void deselectItem() {
+        selectedItem = null;
+        noHighLightPane.requestFocus();
+        spaceEventHandler.removeSubBoardHighlight();
     }
 
     public void keyReleased(KeyEvent keyEvent) {
@@ -449,8 +464,6 @@ public class CC_Controller extends BorderPane {
 
         @Override
         public void handle(MouseEvent event) {
-            if (selectedItem == null) return;
-
             if (event.isPrimaryButtonDown() && !event.isControlDown() && !event.isAltDown()) {
                 isDrawing = true;
                 event.consume();
@@ -488,8 +501,9 @@ public class CC_Controller extends BorderPane {
         }
 
         private void handleSubBoardMouseEvent(MouseEvent event, boolean shiftIsDown) {
-            if (!(selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard)) return;
             removeSubBoardHighlight();
+            if (selectedItem == null) return;
+            if (!(selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard)) return;
 
             boolean withXOffset = selectedItem.ordinal() == 0 || (selectedItem.ordinal() == 1 && (currentRotation == NORTH || currentRotation == SOUTH));
             boolean withYOffset = selectedItem.ordinal() == 0 || (selectedItem.ordinal() == 1 && (currentRotation == EAST || currentRotation == WEST));
@@ -536,6 +550,7 @@ public class CC_Controller extends BorderPane {
         }
 
         private void handleSpaceViewMouseEvent(MouseEvent event) {
+            if (selectedItem == null) return;
             if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) return;
             if (previousSpaceView != null) {
                 previousSpaceView.CC_setGhost(null, null);
@@ -668,6 +683,7 @@ public class CC_Controller extends BorderPane {
                 latestLoadedCourseName = courseData.getCourseName();
                 List<CC_SubBoard> loadedBoard = courseData.getSubBoards();
                 initializeLoadedBoard(loadedBoard);
+                deselectItem();
             } else {
                 System.err.println("Failed to load course data from file: " + loadedFile.getAbsolutePath());
             }

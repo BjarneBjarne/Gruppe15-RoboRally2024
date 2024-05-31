@@ -217,25 +217,25 @@ public class CC_SpaceView extends StackPane {
         Heading neighborDirection = neighborSpace.direction;
 
         CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-        boolean neighborHasFront = false;
+        boolean neighborHasOtherInFront = false;
         if (spaceInFrontOfNeighbor != null) {
-            neighborHasFront = spaceInFrontOfNeighbor.placedBoardElement == neighborSpace.placedBoardElement;
+            neighborHasOtherInFront = (spaceInFrontOfNeighbor.placedBoardElement == neighborSpace.placedBoardElement);
         }
         CC_SpaceView spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
-        boolean neighborHasBehind = false;
+        boolean neighborHasOtherBehind = false;
         if (spaceBehindNeighbor != null) {
-            neighborHasBehind = spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement;
+            neighborHasOtherBehind = (spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement);
         }
 
         CC_SpaceView spaceInFrontOfThis = this.getSpaceNextTo(this.direction, spaces);
-        boolean thisHasFront = false;
+        boolean thisHasOtherInFront = false;
         if (spaceInFrontOfThis != null) {
-            thisHasFront = spaceInFrontOfThis.placedBoardElement == this.placedBoardElement;
+            thisHasOtherInFront = (spaceInFrontOfThis.placedBoardElement == this.placedBoardElement) && !spaceInFrontOfThis.equals(neighborSpace);
         }
         CC_SpaceView spaceBehindThis = this.getSpaceNextTo(this.direction.opposite(), spaces);
-        boolean thisHasBehind = false;
+        boolean thisHasOtherBehind = false;
         if (spaceBehindThis != null) {
-            thisHasBehind = spaceBehindThis.placedBoardElement == this.placedBoardElement;
+            thisHasOtherBehind = (spaceBehindThis.placedBoardElement == this.placedBoardElement) && !spaceBehindThis.equals(neighborSpace);
         }
 
         if (i == 2) {
@@ -247,7 +247,7 @@ public class CC_SpaceView extends StackPane {
             // Neighbor is to the right or left
             if (this.equals(spaceInFrontOfNeighbor)) {
                 isValidNeighbor = true;
-            } else if ((!neighborHasBehind || !neighborHasFront) && !(thisHasFront && thisHasBehind)) {
+            } else if (!(neighborHasOtherInFront && neighborHasOtherBehind) && !(thisHasOtherInFront && thisHasOtherBehind) && !(this.direction == neighborDirection)) {
                 isValidNeighbor = true;
             }
         }
