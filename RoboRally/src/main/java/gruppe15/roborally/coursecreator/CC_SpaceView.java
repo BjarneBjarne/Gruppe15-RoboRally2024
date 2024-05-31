@@ -134,6 +134,11 @@ public class CC_SpaceView extends StackPane {
         updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces);
+
+        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY - 1], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY - 1], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY + 1], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY + 1], spaces);
     }
 
     private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces) {
@@ -174,15 +179,6 @@ public class CC_SpaceView extends StackPane {
 
     // Reused code from ImageUtils. Rewritten to be compatible with course creator, without creating BE_ConveyorBelt objects.
     private String getUpdatedConveyorBeltImage(CC_SpaceView[][] spaces) {
-        CC_SpaceView spaceInFrontOfThis = getSpaceNextTo(this.direction, spaces);
-        CC_SpaceView spaceBehindThis = getSpaceNextTo(this.direction.opposite(), spaces);
-        CC_SpaceView spaceToTheRightOfThis = getSpaceNextTo(this.direction.next(), spaces);
-        CC_SpaceView spaceToTheLeftOfThis = getSpaceNextTo(this.direction.prev(), spaces);
-        boolean thisHasFrontAndBack = false;
-        if (spaceInFrontOfThis != null && spaceBehindThis != null) {
-            thisHasFrontAndBack = (spaceInFrontOfThis.placedBoardElement == this.placedBoardElement) && (spaceBehindThis.placedBoardElement == this.placedBoardElement);
-        }
-
         StringBuilder imageNameBuilder = new StringBuilder();
         // Green or blue
         imageNameBuilder.append(this.placedBoardElement == 8 ? "green" : "blue");
@@ -202,17 +198,7 @@ public class CC_SpaceView extends StackPane {
             if (neighborSpace != null) {
                 if (this.placedBoardElement != neighborSpace.placedBoardElement) continue; // Only count same type
 
-                Heading neighborDirection = neighborSpace.direction;
-                CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-                CC_SpaceView spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
-
-                boolean eitherHasFrontOrBack = this.equals(spaceInFrontOfNeighbor) || this.equals(spaceBehindNeighbor) || neighborSpace.equals(spaceInFrontOfThis) || neighborSpace.equals(spaceBehindThis);
-                boolean neighborHasFrontAndBack = false;
-                if (spaceInFrontOfNeighbor != null && spaceBehindNeighbor != null) {
-                    neighborHasFrontAndBack = (spaceInFrontOfNeighbor.placedBoardElement == neighborSpace.placedBoardElement) && (spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement);
-                }
-
-                if (eitherHasFrontOrBack || (!thisHasFrontAndBack && !neighborHasFrontAndBack && (((neighborSpace.equals(spaceToTheRightOfThis) && spaceToTheRightOfThis.direction != this.direction) || (neighborSpace.equals(spaceToTheLeftOfThis) && spaceToTheLeftOfThis.direction != this.direction))))) {
+                if (isValidNeighbor(spaces, neighborSpace, i)) {
                     relativeConnections[i] = true;
                     noOfConnections++;
                 }
@@ -223,6 +209,49 @@ public class CC_SpaceView extends StackPane {
         buildConveyorBeltStringFromNeighbors(imageNameBuilder, noOfConnections, relativeConnections);
 
         return imageNameBuilder.toString();
+    }
+
+    private boolean isValidNeighbor(CC_SpaceView[][] spaces, CC_SpaceView neighborSpace, int i) {
+        boolean isValidNeighbor = false;
+
+        Heading neighborDirection = neighborSpace.direction;
+
+        CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
+        boolean neighborHasFront = false;
+        if (spaceInFrontOfNeighbor != null) {
+            neighborHasFront = spaceInFrontOfNeighbor.placedBoardElement == neighborSpace.placedBoardElement;
+        }
+        CC_SpaceView spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
+        boolean neighborHasBehind = false;
+        if (spaceBehindNeighbor != null) {
+            neighborHasBehind = spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement;
+        }
+
+        CC_SpaceView spaceInFrontOfThis = this.getSpaceNextTo(this.direction, spaces);
+        boolean thisHasFront = false;
+        if (spaceInFrontOfThis != null) {
+            thisHasFront = spaceInFrontOfThis.placedBoardElement == this.placedBoardElement;
+        }
+        CC_SpaceView spaceBehindThis = this.getSpaceNextTo(this.direction.opposite(), spaces);
+        boolean thisHasBehind = false;
+        if (spaceBehindThis != null) {
+            thisHasBehind = spaceBehindThis.placedBoardElement == this.placedBoardElement;
+        }
+
+        if (i == 2) {
+            // Neighbor is behind
+            if (this.equals(spaceInFrontOfNeighbor)) {
+                isValidNeighbor = true;
+            }
+        } else {
+            // Neighbor is to the right or left
+            if (this.equals(spaceInFrontOfNeighbor)) {
+                isValidNeighbor = true;
+            } else if ((!neighborHasBehind || !neighborHasFront) && !(thisHasFront && thisHasBehind)) {
+                isValidNeighbor = true;
+            }
+        }
+        return isValidNeighbor;
     }
 
     private CC_SpaceView getSpaceNextTo(Heading dir, CC_SpaceView[][] spaces) {
