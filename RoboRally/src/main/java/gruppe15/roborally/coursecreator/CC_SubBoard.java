@@ -3,13 +3,14 @@ package gruppe15.roborally.coursecreator;
 import gruppe15.roborally.model.Heading;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.GridPane;
+import org.jetbrains.annotations.NotNull;
 
 public class CC_SubBoard {
-    private Point2D position;
-    private CC_SpaceView[][] spaceViews;
-    private GridPane gridPane;
-    private boolean isStartSubBoard;
-    private Heading direction;
+    private final Point2D position;
+    private final CC_SpaceView[][] spaceViews;
+    private final GridPane gridPane;
+    private final boolean isStartSubBoard;
+    private final Heading direction;
 
     public CC_SubBoard(Point2D position, CC_SpaceView[][] spaceViews, GridPane gridPane, boolean isStartSubBoard, Heading direction) {
         this.position = position;

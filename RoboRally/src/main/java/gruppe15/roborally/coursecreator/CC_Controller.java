@@ -119,6 +119,11 @@ public class CC_Controller extends BorderPane {
                     spaceEventHandler.removeSubBoardHighlight();
                 });
 
+                CC_elementButtonsHBox.setOnMouseClicked(event -> {
+                    selectedItem = null;
+                    spaceEventHandler.removeSubBoardHighlight();
+                });
+
                 CC_saveCourse.setOnAction( e -> {
                     saveCourse();
                 });
@@ -167,6 +172,15 @@ public class CC_Controller extends BorderPane {
             currentRotation = currentRotation.prev();
             spaceEventHandler.rotationChanged();
         }
+        if (keyEvent.getCode() == KeyCode.SHIFT) {
+            spaceEventHandler.shiftPressed(true);
+        }
+    }
+
+    public void keyReleased(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.SHIFT) {
+            spaceEventHandler.shiftPressed(false);
+        }
     }
 
     private void newSubBoard(Point2D position) {
@@ -183,7 +197,7 @@ public class CC_Controller extends BorderPane {
             subBoardHeight = (direction == Heading.EAST || direction == Heading.WEST) ? 10 : 3;
         }
         // Can't put new subboard where one already exists.
-        if (isOverlappingOrOOB(position, subBoardWidth, subBoardHeight)) return;
+        if (subBoardOverlappingOrOOB(position, subBoardWidth, subBoardHeight)) return;
         // Can only place within bounds
         if (position.getX() >= NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY || position.getY() >= NO_OF_SUBBOARD_POSITIONS_VERTICALLY) return;
 
@@ -321,16 +335,24 @@ public class CC_Controller extends BorderPane {
         subBoards.remove(subBoardToRemove);
     }
 
-    private boolean isOverlappingOrOOB(Point2D position, int xLength, int yLength) {
+    private boolean subBoardOverlappingOrOOB(Point2D position, int xLength, int yLength) {
+        return subBoardOOB(position, xLength, yLength) && getOverlappingSubBoard(position, xLength, yLength) == null;
+    }
+
+    private boolean subBoardOOB(Point2D position, int xLength, int yLength) {
         int otherWidth = Math.ceilDiv(xLength, 5);
         int otherHeight = Math.ceilDiv(yLength, 5);
-
         // Bounds
         if (position.getX() < 0 || position.getX() + otherWidth > NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY ||
                 position.getY() < 0 || position.getY() + otherHeight > NO_OF_SUBBOARD_POSITIONS_VERTICALLY) {
-            System.out.println("Out of bounds");
             return true;
         }
+        return false;
+    }
+
+    private CC_SubBoard getOverlappingSubBoard(Point2D position, int xLength, int yLength) {
+        int otherWidth = Math.ceilDiv(xLength, 5);
+        int otherHeight = Math.ceilDiv(yLength, 5);
 
         // Overlap
         for (CC_SubBoard subBoard : subBoards) {
@@ -338,19 +360,17 @@ public class CC_Controller extends BorderPane {
             int existingWidth = Math.ceilDiv(subBoard.getSpaceViews().length, 5);
             int existingHeight = Math.ceilDiv(subBoard.getSpaceViews()[0].length, 5);
 
-            boolean overlaps = position.getX() < existingPosition.getX() + existingWidth &&
+            if(position.getX() < existingPosition.getX() + existingWidth &&
                     position.getX() + otherWidth > existingPosition.getX() &&
                     position.getY() < existingPosition.getY() + existingHeight &&
-                    position.getY() + otherHeight > existingPosition.getY();
-
-            if (overlaps) {
-                return true;
+                    position.getY() + otherHeight > existingPosition.getY()) {
+                return subBoard;
             }
         }
-        return false;
+        return null;
     }
 
-    private Point2D getSubBoardPositionOnMouse(MouseEvent event, boolean withXOffset, boolean withYOffset) {
+    private Point2D getSubBoardPositionOnMouse(MouseEvent event, boolean snapToGrid, boolean withXOffset, boolean withYOffset) {
         Point2D mousePosition = new Point2D(event.getSceneX(), event.getSceneY());
         Point2D localMousePosition = CC_boardPane.sceneToLocal(mousePosition);
         double cellWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
@@ -359,8 +379,12 @@ public class CC_Controller extends BorderPane {
         double offsetX = withXOffset ? (cellWidth / 2) : 0;
         double offsetY = withYOffset ? (cellHeight / 2) : 0;
 
-        int x = (int)((localMousePosition.getX() - offsetX) * NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / CC_boardPane.getWidth());
-        int y = (int)((localMousePosition.getY() - offsetY) * NO_OF_SUBBOARD_POSITIONS_VERTICALLY / CC_boardPane.getHeight());
+        double x = (localMousePosition.getX() - offsetX) * NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / CC_boardPane.getWidth();
+        double y = (localMousePosition.getY() - offsetY) * NO_OF_SUBBOARD_POSITIONS_VERTICALLY / CC_boardPane.getHeight();
+
+        if (snapToGrid) {
+            return new Point2D((int)x, (int)y);
+        }
 
         return new Point2D(x, y);
     }
@@ -405,6 +429,7 @@ public class CC_Controller extends BorderPane {
 
     public void registerKeyEventHandlers() {
         primaryScene.addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
+        primaryScene.addEventFilter(KeyEvent.KEY_RELEASED, this::keyReleased);
 
         KeyCombination ctrlS = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
         primaryScene.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
@@ -417,69 +442,93 @@ public class CC_Controller extends BorderPane {
 
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
         private CC_SpaceView previousSpaceView = null;
-        private Point2D previousSubBoardPosition = new Point2D(-1, -1);
         private final List<Line> highlightedSubBoardPositionLines = new ArrayList<>();
         private boolean rotationChanged = false;
         private MouseEvent previousMoveEvent = null;
-        private boolean dragging = false;
+        private boolean isDrawing = false;
 
         @Override
         public void handle(MouseEvent event) {
-            if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-                dragging = true;
+            if (selectedItem == null) return;
+
+            if (event.isPrimaryButtonDown() && !event.isControlDown() && !event.isAltDown()) {
+                isDrawing = true;
+                event.consume();
+            } else {
+                isDrawing = false;
             }
 
-            if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) {
-                // SubBoards
-                handleSubBoardMouseEvent(event);
-            } else {
-                // SpaceViews
-                handleSpaceViewMouseEvent(event);
-            }
+            // SubBoards
+            handleSubBoardMouseEvent(event, event.isShiftDown());
+            // SpaceViews
+            handleSpaceViewMouseEvent(event);
 
             rotationChanged = false;
 
-            if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
+            if (event.getEventType() == MouseEvent.MOUSE_MOVED || event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
                 previousMoveEvent = event;
-            }
-
-            if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                dragging = false;
-            }
-
-            if (event.getEventType() != MouseEvent.MOUSE_DRAGGED && event.getEventType() != MouseEvent.MOUSE_PRESSED) {
-                event.consume();
             }
         }
 
         public void rotationChanged() {
             rotationChanged = true;
+            handlePreviousEvent();
+        }
+
+        public void handlePreviousEvent() {
             if (previousMoveEvent != null) {
                 handle(previousMoveEvent);
             }
         }
 
-        private void handleSubBoardMouseEvent(MouseEvent event) {
+        public void shiftPressed(boolean shiftIsDown) {
+            if (previousMoveEvent != null) {
+                handleSubBoardMouseEvent(previousMoveEvent, shiftIsDown);
+            }
+        }
+
+        private void handleSubBoardMouseEvent(MouseEvent event, boolean shiftIsDown) {
+            if (!(selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard)) return;
+            removeSubBoardHighlight();
+
             boolean withXOffset = selectedItem.ordinal() == 0 || (selectedItem.ordinal() == 1 && (currentRotation == NORTH || currentRotation == SOUTH));
             boolean withYOffset = selectedItem.ordinal() == 0 || (selectedItem.ordinal() == 1 && (currentRotation == EAST || currentRotation == WEST));
-            Point2D hoveredSubBoardPosition = getSubBoardPositionOnMouse(event, withXOffset, withYOffset);
+            Point2D hoveredSubBoardPosition = getSubBoardPositionOnMouse(event, true, withXOffset, withYOffset);
 
-            if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
-                if (hoveredSubBoardPosition.distance(previousSubBoardPosition) >= 1 || rotationChanged) {
-                    removeSubBoardHighlight();
-                    highlightSubBoard(hoveredSubBoardPosition);
-                    previousSubBoardPosition = hoveredSubBoardPosition;
-                }
+            int xLength = 10;
+            int yLength = 10;
+            if (selectedItem == CC_Items.StartSubBoard) {
+                xLength = (currentRotation == NORTH || currentRotation == Heading.SOUTH) ? 10 : 3;
+                yLength = (currentRotation == Heading.EAST || currentRotation == Heading.WEST) ? 10 : 3;
             }
-            if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                if (!dragging) {
-                    if (event.isShiftDown()) {
-                        removeSubBoard(hoveredSubBoardPosition);
-                    } else {
-                        if (selectedItem == CC_Items.SubBoard) {
-                            newSubBoard(hoveredSubBoardPosition);
-                        } else if (selectedItem == CC_Items.StartSubBoard) {
-                            newStartSubBoard(hoveredSubBoardPosition);
+
+            if (!subBoardOOB(hoveredSubBoardPosition, xLength, yLength)) {
+                CC_SubBoard overLappingSubBoard = getOverlappingSubBoard(hoveredSubBoardPosition, xLength, yLength);
+                if (overLappingSubBoard == null) {
+                    if (!shiftIsDown) {
+                        // Highlight new sub board placement
+                        highlightSubBoard(hoveredSubBoardPosition, xLength, yLength, currentRotation, Color.BLACK);
+                        if (isDrawing) {
+                            // Creation of sub board
+                            if (selectedItem == CC_Items.SubBoard) {
+                                newSubBoard(hoveredSubBoardPosition);
+                            } else if (selectedItem == CC_Items.StartSubBoard) {
+                                newStartSubBoard(hoveredSubBoardPosition);
+                            }
+                        }
+                    }
+                } else {
+                    if (shiftIsDown) {
+                        Point2D hoveredPosition = getSubBoardPositionOnMouse(event, false, withXOffset, withYOffset);
+                        hoveredPosition = new Point2D(hoveredPosition.getX() - 0.5, hoveredPosition.getY() - 0.5);
+                        if (Math.abs(hoveredPosition.getX() - overLappingSubBoard.getPosition().getX()) <= 1 &&
+                                Math.abs(hoveredPosition.getY() - overLappingSubBoard.getPosition().getY()) <= 1) {
+                            // Highlight deletion of sub board
+                            highlightSubBoard(overLappingSubBoard.getPosition(), overLappingSubBoard.getSpaceViews().length, overLappingSubBoard.getSpaceViews()[0].length, overLappingSubBoard.getDirection(), Color.RED);
+                            if (isDrawing) {
+                                // Deletion of sub board
+                                removeSubBoard(overLappingSubBoard.getPosition());
+                            }
                         }
                     }
                 }
@@ -487,6 +536,7 @@ public class CC_Controller extends BorderPane {
         }
 
         private void handleSpaceViewMouseEvent(MouseEvent event) {
+            if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) return;
             if (previousSpaceView != null) {
                 previousSpaceView.CC_setGhost(null, null);
                 previousSpaceView = null;
@@ -497,42 +547,40 @@ public class CC_Controller extends BorderPane {
                 return;
             }
             CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
-            if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
+
+            if (isDrawing) {
+                if (event.isShiftDown()) {
+                    // Deletion of item at space
+                    if (selectedItem == CC_Items.Wall) {
+                        hoveredSpaceView.CC_setWall(null, currentRotation);
+                    } else if (selectedItem.ordinal() >= CC_Items.Checkpoint1.ordinal() && selectedItem.ordinal() <= CC_Items.Checkpoint6.ordinal()) {
+                        hoveredSpaceView.CC_setCheckpoint(null, -1);
+                    } else {
+                        hoveredSpaceView.CC_setBoardElement(null, null, -1, spaces);
+                    }
+                } else {
+                    // Placement of item at space
+                    if (selectedItem == CC_Items.Wall) {
+                        hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
+                    } else if (selectedItem.ordinal() >= CC_Items.Checkpoint1.ordinal() && selectedItem.ordinal() <= CC_Items.Checkpoint6.ordinal()) {
+                        hoveredSpaceView.CC_setCheckpoint(selectedItem.image, selectedItem.ordinal());
+                    } else {
+                        hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
+                    }
+                }
+                // Remove ghost on this space when mouse clicked
+                if (hoveredSpaceView != previousSpaceView) {
+                    hoveredSpaceView.CC_setGhost(null, null);
+                }
+            } else {
                 if (previousSpaceView == null || rotationChanged) {
                     hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
                     previousSpaceView = hoveredSpaceView;
                 }
             }
-            if (event.getEventType() == MouseEvent.MOUSE_CLICKED && event.getButton() == MouseButton.PRIMARY) {
-                if (!event.isControlDown() && !dragging) {
-                    if (event.isShiftDown()) {
-                        // Deletion of item at space
-                        if (selectedItem == CC_Items.Wall) {
-                            hoveredSpaceView.CC_setWall(null, currentRotation);
-                        } else if (selectedItem.ordinal() >= CC_Items.Checkpoint1.ordinal() && selectedItem.ordinal() <= CC_Items.Checkpoint6.ordinal()) {
-                            hoveredSpaceView.CC_setCheckpoint(null, -1);
-                        } else {
-                            hoveredSpaceView.CC_setBoardElement(null, null, -1, spaces);
-                        }
-                    } else {
-                        // Placement of item at space
-                        if (selectedItem == CC_Items.Wall) {
-                            hoveredSpaceView.CC_setWall(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
-                        } else if (selectedItem.ordinal() >= CC_Items.Checkpoint1.ordinal() && selectedItem.ordinal() <= CC_Items.Checkpoint6.ordinal()) {
-                            hoveredSpaceView.CC_setCheckpoint(selectedItem.image, selectedItem.ordinal());
-                        } else {
-                            hoveredSpaceView.CC_setBoardElement(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem.ordinal(), spaces);
-                        }
-                    }
-                    // Remove ghost on this space when mouse clicked
-                    if (hoveredSpaceView != previousSpaceView) {
-                        hoveredSpaceView.CC_setGhost(null, null);
-                    }
-                }
-            }
         }
 
-        private void highlightSubBoard(Point2D position) {
+        private void highlightSubBoard(Point2D position, int xLength, int yLength, Heading direction, Color lineColor) {
             Point2D positionInScene = new Point2D(
                     (position.getX() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY) * CC_boardPane.getWidth(),
                     (position.getY() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY) * CC_boardPane.getHeight()
@@ -540,51 +588,39 @@ public class CC_Controller extends BorderPane {
 
             double spaceViewWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
             double spaceViewHeight = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
-
-            double subBoardWidth = spaceViewWidth * (selectedItem == CC_Items.SubBoard ? 10 : 5);
-            double subBoardHeight = spaceViewHeight * (selectedItem == CC_Items.SubBoard ? 10 : 5);
+            double subBoardWidth = spaceViewWidth * xLength;
+            double subBoardHeight = spaceViewHeight * yLength;
             double leftBorder = positionInScene.getX();
             double topBorder = positionInScene.getY();
 
-            int xLength = 10;
-            int yLength = 10;
-
-            if (selectedItem == CC_Items.StartSubBoard) {
-                leftBorder += spaceViewWidth * (currentRotation == Heading.EAST ? 2 : 0);
-                topBorder += spaceViewWidth * (currentRotation == Heading.SOUTH ? 2 : 0);
-                xLength = (currentRotation == NORTH || currentRotation == Heading.SOUTH) ? 10 : 3;
-                yLength = (currentRotation == Heading.EAST || currentRotation == Heading.WEST) ? 10 : 3;
-                subBoardWidth = spaceViewWidth * xLength;
-                subBoardHeight = spaceViewHeight * yLength;
+            if (xLength <= 5 || yLength <= 5) {
+                leftBorder += spaceViewWidth * (direction == Heading.EAST ? 2 : 0);
+                topBorder += spaceViewWidth * (direction == Heading.SOUTH ? 2 : 0);
             }
 
             double rightBorder = leftBorder + subBoardWidth;
             double bottomBorder = topBorder + subBoardHeight;
 
-            if (isOverlappingOrOOB(position, xLength, yLength)) {
-                return;
-            }
-
             Line upperLine = new Line(leftBorder, topBorder, rightBorder, topBorder);
-            upperLine.setStroke(Color.BLACK);
+            upperLine.setStroke(lineColor);
             upperLine.setStrokeWidth(4);
             CC_boardPane.getChildren().add(upperLine);
             highlightedSubBoardPositionLines.add(upperLine);
 
             Line lowerLine = new Line(leftBorder, bottomBorder, rightBorder, bottomBorder);
-            lowerLine.setStroke(Color.BLACK);
+            lowerLine.setStroke(lineColor);
             lowerLine.setStrokeWidth(4);
             CC_boardPane.getChildren().add(lowerLine);
             highlightedSubBoardPositionLines.add(lowerLine);
 
             Line leftLine = new Line(leftBorder, topBorder, leftBorder, bottomBorder);
-            leftLine.setStroke(Color.BLACK);
+            leftLine.setStroke(lineColor);
             leftLine.setStrokeWidth(4);
             CC_boardPane.getChildren().add(leftLine);
             highlightedSubBoardPositionLines.add(leftLine);
 
             Line rightLine = new Line(rightBorder, topBorder, rightBorder, bottomBorder);
-            rightLine.setStroke(Color.BLACK);
+            rightLine.setStroke(lineColor);
             rightLine.setStrokeWidth(4);
             CC_boardPane.getChildren().add(rightLine);
             highlightedSubBoardPositionLines.add(rightLine);
