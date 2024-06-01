@@ -250,7 +250,6 @@ public class CC_SpaceView extends StackPane {
             // Space references
             Heading neighborDirection = neighborSpace.direction;
             CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-            CC_SpaceView spaceInFrontOfThis = this.getSpaceNextTo(this.direction, spaces);
 
             // Number of other connections
             int noOfThisOtherConnections = 0;
@@ -274,7 +273,6 @@ public class CC_SpaceView extends StackPane {
             } else {
                 // Neighbor is to the right or left
                 List<Boolean> conditions = new ArrayList<>();
-                conditions.add(neighborSpace.equals(spaceInFrontOfThis));
                 conditions.add(this.equals(spaceInFrontOfNeighbor));
                 conditions.add(noOfThisOtherConnections == 1 && noOfNeighborsOtherConnections == 1 && this.direction != neighborSpace.direction);
                 for (Boolean condition : conditions) {

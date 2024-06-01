@@ -27,6 +27,7 @@ import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Laser;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
+import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BE_EnergySpace;
 import gruppe15.roborally.model.boardelements.BoardElement;
 import gruppe15.roborally.model.utils.ImageUtils;
@@ -63,6 +64,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     private boolean usingPlayerRebootImage = false;
     private Image playerRebootImage;
     private Text spaceCoords = new Text();
+    private Text debugText = new Text();
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
@@ -123,6 +125,15 @@ public class SpaceView extends StackPane implements ViewObserver {
             spaceCoords.setStyle("-fx-font-size: 20px; ");
             spaceCoords.setWrappingWidth(GameVariables.SPACE_SIZE * 0.9);
             this.getChildren().add(spaceCoords);
+        }
+
+        if (space.getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
+            debugText.setTextAlignment(TextAlignment.CENTER);
+            debugText.setText("");
+            debugText.setFill(new Color(1, .1, .1, 1));
+            debugText.setStyle("-fx-font-size: 8px; ");
+            debugText.setWrappingWidth(GameVariables.SPACE_SIZE * 0.9);
+            this.getChildren().add(debugText);
         }
 
         // This space view should listen to changes of the space
@@ -192,6 +203,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         if (SHOW_DEBUG_COORDINATES) {
             this.getChildren().add(spaceCoords);
         }
+        this.getChildren().add(debugText);
     }
 
     private ImageView newLaserImageView(Laser.LaserOnSpace laserOnSpace) {
