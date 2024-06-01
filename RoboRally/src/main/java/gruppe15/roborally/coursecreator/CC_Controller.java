@@ -9,6 +9,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -464,11 +465,15 @@ public class CC_Controller extends BorderPane {
 
         @Override
         public void handle(MouseEvent event) {
-            if (event.isPrimaryButtonDown() && !event.isControlDown() && !event.isAltDown()) {
-                isDrawing = true;
-                event.consume();
-            } else {
-                isDrawing = false;
+            CC_boardPane.setCursor(Cursor.DEFAULT);
+            isDrawing = false;
+            if (isMouseButtonDown(event)) {
+                if (event.isPrimaryButtonDown() && !event.isControlDown() && !event.isAltDown()) {
+                    isDrawing = true;
+                    event.consume();
+                } else {
+                    CC_boardPane.setCursor(Cursor.MOVE);
+                }
             }
 
             // SubBoards
@@ -481,6 +486,10 @@ public class CC_Controller extends BorderPane {
             if (event.getEventType() == MouseEvent.MOUSE_MOVED || event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
                 previousMoveEvent = event;
             }
+        }
+
+        private boolean isMouseButtonDown(MouseEvent event) {
+            return event.isPrimaryButtonDown() || event.isSecondaryButtonDown() || event.isMiddleButtonDown();
         }
 
         public void rotationChanged() {
@@ -553,7 +562,7 @@ public class CC_Controller extends BorderPane {
             if (selectedItem == null) return;
             if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) return;
             if (previousSpaceView != null) {
-                previousSpaceView.CC_setGhost(null, null);
+                previousSpaceView.CC_setGhost(null, null, false);
                 previousSpaceView = null;
             }
             List<CC_SpaceView> CC_SpaceViewsOnMouse = getSpacesAtMouse(event);
@@ -585,11 +594,12 @@ public class CC_Controller extends BorderPane {
                 }
                 // Remove ghost on this space when mouse clicked
                 if (hoveredSpaceView != previousSpaceView) {
-                    hoveredSpaceView.CC_setGhost(null, null);
+                    hoveredSpaceView.CC_setGhost(null, null, false);
                 }
             } else {
                 if (previousSpaceView == null || rotationChanged) {
-                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH);
+                    boolean isDeleting = event.isShiftDown();
+                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, isDeleting);
                     previousSpaceView = hoveredSpaceView;
                 }
             }
@@ -709,11 +719,6 @@ public class CC_Controller extends BorderPane {
             for (CC_SpaceView[] spaceColumn : subBoard.getSpaceViews()) {
                 for (CC_SpaceView space : spaceColumn) {
                     if (space.getPlacedBoardElement() == 7 || space.getPlacedBoardElement() == 8) {
-                        space.updateConveyorBeltImages(spaces);
-                    }
-                    if (space.getPlacedBoardElement() >= CC_Items.Checkpoint1.ordinal() && space.getPlacedBoardElement() <= CC_Items.Checkpoint6.ordinal()) {
-                        space.CC_setCheckpoint(CC_Items.values()[space.getPlacedBoardElement()].image, space.getPlacedBoardElement());
-                        space.CC_setBoardElement(null, null, -1);
                         space.updateConveyorBeltImages(spaces);
                     }
                 }

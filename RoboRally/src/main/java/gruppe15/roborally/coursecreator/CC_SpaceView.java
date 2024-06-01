@@ -5,8 +5,13 @@ import gruppe15.roborally.model.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
-import static gruppe15.roborally.model.utils.ImageUtils.buildConveyorBeltStringFromNeighbors;
+import java.util.ArrayList;
+import java.util.List;
+
+import static gruppe15.roborally.model.utils.ImageUtils.buildConveyorBeltStringFromConnections;
 
 /**
  * Modified SpaceView class, that handles the view of each space view in the course creator.
@@ -28,8 +33,10 @@ public class CC_SpaceView extends StackPane {
     private final ImageView checkpointImageView = new ImageView();
     private final ImageView[] wallImageViews = new ImageView[4];
     private boolean isOnStartSubBoard;
+    private final Text debugText = new Text();
 
     private final ImageView ghostImageView = new ImageView();
+    private Image boardElementImage = null;
 
     public CC_SpaceView(int boardX, int boardY) {
         this.boardX = boardX;
@@ -71,6 +78,8 @@ public class CC_SpaceView extends StackPane {
         ghostImageView.setFitWidth(size);
         ghostImageView.setFitHeight(size);
         this.getChildren().add(ghostImageView);
+        this.getChildren().add(debugText);
+        debugText.setStyle("-fx-font-size: 16px; -fx-fill: WHITE; ");
     }
 
     public void setBoardXY(int boardX, int boardY) {
@@ -85,7 +94,7 @@ public class CC_SpaceView extends StackPane {
     }
 
     public void CC_setBoardElement(Image image, Heading direction, int placedBoardElement, CC_SpaceView[][] spaces) {
-        if ((this.placedBoardElement == 7 || this.placedBoardElement == 8) && direction != null) {
+        if (placedBoardElement == 7 || placedBoardElement == 8 || this.placedBoardElement == 7 || this.placedBoardElement == 8) {
             this.placedBoardElement = placedBoardElement;
             this.direction = direction;
             updateConveyorBeltImages(spaces);
@@ -114,12 +123,28 @@ public class CC_SpaceView extends StackPane {
         }
     }
 
-    public void CC_setGhost(Image image, Heading ghostDirection) {
-        CC_setImageView(image, ghostDirection, this.ghostImageView);
+    public void CC_setGhost(Image image, Heading ghostDirection, boolean isDeleting) {
+        Image ghostImage = image;
+        if (isDeleting) {
+            ghostImage = null;
+            if (this.boardElementImageView.getImage() != null) {
+                Image redBoardElementImage = ImageUtils.getImageColored(this.boardElementImageView.getImage(), new Color(1, 0, 0, 1), 1);
+                this.boardElementImageView.setImage(redBoardElementImage);
+            }
+        } else if (image != null) {
+            ghostImage = ImageUtils.getImageColored(ghostImage, Color.TRANSPARENT, .35);
+        } else if (this.boardElementImage != null) {
+            this.boardElementImageView.setImage(this.boardElementImage);
+        }
+        CC_setImageView(ghostImage, ghostDirection, this.ghostImageView);
     }
 
     private void CC_setImageView(Image image, Heading direction, ImageView imageView) {
-        imageView.setImage(ImageUtils.getRotatedImageByHeading(image, direction));
+        Image newImage = ImageUtils.getRotatedImageByHeading(image, direction);
+        if (imageView == this.boardElementImageView) {
+            this.boardElementImage = newImage;
+        }
+        imageView.setImage(newImage);
     }
 
     public void updateConveyorBeltImages(CC_SpaceView[][] spaces) {
@@ -130,11 +155,19 @@ public class CC_SpaceView extends StackPane {
     }
 
     private void updateNeighborsConveyorBeltImages(CC_SpaceView[][] spaces) {
+        // To the sides
         updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces);
 
+        // Two spaces to the sides
+        updateNeighborConveyorBeltImage(spaces[this.boardX + 2][this.boardY], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX - 2][this.boardY], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 2], spaces);
+        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 2], spaces);
+
+        // Corners
         updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY - 1], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY - 1], spaces);
         updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY + 1], spaces);
@@ -142,18 +175,19 @@ public class CC_SpaceView extends StackPane {
     }
 
     private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces) {
-        if (neighbor != null && neighbor.placedBoardElement == this.placedBoardElement) {
+        if (neighbor != null && (neighbor.placedBoardElement == 7 || neighbor.placedBoardElement == 8)) {
             neighbor.updateConveyorBeltImage(spaces);
         }
     }
 
     protected void updateConveyorBeltImage(CC_SpaceView[][] spaces) {
         if (this.direction == null) {
-            this.boardElementImageView.setImage(null);
+            CC_setImageView(null, null, this.boardElementImageView);
+            this.debugText.setText("");
             return;
         }
         Image updatedConveyorImage = ImageUtils.getImageFromName("Board Pieces/" + this.getUpdatedConveyorBeltImage(spaces));
-        this.boardElementImageView.setImage(ImageUtils.getRotatedImageByHeading(updatedConveyorImage, this.direction));
+        CC_setImageView(updatedConveyorImage, this.direction, this.boardElementImageView);
     }
 
 
@@ -176,7 +210,8 @@ public class CC_SpaceView extends StackPane {
         return direction;
     }
 
-
+    List<CC_SpaceView> connections = new ArrayList<>();
+    int noOfNeighbors = 0;
     // Reused code from ImageUtils. Rewritten to be compatible with course creator, without creating BE_ConveyorBelt objects.
     private String getUpdatedConveyorBeltImage(CC_SpaceView[][] spaces) {
         StringBuilder imageNameBuilder = new StringBuilder();
@@ -184,7 +219,8 @@ public class CC_SpaceView extends StackPane {
         imageNameBuilder.append(this.placedBoardElement == 8 ? "green" : "blue");
 
         // Neighbors and connections
-        int noOfConnections = 0;
+        connections.clear();
+        noOfNeighbors = 0;
         boolean[] relativeConnections = new boolean[4];
         for (int i = 0; i < 4; i++) {
             Heading relativeDirection = Heading.values()[(this.direction.ordinal() + i) % 4];
@@ -192,21 +228,28 @@ public class CC_SpaceView extends StackPane {
             // i = 0, the direction this conveyor belt is facing, always counts as a "connection".
             if (i == 0) {
                 relativeConnections[i] = true;
-                noOfConnections++;
+                connections.add(neighborSpace);
+                if (neighborSpace != null) {
+                    if (this.placedBoardElement != neighborSpace.placedBoardElement) continue; // Only count same type
+                    noOfNeighbors++;
+                }
                 continue;
             }
             if (neighborSpace != null) {
                 if (this.placedBoardElement != neighborSpace.placedBoardElement) continue; // Only count same type
+                noOfNeighbors++;
 
                 if (isValidNeighbor(spaces, neighborSpace, i)) {
                     relativeConnections[i] = true;
-                    noOfConnections++;
+                    connections.add(neighborSpace);
                 }
             }
         }
 
+        this.debugText.setText("Conn: " + connections.size() + "\n" + "Neigh: " + noOfNeighbors);
+
         // Building string
-        buildConveyorBeltStringFromNeighbors(imageNameBuilder, noOfConnections, relativeConnections);
+        buildConveyorBeltStringFromConnections(imageNameBuilder, connections.size(), relativeConnections);
 
         return imageNameBuilder.toString();
     }
@@ -217,20 +260,20 @@ public class CC_SpaceView extends StackPane {
         Heading neighborDirection = neighborSpace.direction;
 
         CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-        boolean neighborHasOtherInFront = false;
+        boolean neighborHasOtherInFront = true;
         if (spaceInFrontOfNeighbor != null) {
-            neighborHasOtherInFront = (spaceInFrontOfNeighbor.placedBoardElement == neighborSpace.placedBoardElement);
+            neighborHasOtherInFront = !spaceInFrontOfNeighbor.equals(this);
         }
         CC_SpaceView spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
         boolean neighborHasOtherBehind = false;
         if (spaceBehindNeighbor != null) {
-            neighborHasOtherBehind = (spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement);
+            neighborHasOtherBehind = (spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement) && !spaceBehindNeighbor.equals(this);
         }
 
         CC_SpaceView spaceInFrontOfThis = this.getSpaceNextTo(this.direction, spaces);
-        boolean thisHasOtherInFront = false;
+        boolean thisHasOtherInFront = true;
         if (spaceInFrontOfThis != null) {
-            thisHasOtherInFront = (spaceInFrontOfThis.placedBoardElement == this.placedBoardElement) && !spaceInFrontOfThis.equals(neighborSpace);
+            thisHasOtherInFront = !spaceInFrontOfThis.equals(neighborSpace);
         }
         CC_SpaceView spaceBehindThis = this.getSpaceNextTo(this.direction.opposite(), spaces);
         boolean thisHasOtherBehind = false;
@@ -245,10 +288,22 @@ public class CC_SpaceView extends StackPane {
             }
         } else {
             // Neighbor is to the right or left
-            if (this.equals(spaceInFrontOfNeighbor)) {
-                isValidNeighbor = true;
-            } else if (!(neighborHasOtherInFront && neighborHasOtherBehind) && !(thisHasOtherInFront && thisHasOtherBehind) && !(this.direction == neighborDirection)) {
-                isValidNeighbor = true;
+            List<Boolean> conditions = new ArrayList<>();
+
+            conditions.add(neighborSpace.equals(spaceInFrontOfThis));
+            conditions.add(this.equals(spaceInFrontOfNeighbor));
+
+            this.debugText.setText(this.debugText.getText() + "\n");
+
+            for (int j = 0; j < conditions.size(); j++) {
+                this.debugText.setText(this.debugText.getText() + conditions.get(j) + (j == 0 ? "" : ", "));
+            }
+
+            for (Boolean condition : conditions) {
+                if (condition) {
+                    isValidNeighbor = true;
+                    break;
+                }
             }
         }
         return isValidNeighbor;
