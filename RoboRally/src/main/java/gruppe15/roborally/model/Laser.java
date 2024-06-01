@@ -1,5 +1,8 @@
 package gruppe15.roborally.model;
 
+import gruppe15.roborally.model.boardelements.BE_Antenna;
+import gruppe15.roborally.model.boardelements.BE_PushPanel;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,10 +95,18 @@ public class Laser {
                     } else { // Else, board laser
                         laserName += "Board";
                     }
-                } else if (space.getWalls().contains(direction) && objectTypesToCollideWith.contains(Space.class)) { // Wall
+                } else if ((space.getWalls().contains(direction) ||
+                        (space.getBoardElement() instanceof BE_PushPanel panel && panel.getDirection() == direction))
+                        && objectTypesToCollideWith.contains(Space.class)) { // Object in the way at this space.
+                    System.out.println("this upper");
                     hitSomething = true;
                     laserName += "WallHitUpper";
-                } else if (nextSpace != null && nextSpace.getWalls().contains(direction.opposite())) {
+                } else if (nextSpace != null
+                        && (nextSpace.getWalls().contains(direction.opposite()) ||
+                        (nextSpace.getBoardElement() instanceof BE_PushPanel panel && panel.getDirection() == direction.opposite()) ||
+                        (nextSpace.getBoardElement() instanceof BE_Antenna))
+                        && objectTypesToCollideWith.contains(Space.class)) { // Object in the way at next space.
+                    System.out.println("next lower");
                     hitSomething = true;
                     laserName += "Full";
                     addLaserPiece(nextSpace, "Laser_WallHitLower"); // Adding the next laser image piece.

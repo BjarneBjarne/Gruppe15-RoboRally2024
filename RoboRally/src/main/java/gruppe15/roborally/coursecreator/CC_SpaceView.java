@@ -79,7 +79,8 @@ public class CC_SpaceView extends StackPane {
         ghostImageView.setFitHeight(size);
         this.getChildren().add(ghostImageView);
         this.getChildren().add(debugText);
-        debugText.setStyle("-fx-font-size: 16px; -fx-fill: WHITE; ");
+        debugText.setStyle("-fx-font-size: 16px; -fx-fill: RED; ");
+        debugText.setWrappingWidth(size);
     }
 
     public void setBoardXY(int boardX, int boardY) {
@@ -211,102 +212,84 @@ public class CC_SpaceView extends StackPane {
     }
 
     List<CC_SpaceView> connections = new ArrayList<>();
-    int noOfNeighbors = 0;
-    // Reused code from ImageUtils. Rewritten to be compatible with course creator, without creating BE_ConveyorBelt objects.
+    // Reused code from ImageUtils. Rewritten to be compatible with course creator, without using BE_ConveyorBelt objects.
     private String getUpdatedConveyorBeltImage(CC_SpaceView[][] spaces) {
         StringBuilder imageNameBuilder = new StringBuilder();
         // Green or blue
         imageNameBuilder.append(this.placedBoardElement == 8 ? "green" : "blue");
 
         // Neighbors and connections
-        connections.clear();
-        noOfNeighbors = 0;
+        //this.debugText.setText("Conn: " + this.connections.size() + "\n");
+        this.connections.clear();
         boolean[] relativeConnections = new boolean[4];
-        for (int i = 0; i < 4; i++) {
-            Heading relativeDirection = Heading.values()[(this.direction.ordinal() + i) % 4];
-            CC_SpaceView neighborSpace = getSpaceNextTo(relativeDirection, spaces);
-            // i = 0, the direction this conveyor belt is facing, always counts as a "connection".
-            if (i == 0) {
-                relativeConnections[i] = true;
-                connections.add(neighborSpace);
-                if (neighborSpace != null) {
-                    if (this.placedBoardElement != neighborSpace.placedBoardElement) continue; // Only count same type
-                    noOfNeighbors++;
-                }
-                continue;
-            }
-            if (neighborSpace != null) {
-                if (this.placedBoardElement != neighborSpace.placedBoardElement) continue; // Only count same type
-                noOfNeighbors++;
 
-                if (isValidNeighbor(spaces, neighborSpace, i)) {
-                    relativeConnections[i] = true;
-                    connections.add(neighborSpace);
-                }
-            }
-        }
+        // Checking if neighbors are a valid connection
+        // relativeConnections[0], the direction this conveyor belt is facing, always counts as a connection.
+        relativeConnections[0] = true;
+        CC_SpaceView frontNeighbor = getSpaceNextTo(this.direction, spaces);
+        this.connections.add(frontNeighbor);
+        checkForConnectionAtDirection(2, spaces, relativeConnections); // Behind this conveyor belt
+        checkForConnectionAtDirection(1, spaces, relativeConnections); // To the right of this conveyor belt
+        checkForConnectionAtDirection(3, spaces, relativeConnections); // To the left of this conveyor belt
 
-        this.debugText.setText("Conn: " + connections.size() + "\n" + "Neigh: " + noOfNeighbors);
-
-        // Building string
-        buildConveyorBeltStringFromConnections(imageNameBuilder, connections.size(), relativeConnections);
+        // Building image string
+        buildConveyorBeltStringFromConnections(imageNameBuilder, this.connections.size(), relativeConnections);
 
         return imageNameBuilder.toString();
     }
 
-    private boolean isValidNeighbor(CC_SpaceView[][] spaces, CC_SpaceView neighborSpace, int i) {
-        boolean isValidNeighbor = false;
+    private void checkForConnectionAtDirection(int directionIndex, CC_SpaceView[][] spaces, boolean[] relativeConnections) {
+        Heading relativeDirection = Heading.values()[(this.direction.ordinal() + directionIndex) % 4];
+        CC_SpaceView neighborSpace = getSpaceNextTo(relativeDirection, spaces);
 
-        Heading neighborDirection = neighborSpace.direction;
+        if (neighborSpace != null) {
+            if (this.placedBoardElement != neighborSpace.placedBoardElement) return; // Only count same type
 
-        CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-        boolean neighborHasOtherInFront = true;
-        if (spaceInFrontOfNeighbor != null) {
-            neighborHasOtherInFront = !spaceInFrontOfNeighbor.equals(this);
-        }
-        CC_SpaceView spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
-        boolean neighborHasOtherBehind = false;
-        if (spaceBehindNeighbor != null) {
-            neighborHasOtherBehind = (spaceBehindNeighbor.placedBoardElement == neighborSpace.placedBoardElement) && !spaceBehindNeighbor.equals(this);
-        }
+            boolean isValidConnection = false;
 
-        CC_SpaceView spaceInFrontOfThis = this.getSpaceNextTo(this.direction, spaces);
-        boolean thisHasOtherInFront = true;
-        if (spaceInFrontOfThis != null) {
-            thisHasOtherInFront = !spaceInFrontOfThis.equals(neighborSpace);
-        }
-        CC_SpaceView spaceBehindThis = this.getSpaceNextTo(this.direction.opposite(), spaces);
-        boolean thisHasOtherBehind = false;
-        if (spaceBehindThis != null) {
-            thisHasOtherBehind = (spaceBehindThis.placedBoardElement == this.placedBoardElement) && !spaceBehindThis.equals(neighborSpace);
-        }
+            // Space references
+            Heading neighborDirection = neighborSpace.direction;
+            CC_SpaceView spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
+            CC_SpaceView spaceInFrontOfThis = this.getSpaceNextTo(this.direction, spaces);
 
-        if (i == 2) {
-            // Neighbor is behind
-            if (this.equals(spaceInFrontOfNeighbor)) {
-                isValidNeighbor = true;
+            // Number of other connections
+            int noOfThisOtherConnections = 0;
+            int noOfNeighborsOtherConnections = 0;
+            for (CC_SpaceView connection : this.connections) {
+                if (connection == null) noOfThisOtherConnections++;
+                if (connection != neighborSpace) noOfThisOtherConnections++;
             }
-        } else {
-            // Neighbor is to the right or left
-            List<Boolean> conditions = new ArrayList<>();
-
-            conditions.add(neighborSpace.equals(spaceInFrontOfThis));
-            conditions.add(this.equals(spaceInFrontOfNeighbor));
-
-            this.debugText.setText(this.debugText.getText() + "\n");
-
-            for (int j = 0; j < conditions.size(); j++) {
-                this.debugText.setText(this.debugText.getText() + conditions.get(j) + (j == 0 ? "" : ", "));
+            for (CC_SpaceView connection : neighborSpace.connections) {
+                if (connection == null) noOfNeighborsOtherConnections++;
+                if (connection != this) noOfNeighborsOtherConnections++;
             }
+            //this.debugText.setText(this.debugText.getText() + i + ": " + noOfThisOtherConnections + "\n");
 
-            for (Boolean condition : conditions) {
-                if (condition) {
-                    isValidNeighbor = true;
-                    break;
+            // Condition checking
+            if (directionIndex == 2) {
+                // Neighbor is behind
+                if (this.equals(spaceInFrontOfNeighbor)) {
+                    isValidConnection = true;
+                }
+            } else {
+                // Neighbor is to the right or left
+                List<Boolean> conditions = new ArrayList<>();
+                conditions.add(neighborSpace.equals(spaceInFrontOfThis));
+                conditions.add(this.equals(spaceInFrontOfNeighbor));
+                conditions.add(noOfThisOtherConnections == 1 && noOfNeighborsOtherConnections == 1 && this.direction != neighborSpace.direction);
+                for (Boolean condition : conditions) {
+                    if (condition) {
+                        isValidConnection = true;
+                        break;
+                    }
                 }
             }
+
+            if (isValidConnection) {
+                relativeConnections[directionIndex] = true;
+                this.connections.add(neighborSpace);
+            }
         }
-        return isValidNeighbor;
     }
 
     private CC_SpaceView getSpaceNextTo(Heading dir, CC_SpaceView[][] spaces) {

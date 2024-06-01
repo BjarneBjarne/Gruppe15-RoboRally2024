@@ -22,6 +22,7 @@
 package gruppe15.roborally.model.boardelements;
 
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.coursecreator.CC_SpaceView;
 import gruppe15.roborally.model.*;
 
 import gruppe15.roborally.model.utils.ImageUtils;
@@ -45,6 +46,7 @@ import static gruppe15.roborally.model.Heading.*;
  */
 public class BE_ConveyorBelt extends BoardElement {
     private final int strength;
+    private final List<Space> connections = new ArrayList<>();
 
     /**
      * Constructor for the conveyor belt
@@ -66,6 +68,15 @@ public class BE_ConveyorBelt extends BoardElement {
      */
     public int getStrength() {
         return strength;
+    }
+    public List<Space> getConnections() {
+        return connections;
+    }
+    public void clearConnections() {
+        this.connections.clear();
+    }
+    public void addConnections(Space connection) {
+        this.connections.add(connection);
     }
 
     public void updateConveyorBeltImage(int x, int y, Space[][] spaces) {
@@ -121,7 +132,6 @@ public class BE_ConveyorBelt extends BoardElement {
             Space nextSpace;
             // We check recursively if we can move this once in The Matrix starring Keanu Reeves.
             if (canMoveOnce(toSpace, simulatedSpaces, new ArrayList<>())) {
-                System.out.println(player.getName() + " can move");
                 // If we get here, it means we can move the player once.
                 BE_ConveyorBelt currentConveyorBelt = ((BE_ConveyorBelt)currentSpace.getBoardElement());
                 nextSpace = currentSpace.getSpaceNextTo(currentConveyorBelt.getDirection(), boardSpaces);
@@ -143,8 +153,6 @@ public class BE_ConveyorBelt extends BoardElement {
                 }
                 player.setTemporarySpace(nextSpace);
                 currentSpace = nextSpace;
-            } else {
-                System.out.println(player.getName() + " can't move :(");
             }
         }
         return true;
