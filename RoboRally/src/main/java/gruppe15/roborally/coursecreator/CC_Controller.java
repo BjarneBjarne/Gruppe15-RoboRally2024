@@ -462,6 +462,7 @@ public class CC_Controller extends BorderPane {
         private boolean rotationChanged = false;
         private MouseEvent previousMoveEvent = null;
         private boolean isDrawing = false;
+        private boolean shiftIsDown = false;
 
         @Override
         public void handle(MouseEvent event) {
@@ -477,7 +478,7 @@ public class CC_Controller extends BorderPane {
             }
 
             // SubBoards
-            handleSubBoardMouseEvent(event, event.isShiftDown());
+            handleSubBoardMouseEvent(event);
             // SpaceViews
             handleSpaceViewMouseEvent(event);
 
@@ -504,12 +505,14 @@ public class CC_Controller extends BorderPane {
         }
 
         public void shiftPressed(boolean shiftIsDown) {
+            this.shiftIsDown = shiftIsDown;
             if (previousMoveEvent != null) {
-                handleSubBoardMouseEvent(previousMoveEvent, shiftIsDown);
+                handleSubBoardMouseEvent(previousMoveEvent);
+                handleSpaceViewMouseEvent(previousMoveEvent);
             }
         }
 
-        private void handleSubBoardMouseEvent(MouseEvent event, boolean shiftIsDown) {
+        private void handleSubBoardMouseEvent(MouseEvent event) {
             removeSubBoardHighlight();
             if (selectedItem == null) return;
             if (!(selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard)) return;
@@ -573,7 +576,7 @@ public class CC_Controller extends BorderPane {
             CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
 
             if (isDrawing) {
-                if (event.isShiftDown()) {
+                if (shiftIsDown) {
                     // Deletion of item at space
                     if (selectedItem == CC_Items.Wall) {
                         hoveredSpaceView.CC_setWall(null, currentRotation);
@@ -598,8 +601,7 @@ public class CC_Controller extends BorderPane {
                 }
             } else {
                 if (previousSpaceView == null || rotationChanged) {
-                    boolean isDeleting = event.isShiftDown();
-                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, isDeleting);
+                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, shiftIsDown);
                     previousSpaceView = hoveredSpaceView;
                 }
             }

@@ -1,6 +1,7 @@
 package gruppe15.roborally.model.utils;
 
 import gruppe15.roborally.RoboRally;
+import gruppe15.roborally.coursecreator.CC_SpaceView;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BoardElement;
@@ -16,7 +17,9 @@ import javafx.scene.paint.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 
 import javax.imageio.ImageIO;
@@ -263,63 +266,84 @@ public class ImageUtils {
      *
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public static String getUpdatedConveyorBeltImage(BE_ConveyorBelt conveyorBelt, int x, int y, Space[][] spaces) {
-        if (spaces[x][y] == null) return "greenStraight.png"; // Returning default image to avoid error message when finding the image from string.
-
-        Space thisSpace = spaces[x][y];
-        Space spaceInFrontOfThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection(), spaces);
-        Space spaceBehindThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection().opposite(), spaces);
-        Space spaceToTheRightOfThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection().next(), spaces);
-        Space spaceToTheLeftOfThis = thisSpace.getSpaceNextTo(conveyorBelt.getDirection().prev(), spaces);
-        boolean thisHasFrontAndBack = false;
-        if (spaceInFrontOfThis != null && spaceBehindThis != null) {
-            thisHasFrontAndBack = (spaceInFrontOfThis.getBoardElement() instanceof BE_ConveyorBelt beltInFront && beltInFront.getStrength() == conveyorBelt.getStrength()) &&
-                    (spaceBehindThis.getBoardElement() instanceof BE_ConveyorBelt beltBehind && beltBehind.getStrength() == conveyorBelt.getStrength());
-        }
-
+    public static String getUpdatedConveyorBeltImage(BE_ConveyorBelt thisConveyorBelt, int x, int y, Space[][] spaces) {
         StringBuilder imageNameBuilder = new StringBuilder();
+        Space thisSpace = spaces[x][y];
         // Green or blue
-        imageNameBuilder.append(conveyorBelt.getStrength() == 1 ? "green" : "blue");
+        imageNameBuilder.append(thisConveyorBelt.getStrength() == 1 ? "green" : "blue");
 
         // Neighbors and connections
-        int noOfConnections = 0;
+        thisConveyorBelt.clearConnections();
         boolean[] relativeConnections = new boolean[4];
-        for (int i = 0; i < 4; i++) {
-            Heading relativeDirection = Heading.values()[(conveyorBelt.getDirection().ordinal() + i) % 4];
-            Space neighborSpace = thisSpace.getSpaceNextTo(relativeDirection, spaces);
-            // i = 0, the direction this conveyor belt is facing, always counts as a "connection".
-            if (i == 0) {
-                relativeConnections[i] = true;
-                noOfConnections++;
-                continue;
-            }
-            if (neighborSpace != null && neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighborConveyorBelt) {
-                if (neighborConveyorBelt.getStrength() != conveyorBelt.getStrength()) continue; // Only count same type
 
-                Heading neighborDirection = neighborConveyorBelt.getDirection();
-                Space spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-                Space spaceBehindNeighbor = neighborSpace.getSpaceNextTo(neighborDirection.opposite(), spaces);
+        // Checking if neighbors are a valid connection
+        // relativeConnections[0], the direction this conveyor belt is facing, always counts as a connection.
+        relativeConnections[0] = true;
+        Space frontNeighborSpace = thisSpace.getSpaceNextTo(thisConveyorBelt.getDirection(), spaces);
+        thisConveyorBelt.addConnections(frontNeighborSpace);
+        checkForConnectionAtDirection(thisConveyorBelt, thisSpace, 2, spaces, relativeConnections); // Behind this conveyor belt
+        checkForConnectionAtDirection(thisConveyorBelt, thisSpace, 1, spaces, relativeConnections); // To the right of this conveyor belt
+        checkForConnectionAtDirection(thisConveyorBelt, thisSpace, 3, spaces, relativeConnections); // To the left of this conveyor belt
 
-                boolean eitherHasFrontOrBack = thisSpace.equals(spaceInFrontOfNeighbor) || thisSpace.equals(spaceBehindNeighbor) || neighborSpace.equals(spaceInFrontOfThis) || neighborSpace.equals(spaceBehindThis);
-                boolean neighborHasFrontAndBack = false;
-                if (spaceInFrontOfNeighbor != null && spaceBehindNeighbor != null) {
-                    neighborHasFrontAndBack = (spaceInFrontOfNeighbor.getBoardElement() instanceof BE_ConveyorBelt beltInFront && beltInFront.getStrength() == conveyorBelt.getStrength()) &&
-                            (spaceBehindNeighbor.getBoardElement() instanceof BE_ConveyorBelt beltBehind && beltBehind.getStrength() == conveyorBelt.getStrength());
-                }
-
-                if (eitherHasFrontOrBack || (!thisHasFrontAndBack && !neighborHasFrontAndBack &&
-                        (((neighborSpace.equals(spaceToTheRightOfThis) && spaceToTheRightOfThis.getBoardElement() instanceof BE_ConveyorBelt beltToRight && beltToRight.getDirection() != conveyorBelt.getDirection()) ||
-                        ((neighborSpace.equals(spaceToTheLeftOfThis) && spaceToTheLeftOfThis.getBoardElement() instanceof BE_ConveyorBelt beltToLeft && beltToLeft.getDirection() != conveyorBelt.getDirection())))))) {
-                    relativeConnections[i] = true;
-                    noOfConnections++;
-                }
-            }
-        }
-
-        // Building string
-        buildConveyorBeltStringFromConnections(imageNameBuilder, noOfConnections, relativeConnections);
+        // Building image string
+        buildConveyorBeltStringFromConnections(imageNameBuilder, thisConveyorBelt.getConnections().size(), relativeConnections);
 
         return imageNameBuilder.toString();
+    }
+
+    private static void checkForConnectionAtDirection(BE_ConveyorBelt thisConveyorBelt, Space thisSpace, int directionIndex, Space[][] spaces, boolean[] relativeConnections) {
+        Heading relativeDirection = Heading.values()[(thisConveyorBelt.getDirection().ordinal() + directionIndex) % 4];
+        Space neighborSpace = thisSpace.getSpaceNextTo(relativeDirection, spaces);
+
+        if (neighborSpace == null) return;
+
+        if (neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighbor) {
+            if (thisConveyorBelt.getStrength() != neighbor.getStrength()) return; // Only count same type
+
+            boolean isValidConnection = false;
+
+            // Space references
+            Heading neighborDirection = neighbor.getDirection();
+            Space spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
+            Space spaceInFrontOfThis = thisSpace.getSpaceNextTo(thisConveyorBelt.getDirection(), spaces);
+
+            // Number of other connections
+            int noOfThisOtherConnections = 0;
+            int noOfNeighborsOtherConnections = 0;
+            for (Space connection : thisConveyorBelt.getConnections()) {
+                if (connection == null) noOfThisOtherConnections++;
+                if (connection != neighborSpace) noOfThisOtherConnections++;
+            }
+            for (Space connection : neighbor.getConnections()) {
+                if (connection == null) noOfNeighborsOtherConnections++;
+                if (connection != thisSpace) noOfNeighborsOtherConnections++;
+            }
+
+            // Condition checking
+            if (directionIndex == 2) {
+                // Neighbor is behind
+                if (thisSpace.equals(spaceInFrontOfNeighbor)) {
+                    isValidConnection = true;
+                }
+            } else {
+                // Neighbor is to the right or left
+                List<Boolean> conditions = new ArrayList<>();
+                conditions.add(neighborSpace.equals(spaceInFrontOfThis));
+                conditions.add(thisSpace.equals(spaceInFrontOfNeighbor));
+                conditions.add(noOfThisOtherConnections == 1 && noOfNeighborsOtherConnections == 1 && thisConveyorBelt.getDirection() != neighbor.getDirection());
+                for (Boolean condition : conditions) {
+                    if (condition) {
+                        isValidConnection = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isValidConnection) {
+                relativeConnections[directionIndex] = true;
+                thisConveyorBelt.addConnections(neighborSpace);
+            }
+        }
     }
 
     public static void buildConveyorBeltStringFromConnections(StringBuilder stringBuilder, int noOfNeighbors, boolean[] relativeNeighbors) {

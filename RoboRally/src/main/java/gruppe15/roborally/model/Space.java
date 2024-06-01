@@ -59,9 +59,6 @@ public class Space extends Subject {
         this.y = y;
         this.player = null;
         this.boardElement = boardElement;
-        if (checkpoint != null) {
-            System.out.println("Found checkpoint " + checkpoint.number);
-        }
         if (walls != null) {
             this.walls.addAll(walls);
         }
