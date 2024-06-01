@@ -281,9 +281,14 @@ public class ImageUtils {
         relativeConnections[0] = true;
         Space frontNeighborSpace = thisSpace.getSpaceNextTo(thisConveyorBelt.getDirection(), spaces);
         thisConveyorBelt.addConnections(frontNeighborSpace);
+        /*if (frontNeighborSpace != null) {
+            thisConveyorBelt.debugText += "Con (" + frontNeighborSpace.x + ", " + frontNeighborSpace.y + ")" + "\n";
+        }*/
         checkForConnectionAtDirection(thisConveyorBelt, thisSpace, 2, spaces, relativeConnections); // Behind this conveyor belt
         checkForConnectionAtDirection(thisConveyorBelt, thisSpace, 1, spaces, relativeConnections); // To the right of this conveyor belt
         checkForConnectionAtDirection(thisConveyorBelt, thisSpace, 3, spaces, relativeConnections); // To the left of this conveyor belt
+
+        //thisConveyorBelt.debugText += "Size: " + thisConveyorBelt.getConnections().size() + "\n";
 
         // Building image string
         buildConveyorBeltStringFromConnections(imageNameBuilder, thisConveyorBelt.getConnections().size(), relativeConnections);
@@ -305,7 +310,6 @@ public class ImageUtils {
             // Space references
             Heading neighborDirection = neighbor.getDirection();
             Space spaceInFrontOfNeighbor = neighborSpace.getSpaceNextTo(neighborDirection, spaces);
-            Space spaceInFrontOfThis = thisSpace.getSpaceNextTo(thisConveyorBelt.getDirection(), spaces);
 
             // Number of other connections
             int noOfThisOtherConnections = 0;
@@ -328,7 +332,6 @@ public class ImageUtils {
             } else {
                 // Neighbor is to the right or left
                 List<Boolean> conditions = new ArrayList<>();
-                conditions.add(neighborSpace.equals(spaceInFrontOfThis));
                 conditions.add(thisSpace.equals(spaceInFrontOfNeighbor));
                 conditions.add(noOfThisOtherConnections == 1 && noOfNeighborsOtherConnections == 1 && thisConveyorBelt.getDirection() != neighbor.getDirection());
                 for (Boolean condition : conditions) {
@@ -342,6 +345,7 @@ public class ImageUtils {
             if (isValidConnection) {
                 relativeConnections[directionIndex] = true;
                 thisConveyorBelt.addConnections(neighborSpace);
+                //thisConveyorBelt.debugText += "Con (" + neighborSpace.x + ", " + neighborSpace.y + ")" + "\n";
             }
         }
     }

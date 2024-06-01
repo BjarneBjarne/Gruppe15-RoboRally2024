@@ -133,11 +133,39 @@ public class CC_CourseData {
                 if (boardSpaces[x][y] == null || boardSpaces[x][y].getBoardElement() == null) continue;
                 if (boardSpaces[x][y].getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
                     conveyorBelt.updateConveyorBeltImage(x, y, boardSpaces);
+
+                    // To the sides
+                    updateNeighborConveyorBeltImage(x + 1, y, boardSpaces);
+                    updateNeighborConveyorBeltImage(x - 1, y, boardSpaces);
+                    updateNeighborConveyorBeltImage(x, y + 1, boardSpaces);
+                    updateNeighborConveyorBeltImage(x, y - 1, boardSpaces);
+
+                    // Two spaces to the sides
+                    updateNeighborConveyorBeltImage(x + 2, y, boardSpaces);
+                    updateNeighborConveyorBeltImage(x - 2, y, boardSpaces);
+                    updateNeighborConveyorBeltImage(x, y + 2, boardSpaces);
+                    updateNeighborConveyorBeltImage(x, y - 2, boardSpaces);
+
+                    // Corners
+                    updateNeighborConveyorBeltImage(x - 1, y - 1, boardSpaces);
+                    updateNeighborConveyorBeltImage(x + 1, y - 1, boardSpaces);
+                    updateNeighborConveyorBeltImage(x - 1, y + 1, boardSpaces);
+                    updateNeighborConveyorBeltImage(x + 1, y + 1, boardSpaces);
                 }
             }
         }
 
         return new Pair<>(subBoardList, boardSpaces);
+    }
+
+    private void updateNeighborConveyorBeltImage(int x, int y, Space[][] spaces) {
+        if (x < 0 || x >= spaces.length || y < 0 || y >= spaces[0].length) return;
+
+        Space neighborSpace = spaces[x][y];
+        if (neighborSpace == null) return;
+        if (neighborSpace.getBoardElement() instanceof BE_ConveyorBelt neighbor) {
+            neighbor.updateConveyorBeltImage(neighborSpace.x, neighborSpace.y, spaces);
+        }
     }
 
     private BoardElement getBoardElementFromSpaceView(CC_SpaceView spaceView) {
