@@ -24,7 +24,7 @@ public class GameVariables {
     // Controls
     public static double ZOOM_SPEED = 0.05;
     public static double MIN_ZOOM = 0.35;
-    public static double MAX_ZOOM = 3;
+    public static double MAX_ZOOM = 10;
 
     // Debug
     public final static boolean SHOW_DEBUG_COORDINATES = false;
