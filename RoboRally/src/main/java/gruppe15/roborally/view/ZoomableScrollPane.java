@@ -19,6 +19,7 @@
 
 package gruppe15.roborally.view;
 
+import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -26,20 +27,30 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import static gruppe15.roborally.GameVariables.*;
 
 public class ZoomableScrollPane extends ScrollPane {
     private double scaleValue = 1;
-    private Node target;
-    private Node zoomNode;
+    private final StackPane target;
+    private final Group zoomNode;
 
-    public ZoomableScrollPane(Node target) {
+    public ZoomableScrollPane(StackPane target) {
         super();
         this.target = target;
         this.zoomNode = new Group(target);
-        setContent(outerNode(zoomNode));
+
+        VBox outerNode = new VBox(zoomNode);
+        outerNode.setAlignment(Pos.CENTER);
+        outerNode.addEventFilter(ScrollEvent.SCROLL, event -> {
+            if (event.isControlDown()) {
+                event.consume();
+                onScroll(event.getTextDeltaY(), new Point2D(event.getX(), event.getY()));
+            }
+        });
+        setContent(outerNode);
 
         setPannable(false);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -48,23 +59,10 @@ public class ZoomableScrollPane extends ScrollPane {
         setFitToWidth(true); //center
 
         updateScale();
-    }
 
-    private Node outerNode(Node node) {
-        Node outerNode = centeredNode(node);
-        outerNode.addEventFilter(ScrollEvent.SCROLL, event -> {
-            if (event.isControlDown()) {
-                event.consume();
-                onScroll(event.getTextDeltaY(), new Point2D(event.getX(), event.getY()));
-            }
+        this.layoutBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
+            Platform.runLater(this::centerContent);
         });
-        return outerNode;
-    }
-
-    private Node centeredNode(Node node) {
-        VBox vBox = new VBox(node);
-        vBox.setAlignment(Pos.CENTER);
-        return vBox;
     }
 
     private void updateScale() {
@@ -82,7 +80,14 @@ public class ZoomableScrollPane extends ScrollPane {
         double valX = this.getHvalue() * (innerBounds.getWidth() - viewportBounds.getWidth());
         double valY = this.getVvalue() * (innerBounds.getHeight() - viewportBounds.getHeight());
 
-        scaleValue = Math.clamp(scaleValue * zoomFactor, MIN_ZOOM, MAX_ZOOM) ;
+        if ((scaleValue * zoomFactor) - MIN_ZOOM <= 0.01 && wheelDelta < 0) {
+            return;
+        }
+        if ((scaleValue * zoomFactor) - MAX_ZOOM >= 0.01 && wheelDelta > 0) {
+            return;
+        }
+        scaleValue = scaleValue * zoomFactor;
+
         updateScale();
         this.layout(); // refresh ScrollPane scroll positions & target bounds
 
@@ -97,5 +102,11 @@ public class ZoomableScrollPane extends ScrollPane {
         Bounds updatedInnerBounds = zoomNode.getBoundsInLocal();
         this.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
         this.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
+    }
+
+    private void centerContent() {
+        // Set the scroll position to the center
+        this.setHvalue(0.5);
+        this.setVvalue(0.5);
     }
 }

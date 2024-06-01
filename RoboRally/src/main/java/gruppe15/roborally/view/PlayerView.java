@@ -26,6 +26,7 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
 import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.model.utils.TextUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -36,6 +37,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -78,6 +82,9 @@ public class PlayerView extends Tab implements ViewObserver {
     private final HBox hBox = new HBox();
     private final StackPane playerMat = new StackPane();
     private final ImageView playerMatImageView = new ImageView();
+    private final ImageView playerMatColorsImageView = new ImageView();
+    private final ImageView playerMatCharacterImageView = new ImageView();
+    private final Text playerMatCharacterText = new Text();
     private final ImageView energyCubesImageView = new ImageView();
     private final ImageView checkpointTokenImageView = new ImageView();
     private final Image[] energyCubeImages = new Image[Player.NO_OF_ENERGY_CUBES + 1];
@@ -90,7 +97,7 @@ public class PlayerView extends Tab implements ViewObserver {
         mainPlayerViewPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
         mainPlayerViewPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
         mainPlayerViewPane.setAlignment(Pos.BOTTOM_CENTER);
-        StackPane.setMargin(mainPlayerViewPane, new Insets(-28, 0, 25, 0));
+        StackPane.setMargin(mainPlayerViewPane, new Insets(-25, 0, 27, 0));
         this.setContent(mainPlayerViewPane);
         this.gameController = gameController;
         this.player = player;
@@ -237,12 +244,34 @@ public class PlayerView extends Tab implements ViewObserver {
         AnchorPane.setLeftAnchor(programPane, 0.0);
         AnchorPane.setRightAnchor(programPane, 0.0);
 
+        AnchorPane playerMatCharacterNameAnchorPane = new AnchorPane(playerMatCharacterText);
+
         playerMat.setAlignment(Pos.BOTTOM_CENTER);
-        playerMat.getChildren().addAll(playerMatImageView, energyCubesImageView, checkpointTokenImageView, playerMatAnchorPane);
+        playerMat.getChildren().addAll(playerMatImageView, playerMatColorsImageView, playerMatCharacterImageView, playerMatCharacterNameAnchorPane, energyCubesImageView, checkpointTokenImageView, playerMatAnchorPane);
 
         playerMatImageView.setImage(ImageUtils.getImageFromName("Player Mat/PlayerMat.png"));
         playerMatImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
         playerMatImageView.setPreserveRatio(true);
+        Image foregroundImage = ImageUtils.getImageFromName("Player Mat/PlayerMatForeground.png");
+        if (foregroundImage != null) {
+            Color playerColor = Color.valueOf(player.getRobot().name());
+            playerMatColorsImageView.setImage(ImageUtils.getImageColored(foregroundImage, playerColor, .75));
+            playerMatColorsImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
+            playerMatColorsImageView.setPreserveRatio(true);
+        }
+        Image matCharacterImage = ImageUtils.getImageFromName("Player Mat/PlayerMatCharacters/PlayerMat" + player.getRobot() + ".png");
+        if (matCharacterImage != null) {
+            playerMatCharacterImageView.setImage(matCharacterImage);
+            playerMatCharacterImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
+            playerMatCharacterImageView.setPreserveRatio(true);
+        }
+        AnchorPane.setLeftAnchor(playerMatCharacterText, 135.0);
+        AnchorPane.setTopAnchor(playerMatCharacterText, 43.0);
+        playerMatCharacterText.setText(player.getRobot().getRobotName());
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
+        playerMatCharacterText.setFont(textFont);
+        playerMatCharacterText.setTextAlignment(TextAlignment.RIGHT);
+        playerMatCharacterText.setFill(Color.WHITE);
 
         energyCubesImageView.setImage(energyCubeImages[0]);
         energyCubesImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
@@ -306,12 +335,7 @@ public class PlayerView extends Tab implements ViewObserver {
                         executeButton.setDisable(true);
                         stepButton.setDisable(true);
                         break;
-                    case PLAYER_ACTIVATION:
-                        finishButton.setDisable(true);
-                        executeButton.setDisable(gameController.getIsRegisterPlaying());
-                        stepButton.setDisable(gameController.getIsRegisterPlaying());
-                        break;
-                    case BOARD_ACTIVATION:
+                    case PLAYER_ACTIVATION, BOARD_ACTIVATION:
                         finishButton.setDisable(true);
                         executeButton.setDisable(gameController.getIsRegisterPlaying());
                         stepButton.setDisable(gameController.getIsRegisterPlaying());
