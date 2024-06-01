@@ -132,13 +132,15 @@ public class BoardView extends VBox implements ViewObserver {
         interactablePane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         zoomableScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        StackPane.setMargin(zoomableScrollPane, new Insets(7, 0, 0, 0));
         Platform.runLater(() -> {
-            interactablePane.setMinSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 750);
-            interactablePane.setPrefSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 750);
-            interactablePane.setMaxSize(boardTilesPane.getWidth() + 2000, boardTilesPane.getHeight() + 750);
+            double width = boardTilesPane.getWidth() + 12000;
+            double height = width / 2.72;
+            interactablePane.setMinSize(width, height);
+            interactablePane.setPrefSize(width, height);
+            interactablePane.setMaxSize(width, height);
             mainBoardPane.setPrefHeight(895);
             zoomableScrollPane.setPannable(true);
-            centerBoard();
         });
 
         statusLabel = new Label("<no status>");
@@ -353,14 +355,6 @@ public class BoardView extends VBox implements ViewObserver {
         directionOptionsPane.setDisable(true);
         directionOptionsPane.setVisible(false);
     }
-
-    public void centerBoard() {
-        Platform.runLater(() -> {
-            zoomableScrollPane.setVvalue(0.5);
-            zoomableScrollPane.setHvalue(0.5);
-        });
-    }
-
 
     // XXX this handler and its uses should eventually be deleted! This is just to help test the
     //     behaviour of the game by being able to explicitly move the players on the board!

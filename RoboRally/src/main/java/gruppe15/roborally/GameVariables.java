@@ -22,12 +22,12 @@ public class GameVariables {
     }
 
     // Controls
-    public static double ZOOM_SPEED = 0.1;
-    public static double MIN_ZOOM = 0.5;
+    public static double ZOOM_SPEED = 0.05;
+    public static double MIN_ZOOM = 0.35;
     public static double MAX_ZOOM = 3;
 
     // Debug
-    public final static boolean SHOW_DEBUG_COORDINATES = true;
+    public final static boolean SHOW_DEBUG_COORDINATES = false;
     public final static boolean WITH_ACTION_MESSAGE = false;
     public static final boolean SHOW_DEBUG_UPGRADE_CARD_USAGE = true;
 }

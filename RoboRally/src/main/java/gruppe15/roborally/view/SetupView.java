@@ -63,7 +63,7 @@ public class SetupView {
 
 
     private int mapIndex = 0;
-    private final String[] playerNames = new String[6];
+    private final String[] playerNames = {"", "", "", "", "", ""};
     private final String[] playerCharacters = new String[6];
 
     public SetupView() {
@@ -189,6 +189,11 @@ public class SetupView {
                     for (Node grandChild : playerVBox.getChildren()) {
                         // Name input
                         if (grandChild instanceof TextField nameInput) {
+                            Platform.runLater(() -> {
+                                String tempName = "Player " + (localI + 1);
+                                playerNames[localI] = tempName;
+                                nameInput.setText(tempName);
+                            });
                             nameInput.setOnKeyReleased(e -> {
                                 playerNames[localI] = nameInput.getText();
                                 updateUI();
@@ -200,11 +205,18 @@ public class SetupView {
                                     .map(Robots::getRobotName)
                                     .toList();
                             chosenCharacter.getItems().addAll(robotNames);
-                            chosenCharacter.valueProperty().addListener((obs, oldValue, newValue) -> {
+                            Platform.runLater(() -> {
+                                chosenCharacter.getSelectionModel().select(localI);
                                 String name = (String) chosenCharacter.getSelectionModel().getSelectedItem();
                                 String robotImageName = Robots.getRobotByName(name).getSelectionImageName();
                                 playerRobotImageViews[localI].setImage(ImageUtils.getImageFromName(robotImageName));
                                 playerCharacters[localI] = name;
+                            });
+                            chosenCharacter.valueProperty().addListener((obs, oldValue, newValue) -> {
+                                String localName = (String) chosenCharacter.getSelectionModel().getSelectedItem();
+                                String localRobotImageName = Robots.getRobotByName(localName).getSelectionImageName();
+                                playerRobotImageViews[localI].setImage(ImageUtils.getImageFromName(localRobotImageName));
+                                playerCharacters[localI] = localName;
                                 updateUI();
                             });
                             charSelection.add(chosenCharacter);
@@ -241,17 +253,17 @@ public class SetupView {
             updateUI();
         });
 
-        updateUI();
+        Platform.runLater(this::updateUI);
     }
 
     private void updateUI() {
         for (int i = 2; i < 6; i++) {
             playerHBoxes[i].setVisible(i < NO_OF_PLAYERS);
-            if (i >= NO_OF_PLAYERS) {
-                playerNames[i] = null;
-                playerCharacters[i] = null;
+            /*if (i >= NO_OF_PLAYERS) {
+                playerNames[i] = "";
+                playerCharacters[i] = "";
                 //charSelection.get(i).getSelectionModel().clearSelection();
-            }
+            }*/
         }
         if (isReady()) {
             start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -275,10 +287,11 @@ public class SetupView {
      * @return boolean
      * @author Maximillian Bjørn Mortensen
      */
-    private boolean isReady(){
-        for(int i = 0; i < NO_OF_PLAYERS; i++){
-            if(playerNames[i] == null || playerNames[i].isBlank() || playerCharacters[i] == null) return false;
-            for(int j = i-1; j >= 0; j--){
+    private boolean isReady() {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
+            if (playerNames[i] == null || playerNames[i].isBlank() || playerCharacters[i] == null) return false;
+
+            for (int j = i - 1; j >= 0; j--) {
                 if(playerNames[i].equals(playerNames[j])) return false;
                 if(playerCharacters[i].equals(playerCharacters[j])) return false;
             }
