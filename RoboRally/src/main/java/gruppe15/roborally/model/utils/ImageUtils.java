@@ -1,7 +1,6 @@
 package gruppe15.roborally.model.utils;
 
 import gruppe15.roborally.RoboRally;
-import gruppe15.roborally.coursecreator.CC_SpaceView;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.BE_ConveyorBelt;
 import gruppe15.roborally.model.boardelements.BoardElement;
@@ -120,7 +119,7 @@ public class ImageUtils {
         double red = color.getRed() * multiplier.getRed();
         double green = color.getGreen() * multiplier.getGreen();
         double blue = color.getBlue() * multiplier.getBlue();
-        double opacity = color.getOpacity(); // Keep the original opacity
+        double opacity = color.getOpacity() * multiplier.getOpacity();
         return new Color(red, green, blue, opacity);
     }
 
@@ -318,12 +317,12 @@ public class ImageUtils {
         }
 
         // Building string
-        buildConveyorBeltStringFromNeighbors(imageNameBuilder, noOfConnections, relativeConnections);
+        buildConveyorBeltStringFromConnections(imageNameBuilder, noOfConnections, relativeConnections);
 
         return imageNameBuilder.toString();
     }
 
-    public static void buildConveyorBeltStringFromNeighbors(StringBuilder stringBuilder, int noOfNeighbors, boolean[] relativeNeighbors) {
+    public static void buildConveyorBeltStringFromConnections(StringBuilder stringBuilder, int noOfNeighbors, boolean[] relativeNeighbors) {
         switch (noOfNeighbors) {
             case 2:
                 // Adjust the conditions for alignment based on the relative neighbors' indexes
