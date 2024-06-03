@@ -62,17 +62,19 @@ public class CardFieldView extends StackPane implements ViewObserver {
 
     private final CardField field;
 
-    /*private final Label label;*/
-
     private final GameController gameController;
 
-    private final ImageView graphicsImageView = new ImageView();
+    private final ImageView cardImageView = new ImageView();
+    private final ImageView cardForegroundImageView = new ImageView();
     private final Button useButton = new Button();
 
     public CardFieldView(@NotNull GameController gameController, @NotNull CardField field, double cardWidthMultiplier, double cardHeightMultiplier) {
-        graphicsImageView.setMouseTransparent(true);
-        graphicsImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
-        graphicsImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
+        cardImageView.setMouseTransparent(true);
+        cardImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
+        cardImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
+        cardForegroundImageView.setMouseTransparent(true);
+        cardForegroundImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
+        cardForegroundImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
 
         useButton.setText("Use");
         useButton.setOnAction(event -> {
@@ -83,7 +85,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
         StackPane.setAlignment(useButton, Pos.BOTTOM_RIGHT);
 
         this.setPrefSize((CARDFIELD_SIZE - 5) * cardWidthMultiplier, (CARDFIELD_SIZE - 3) * cardHeightMultiplier);
-        this.getChildren().addAll(graphicsImageView, useButton);
+        this.getChildren().addAll(cardImageView, cardForegroundImageView, useButton);
 
         this.gameController = gameController;
         this.field = field;
@@ -231,21 +233,28 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 useButton.setVisible(field.getHasActivateButton());
 
                 String cardName = card.getName();
-                String cardImageName = "Card_Error.png";
+                String cardImageName;
+                String cardFolderPath = "";
                 if (card instanceof CommandCard) {
-                    cardImageName = "Cards/Programming Cards/" + cardName + ".png";
+                    cardImageName = cardName + ".png";
+                    cardFolderPath = "Cards/Programming Cards/";
+                    Image cardForegroundImage = ImageUtils.getImageFromName(cardFolderPath + "Foregrounds/" + cardImageName);
+                    if (cardForegroundImage != null && field.player != null) {
+                        Color playerColor = Color.valueOf(field.player.getRobot().name());
+                        cardForegroundImageView.setImage(ImageUtils.getImageColored(cardForegroundImage, playerColor, .75));
+                    }
                 } else if (card instanceof UpgradeCard) {
-                    cardImageName = "Cards/Upgrade Cards/" + cardName.toUpperCase() + ".png";
+                    cardImageName =  cardName.toUpperCase() + ".png";
+                    cardFolderPath = "Cards/Upgrade Cards/";
+                } else {
+                    cardImageName = "Card_Error.png";
                 }
-                Image cardImage = ImageUtils.getImageFromName(cardImageName);
+                Image cardImage = ImageUtils.getImageFromName(cardFolderPath + cardImageName);
                 if (cardImage != null) {
-                    graphicsImageView.setImage(cardImage);
-                } else{
-                    /*label.setText(card.getName());*/
+                    cardImageView.setImage(cardImage);
                 }
             } else {
-                /*label.setText("");*/
-                graphicsImageView.setImage(null);
+                cardImageView.setImage(null);
             }
         }
     }

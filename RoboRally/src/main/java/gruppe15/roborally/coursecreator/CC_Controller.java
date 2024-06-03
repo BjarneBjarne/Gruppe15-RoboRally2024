@@ -2,6 +2,7 @@ package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
+import gruppe15.roborally.view.ZoomableScrollPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -39,10 +40,6 @@ import static gruppe15.roborally.model.utils.ImageUtils.*;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class CC_Controller extends BorderPane {
-    @FXML
-    ScrollPane CC_boardScrollPane;
-    @FXML
-    AnchorPane CC_boardPane; // Course creator board pane
     static AnchorPane CC_static_boardPane;
     @FXML
     HBox CC_elementButtonsHBox;
@@ -52,6 +49,9 @@ public class CC_Controller extends BorderPane {
     MenuItem CC_loadCourse;
     @FXML
     MenuItem CC_exitToMainMenu;
+
+    ZoomableScrollPane boardScrollPane;
+    AnchorPane boardPane; // Course creator board pane
 
     private Scene primaryScene;
 
@@ -72,8 +72,8 @@ public class CC_Controller extends BorderPane {
     private CC_Items selectedItem = null;
     private Heading currentRotation = NORTH;
 
-    private List<Button> itemButtons = new ArrayList<>();
-    private Pane noHighLightPane = new Pane();
+    //private final List<Button> itemButtons = new ArrayList<>();
+    private final Pane noHighLightPane = new Pane();
 
     private final List<CC_SubBoard> subBoards;
 
@@ -89,22 +89,23 @@ public class CC_Controller extends BorderPane {
     @FXML
     public void initialize() {
         Platform.runLater(() -> {
-            CC_static_boardPane = CC_boardPane;
+            CC_static_boardPane = boardPane;
             drawSubBoardPositionLines();
-            CC_boardPane.setPrefSize(canvasSize, canvasSize);
-            CC_boardPane.getChildren().add(noHighLightPane);
+            boardPane.setPrefSize(canvasSize, canvasSize);
+            boardPane.getChildren().add(noHighLightPane);
             noHighLightPane.setVisible(false);
             noHighLightPane.setMouseTransparent(true);
-            CC_boardScrollPane.setVvalue(0.5);
-            CC_boardScrollPane.setHvalue(0.5);
+            noHighLightPane.setFocusTraversable(true);
+            boardScrollPane.setVvalue(0.5);
+            boardScrollPane.setHvalue(0.5);
 
-            CC_boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
+            boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
             //CC_boardScrollPane.setStyle("-fx-border-width: 50; -fx-border-color: RED");
 
-            CC_boardPane.addEventHandler(MouseEvent.MOUSE_MOVED, spaceEventHandler);
-            CC_boardPane.addEventHandler(MouseEvent.MOUSE_CLICKED, spaceEventHandler);
-            CC_boardPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, spaceEventHandler);
-            CC_boardPane.addEventHandler(MouseEvent.MOUSE_PRESSED, spaceEventHandler);
+            boardPane.addEventHandler(MouseEvent.MOUSE_MOVED, spaceEventHandler);
+            boardPane.addEventHandler(MouseEvent.MOUSE_CLICKED, spaceEventHandler);
+            boardPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, spaceEventHandler);
+            boardPane.addEventHandler(MouseEvent.MOUSE_PRESSED, spaceEventHandler);
             registerKeyEventHandlers();
 
             for (int i = 0; i < CC_Items.values().length; i++) {
@@ -121,7 +122,7 @@ public class CC_Controller extends BorderPane {
                 itemButton.setGraphic(itemButtonImageView);
 
                 CC_elementButtonsHBox.getChildren().add(itemButton);
-                itemButtons.add(itemButton);
+                //itemButtons.add(itemButton);
                 itemButton.setOnMouseClicked(event -> {
                     selectedItem = item;
                     spaceEventHandler.removeSubBoardHighlight();
@@ -158,14 +159,14 @@ public class CC_Controller extends BorderPane {
 
     public void zoom(ScrollEvent event) {
         double scaleFactor = (event.getDeltaY() > 0) ? 1 + ZOOM_SPEED : 1 - ZOOM_SPEED;
-        CC_boardPane.setScaleX(CC_boardPane.getScaleX() * scaleFactor);
-        CC_boardPane.setScaleY(CC_boardPane.getScaleY() * scaleFactor);
-        if (CC_boardPane.getScaleX() < MIN_ZOOM) {
-            CC_boardPane.setScaleX(MIN_ZOOM);
-            CC_boardPane.setScaleY(MIN_ZOOM);
-        } else if (CC_boardPane.getScaleX() > MAX_ZOOM) {
-            CC_boardPane.setScaleX(MAX_ZOOM);
-            CC_boardPane.setScaleY(MAX_ZOOM);
+        boardPane.setScaleX(boardPane.getScaleX() * scaleFactor);
+        boardPane.setScaleY(boardPane.getScaleY() * scaleFactor);
+        if (boardPane.getScaleX() < MIN_ZOOM) {
+            boardPane.setScaleX(MIN_ZOOM);
+            boardPane.setScaleY(MIN_ZOOM);
+        } else if (boardPane.getScaleX() > MAX_ZOOM) {
+            boardPane.setScaleX(MAX_ZOOM);
+            boardPane.setScaleY(MAX_ZOOM);
         }
         event.consume();
     }
@@ -239,7 +240,7 @@ public class CC_Controller extends BorderPane {
         CC_SubBoard newSubBoard = new CC_SubBoard(position, subBoardSpaceViews, subBoardGridPane, isStartSubBoard, direction);
         // Initializing the SpaceViews
         initializeSpaceViews(newSubBoard);
-        CC_boardPane.getChildren().add(subBoardGridPane);
+        boardPane.getChildren().add(subBoardGridPane);
         subBoards.add(newSubBoard);
         //System.out.println("New subboard at: " + position.getX() + ", " + position.getY());
     }
@@ -295,8 +296,8 @@ public class CC_Controller extends BorderPane {
     }
 
     private void initializeSpaceViews(CC_SubBoard subBoard) {
-        double spaceViewWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
-        double spaceViewHeight = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
+        double spaceViewWidth = boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
+        double spaceViewHeight = boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
         CC_SpaceView[][] subBoardSpaceViews = subBoard.getSpaceViews();
         boolean isStartSubBoard = subBoardSpaceViews.length <= 3 || subBoardSpaceViews[0].length <= 3;
         Pair<Point2D, Point2D> subBoardBounds = getSubBoardBounds(subBoard.getPosition(), isStartSubBoard, subBoard.getDirection());
@@ -347,7 +348,7 @@ public class CC_Controller extends BorderPane {
             return;
         }
 
-        CC_boardPane.getChildren().remove(subBoardToRemove.getGridPane());
+        boardPane.getChildren().remove(subBoardToRemove.getGridPane());
         subBoards.remove(subBoardToRemove);
     }
 
@@ -388,15 +389,15 @@ public class CC_Controller extends BorderPane {
 
     private Point2D getSubBoardPositionOnMouse(MouseEvent event, boolean snapToGrid, boolean withXOffset, boolean withYOffset) {
         Point2D mousePosition = new Point2D(event.getSceneX(), event.getSceneY());
-        Point2D localMousePosition = CC_boardPane.sceneToLocal(mousePosition);
-        double cellWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
-        double cellHeight = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY;
+        Point2D localMousePosition = boardPane.sceneToLocal(mousePosition);
+        double cellWidth = boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
+        double cellHeight = boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY;
 
         double offsetX = withXOffset ? (cellWidth / 2) : 0;
         double offsetY = withYOffset ? (cellHeight / 2) : 0;
 
-        double x = (localMousePosition.getX() - offsetX) * NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / CC_boardPane.getWidth();
-        double y = (localMousePosition.getY() - offsetY) * NO_OF_SUBBOARD_POSITIONS_VERTICALLY / CC_boardPane.getHeight();
+        double x = (localMousePosition.getX() - offsetX) * NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / boardPane.getWidth();
+        double y = (localMousePosition.getY() - offsetY) * NO_OF_SUBBOARD_POSITIONS_VERTICALLY / boardPane.getHeight();
 
         if (snapToGrid) {
             return new Point2D((int)x, (int)y);
@@ -423,23 +424,23 @@ public class CC_Controller extends BorderPane {
     }
 
     private void drawSubBoardPositionLines() {
-        double hSpacing = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
-        double vSpacing = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY;
+        double hSpacing = boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
+        double vSpacing = boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY;
 
         // Horizontal lines
         for (int y = 0; y < NO_OF_SUBBOARD_POSITIONS_VERTICALLY; y++) {
-            Line line = new Line(0, y * vSpacing, CC_boardPane.getWidth(), y * vSpacing);
+            Line line = new Line(0, y * vSpacing, boardPane.getWidth(), y * vSpacing);
             line.setStroke(Color.GRAY);
             line.setStrokeWidth(3);
-            CC_boardPane.getChildren().add(line);
+            boardPane.getChildren().add(line);
         }
 
         // Vertical lines
         for (int x = 0; x < NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY; x++) {
-            Line line = new Line(x * hSpacing, 0, x * hSpacing, CC_boardPane.getHeight());
+            Line line = new Line(x * hSpacing, 0, x * hSpacing, boardPane.getHeight());
             line.setStroke(Color.GRAY);
             line.setStrokeWidth(3);
-            CC_boardPane.getChildren().add(line);
+            boardPane.getChildren().add(line);
         }
     }
 
@@ -466,14 +467,14 @@ public class CC_Controller extends BorderPane {
 
         @Override
         public void handle(MouseEvent event) {
-            CC_boardPane.setCursor(Cursor.DEFAULT);
+            boardPane.setCursor(Cursor.DEFAULT);
             isDrawing = false;
             if (isMouseButtonDown(event)) {
                 if (event.isPrimaryButtonDown() && !event.isControlDown() && !event.isAltDown()) {
                     isDrawing = true;
                     event.consume();
                 } else {
-                    CC_boardPane.setCursor(Cursor.MOVE);
+                    boardPane.setCursor(Cursor.MOVE);
                 }
             }
 
@@ -576,6 +577,9 @@ public class CC_Controller extends BorderPane {
             CC_SpaceView hoveredSpaceView = CC_SpaceViewsOnMouse.getFirst();
 
             if (isDrawing) {
+                if (selectedItem == null) {
+                    return;
+                }
                 if (shiftIsDown) {
                     // Deletion of item at space
                     if (selectedItem == CC_Items.Wall) {
@@ -601,6 +605,9 @@ public class CC_Controller extends BorderPane {
                 }
             } else {
                 if (previousSpaceView == null || rotationChanged) {
+                    if (selectedItem == null) {
+                        hoveredSpaceView.CC_setGhost(null, null, false);
+                    }
                     hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, shiftIsDown);
                     previousSpaceView = hoveredSpaceView;
                 }
@@ -609,12 +616,12 @@ public class CC_Controller extends BorderPane {
 
         private void highlightSubBoard(Point2D position, int xLength, int yLength, Heading direction, Color lineColor) {
             Point2D positionInScene = new Point2D(
-                    (position.getX() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY) * CC_boardPane.getWidth(),
-                    (position.getY() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY) * CC_boardPane.getHeight()
+                    (position.getX() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY) * boardPane.getWidth(),
+                    (position.getY() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY) * boardPane.getHeight()
             );
 
-            double spaceViewWidth = CC_boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
-            double spaceViewHeight = CC_boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
+            double spaceViewWidth = boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY / 5;
+            double spaceViewHeight = boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY / 5;
             double subBoardWidth = spaceViewWidth * xLength;
             double subBoardHeight = spaceViewHeight * yLength;
             double leftBorder = positionInScene.getX();
@@ -631,30 +638,30 @@ public class CC_Controller extends BorderPane {
             Line upperLine = new Line(leftBorder, topBorder, rightBorder, topBorder);
             upperLine.setStroke(lineColor);
             upperLine.setStrokeWidth(4);
-            CC_boardPane.getChildren().add(upperLine);
+            boardPane.getChildren().add(upperLine);
             highlightedSubBoardPositionLines.add(upperLine);
 
             Line lowerLine = new Line(leftBorder, bottomBorder, rightBorder, bottomBorder);
             lowerLine.setStroke(lineColor);
             lowerLine.setStrokeWidth(4);
-            CC_boardPane.getChildren().add(lowerLine);
+            boardPane.getChildren().add(lowerLine);
             highlightedSubBoardPositionLines.add(lowerLine);
 
             Line leftLine = new Line(leftBorder, topBorder, leftBorder, bottomBorder);
             leftLine.setStroke(lineColor);
             leftLine.setStrokeWidth(4);
-            CC_boardPane.getChildren().add(leftLine);
+            boardPane.getChildren().add(leftLine);
             highlightedSubBoardPositionLines.add(leftLine);
 
             Line rightLine = new Line(rightBorder, topBorder, rightBorder, bottomBorder);
             rightLine.setStroke(lineColor);
             rightLine.setStrokeWidth(4);
-            CC_boardPane.getChildren().add(rightLine);
+            boardPane.getChildren().add(rightLine);
             highlightedSubBoardPositionLines.add(rightLine);
         }
 
         public void removeSubBoardHighlight() {
-            Iterator<Node> iterator = CC_boardPane.getChildren().iterator();
+            Iterator<Node> iterator = boardPane.getChildren().iterator();
             while (iterator.hasNext()) {
                 Node child = iterator.next();
                 if (child instanceof Line line) {
@@ -667,7 +674,7 @@ public class CC_Controller extends BorderPane {
         }
     }
 
-    private void loadCourse(){
+    private void loadCourse() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Load Course");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
@@ -705,14 +712,14 @@ public class CC_Controller extends BorderPane {
     private void initializeLoadedBoard(List<CC_SubBoard> loadedBoard) {
         // Remove old
         for (CC_SubBoard subBoard : subBoards) {
-            CC_boardPane.getChildren().remove(subBoard.getGridPane());
+            boardPane.getChildren().remove(subBoard.getGridPane());
         }
         subBoards.clear();
 
         // Add new
         for (CC_SubBoard subBoard : loadedBoard) {
             initializeSpaceViews(subBoard);
-            CC_boardPane.getChildren().add(subBoard.getGridPane());
+            boardPane.getChildren().add(subBoard.getGridPane());
             subBoards.add(subBoard);
         }
 
@@ -739,7 +746,7 @@ public class CC_Controller extends BorderPane {
 
         // Method appController.saveGame() will return false if the game is not in the programming
         // phase, and an error message will be shown to the user. Game will then continue to run.
-        if (saveCourseResult.get() == saveButton){
+        if (saveCourseResult.get() == saveButton) {
             saveCourse();
         }
     }
@@ -795,7 +802,7 @@ public class CC_Controller extends BorderPane {
                 CC_CourseData courseData = new CC_CourseData(
                         saveFile.getName().replace(".json", ""),
                         subBoards,
-                        getSnapshotAsBase64(CC_boardPane, 10)
+                        getSnapshotAsBase64(boardPane, 10)
                 );
                 setLinesVisible(true);
 
@@ -814,11 +821,11 @@ public class CC_Controller extends BorderPane {
 
     private void setLinesVisible(boolean visible) {
         if (visible) {
-            CC_boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
+            boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
         } else {
-            CC_boardPane.setStyle("");
+            boardPane.setStyle("");
         }
-        for (Node child : CC_boardPane.getChildren()) {
+        for (Node child : boardPane.getChildren()) {
             if (child instanceof Line line) {
                 line.setVisible(visible);
             }
