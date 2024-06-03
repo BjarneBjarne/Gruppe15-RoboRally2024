@@ -26,6 +26,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -46,10 +48,19 @@ public class ZoomableScrollPane extends ScrollPane {
         outerNode.setAlignment(Pos.CENTER);
         outerNode.addEventFilter(ScrollEvent.SCROLL, event -> {
             if (event.isControlDown()) {
-                event.consume();
                 onScroll(event.getTextDeltaY(), new Point2D(event.getX(), event.getY()));
+                event.consume();
             }
         });
+        this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.R) {
+                scaleValue = 1;
+                updateScale();
+                this.layout();
+                centerContent();
+            }
+        });
+
         setContent(outerNode);
 
         setPannable(false);
@@ -89,7 +100,7 @@ public class ZoomableScrollPane extends ScrollPane {
         scaleValue = scaleValue * zoomFactor;
 
         updateScale();
-        this.layout(); // refresh ScrollPane scroll positions & target bounds
+        this.layout();
 
         // convert target coordinates to zoomTarget coordinates
         Point2D posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
