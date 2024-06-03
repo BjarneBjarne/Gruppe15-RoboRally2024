@@ -165,8 +165,8 @@ public class RoboRally extends Application {
         }
         scaleRoot();
 
-        System.out.println("Scale: " + APP_SCALE);
-        System.out.println("Size: " + stage.getWidth() + "x" + stage.getHeight());
+        //System.out.println("Scale: " + APP_SCALE);
+        System.out.println("Window size: " + stage.getWidth() + "x" + stage.getHeight());
 
         // Handling save option on close
         stage.setOnCloseRequest(e -> {
@@ -402,23 +402,16 @@ public class RoboRally extends Application {
 
         try {
             // Load the FXML and set the controller
-            VBox loadedVBox = loader.load(); // Load the FXML file
-            courseCreator = loader.getController(); // Get the controller
-
+            loader.load();
+            courseCreator = loader.getController();
             courseCreator.setScene(primaryScene);
 
-            // Set the loaded VBox (which is your controller) as the center of the root layout
-            root.setCenter(loadedVBox);
+            // Set the loaded courseCreator as the center of the root layout
+            root.setCenter(courseCreator);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        primaryScene.addEventFilter(ScrollEvent.SCROLL, event -> {
-            if (event.isControlDown()) {
-                if (courseCreator != null) {
-                    courseCreator.zoom(event);
-                }
-            }
-        });
+
         courseCreator.initializeExitButton(this::goToMainMenu);
     }
 }

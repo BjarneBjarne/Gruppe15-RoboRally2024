@@ -37,6 +37,7 @@ public class CC_SpaceView extends StackPane {
 
     private final ImageView ghostImageView = new ImageView();
     private Image boardElementImage = null;
+    private final Image[] wallImages = new Image[4];
 
     public CC_SpaceView(int boardX, int boardY) {
         this.boardX = boardX;
@@ -124,19 +125,39 @@ public class CC_SpaceView extends StackPane {
         }
     }
 
-    public void CC_setGhost(Image image, Heading ghostDirection, boolean isDeleting) {
+    public void CC_setGhost(Image image, Heading ghostDirection, boolean isWall, boolean isDeleting) {
         Image ghostImage = image;
         if (isDeleting) {
             ghostImage = null;
-            if (this.boardElementImageView.getImage() != null) {
-                Image redBoardElementImage = ImageUtils.getImageColored(this.boardElementImageView.getImage(), new Color(1, 0, 0, 1), 1);
-                this.boardElementImageView.setImage(redBoardElementImage);
+            if (!isWall) {
+                if (this.boardElementImageView.getImage() != null) {
+                    Image redBoardElementImage = ImageUtils.getImageColored(this.boardElementImageView.getImage(), new Color(1, 0, 0, 1), 1);
+                    this.boardElementImageView.setImage(redBoardElementImage);
+                }
+            } else {
+                if (ghostDirection != null) {
+                    ImageView wallImageView = wallImageViews[ghostDirection.ordinal()];
+                    if (wallImageView.getImage() != null) {
+                        Image redBoardElementImage = ImageUtils.getImageColored(wallImageView.getImage(), new Color(1, 0, 0, 1), 1);
+                        wallImageView.setImage(redBoardElementImage);
+                    }
+                }
             }
-        } else if (image != null) {
+        } else if (ghostImage != null) {
             ghostImage = ImageUtils.getImageColored(ghostImage, Color.TRANSPARENT, .35);
-        } else if (this.boardElementImage != null) {
-            this.boardElementImageView.setImage(this.boardElementImage);
+        } else {
+            if (this.boardElementImage != null) {
+                this.boardElementImageView.setImage(this.boardElementImage);
+            }
+            for (int i = 0; i < wallImages.length; i++) {
+                if (wallImages[i] != null) {
+                    this.wallImageViews[i].setImage(wallImages[i]);
+                }
+            }
         }
+
+
+
         CC_setImageView(ghostImage, ghostDirection, this.ghostImageView);
     }
 
@@ -145,6 +166,13 @@ public class CC_SpaceView extends StackPane {
         if (imageView == this.boardElementImageView) {
             this.boardElementImage = newImage;
         }
+        for (int i = 0; i < wallImageViews.length; i++) {
+            ImageView wallImageView = wallImageViews[i];
+            if (imageView == wallImageView) {
+                this.wallImages[i] = newImage;
+            }
+        }
+
         imageView.setImage(newImage);
     }
 
@@ -157,25 +185,28 @@ public class CC_SpaceView extends StackPane {
 
     private void updateNeighborsConveyorBeltImages(CC_SpaceView[][] spaces) {
         // To the sides
-        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 1], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 1], spaces);
+        updateNeighborConveyorBeltImage(this.boardX + 1, this.boardY, spaces);
+        updateNeighborConveyorBeltImage(this.boardX - 1, this.boardY, spaces);
+        updateNeighborConveyorBeltImage(this.boardX, this.boardY + 1, spaces);
+        updateNeighborConveyorBeltImage(this.boardX, this.boardY - 1, spaces);
 
         // Two spaces to the sides
-        updateNeighborConveyorBeltImage(spaces[this.boardX + 2][this.boardY], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX - 2][this.boardY], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY + 2], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX][this.boardY - 2], spaces);
+        updateNeighborConveyorBeltImage(this.boardX + 2, this.boardY, spaces);
+        updateNeighborConveyorBeltImage(this.boardX - 2, this.boardY, spaces);
+        updateNeighborConveyorBeltImage(this.boardX, this.boardY + 2,  spaces);
+        updateNeighborConveyorBeltImage(this.boardX, this.boardY - 2,  spaces);
 
         // Corners
-        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY - 1], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY - 1], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX - 1][this.boardY + 1], spaces);
-        updateNeighborConveyorBeltImage(spaces[this.boardX + 1][this.boardY + 1], spaces);
+        updateNeighborConveyorBeltImage(this.boardX - 1, this.boardY - 1,  spaces);
+        updateNeighborConveyorBeltImage(this.boardX + 1, this.boardY - 1,  spaces);
+        updateNeighborConveyorBeltImage(this.boardX - 1, this.boardY + 1,  spaces);
+        updateNeighborConveyorBeltImage(this.boardX + 1, this.boardY + 1,  spaces);
     }
 
-    private void updateNeighborConveyorBeltImage(CC_SpaceView neighbor, CC_SpaceView[][] spaces) {
+    private void updateNeighborConveyorBeltImage(int x, int y, CC_SpaceView[][] spaces) {
+        if (x < 0 || x >= spaces.length || y < 0 || y >= spaces[0].length) return;
+
+        CC_SpaceView neighbor = spaces[x][y];
         if (neighbor != null && (neighbor.placedBoardElement == 7 || neighbor.placedBoardElement == 8)) {
             neighbor.updateConveyorBeltImage(spaces);
         }

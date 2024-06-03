@@ -1,7 +1,12 @@
 package gruppe15.roborally.coursecreator;
 
+import gruppe15.roborally.GameVariables;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
+import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.roborally.view.BoardView;
+import gruppe15.roborally.view.PlayersView;
+import gruppe15.roborally.view.SpaceView;
 import gruppe15.roborally.view.ZoomableScrollPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -49,9 +54,14 @@ public class CC_Controller extends BorderPane {
     MenuItem CC_loadCourse;
     @FXML
     MenuItem CC_exitToMainMenu;
+    @FXML
+    MenuBar topPane;
+    @FXML
+    ScrollPane bottomPane;
 
-    ZoomableScrollPane boardScrollPane;
-    AnchorPane boardPane; // Course creator board pane
+    private final StackPane centerPane;
+    private final ZoomableScrollPane boardScrollPane;
+    private final AnchorPane boardPane; // Course creator board pane
 
     private Scene primaryScene;
 
@@ -60,6 +70,9 @@ public class CC_Controller extends BorderPane {
 
     private static final int canvasSize = 5000;
     private static CC_SpaceView[][] spaces;
+
+    private static final int lineSize = 5;
+    private static final int borderLineSize = 25;
 
     /**
      * Since subboards can be placed half a step, this makes up 5x5 subboards.
@@ -73,73 +86,108 @@ public class CC_Controller extends BorderPane {
     private Heading currentRotation = NORTH;
 
     //private final List<Button> itemButtons = new ArrayList<>();
-    private final Pane noHighLightPane = new Pane();
+    private final Pane noHighLightPane;
 
     private final List<CC_SubBoard> subBoards;
-
-    public CC_Controller() {
-        spaceEventHandler = new SpaceEventHandler();
-        this.subBoards = new ArrayList<>();
-    }
 
     public void setScene(Scene primaryScene) {
         this.primaryScene = primaryScene;
     }
 
+    public CC_Controller() {
+        spaceEventHandler = new SpaceEventHandler();
+        this.subBoards = new ArrayList<>();
+
+        noHighLightPane = new Pane();
+        noHighLightPane.setVisible(false);
+        noHighLightPane.setMouseTransparent(true);
+        noHighLightPane.setFocusTraversable(true);
+
+        boardPane = new AnchorPane(noHighLightPane);
+        boardPane.setMinSize(canvasSize, canvasSize);
+        boardPane.setPrefSize(canvasSize, canvasSize);
+        boardPane.setMaxSize(canvasSize, canvasSize);
+        CC_static_boardPane = boardPane;
+
+        // A wrapper for the boardPane to make the border on the outside of the boardPane.
+        StackPane wrapperPane = new StackPane(boardPane);
+        int wrapperSize = canvasSize + borderLineSize;
+        wrapperPane.setMaxSize(wrapperSize, wrapperSize);
+        wrapperPane.setStyle("-fx-border-width: 25px; -fx-border-color: BLACK");
+
+        StackPane interactablePane = new StackPane(wrapperPane);
+
+        boardScrollPane = new ZoomableScrollPane(interactablePane);
+        boardScrollPane.setPannable(true);
+
+        ImageView backgroundImageView = new ImageView(ImageUtils.getImageFromName("Background_CourseCreator.png"));
+        centerPane = new StackPane(backgroundImageView, boardScrollPane);
+
+        Platform.runLater(()-> {
+            double interactablePaneWidth = boardPane.getWidth() + 22500;
+            double interactablePaneHeight = interactablePaneWidth * 0.46;
+            interactablePane.setMinSize(interactablePaneWidth, interactablePaneHeight);
+            interactablePane.setPrefSize(interactablePaneWidth, interactablePaneHeight);
+            interactablePane.setMaxSize(interactablePaneWidth, interactablePaneHeight);
+
+            // Background and center pane
+            backgroundImageView.setFitWidth(boardScrollPane.getWidth());
+            backgroundImageView.setPreserveRatio(true);
+            //backgroundImageView.setFitHeight(boardScrollPane.getHeight());
+        });
+
+        boardScrollPane.getStyleClass().add("transparent-scroll-pane");
+        boardScrollPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        boardScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; ");
+        interactablePane.getStyleClass().add("transparent-scroll-pane");
+        interactablePane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        interactablePane.setStyle("-fx-background: transparent; -fx-background-color: transparent; ");
+
+        this.setMinSize(2560, 1440);
+        this.setPrefSize(2560, 1440);
+        this.setMaxSize(2560, 1440);
+    }
+
     @FXML
     public void initialize() {
+        this.setTop(topPane);
+        this.setCenter(centerPane);
+        this.setBottom(bottomPane);
+
+        boardPane.addEventHandler(MouseEvent.MOUSE_MOVED, spaceEventHandler);
+        boardPane.addEventHandler(MouseEvent.MOUSE_CLICKED, spaceEventHandler);
+        boardPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, spaceEventHandler);
+        boardPane.addEventHandler(MouseEvent.MOUSE_PRESSED, spaceEventHandler);
+
+        for (int i = 0; i < CC_Items.values().length; i++) {
+            CC_Items item = CC_Items.values()[i];
+            ImageView itemButtonImageView = new ImageView(item.image);
+
+            itemButtonImageView.setFitWidth(100);
+            itemButtonImageView.setFitHeight(100);
+            itemButtonImageView.setImage(item.image);
+
+            Button itemButton = new Button();
+            itemButton.setPrefSize(100, 100);
+            HBox.setMargin(itemButton, new Insets(25, 12.5, 25, 12.5));
+            itemButton.setGraphic(itemButtonImageView);
+
+            CC_elementButtonsHBox.getChildren().add(itemButton);
+            itemButton.setOnMouseClicked(event -> {
+                selectedItem = item;
+                spaceEventHandler.removeSubBoardHighlight();
+            });
+            CC_elementButtonsHBox.setOnMouseClicked(event -> deselectItem());
+
+            CC_saveCourse.setOnAction( e -> saveCourse());
+            CC_loadCourse.setOnAction(e -> loadCourse());
+        }
+
         Platform.runLater(() -> {
-            CC_static_boardPane = boardPane;
             drawSubBoardPositionLines();
-            boardPane.setPrefSize(canvasSize, canvasSize);
-            boardPane.getChildren().add(noHighLightPane);
-            noHighLightPane.setVisible(false);
-            noHighLightPane.setMouseTransparent(true);
-            noHighLightPane.setFocusTraversable(true);
+            registerKeyEventHandlers();
             boardScrollPane.setVvalue(0.5);
             boardScrollPane.setHvalue(0.5);
-
-            boardPane.setStyle("-fx-border-width: 25; -fx-border-color: BLACK");
-            //CC_boardScrollPane.setStyle("-fx-border-width: 50; -fx-border-color: RED");
-
-            boardPane.addEventHandler(MouseEvent.MOUSE_MOVED, spaceEventHandler);
-            boardPane.addEventHandler(MouseEvent.MOUSE_CLICKED, spaceEventHandler);
-            boardPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, spaceEventHandler);
-            boardPane.addEventHandler(MouseEvent.MOUSE_PRESSED, spaceEventHandler);
-            registerKeyEventHandlers();
-
-            for (int i = 0; i < CC_Items.values().length; i++) {
-                CC_Items item = CC_Items.values()[i];
-                ImageView itemButtonImageView = new ImageView(item.image);
-
-                itemButtonImageView.setFitWidth(100);
-                itemButtonImageView.setFitHeight(100);
-                itemButtonImageView.setImage(item.image);
-
-                Button itemButton = new Button();
-                itemButton.setPrefSize(100, 100);
-                HBox.setMargin(itemButton, new Insets(25, 12.5, 25, 12.5));
-                itemButton.setGraphic(itemButtonImageView);
-
-                CC_elementButtonsHBox.getChildren().add(itemButton);
-                //itemButtons.add(itemButton);
-                itemButton.setOnMouseClicked(event -> {
-                    selectedItem = item;
-                    spaceEventHandler.removeSubBoardHighlight();
-                });
-
-                CC_elementButtonsHBox.setOnMouseClicked(event -> {
-                    deselectItem();
-                });
-
-                CC_saveCourse.setOnAction( e -> {
-                    saveCourse();
-                });
-
-                CC_loadCourse.setOnAction(e -> {
-                    loadCourse();
-                });
-            }
         });
 
         spaces = new CC_SpaceView[NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY * 5][NO_OF_SUBBOARD_POSITIONS_VERTICALLY * 5];
@@ -155,20 +203,6 @@ public class CC_Controller extends BorderPane {
             saveCourseDialog();
             goToMainMenu.run();
         });
-    }
-
-    public void zoom(ScrollEvent event) {
-        double scaleFactor = (event.getDeltaY() > 0) ? 1 + ZOOM_SPEED : 1 - ZOOM_SPEED;
-        boardPane.setScaleX(boardPane.getScaleX() * scaleFactor);
-        boardPane.setScaleY(boardPane.getScaleY() * scaleFactor);
-        if (boardPane.getScaleX() < MIN_ZOOM) {
-            boardPane.setScaleX(MIN_ZOOM);
-            boardPane.setScaleY(MIN_ZOOM);
-        } else if (boardPane.getScaleX() > MAX_ZOOM) {
-            boardPane.setScaleX(MAX_ZOOM);
-            boardPane.setScaleY(MAX_ZOOM);
-        }
-        event.consume();
     }
 
     public void keyPressed(KeyEvent keyEvent) {
@@ -424,22 +458,24 @@ public class CC_Controller extends BorderPane {
     }
 
     private void drawSubBoardPositionLines() {
-        double hSpacing = boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY;
-        double vSpacing = boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY;
+        double lineSpacing = lineSize * 0.49;
+
+        double hSpacing = ((boardPane.getWidth() / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY) - ((lineSpacing * 2) / NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY));
+        double vSpacing = ((boardPane.getHeight() / NO_OF_SUBBOARD_POSITIONS_VERTICALLY) - ((lineSpacing * 2) / NO_OF_SUBBOARD_POSITIONS_VERTICALLY));
 
         // Horizontal lines
-        for (int y = 0; y < NO_OF_SUBBOARD_POSITIONS_VERTICALLY; y++) {
-            Line line = new Line(0, y * vSpacing, boardPane.getWidth(), y * vSpacing);
-            line.setStroke(Color.GRAY);
-            line.setStrokeWidth(3);
+        for (int y = 0; y < NO_OF_SUBBOARD_POSITIONS_VERTICALLY + 1; y++) {
+            Line line = new Line(lineSpacing, (y * vSpacing) + lineSpacing, boardPane.getWidth() - lineSpacing, (y * vSpacing) + lineSpacing);
+            line.setStroke(new Color(0.25, 0.25, 0.25, 1));
+            line.setStrokeWidth(lineSize);
             boardPane.getChildren().add(line);
         }
 
         // Vertical lines
-        for (int x = 0; x < NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY; x++) {
-            Line line = new Line(x * hSpacing, 0, x * hSpacing, boardPane.getHeight());
-            line.setStroke(Color.GRAY);
-            line.setStrokeWidth(3);
+        for (int x = 0; x < NO_OF_SUBBOARD_POSITIONS_HORIZONTALLY + 1; x++) {
+            Line line = new Line((x * hSpacing) + lineSpacing, lineSpacing, (x * hSpacing) + lineSpacing, boardPane.getHeight() - lineSpacing);
+            line.setStroke(new Color(0.25, 0.25, 0.25, 1));
+            line.setStrokeWidth(lineSize);
             boardPane.getChildren().add(line);
         }
     }
@@ -566,7 +602,7 @@ public class CC_Controller extends BorderPane {
             if (selectedItem == null) return;
             if (selectedItem == CC_Items.SubBoard || selectedItem == CC_Items.StartSubBoard) return;
             if (previousSpaceView != null) {
-                previousSpaceView.CC_setGhost(null, null, false);
+                previousSpaceView.CC_setGhost(null, null, false, false);
                 previousSpaceView = null;
             }
             List<CC_SpaceView> CC_SpaceViewsOnMouse = getSpacesAtMouse(event);
@@ -601,14 +637,15 @@ public class CC_Controller extends BorderPane {
                 }
                 // Remove ghost on this space when mouse clicked
                 if (hoveredSpaceView != previousSpaceView) {
-                    hoveredSpaceView.CC_setGhost(null, null, false);
+                    hoveredSpaceView.CC_setGhost(null, null, false, false);
                 }
             } else {
                 if (previousSpaceView == null || rotationChanged) {
                     if (selectedItem == null) {
-                        hoveredSpaceView.CC_setGhost(null, null, false);
+                        hoveredSpaceView.CC_setGhost(null, null, false, false);
+                    } else {
+                        hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, selectedItem == CC_Items.Wall, shiftIsDown);
                     }
-                    hoveredSpaceView.CC_setGhost(selectedItem.image, selectedItem.canBeRotated ? currentRotation : NORTH, shiftIsDown);
                     previousSpaceView = hoveredSpaceView;
                 }
             }
@@ -637,25 +674,25 @@ public class CC_Controller extends BorderPane {
 
             Line upperLine = new Line(leftBorder, topBorder, rightBorder, topBorder);
             upperLine.setStroke(lineColor);
-            upperLine.setStrokeWidth(4);
+            upperLine.setStrokeWidth(lineSize * 4);
             boardPane.getChildren().add(upperLine);
             highlightedSubBoardPositionLines.add(upperLine);
 
             Line lowerLine = new Line(leftBorder, bottomBorder, rightBorder, bottomBorder);
             lowerLine.setStroke(lineColor);
-            lowerLine.setStrokeWidth(4);
+            lowerLine.setStrokeWidth(lineSize * 4);
             boardPane.getChildren().add(lowerLine);
             highlightedSubBoardPositionLines.add(lowerLine);
 
             Line leftLine = new Line(leftBorder, topBorder, leftBorder, bottomBorder);
             leftLine.setStroke(lineColor);
-            leftLine.setStrokeWidth(4);
+            leftLine.setStrokeWidth(lineSize * 4);
             boardPane.getChildren().add(leftLine);
             highlightedSubBoardPositionLines.add(leftLine);
 
             Line rightLine = new Line(rightBorder, topBorder, rightBorder, bottomBorder);
             rightLine.setStroke(lineColor);
-            rightLine.setStrokeWidth(4);
+            rightLine.setStrokeWidth(lineSize * 4);
             boardPane.getChildren().add(rightLine);
             highlightedSubBoardPositionLines.add(rightLine);
         }
