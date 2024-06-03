@@ -36,10 +36,10 @@ import static gruppe15.roborally.GameVariables.*;
 
 public class ZoomableScrollPane extends ScrollPane {
     private double scaleValue = 1;
-    private final StackPane target;
+    private final Node target;
     private final Group zoomNode;
 
-    public ZoomableScrollPane(StackPane target) {
+    public ZoomableScrollPane(Node target) {
         super();
         this.target = target;
         this.zoomNode = new Group(target);
@@ -66,8 +66,8 @@ public class ZoomableScrollPane extends ScrollPane {
         setPannable(false);
         setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        setFitToHeight(true); //center
-        setFitToWidth(true); //center
+        setFitToHeight(true);
+        setFitToWidth(true);
 
         updateScale();
 

@@ -133,15 +133,13 @@ public class BoardView extends VBox implements ViewObserver {
         zoomableScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         StackPane.setMargin(zoomableScrollPane, new Insets(7, 0, 0, 0));
-        Platform.runLater(() -> {
-            double width = boardTilesPane.getWidth() + 12000;
-            double height = width / 2.72;
-            interactablePane.setMinSize(width, height);
-            interactablePane.setPrefSize(width, height);
-            interactablePane.setMaxSize(width, height);
-            mainBoardPane.setPrefHeight(895);
-            zoomableScrollPane.setPannable(true);
-        });
+        double width = boardTilesPane.getWidth() + 12000;
+        double height = width / 2.72;
+        interactablePane.setMinSize(width, height);
+        interactablePane.setPrefSize(width, height);
+        interactablePane.setMaxSize(width, height);
+        mainBoardPane.setPrefHeight(895);
+        zoomableScrollPane.setPannable(true);
 
         statusLabel = new Label("<no status>");
 
