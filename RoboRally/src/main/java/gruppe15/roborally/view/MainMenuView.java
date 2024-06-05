@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
+import gruppe15.roborally.exceptions.GameLoadingException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -51,10 +52,10 @@ public class MainMenuView {
     /**
      * Initializes the main menu view, and the action events for the buttons, along with
      * the button effects.
-     * 
-     * @author Marcus Rémi Lemser Eychenne, s230985
      * @param appController the app controller
      * @return itself
+     *
+     * @author Marcus Rémi Lemser Eychenne, s230985
      */
     @FXML
     public MainMenuView initialize(AppController appController) {
@@ -73,7 +74,7 @@ public class MainMenuView {
         return this;
     }
 
-    private void createNewGameButton(){
+    private void createNewGameButton() {
         newGame = (Button) mainMenu.lookup("#newGame");
         newGame.setOnAction(e -> appController.courseSelection());
         buttons[0] = newGame;
@@ -81,9 +82,9 @@ public class MainMenuView {
         //newGame.setGraphic(createButtonTextPane(newGame.getText()));
     }
 
-    private void createLoadGameButton(){
+    private void createLoadGameButton() {
         loadGame = (Button) mainMenu.lookup("#loadGame");
-        loadGame.setOnAction(e -> {
+        loadGame.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Load Game");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
@@ -104,7 +105,13 @@ public class MainMenuView {
             fileChooser.setInitialDirectory(new File(directoryPath));
             File loadedFile = fileChooser.showOpenDialog(mainMenu.getScene().getWindow());
             if (loadedFile != null) {
-                appController.loadGame(loadedFile);
+                try {
+                    appController.loadGame(loadedFile);
+                } catch (GameLoadingException e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+
             }
         });
         buttons[1] = loadGame;

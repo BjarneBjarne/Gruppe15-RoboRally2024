@@ -3,7 +3,7 @@ package gruppe15.roborally.coursecreator;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Space;
 import gruppe15.roborally.model.boardelements.*;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.utils.ImageUtils;
 import javafx.scene.image.Image;
 
 import javafx.geometry.Point2D;
@@ -315,11 +315,11 @@ public class CC_CourseData {
         String spawnPointsMessage = noOfSpawnPoints >= 6 ? "" : "Need at least 6 spawn points. Found " + noOfSpawnPoints + " spawn point" + (noOfSpawnPoints != 1 ? "s" : "" ) + ".\n";
         String antennaMessage = noOfAntennas == 1 ? "" : noOfAntennas < 1 ? "Missing an antenna.\n" : "Can only have 1 antenna. Found : " + noOfAntennas + " antennas.\n";
         String hasFirstCheckpointMessage = hasCheckpoint[0] ? "" : "Missing the first checkpoint.\n";
-        StringBuilder hasCheckpointsInMessage = getHasCheckpointsInMessage(checkpointsAreInOrder, hasCheckpoint);
-        return "\n" + spawnPointsMessage + antennaMessage + hasFirstCheckpointMessage + hasCheckpointsInMessage;
+        StringBuilder missingCheckpointsMessage = getMissingCheckpointsAsString(checkpointsAreInOrder, hasCheckpoint);
+        return "\n" + spawnPointsMessage + antennaMessage + hasFirstCheckpointMessage + missingCheckpointsMessage;
     }
 
-    private static @NotNull StringBuilder getHasCheckpointsInMessage(boolean checkpointsAreInOrder, boolean[] hasCheckpoint) {
+    private static @NotNull StringBuilder getMissingCheckpointsAsString(boolean checkpointsAreInOrder, boolean[] hasCheckpoint) {
         StringBuilder hasCheckpointsInMessage = new StringBuilder(checkpointsAreInOrder ? "" : "Checkpoints are not in order. Found checkpoints: ");
         boolean foundCheckpoint = false;
         for (int i = 0; i < hasCheckpoint.length; i++) {
@@ -333,5 +333,17 @@ public class CC_CourseData {
         hasCheckpointsInMessage.append("\n");
 
         return hasCheckpointsInMessage;
+    }
+
+    public int getNoOfCheckpoints() {
+        int noOfCheckpoints = 0;
+        for (CC_SubBoard subBoard : subBoards) {
+            for (CC_SpaceView[] spaceViewColumn : subBoard.getSpaceViews()) {
+                for (CC_SpaceView spaceView : spaceViewColumn) {
+                    if (getCheckpointFromSpaceView(spaceView) != null) noOfCheckpoints++;
+                }
+            }
+        }
+        return noOfCheckpoints;
     }
 }

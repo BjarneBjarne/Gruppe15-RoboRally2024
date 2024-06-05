@@ -38,8 +38,8 @@ import java.util.*;
 
 import static gruppe15.roborally.model.CardField.CardFieldTypes.*;
 import static gruppe15.roborally.model.Phase.*;
-import static gruppe15.roborally.GameVariables.*;
-import static gruppe15.roborally.GameSettings.*;
+import static gruppe15.roborally.ApplicationSettings.*;
+import static gruppe15.roborally.BoardOptions.*;
 
 /**
  * ...
@@ -49,7 +49,7 @@ import static gruppe15.roborally.GameSettings.*;
  */
 public class GameController {
     public final Board board;
-    private final AppController appController;
+    private final Runnable gameOverMethod;
 
     private Space directionOptionsSpace;
     private String winnerName;
@@ -71,11 +71,11 @@ public class GameController {
     /**
      * Constructor method for GameController.
      * @param board The current board
-     * @param appController The current AppController
+     * @param gameOverMethod The method for calling game over.
      */
-    public GameController(@NotNull Board board, AppController appController) {
+    public GameController(@NotNull Board board, Runnable gameOverMethod) {
         this.board = board;
-        this.appController = appController;
+        this.gameOverMethod = gameOverMethod;
     }
 
     /**
@@ -96,7 +96,7 @@ public class GameController {
      */
     public void startUpgradingPhase() {
         board.getUpgradeShop().refillAvailableCards();
-        board.setPhase(UPGRADE);
+        board.setCurrentPhase(UPGRADE);
         board.updateBoard();
     }
 
@@ -104,7 +104,7 @@ public class GameController {
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
-        board.setPhase(PROGRAMMING);
+        board.setCurrentPhase(PROGRAMMING);
 
         board.setCurrentRegister(0);
         board.updatePriorityList();
@@ -132,7 +132,7 @@ public class GameController {
     }
 
     public void finishProgrammingPhase() {
-        board.setPhase(PLAYER_ACTIVATION);
+        board.setCurrentPhase(PLAYER_ACTIVATION);
 
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
@@ -178,7 +178,7 @@ public class GameController {
      *     These methods are the main flow of a register.
      */
     private void handlePlayerRegister() {
-        board.setPhase(PLAYER_ACTIVATION);
+        board.setCurrentPhase(PLAYER_ACTIVATION);
         System.out.println();
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
@@ -220,7 +220,7 @@ public class GameController {
      * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
      */
     private void handleEndOfRegister() {
-        board.setPhase(BOARD_ACTIVATION);
+        board.setCurrentPhase(BOARD_ACTIVATION);
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
         handleBoardElementActions();
@@ -267,13 +267,13 @@ public class GameController {
 
     private void runActionsAndCallback(Runnable callback, LinkedList<ActionWithDelay> actionQueue) {
         if (playerInteractionQueue.isEmpty()) {
-            if (board.getPhase() == PLAYER_ACTIVATION || board.getPhase() == BOARD_ACTIVATION) {
+            if (board.getCurrentPhase() == PLAYER_ACTIVATION || board.getCurrentPhase() == BOARD_ACTIVATION) {
                 if (!actionQueue.isEmpty()) { // As long as there are more actions.
                     // Handle the next action
                     ActionWithDelay nextAction = actionQueue.removeFirst();
-                    nextAction.getAction(WITH_ACTION_MESSAGE).run();
-                    Duration delay = nextAction.getDelay();
-                    PauseTransition pause = new PauseTransition(delay);
+                    nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
+                    int delayInMillis = nextAction.getDelay();
+                    PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
                     pause.setOnFinished(event -> {
                         EventHandler.event_EndOfAction(this);
                         runActionsAndCallback(callback, actionQueue);
@@ -285,7 +285,7 @@ public class GameController {
                     callback.run();
                 }
             } else {
-                System.out.println("Possible error? Phase is: \"" + board.getPhase() + "\", but currently running actions.");
+                System.out.println("Possible error? Phase is: \"" + board.getCurrentPhase() + "\", but currently running actions.");
             }
         } else {
             handleNextInteraction();
@@ -314,14 +314,14 @@ public class GameController {
     }
 
     private void continueActions() throws UnhandledPhaseInteractionException {
-        if (board.getPhase() == PLAYER_ACTIVATION) {
+        if (board.getCurrentPhase() == PLAYER_ACTIVATION) {
             currentPlayerInteraction = null;
             handlePlayerActions();
-        } else if (board.getPhase() == BOARD_ACTIVATION) {
+        } else if (board.getCurrentPhase() == BOARD_ACTIVATION) {
             currentPlayerInteraction = null;
             handleBoardElementActions();
         } else {
-            throw new UnhandledPhaseInteractionException(board.getPhase(), currentPlayerInteraction);
+            throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
         }
     }
 
@@ -406,10 +406,10 @@ public class GameController {
      * @param winnerIMG
      * @author Maximillian Bjørn Mortensen
      */
-    public void setWinner(String winnerName, Image winnerIMG){
+    public void setWinner(String winnerName, Image winnerIMG) {
         this.winnerName = winnerName;
         this.winnerIMG = winnerIMG;
-        appController.gameOver();
+        gameOverMethod.run();
     }
 
     public void checkpointReached(Player player, int number) {
@@ -436,23 +436,12 @@ public class GameController {
     }
 
     public void spacePressed(MouseEvent event, Space space) {
-        if (board.getPhase() == INITIALIZATION) {
+        if (board.getCurrentPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
                 Player currentPlayer = board.getCurrentPlayer();
                 if (space.getPlayer() == null) {
                     space.setPlayer(currentPlayer);
                     setDirectionOptionsPane(space);
-                }
-            }
-        }
-
-        // Debugging
-        if (board.getPhase() != INITIALIZATION) {
-            if (space.getPlayer() == null) {
-                if (event.isShiftDown()) {
-                    space.setPlayer(board.getPlayer(1));
-                } else if (event.isControlDown()) {
-                    space.setPlayer(board.getPlayer(0));
                 }
             }
         }
@@ -480,7 +469,7 @@ public class GameController {
     public void chooseDirection(Heading direction, BoardView BV) {
         BV.handleDirectionButtonClicked();
         directionOptionsSpace = null;
-        if (board.getPhase() == INITIALIZATION) {
+        if (board.getCurrentPhase() == INITIALIZATION) {
             Player player = board.getCurrentPlayer();
 
             Space spawnSpace = player.getSpace();
@@ -512,14 +501,14 @@ public class GameController {
         CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
 
         // Drag from shop
-        if (sourceType == UPGRADE_CARD_SHOP_FIELD && board.getPhase() != UPGRADE) return false;
+        if (sourceType == UPGRADE_CARD_SHOP_FIELD && board.getCurrentPhase() != UPGRADE) return false;
 
         // Drag from player
         if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
             // Limited card movement when not programming
             assert sourceField.player != null;
             List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
-            if (board.getPhase() != PROGRAMMING) {
+            if (board.getCurrentPhase() != PROGRAMMING) {
                 if (playerProgramField.contains(sourceField)) return false;
             }
         }
@@ -537,7 +526,7 @@ public class GameController {
 
         // Dragging from shop
         if (sourceType == UPGRADE_CARD_SHOP_FIELD) {
-            if (board.getPhase() != UPGRADE) return false;
+            if (board.getCurrentPhase() != UPGRADE) return false;
             if (sourceField.getCard() instanceof UpgradeCardPermanent && targetType != PERMANENT_UPGRADE_CARD_FIELD) return false;
             if (sourceField.getCard() instanceof UpgradeCardTemporary && targetType != TEMPORARY_UPGRADE_CARD_FIELD) return false;
         }
@@ -550,7 +539,7 @@ public class GameController {
             // Limited card movement when not programming
             assert sourceField.player != null;
             List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
-            if (board.getPhase() != PROGRAMMING) {
+            if (board.getCurrentPhase() != PROGRAMMING) {
                 if (playerProgramField.contains(sourceField) || playerProgramField.contains(targetField)) return false;
             }
 

@@ -8,8 +8,8 @@
  *
  * Description of Modifications:
  * - Set scroll event to only zoom when the CTRL button is pressed.
- * - Using ZOOM_SPEED constant from the GameVariables.java class.
- * - Clamped the scaleValue between MIN_ZOOM and MAX_ZOOM, also from the GameVariables.java class.
+ * - Using ZOOM_SPEED constant from the ApplicationSettings.java class.
+ * - Clamped the scaleValue between MIN_ZOOM and MAX_ZOOM, also from the ApplicationSettings.java class.
  *
  * This file is used for an academic project at DTU - Danmarks Tekniske Universitet.
  *
@@ -29,20 +29,24 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import static gruppe15.roborally.GameVariables.*;
+import static gruppe15.roborally.ApplicationSettings.*;
 
 public class ZoomableScrollPane extends ScrollPane {
-    private double scaleValue = 1;
+    private double scaleValue;
     private final Node target;
     private final Group zoomNode;
 
     public ZoomableScrollPane(Node target) {
+        this(target, 1);
+    }
+
+    public ZoomableScrollPane(Node target, double startScale) {
         super();
         this.target = target;
         this.zoomNode = new Group(target);
+        this.scaleValue = startScale;
 
         VBox outerNode = new VBox(zoomNode);
         outerNode.setAlignment(Pos.CENTER);
@@ -54,7 +58,7 @@ public class ZoomableScrollPane extends ScrollPane {
         });
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.R) {
-                scaleValue = 1;
+                scaleValue = startScale;
                 updateScale();
                 this.layout();
                 centerContent();

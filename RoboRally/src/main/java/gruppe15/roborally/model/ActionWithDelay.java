@@ -4,16 +4,16 @@ import javafx.util.Duration;
 
 public class ActionWithDelay {
     private final Runnable action;
-    private final Duration delay;
+    private final int delayInMillis;
     private final String actionName;
 
-    public ActionWithDelay(Runnable action, Duration delay, String actionName) {
+    public ActionWithDelay(Runnable action, int delayInMillis, String actionName) {
         this.action = action;
-        this.delay = delay;
+        this.delayInMillis = delayInMillis;
         this.actionName = actionName;
     }
-    public ActionWithDelay(Runnable action, Duration delay) {
-        this(action, delay, "");
+    public ActionWithDelay(Runnable action, int delayInMillis) {
+        this(action, delayInMillis, "");
     }
 
     public Runnable getAction(boolean displayActionName) {
@@ -23,7 +23,7 @@ public class ActionWithDelay {
         return action;
     }
 
-    public Duration getDelay() {
-        return delay;
+    public int getDelay() {
+        return delayInMillis;
     }
 }

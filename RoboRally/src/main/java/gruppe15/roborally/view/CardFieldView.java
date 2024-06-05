@@ -25,7 +25,7 @@ import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.utils.ImageUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -40,8 +40,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
-import static gruppe15.roborally.GameSettings.NO_OF_CARDS_IN_HAND;
-import static gruppe15.roborally.GameVariables.*;
+import static gruppe15.roborally.BoardOptions.NO_OF_CARDS_IN_HAND;
+import static gruppe15.roborally.ApplicationSettings.*;
 
 /**
  * @author Ekkart Kindler, ekki@dtu.dk
@@ -145,7 +145,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 }
             }
         } else {
-            if (gameController.board.getPhase().equals(Phase.UPGRADE)) {
+            if (gameController.board.getCurrentPhase().equals(Phase.UPGRADE)) {
                 if (cardField.cardFieldType == CardField.CardFieldTypes.UPGRADE_CARD_SHOP_FIELD) {
                     UpgradeShop upgradeShop = gameController.board.getUpgradeShop();
                     for (int i = 0; i < upgradeShop.getAvailableCardsFields().length; i++) {
@@ -255,6 +255,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 }
             } else {
                 cardImageView.setImage(null);
+                cardForegroundImageView.setImage(null);
             }
         }
     }

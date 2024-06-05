@@ -1,6 +1,6 @@
 package gruppe15.roborally.model.upgrade_cards.permanent;
 
-import gruppe15.roborally.GameVariables;
+import gruppe15.roborally.ApplicationSettings;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.damage.Damage;
@@ -28,7 +28,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
             if (owner != playerTakingDamage) {
                 if (activated) {
                     activated = false;
-                    if (GameVariables.SHOW_DEBUG_UPGRADE_CARD_USAGE) {
+                    if (ApplicationSettings.DEBUG_SHOW_UPGRADE_CARD_USAGE) {
                         System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\" to push and deal two more SPAM damage to player: \"" + playerTakingDamage + "\".");
                     }
                     // pushDirection calculated for compatibility with e.g. "REAR LASER" UpgradeCardPermanent.
@@ -47,7 +47,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
                         pushDirection = Heading.WEST;
                     }
 
-                    EventHandler.event_PlayerPush(owner.board.getSpaces(), owner, playerToPush, pushDirection, gameController);
+                    EventHandler.event_PlayerPush(owner.board.getSpaces(), owner, playerToPush, pushDirection);
                     // Extra damage already added as owner temporaryBonusDamage
                 }
             }

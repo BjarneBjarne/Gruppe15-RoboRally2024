@@ -22,10 +22,9 @@
 package gruppe15.roborally.model.boardelements;
 
 import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.coursecreator.CC_SpaceView;
 import gruppe15.roborally.model.*;
 
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.utils.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

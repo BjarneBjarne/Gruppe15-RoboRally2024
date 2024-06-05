@@ -5,10 +5,7 @@ import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Player;
 import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.utils.ImageUtils;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import gruppe15.utils.ImageUtils;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 

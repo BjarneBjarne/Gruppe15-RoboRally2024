@@ -42,7 +42,7 @@ public class Card_PressorBeam extends UpgradeCardPermanent {
                     pushDirection = Heading.WEST;
                 }
 
-                EventHandler.event_PlayerPush(owner.board.getSpaces(), owner, playerToPush, pushDirection, gameController);
+                EventHandler.event_PlayerPush(owner.board.getSpaces(), owner, playerToPush, pushDirection);
             }
             return damage;
         }, owner));

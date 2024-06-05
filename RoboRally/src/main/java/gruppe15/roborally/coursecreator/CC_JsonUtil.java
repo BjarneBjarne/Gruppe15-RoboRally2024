@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import gruppe15.roborally.fileaccess.IOUtil;
+import gruppe15.utils.IOUtil;
 import javafx.geometry.Point2D;
 
 import static gruppe15.roborally.RoboRally.logger;
