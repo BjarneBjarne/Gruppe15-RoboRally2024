@@ -3,14 +3,13 @@ package gruppe15.roborally.model.boardelements;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.damage.Damage;
-import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static gruppe15.roborally.GameSettings.STANDARD_DAMAGE;
+import static gruppe15.roborally.BoardOptions.STANDARD_DAMAGE;
 
 /**
  * This class represents a board laser on the board and when a player is hit by
@@ -65,7 +64,7 @@ public class BE_BoardLaser extends BoardElement {
                 actionQueue.addFirst(new ActionWithDelay(() -> {
                     damage.applyDamage(playerHit, null);
                     System.out.println(playerHit.getName() + " hit by board laser!");
-                }, Duration.millis(500)));
+                }, 500));
             }
         } catch (InterruptedException e) {
             // Handle InterruptedException

@@ -21,19 +21,18 @@
 package gruppe15.roborally.view;
 
 import gruppe15.observer.Subject;
-import gruppe15.roborally.GameVariables;
+import gruppe15.roborally.ApplicationSettings;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardPermanent;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCardTemporary;
-import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.model.utils.TextUtils;
+import gruppe15.utils.ImageUtils;
+import gruppe15.utils.TextUtils;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -45,58 +44,51 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-import static gruppe15.roborally.GameVariables.*;
+import static gruppe15.roborally.ApplicationSettings.*;
+import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ...
- *
+ * Class for making the main JavaFX nodes for gameplay.
+ * This includes the view of the board, along with the views for each of its spaces, as well as the view containing -
+ *     the player mats.
  * @author Ekkart Kindler, ekki@dtu.dk
- *
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class BoardView extends VBox implements ViewObserver {
-
-    private Board board;
-
-    private StackPane mainBoardPane;
-
-    private GridPane boardTilesPane;
-    private SpaceView[][] spaceViews;
-
-    private PlayersView playersView;
-    private Label statusLabel;
-
-    private StackPane upgradeShopPane;
-    private StackPane upgradeShopTitelPane;
-    private StackPane upgradeShopMainPane;
-    private HBox upgradeShopCardsHBox;
-    private Button finishUpgradingButton;
-    private CardFieldView[] upgradeShopCardViews;
-
-    private final SpaceEventHandler spaceEventHandler;
     private final GameController gameController;
+    private final Board board;
+
+    private final StackPane mainBoardPane;
+    private final SpaceView[][] spaceViews;
+    private final PlayersView playersView;
     private final GridPane directionOptionsPane;
+    private StackPane upgradeShopPane;
+    private HBox upgradeShopCardsHBox;
+    //private final Label statusLabel;
 
-    private ZoomableScrollPane zoomableScrollPane;
-    private StackPane interactablePane = new StackPane();
-
+    /**
+     * Constructor of BoardView.
+     * @param gameController
+     * @param directionOptionsPane The loaded directionOptionsPane from the DirectionArrows.fxml file.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         this.gameController = gameController;
         this.directionOptionsPane = directionOptionsPane;
         board = gameController.board;
         board.initializeUpgradeShop();
         spaceViews = new SpaceView[board.width][board.height];
-        spaceEventHandler = new SpaceEventHandler(gameController);
-        this.directionOptionsPane.setPrefSize(GameVariables.SPACE_SIZE * 3, SPACE_SIZE * 3);
+        this.directionOptionsPane.setPrefSize(ApplicationSettings.SPACE_SIZE * 3, SPACE_SIZE * 3);
 
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
                 gameController.initializeDirectionButton(button, this);
                 ImageView buttonImage = new ImageView();
-                buttonImage.setFitWidth(GameVariables.SPACE_SIZE);
+                buttonImage.setFitWidth(ApplicationSettings.SPACE_SIZE);
                 buttonImage.setFitHeight(SPACE_SIZE);
                 Heading direction = Heading.valueOf(button.getId());
                 buttonImage.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("arrow.png"), direction));
@@ -106,16 +98,16 @@ public class BoardView extends VBox implements ViewObserver {
         this.directionOptionsPane.setDisable(true);
         this.directionOptionsPane.setVisible(false);
 
-        boardTilesPane = new GridPane();
+        GridPane boardTilesPane = new GridPane();
         boardTilesPane.setAlignment(Pos.CENTER);
         playersView = new PlayersView(gameController);
         StackPane playersViewStackPane = new StackPane(playersView);
 
         AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
-        interactablePane = new StackPane(boardTilesPane, anchorPane);
+        StackPane interactablePane = new StackPane(boardTilesPane, anchorPane);
         StackPane.setAlignment(boardTilesPane, Pos.CENTER);
         StackPane.setAlignment(anchorPane, Pos.CENTER);
-        zoomableScrollPane = new ZoomableScrollPane(interactablePane);
+        ZoomableScrollPane zoomableScrollPane = new ZoomableScrollPane(interactablePane, 0.9);
         zoomableScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         zoomableScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         mainBoardPane = new StackPane(zoomableScrollPane);
@@ -132,7 +124,7 @@ public class BoardView extends VBox implements ViewObserver {
         interactablePane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         zoomableScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        StackPane.setMargin(zoomableScrollPane, new Insets(7, 0, 0, 0));
+        StackPane.setMargin(zoomableScrollPane, new Insets(25, 0, 0, 0));
         double width = boardTilesPane.getWidth() + 12000;
         double height = width / 2.72;
         interactablePane.setMinSize(width, height);
@@ -140,11 +132,10 @@ public class BoardView extends VBox implements ViewObserver {
         interactablePane.setMaxSize(width, height);
         mainBoardPane.setPrefHeight(895);
         zoomableScrollPane.setPannable(true);
-
-        statusLabel = new Label("<no status>");
+        //statusLabel = new Label("<no status>");
 
         playersViewStackPane.setAlignment(Pos.CENTER);
-        this.getChildren().add(statusLabel);
+        //this.getChildren().add(statusLabel);
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersViewStackPane);
         this.setAlignment(Pos.BOTTOM_CENTER);
@@ -169,6 +160,7 @@ public class BoardView extends VBox implements ViewObserver {
             }
         }
 
+        SpaceEventHandler spaceEventHandler = new SpaceEventHandler(gameController);
         mainBoardPane.setOnMouseClicked(spaceEventHandler);
 
         board.attach(this);
@@ -176,58 +168,25 @@ public class BoardView extends VBox implements ViewObserver {
     }
 
     /**
-     * Simple constructor used when loading a game.
-     * 
-     * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param gameController the game controller
+     * Method for initializing the upgrade shop. Should only be called once after creating a BoardView.
+     * @param upgradeShopPane Root of the upgrade shop.
+     * @param upgradeShopTitelPane The upper pane, containing the title.
+     * @param upgradeShopMainPane The main pane containing the cards and finish button.
+     * @param upgradeShopCardsHBox The HBox to put the card views in.
+     * @param finishUpgradingButton The button for exiting the shop.
+     *
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public BoardView(@NotNull GameController gameController) {
-        this.gameController = gameController;
-        board = gameController.board;
-        spaceViews = new SpaceView[board.width][board.height];
-        spaceEventHandler = new SpaceEventHandler(gameController);
-        this.directionOptionsPane = new GridPane();
-
-        boardTilesPane = new GridPane();
-        playersView = new PlayersView(gameController);
-        statusLabel = new Label("<no status>");
-        // AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
-        mainBoardPane = new StackPane(boardTilesPane);
-        this.getChildren().add(statusLabel);
-        this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playersView);
-        this.setAlignment(Pos.TOP_CENTER);
-        boardTilesPane.setAlignment(Pos.TOP_CENTER);
-        mainBoardPane.setAlignment(Pos.TOP_CENTER);
-
-        for (int x = 0; x < board.width; x++) {
-            for (int y = 0; y < board.height; y++) {
-                Space space = board.getSpace(x, y);
-                SpaceView spaceView = new SpaceView(space);
-                spaceViews[x][y] = spaceView;
-                boardTilesPane.add(spaceView, x, y);
-            }
-        }
-
-        mainBoardPane.setOnMouseClicked(spaceEventHandler);
-
-        board.attach(this);
-        update(board);
-    }
-
     public void setUpgradeShopFXML(StackPane upgradeShopPane, StackPane upgradeShopTitelPane, StackPane upgradeShopMainPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
         this.upgradeShopPane = upgradeShopPane;
-        this.upgradeShopTitelPane = upgradeShopTitelPane;
-        this.upgradeShopMainPane = upgradeShopMainPane;
         this.upgradeShopCardsHBox = upgradeShopCardsHBox;
-        this.finishUpgradingButton = finishUpgradingButton;
 
         mainBoardPane.getChildren().add(upgradeShopPane);
 
         if (this.upgradeShopCardsHBox == null) {
             System.out.println("upgradeShopCardsHBox not initialized in BoardView - setUpgradeShopFXML()");
         }
-        if (this.finishUpgradingButton == null) {
+        if (finishUpgradingButton == null) {
             System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
         }
 
@@ -259,11 +218,15 @@ public class BoardView extends VBox implements ViewObserver {
                         "-fx-background-radius: 15px"
         );
     }
-    
-    public void setUpgradeShop() {
+
+    /**
+     * Method for refreshing the card views, to show the new cards that are available for purchase.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void updateUpgradeShop() {
         upgradeShopCardsHBox.getChildren().clear();
         UpgradeShop upgradeShop = board.getUpgradeShop();
-        upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
+        CardFieldView[] upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
@@ -292,10 +255,22 @@ public class BoardView extends VBox implements ViewObserver {
         }
     }
 
+    /**
+     * Gets the SpaceViews from a mouse event, whose bounds surround the mouse.
+     * @param event The mouse event to check for SpaceViews under the mouse.
+     * @return Returns a new list of SpaceViews.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     private List<SpaceView> getSpaceViewsAtMouse(MouseEvent event) {
         return getSpaceViewsAtPosition(new Point2D(event.getSceneX(), event.getSceneY()));
     }
 
+    /**
+     * The method for getting all the SpaceViews on the BoardView, where the mouse position is within.
+     * @param position The mouse position in the scene.
+     * @return Returns a new list of SpaceViews at the mouse position.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     private List<SpaceView> getSpaceViewsAtPosition(Point2D position) {
         List<SpaceView> spacesAtMouse = new ArrayList<>();
         for (int x = 0; x < spaceViews.length; x++) {
@@ -313,6 +288,11 @@ public class BoardView extends VBox implements ViewObserver {
         return spacesAtMouse;
     }
 
+    /**
+     * Method for showing the directionOptionsPane at the position of a SpaceView.
+     * @param spaceView The SpaceView at which to show the directionOptionsPane.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public void setDirectionOptionsPane(SpaceView spaceView) {
         directionOptionsPane.setDisable(false);
         directionOptionsPane.setVisible(true);
@@ -320,14 +300,24 @@ public class BoardView extends VBox implements ViewObserver {
         directionOptionsPane.setLayoutY(spaceView.getLayoutY() - (directionOptionsPane.getHeight() / 3));
     }
 
+    /**
+     * Updates the board element imageview to show the new SpawnPoint image with the color of the player.
+     * @param space The space at which the player set its SpawnPoint.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public void initializePlayerSpawnSpaceView(Space space) {
         spaceViews[space.x][space.y].updateBoardElementImage();
     }
 
+    /**
+     * Override of method from ViewObserver.
+     * @param subject The subject that called the method.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     @Override
     public void updateView(Subject subject) {
         if (subject == board) {
-            statusLabel.setText(board.getStatusMessage());
+            //statusLabel.setText(board.getStatusMessage());
 
             Space directionOptionsSpace = gameController.getDirectionOptionsSpace();
             if (directionOptionsSpace != null) {
@@ -335,8 +325,8 @@ public class BoardView extends VBox implements ViewObserver {
             }
 
             Platform.runLater(() -> {
-                if (board.getPhase() == Phase.UPGRADE) {
-                    setUpgradeShop();
+                if (board.getCurrentPhase() == Phase.UPGRADE) {
+                    updateUpgradeShop();
                     upgradeShopPane.setVisible(true);
                     upgradeShopPane.setMouseTransparent(false);
                 } else {
@@ -349,18 +339,21 @@ public class BoardView extends VBox implements ViewObserver {
         }
     }
 
+    /**
+     * Hides the directionOptionsPane.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public void handleDirectionButtonClicked() {
         directionOptionsPane.setDisable(true);
         directionOptionsPane.setVisible(false);
     }
 
-    // XXX this handler and its uses should eventually be deleted! This is just to help test the
-    //     behaviour of the game by being able to explicitly move the players on the board!
+    /**
+     * Class for handling user input on SpaceViews.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
         final public GameController gameController;
-        private int playerToMove = 0;
-        private SpaceView selectedSpaceView;
-        private Player playerToSpawn;
 
         public SpaceEventHandler(@NotNull GameController gameController) {
             this.gameController = gameController;
@@ -368,17 +361,31 @@ public class BoardView extends VBox implements ViewObserver {
 
         @Override
         public void handle(MouseEvent event) {
-            // Object source = event.getSource();
-            List<SpaceView> spaceViews = getSpaceViewsAtMouse(event);
-            if (!spaceViews.isEmpty()) {
-                SpaceView spaceView = spaceViews.getFirst();
-                //SpaceView spaceView = (SpaceView) source;
-                Space space = spaceView.space;
-                Board board = space.board;
+            if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
+                // Object source = event.getSource();
+                List<SpaceView> spaceViews = getSpaceViewsAtMouse(event);
+                if (!spaceViews.isEmpty()) {
+                    SpaceView spaceView = spaceViews.getFirst();
+                    //SpaceView spaceView = (SpaceView) source;
+                    Space space = spaceView.space;
+                    Board board = space.board;
 
-                if (board == gameController.board) {
-                    gameController.spacePressed(event, space);
-                    event.consume();
+                    if (board == gameController.board) {
+                        if (event.isAltDown()) {
+                            // Debugging
+                            if (DEBUG_ALLOW_MANUAL_PLAYER_POSITION) {
+                                if (board.getCurrentPhase() != INITIALIZATION && space.getPlayer() == null) {
+                                    // Move the player to the hovered free space.
+                                    playersView.getSelectedPlayerView().getPlayer().setSpace(space);
+                                }
+                            }
+                        } else {
+                            // Game input
+                            gameController.spacePressed(event, space);
+                        }
+
+                        event.consume();
+                    }
                 }
             }
         }

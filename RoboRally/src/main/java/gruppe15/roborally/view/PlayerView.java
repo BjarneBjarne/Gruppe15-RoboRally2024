@@ -25,8 +25,8 @@ import gruppe15.observer.Subject;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
-import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.model.utils.TextUtils;
+import gruppe15.utils.ImageUtils;
+import gruppe15.utils.TextUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -44,9 +44,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static gruppe15.roborally.GameSettings.NO_OF_CARDS_IN_HAND;
+import static gruppe15.roborally.BoardOptions.NO_OF_CARDS_IN_HAND;
 import static gruppe15.roborally.model.Phase.*;
-import static gruppe15.roborally.GameVariables.CARDFIELD_SIZE;
+import static gruppe15.roborally.ApplicationSettings.CARDFIELD_SIZE;
 
 /**
  * ...
@@ -55,7 +55,6 @@ import static gruppe15.roborally.GameVariables.CARDFIELD_SIZE;
  *
  */
 public class PlayerView extends Tab implements ViewObserver {
-
     private final Player player;
 
     private final StackPane mainPlayerViewPane;
@@ -88,7 +87,7 @@ public class PlayerView extends Tab implements ViewObserver {
     private final ImageView energyCubesImageView = new ImageView();
     private final ImageView checkpointTokenImageView = new ImageView();
     private final Image[] energyCubeImages = new Image[Player.NO_OF_ENERGY_CUBES + 1];
-    private final Image[] checkpointTokenImages = new Image[Board.NO_OF_CHECKPOINTS + 1];
+    private final Image[] checkpointTokenImages;
 
     public PlayerView(@NotNull GameController gameController, @NotNull Player player) {
         super();
@@ -116,6 +115,8 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < energyCubeImages.length; i++) {
             energyCubeImages[i] = ImageUtils.getImageFromName("Player Mat/EnergyCubePositions/" + i + ".png");
         }
+
+        checkpointTokenImages = new Image[player.board.NO_OF_CHECKPOINTS + 1];
         for (int i = 0; i < checkpointTokenImages.length; i++) {
             checkpointTokenImages[i] = ImageUtils.getImageFromName("Player Mat/CheckpointTokenPositions/" + i + ".png");
         }
@@ -311,7 +312,7 @@ public class PlayerView extends Tab implements ViewObserver {
         if (subject == board) {
             for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardFieldView cardFieldView = programCardViews[i];
-                if (cardFieldView != null && board.getPhase() == PLAYER_ACTIVATION) {
+                if (cardFieldView != null && board.getCurrentPhase() == PLAYER_ACTIVATION) {
                     if (i < board.getCurrentRegister()) {
                         cardFieldView.setBackground(CardFieldView.BG_DONE);
                     } else if (i == board.getCurrentRegister()) {
@@ -329,7 +330,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 if (!interactionPane.getChildren().contains(executePanel)) {
                     interactionPane.getChildren().add(executePanel);
                 }
-                switch (board.getPhase()) {
+                switch (board.getCurrentPhase()) {
                     case PROGRAMMING:
                         finishButton.setDisable(false);
                         executeButton.setDisable(true);
@@ -366,5 +367,9 @@ public class PlayerView extends Tab implements ViewObserver {
             energyCubesImageView.setImage(energyCubeImages[player.getEnergyCubes()]);
             checkpointTokenImageView.setImage(checkpointTokenImages[player.getCheckpoints()]);
         }
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

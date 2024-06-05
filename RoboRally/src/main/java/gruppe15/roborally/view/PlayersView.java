@@ -39,25 +39,35 @@ import javafx.scene.layout.Region;
  */
 public class PlayersView extends TabPane implements ViewObserver {
 
-    private Board board;
+    private final Board board;
 
-    private PlayerView[] playerViews;
+    private final PlayerView[] playerViews;
+    private PlayerView selectedPlayerView;
 
     public PlayersView(GameController gameController) {
         board = gameController.board;
-
-        this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-
-        this.setTabMaxHeight(Double.MAX_VALUE);
 
         playerViews = new PlayerView[board.getNoOfPlayers()];
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             playerViews[i] = new PlayerView(gameController, board.getPlayer(i));
             this.getTabs().add(playerViews[i]);
         }
-        board.attach(this);
 
+        this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        this.setTabMaxHeight(Double.MAX_VALUE);
+        this.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+            if (newTab != null) {
+                System.out.println("Selected Tab: " + newTab.getText());
+                selectedPlayerView = (PlayerView) newTab;
+            }
+        });
+
+        board.attach(this);
         update(board);
+    }
+
+    public PlayerView getSelectedPlayerView() {
+        return selectedPlayerView;
     }
 
     @Override

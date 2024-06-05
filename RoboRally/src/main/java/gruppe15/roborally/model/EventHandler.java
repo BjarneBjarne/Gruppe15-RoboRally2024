@@ -7,13 +7,12 @@ import gruppe15.roborally.model.damage.Damage;
 import gruppe15.roborally.model.damage.DamageTypeAmount;
 import gruppe15.roborally.model.events.EventListener;
 import gruppe15.roborally.model.events.*;
-import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static gruppe15.roborally.GameSettings.STANDARD_DAMAGE;
+import static gruppe15.roborally.BoardOptions.STANDARD_DAMAGE;
 
 /**
  * This static class is for handling whenever an event takes place. Each "event" is defined as an extension of the EventListener.
@@ -157,7 +156,6 @@ public class EventHandler {
      * @param playerTakingDamage The player that takes the damage.
      * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
      * @param damage The damage to deal to the playerTakingDamage.
-     * @param actionQueue
      */
     public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage) {
         LinkedList<ActionWithDelay> actionQueue = playerInflictingTheDamage.board.getBoardActionQueue();
@@ -178,7 +176,7 @@ public class EventHandler {
             Damage finalDamage = damage;
             actionQueue.addFirst(new ActionWithDelay(() -> {
                 finalDamage.applyDamage(playerTakingDamage, playerInflictingTheDamage);
-            }, Duration.millis(250)));
+            }, 250));
         }
     }
 
@@ -212,7 +210,7 @@ public class EventHandler {
      * @param pushDirection
      */
     private static final Map<Player, Player> pushPairs = new HashMap<>();
-    public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection, GameController gc) {
+    public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection) {
         for (Player playerToPush : playersToPush) {
             if (playerToPush == playerPushing) continue; // Player can't push themselves.
             if (!playerToPush.equals(pushPairs.get(playerPushing)) && !playerPushing.getIsRebooting()) {
@@ -285,7 +283,7 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    public static void event_PlayerReboot(Player player, boolean takeDamage, GameController gc) {
+    public static void event_PlayerReboot(Player player, boolean takeDamage, GameController gameController) {
         Space oldSpace = player.getSpace();
         if (oldSpace == null) {
             //System.out.println("old space null for " + player.getName());
@@ -294,17 +292,17 @@ public class EventHandler {
         Space[][] currentSubBoard = null;
         Space rebootSpace;
         try {
-            currentSubBoard = gc.board.getSubBoardOfSpace(oldSpace);
+            currentSubBoard = player.board.getSubBoardOfSpace(oldSpace);
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
         Pair<Space, BE_Reboot> rebootSpaceFinder = null;
         if (currentSubBoard != null) {
-            rebootSpaceFinder = gc.board.findRebootInSubBoard(currentSubBoard);
+            rebootSpaceFinder = player.board.findRebootInSubBoard(currentSubBoard);
         }
         if (rebootSpaceFinder == null) {
             // If no reboot token on current subboard, or the currentSubBoard couldn't be found, look for reboot token on start subboard
-            rebootSpaceFinder = gc.board.findRebootInSubBoard(gc.board.getSubBoardOfSpace(player.getSpawnPoint()));
+            rebootSpaceFinder = player.board.findRebootInSubBoard(player.board.getSubBoardOfSpace(player.getSpawnPoint()));
         }
         if (rebootSpaceFinder != null) {
             rebootSpace = rebootSpaceFinder.getKey();
@@ -312,9 +310,9 @@ public class EventHandler {
             Player playerOnRebootSpace = rebootSpace.getPlayer();
             if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
                 List<Player> playersToPush = new ArrayList<>();
-                boolean couldPush = gc.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
+                boolean couldPush = player.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
                 if (couldPush) {
-                    EventHandler.event_PlayerPush(gc.board.getSpaces(), player, playersToPush, rebootSpace.getBoardElement().getDirection(), gc);
+                    EventHandler.event_PlayerPush(player.board.getSpaces(), player, playersToPush, rebootSpace.getBoardElement().getDirection());
                 } else {
                     // There is a wall at the end of player chain
                     System.out.println("ERROR: Can't place player on reboot.");
@@ -333,10 +331,10 @@ public class EventHandler {
             }
         }
         player.setSpace(rebootSpace);
-        player.startRebooting(gc, takeDamage);
+        player.startRebooting(gameController, takeDamage);
 
         if (otherPlayerOnSpawnpoint != null) {
-            event_PlayerReboot(otherPlayerOnSpawnpoint, true, gc);
+            event_PlayerReboot(otherPlayerOnSpawnpoint, true, gameController);
         }
     }
 

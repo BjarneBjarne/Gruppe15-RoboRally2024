@@ -1,12 +1,8 @@
 package gruppe15.roborally.coursecreator;
 
-import gruppe15.roborally.GameVariables;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
-import gruppe15.roborally.model.utils.ImageUtils;
-import gruppe15.roborally.view.BoardView;
-import gruppe15.roborally.view.PlayersView;
-import gruppe15.roborally.view.SpaceView;
+import gruppe15.utils.ImageUtils;
 import gruppe15.roborally.view.ZoomableScrollPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -35,9 +31,8 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import static gruppe15.roborally.GameVariables.*;
 import static gruppe15.roborally.model.Heading.*;
-import static gruppe15.roborally.model.utils.ImageUtils.*;
+import static gruppe15.utils.ImageUtils.*;
 
 /**
  * The controller of the course creator. Manages the GUI, board, sub boards, space views, saving & loading, and input.

@@ -26,15 +26,13 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.boardelements.*;
 import gruppe15.roborally.model.damage.DamageType;
 import gruppe15.roborally.model.events.PhaseChangeListener;
-import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-import static gruppe15.roborally.GameSettings.NO_OF_PLAYERS;
+import static gruppe15.roborally.BoardOptions.NO_OF_PLAYERS;
 import static gruppe15.roborally.model.Phase.INITIALIZATION;
 
 /**
@@ -44,57 +42,35 @@ import static gruppe15.roborally.model.Phase.INITIALIZATION;
  *
  */
 public class Board extends Subject {
-    final public static int NO_OF_CHECKPOINTS = 6;
+    private Integer gameId;
+    private final String courseName;
 
     public final int width;
-
     public final int height;
-
-    private Integer gameId;
-
     private final Space[][] spaces;
+    private List<Space[][]> subBoards;
 
     private final List<Player> players = new ArrayList<>();
+    private final Queue<Player> priorityList = new ArrayDeque<>();
+    private Player currentPlayer;
 
-    private Player current;
-
-    private Phase phase = INITIALIZATION;
-
+    private Phase currentPhase = INITIALIZATION;
     private int currentRegister = 0;
-    //The counter for how many moves have been made
-    private int moveCounter = 0;
 
-    private boolean stepMode = false;
+    final public int NO_OF_CHECKPOINTS;
 
     private final LinkedList<ActionWithDelay> boardActionQueue = new LinkedList<>();
 
-    private final Queue<Player> priorityList = new ArrayDeque<>();
-    private List<Space[][]> subBoards;
-    private int numberOfCheckPoints;
     private UpgradeShop upgradeShop;
 
-    public Board(int width, int height) {
-        super();
-        this.width = width;
-        this.height = height;
-        this.spaces = new Space[width][height];
+    private int moveCounter = 0; // The counter for how many moves have been made
+    private boolean stepMode = false;
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                // Add empty space
-                if (spaces[x][y] == null) {
-                    addSpace(x, y, null, spaces);
-                }
-            }
-        }
-    }
-
-    public Board(Pair<List<Space[][]>, Space[][]> courseSpaces) {
-        this(courseSpaces.getKey(), courseSpaces.getValue());
-    }
-    public Board(List<Space[][]> subBoards, Space[][] spaces) {
+    public Board(List<Space[][]> subBoards, Space[][] spaces, String courseName, int noOfCheckpoints) {
         this.subBoards = subBoards;
         this.spaces = spaces;
+        this.courseName = courseName;
+        NO_OF_CHECKPOINTS = noOfCheckpoints;
         this.width = spaces.length;
         this.height = spaces[0].length;
 
@@ -110,16 +86,16 @@ public class Board extends Subject {
         updateBoardElementSpaces();
     }
 
+    public String getCourseName() {
+        return courseName;
+    }
+
     public void initializeUpgradeShop() {
         this.upgradeShop = new UpgradeShop(this);
     }
 
     public UpgradeShop getUpgradeShop() {
         return upgradeShop;
-    }
-
-    private void addSpace(int x, int y, BoardElement boardElement, Space[][] spaces) {
-        spaces[x][y] = new Space(this, x, y, boardElement);
     }
 
     public Integer getGameId() {
@@ -182,12 +158,12 @@ public class Board extends Subject {
     }
 
     public Player getCurrentPlayer() {
-        return current;
+        return currentPlayer;
     }
 
     public void setCurrentPlayer(Player player) {
-        if (player != this.current && players.contains(player)) {
-            this.current = player;
+        if (player != this.currentPlayer && players.contains(player)) {
+            this.currentPlayer = player;
         }
         notifyChange();
     }
@@ -200,14 +176,14 @@ public class Board extends Subject {
     public void setOnPhaseChange(PhaseChangeListener listener) {
         phaseChangeListeners.add(listener);
     }
-    public Phase getPhase() {
-        return phase;
+    public Phase getCurrentPhase() {
+        return currentPhase;
     }
 
-    public void setPhase(Phase phase) {
-        if (phase != this.phase) {
-            this.phase = phase;
-            phaseChangeListeners.forEach(listener -> listener.onPhaseChange(phase));
+    public void setCurrentPhase(Phase currentPhase) {
+        if (currentPhase != this.currentPhase) {
+            this.currentPhase = currentPhase;
+            phaseChangeListeners.forEach(listener -> listener.onPhaseChange(currentPhase));
             notifyChange();
         }
     }
@@ -293,12 +269,11 @@ public class Board extends Subject {
         };
     }
 
+    /**
+     * Method for getting the current game status.
+     * @return A string of text containing information about the board as well as the current player.
+     */
     public String getStatusMessage() {
-        // This is actually a view aspect, but for making the first task easy for
-        // the students, this method gives a string representation of the current
-        // status of the game (specifically, it shows the phase, the player and the step)
-
-//We have added the MoveCount + getMoveCounter() to the string so it will be displayed at the bottom getMoveCounter() is a getter that gets the current move counter
         AtomicInteger noOfDamageCards = new AtomicInteger();
 
         for (CommandCard commandCard : getCurrentPlayer().getProgrammingDeck()) {
@@ -312,7 +287,7 @@ public class Board extends Subject {
             }
         }
 
-        return "Phase: " + getPhase().name() +
+        return "Phase: " + getCurrentPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
                 ", Player damage cards = " + noOfDamageCards +
                 ", Register: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +
@@ -327,7 +302,7 @@ public class Board extends Subject {
      */
     private List<Space>[] boardElementsSpaces;
     private void updateBoardElementSpaces() {
-        boardElementsSpaces = new List[7];
+        boardElementsSpaces = new ArrayList[7];
         for (int i = 0; i < boardElementsSpaces.length; i++) {
             boardElementsSpaces[i] = new ArrayList<>();
         }
@@ -350,8 +325,6 @@ public class Board extends Subject {
                 } else if (boardElement instanceof BE_EnergySpace) {
                     boardElementsSpaces[5].add(space);
                 } else if (space.getCheckPoint() != null) {
-                    BE_Checkpoint checkpoint = space.getCheckPoint();
-                    if (checkpoint.number > numberOfCheckPoints) numberOfCheckPoints = checkpoint.number;
                     boardElementsSpaces[6].add(space);
                 }
             }
@@ -379,7 +352,7 @@ public class Board extends Subject {
                 Player player = getPlayer(i);
                 player.goToTemporarySpace();
             }
-        }, Duration.millis(100), debugBoardElementName));
+        }, 100, debugBoardElementName));
     }
 
     public void queueClearLasers() {
@@ -390,7 +363,7 @@ public class Board extends Subject {
                     value.clearLasersOnSpace();
                 }
             }
-        }, Duration.millis(0)));
+        }, 0));
     }
 
     /**
@@ -550,7 +523,7 @@ public class Board extends Subject {
     }
 
     public int getNumberOfCheckpoints() {
-        return numberOfCheckPoints;
+        return NO_OF_CHECKPOINTS;
     }
 
     /**
@@ -565,10 +538,10 @@ public class Board extends Subject {
             // First we make an action that lasts 150ms.
             boardActionQueue.addLast(new ActionWithDelay(() -> {
                 // When the player is about to shoot, we immediately queue to clear the lasers as the next action, ensuring the lasers are cleared in between player lasers.
-                boardActionQueue.addFirst(new ActionWithDelay(this::queueClearLasers, Duration.millis(0), ""));
+                boardActionQueue.addFirst(new ActionWithDelay(this::queueClearLasers, 0, ""));
                 // Tell the EventHandler that we want to shoot.
                 EventHandler.event_PlayerShootStart(player);
-            }, Duration.millis(150), "Player: \"" + player.getName() + "\" laser"));
+            }, 150, "Player: \"" + player.getName() + "\" laser"));
         }
     }
 
@@ -609,7 +582,7 @@ public class Board extends Subject {
                     boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
                     if (couldPush) {
                         // Handle pushing players in EventHandler
-                        EventHandler.event_PlayerPush(spaces, player, playersToPush, pushDirection, gameController); // WARNING: Can lead to infinite loop
+                        EventHandler.event_PlayerPush(spaces, player, playersToPush, pushDirection); // WARNING: Can lead to infinite loop
                     } else {
                         // There is a wall at the end of player chain
                         couldMove = false;

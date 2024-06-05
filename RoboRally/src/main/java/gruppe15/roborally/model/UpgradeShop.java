@@ -6,7 +6,6 @@ import gruppe15.roborally.model.upgrade_cards.UpgradeCard;
 import gruppe15.roborally.model.upgrade_cards.UpgradeCards;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
@@ -32,6 +31,7 @@ public class UpgradeShop implements Observer {
     private final Board board;
     private int noOfPlayers;
     private int energyLevel = 0; // Variable just for the fun of it. Maybe it could be used for something, like an event at a certain energy level.
+
     public UpgradeShop(Board board) {
         this.board = board;
         this.noOfPlayers = board.getNoOfPlayers();
@@ -45,18 +45,6 @@ public class UpgradeShop implements Observer {
         board.attach(this);
     }
 
-
-    // Methods for access of availableCards.
-    public int getNoOfAvailableCards() {
-       int noOfAvailableCards = 0;
-        for (CardField cardField : availableCardsFields) {
-            UpgradeCard cardFieldCard = (UpgradeCard) cardField.getCard();
-            if (cardFieldCard != null) {
-                noOfAvailableCards++;
-            }
-        }
-        return noOfAvailableCards;
-    }
     /**
      * Method for getting the shops CardsFields.
      * @param index
@@ -87,6 +75,33 @@ public class UpgradeShop implements Observer {
         shopField.setCard(null);
         return cardToSell; // SUCCESSFUL PURCHASE - Transaction complete. Sending UpgradeCard to buyer method.
     }
+
+    public UpgradeCard attemptReceiveFreeCardFromShop(Class<? extends UpgradeCard> upgradeCardClass, Player player) {
+        // Available cards
+        for (CardField shopField : availableCardsFields) {
+            UpgradeCard cardToGive = (UpgradeCard) shopField.getCard();
+            if (cardToGive.getClass().equals(upgradeCardClass)) {
+                shopField.setCard(drawCard()); // Refilling the shop field, since this method isn't supposed to be called during gameplay.
+                return cardToGive; // SUCCESSFUL PURCHASE - Upgrade card in shop. Sending UpgradeCard to receiver method.
+            }
+        }
+        // Card deck
+        for (UpgradeCard cardInDeck : upgradeCardsDeck) {
+            if (cardInDeck.getClass().equals(upgradeCardClass)) {
+                upgradeCardsDeck.remove(cardInDeck);
+                return cardInDeck; // SUCCESSFUL PURCHASE - Upgrade card in shop deck. Sending UpgradeCard to receiver method.
+            }
+        }
+        // Discard card deck
+        for (UpgradeCard cardInDiscardDeck : upgradeCardsDiscardDeck) {
+            if (cardInDiscardDeck.getClass().equals(upgradeCardClass)) {
+                upgradeCardsDeck.remove(cardInDiscardDeck);
+                return cardInDiscardDeck; // SUCCESSFUL PURCHASE - Upgrade card in shop discard deck. Sending UpgradeCard to receiver method.
+            }
+        }
+        return null; // FAILED PURCHASE - The CardField isn't in the shop.
+    }
+
     /**
      * Method for players to return a previously purchased UpgradeCard to the shop pool.
      * @param upgradeCard The UpgradeCard to return to the shop.
@@ -130,6 +145,16 @@ public class UpgradeShop implements Observer {
         return noOfMissingCards;
     }
 
+    public int getNoOfAvailableCards() {
+        int noOfAvailableCards = 0;
+        for (CardField cardField : availableCardsFields) {
+            UpgradeCard cardFieldCard = (UpgradeCard) cardField.getCard();
+            if (cardFieldCard != null) {
+                noOfAvailableCards++;
+            }
+        }
+        return noOfAvailableCards;
+    }
 
     // Methods for card draws.
     /**
@@ -169,34 +194,11 @@ public class UpgradeShop implements Observer {
      */
     private void addAllUpgradeCardsShuffled() {
         for (UpgradeCards upgradeCard : UpgradeCards.values()) {
-            createUpgradeCard(upgradeCardsDeck, upgradeCard.upgradeCardClass);
+            upgradeCardsDeck.add(UpgradeCard.getUpgradeCardFromClass(upgradeCard.upgradeCardClass));
         }
         Collections.shuffle(upgradeCardsDeck);
     }
-    /**
-     * Method for creating and adding an instance of an UpgradeCard subclass to an UpgradeCard list.
-     * @param upgradeCardList The list to add the card instance to.
-     * @param upgradeCardClass The UpgradeCard subclass to make an instance of.
-     */
-    private static void createUpgradeCard(LinkedList<UpgradeCard> upgradeCardList, Class<? extends UpgradeCard> upgradeCardClass) {
-        createNoOfUpgradeCard(upgradeCardList, upgradeCardClass, 1);
-    }
-    /**
-     * Method for creating and adding an amount of instances of an UpgradeCard subclass to an UpgradeCard list.
-     * @param upgradeCardList The list to add the card instance to.
-     * @param upgradeCardClass The UpgradeCard subclass to make an instance of.
-     * @param count The amount of instances of the passed UpgradeCard subclass.
-     */
-    private static void createNoOfUpgradeCard(LinkedList<UpgradeCard> upgradeCardList, Class<? extends UpgradeCard> upgradeCardClass, int count) {
-        Constructor<? extends UpgradeCard> constructor;
-        try {
-            constructor = upgradeCardClass.getConstructor();
-            upgradeCardList.addAll(Collections.nCopies(count, constructor.newInstance()));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
+
 
 
     // Listener method for ensuring variables are up-to-date.

@@ -44,7 +44,7 @@ public class Card_TractorBeam extends UpgradeCardPermanent {
                 if (!targetSpace.getIsWallBetween(spaceToPullTo)) {
                     owner.board.getBoardActionQueue().add(new ActionWithDelay(() -> {
                         playerTakingDamage.setSpace(spaceToPullTo);
-                    }, Duration.millis(0), "Pulling with Tractor Beam"));
+                    }, 0, "Pulling with Tractor Beam"));
                 }
             }
             return damage;

@@ -1,9 +1,10 @@
 package gruppe15.roborally.model.upgrade_cards;
 
-import gruppe15.roborally.GameVariables;
+import gruppe15.roborally.ApplicationSettings;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,7 @@ public abstract class UpgradeCard extends Card {
     private boolean enabled = false;
 
     protected Player owner;
-    protected GameController gameController;
+    transient protected GameController gameController;
 
     /**
      * Constructor for any Upgrade Card.
@@ -126,8 +127,26 @@ public abstract class UpgradeCard extends Card {
     }
 
     public void printUsage() {
-        if (GameVariables.SHOW_DEBUG_UPGRADE_CARD_USAGE) {
+        if (ApplicationSettings.DEBUG_SHOW_UPGRADE_CARD_USAGE) {
             System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\".");
         }
+    }
+
+    /**
+     * Method for creating and adding an instance of an UpgradeCard subclass to an UpgradeCard list.
+     * @param upgradeCardClass The UpgradeCard subclass to make an instance of.
+     * @return Returns a new instance on an UpgradeCard of argument type upgradeCardClass.
+     */
+    public static UpgradeCard getUpgradeCardFromClass(Class<? extends UpgradeCard> upgradeCardClass) {
+        UpgradeCard newUpgradeCard = null;
+        Constructor<? extends UpgradeCard> constructor;
+        try {
+            constructor = upgradeCardClass.getConstructor();
+            newUpgradeCard = constructor.newInstance();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return newUpgradeCard;
     }
 }

@@ -4,7 +4,7 @@ import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.ActionWithDelay;
 import gruppe15.roborally.model.Heading;
 import gruppe15.roborally.model.Space;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.utils.ImageUtils;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 

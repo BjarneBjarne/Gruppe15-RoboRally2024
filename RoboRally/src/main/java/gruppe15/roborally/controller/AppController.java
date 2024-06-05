@@ -21,13 +21,21 @@
  */
 package gruppe15.roborally.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import gruppe15.observer.Observer;
 import gruppe15.observer.Subject;
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.coursecreator.CC_CourseData;
-import gruppe15.roborally.fileaccess.LoadBoard;
+import gruppe15.roborally.coursecreator.CC_JsonUtil;
+import gruppe15.roborally.exceptions.EmptyCourseException;
+import gruppe15.roborally.exceptions.GameLoadingException;
+import gruppe15.roborally.exceptions.NoCoursesException;
+import gruppe15.utils.Adapter;
+import gruppe15.roborally.utils.SaveAndLoadUtils;
+import gruppe15.roborally.templates.BoardTemplate;
 import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.boardelements.BE_SpawnPoint;
+import gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -37,10 +45,11 @@ import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.*;
 import java.io.File;
 
-import static gruppe15.roborally.GameSettings.*;
+import static gruppe15.roborally.BoardOptions.*;
 
 /**
  * ...
@@ -53,6 +62,8 @@ public class AppController implements Observer {
     public Boolean isCourseCreatorOpen;
     private GameController gameController;
 
+    private List<CC_CourseData> courses = new ArrayList<>();
+
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
@@ -63,20 +74,10 @@ public class AppController implements Observer {
 
     public void beginCourse(CC_CourseData courseData, String[] playerNames, String[] playerCharacters) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
-        Board board = new Board(courseSpaces);
+        Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
-        gameController = new GameController(board, this);
-
-        // Finding spawns
-        List<Space> spawnPoints = new ArrayList<>();
-        for (int x = 0; x < board.getSpaces().length; x++) {
-            for (int y = 0; y < board.getSpaces()[x].length; y++) {
-                Space space = board.getSpace(x, y);
-                if (space != null && space.getBoardElement() instanceof BE_SpawnPoint) {
-                    spawnPoints.add(space);
-                }
-            }
-        }
+        // GameController
+        gameController = new GameController(board, this::gameOver);
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -86,25 +87,57 @@ public class AppController implements Observer {
         }
 
         board.setCurrentPlayer(board.getPlayer(0));
-        roboRally.createBoardView(gameController, false);
-    }
 
+        roboRally.createBoardView(gameController);
+    }
 
     /**
      * Load a game from a file. A new game controller is created, with the board loaded
      * from the file. The Phase of the game is manually set to Programming.
-     * 
-     * @author Marcus Rémi Lemser Eychenne, s230985
      * @param loadedFile the .json to be deserialized into a board
+     *
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void loadGame(File loadedFile) {
-        Board newBoard = LoadBoard.loadBoard(loadedFile);
-        gameController = new GameController(newBoard, this);
-        gameController.board.setPhase(Phase.PROGRAMMING);
-        newBoard.setCurrentRegister(0);
-        newBoard.updatePriorityList();
-        newBoard.setCurrentPlayer(newBoard.getPriorityList().peek());
+    public void loadGame(File loadedFile) throws GameLoadingException {
+        // Loading file
+        GsonBuilder simpleBuilder = new GsonBuilder().
+                registerTypeAdapter(BoardElement.class, new Adapter<BoardElement>()).
+                excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT);
+        Gson gson = simpleBuilder.create();
+        BoardTemplate boardTemplate = null;
+        try {
+            Scanner scanner = new Scanner(loadedFile);
+            StringBuilder boardStringBuilder = new StringBuilder();
+            while (scanner.hasNextLine()) {
+                boardStringBuilder.append(scanner.nextLine());
+            }
+            scanner.close();
+            boardTemplate = gson.fromJson(boardStringBuilder.toString(), BoardTemplate.class);
+        } catch (IOException e1) {
+            System.out.println(e1.getMessage());
+        }
+        if (boardTemplate == null) {
+            throw new GameLoadingException();
+        }
 
+        // Creating and initializing the GameController, Board, and Players.
+        // Board
+        Board newBoard;
+        try {
+            newBoard = SaveAndLoadUtils.loadBoard(boardTemplate, courses);
+        } catch (EmptyCourseException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+
+        // GameController
+        gameController = new GameController(newBoard, this::gameOver);
+        SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
+        newBoard.setCurrentPhase(Phase.PROGRAMMING);
+
+        // Players
         for (int i = 0; i < newBoard.getNoOfPlayers(); i++) {
             Player player = newBoard.getPlayer(i);
             if (player != null) {
@@ -118,7 +151,9 @@ public class AppController implements Observer {
                 }
             }
         }
-        roboRally.createBoardView(gameController, true);
+        newBoard.setCurrentPlayer(newBoard.getPlayer(0));
+
+        roboRally.createBoardView(gameController);
     }
 
 
@@ -132,10 +167,10 @@ public class AppController implements Observer {
      * @return true if the game was saved, false otherwise
      */
     public boolean saveGame(File file) {
-        if (gameController.board.getPhase() != Phase.PROGRAMMING) {
+        if (gameController.board.getCurrentPhase() != Phase.PROGRAMMING) {
             return false;
         }
-        LoadBoard.saveBoard(gameController.board, file);
+        SaveAndLoadUtils.saveBoard(gameController.board, file);
         return true;
     }
 
@@ -143,7 +178,7 @@ public class AppController implements Observer {
      * sets ends game
      * @author Maximillian Bjørn Mortensen
      */
-    public void gameOver(){
+    public void gameOver() {
         roboRally.goToWinScreen(gameController, this);
     }
 
@@ -163,7 +198,7 @@ public class AppController implements Observer {
             // saveGame(null);
 
             gameController = null;
-            roboRally.createBoardView(null, false);
+            roboRally.createBoardView(null);
             return true;
         }
         return false;
@@ -209,5 +244,17 @@ public class AppController implements Observer {
     public void createCourseCreator(Scene primaryScene) {
         roboRally.createCourseCreator(primaryScene);
         isCourseCreatorOpen = true;
+    }
+
+    public void loadCourses() throws NoCoursesException {
+        // Loading courses
+        courses = CC_JsonUtil.getCoursesInFolder("courses");
+        if (courses.isEmpty()) {
+            throw new NoCoursesException();
+        }
+    }
+
+    public List<CC_CourseData> getCourses() {
+        return courses;
     }
 }

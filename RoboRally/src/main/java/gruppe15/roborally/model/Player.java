@@ -28,9 +28,8 @@ import gruppe15.roborally.model.damage.Damage;
 import gruppe15.roborally.model.player_interaction.CommandOptionsInteraction;
 import gruppe15.roborally.model.player_interaction.RebootInteraction;
 import gruppe15.roborally.model.upgrade_cards.*;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.utils.ImageUtils;
 import javafx.scene.image.Image;
-import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -51,7 +50,7 @@ public class Player extends Subject {
     final public static int NO_OF_ENERGY_CUBES = 10;
     private int maxNoOfCardsInHand = 9;
 
-    final public Board board;
+    transient final public Board board;
 
     private String name;
     private Robots robot;
@@ -60,27 +59,29 @@ public class Player extends Subject {
     private Space temporarySpace = null;
     private Heading heading = SOUTH;
 
-    transient private Command lastCmd;
+    private Space spawnPoint;
+
+    private int energyCubes = 5;
+    private int checkpoints = 0;
 
     transient private final CardField[] programFields;
     transient private final CardField[] cardHandFields;
     transient private final CardField[] permanentUpgradeCardFields;
     transient private final CardField[] temporaryUpgradeCardFields;
-    private int energyCubes = 5;
-    private int checkpoints = 0;
+
+    transient private Command lastCmd;
+
     transient private int priority = 0;
     private Velocity velocity = new Velocity(0, 0);
     private boolean rebooting = false;
-    private Space spawnPoint; //  If you rebooted from the start board, place your robot on the space where you started the game.
     transient private Image image;
     transient private Image charIMG;
-    private List<Command> currentOptions = new ArrayList<>();
 
     transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
-    private final Damage temporaryBonusDamage = new Damage(0, 0, 0, 0);
-    private final Damage permanentBonusDamage = new Damage(0, 0, 0, 0);
+    transient private final Damage temporaryBonusDamage = new Damage(0, 0, 0, 0);
+    transient private final Damage permanentBonusDamage = new Damage(0, 0, 0, 0);
 
 
     public Player(@NotNull Board board, @NotNull Robots robot, @NotNull String name) {
@@ -284,7 +285,7 @@ public class Player extends Subject {
                 discard(new CommandCard(Command.SPAM));
             }
         }
-        if (board.getPhase() != Phase.INITIALIZATION) {
+        if (board.getCurrentPhase() != Phase.INITIALIZATION) {
             gameController.addPlayerInteraction(new RebootInteraction(gameController, this));
         }
         this.rebooting = true;
@@ -332,8 +333,9 @@ public class Player extends Subject {
     public boolean attemptUpgradeCardPurchase(CardField shopField, GameController gameController) {
         UpgradeCard boughtCard = null;
         try {
-            for (UpgradeCard ownedCards : upgradeCards) // First, check if player already has this card
-                if (ownedCards.getClass().isAssignableFrom(shopField.getCard().getClass())) return false;
+            for (UpgradeCard ownedCard : upgradeCards) { // First, check if player already has this card
+                if (ownedCard.getClass().equals(shopField.getCard().getClass())) return false;
+            }
             boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(shopField, this);
             if (boughtCard != null) {
                 System.out.println("Player: \"" + name + "\" bought: \"" + boughtCard.getName() + "\".");
@@ -348,7 +350,46 @@ public class Player extends Subject {
 
         return boughtCard != null;
     }
-    public void addUpgradeCard(UpgradeCard upgradeCard, GameController gameController) {
+
+    public boolean tryAddFreeUpgradeCard(UpgradeCard card, GameController gameController) {
+        return tryAddFreeUpgradeCard(card, gameController, -1);
+    }
+
+    public boolean tryAddFreeUpgradeCard(UpgradeCard card, GameController gameController, int index) {
+        boolean couldAdd = false;
+
+        if (card instanceof UpgradeCardPermanent) {
+            couldAdd = couldAddUpgradeCard(card, index, permanentUpgradeCardFields);
+        } else if (card instanceof UpgradeCardTemporary) {
+            couldAdd = couldAddUpgradeCard(card, index, temporaryUpgradeCardFields);
+        }
+
+        if (couldAdd) {
+            System.out.println("Player: \"" + name + "\" got: \"" + card.getName() + "\" for free.");
+            addUpgradeCard(card, gameController);
+        }
+
+        return couldAdd;
+    }
+
+    private boolean couldAddUpgradeCard(UpgradeCard card, int index, CardField[] cardFields) {
+        for (int i = 0; i < cardFields.length; i++) {
+            if (cardFields[i].getCard() == null) {
+                if (index == -1 || i == index) {
+                    cardFields[i].setCard(card);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method for initializing an UpgradeCard and setting the player as owner. Should be called from Player.attemptUpgradeCardPurchase() or Player.tryAddFreeUpgradeCard()
+     * @param upgradeCard
+     * @param gameController
+     */
+    private void addUpgradeCard(UpgradeCard upgradeCard, GameController gameController) {
         try {
             upgradeCards.add(upgradeCard);
             upgradeCard.initialize(this, gameController);
@@ -358,50 +399,40 @@ public class Player extends Subject {
             e.printStackTrace();
         }
     }
+
     public void removeUpgradeCard(UpgradeCard upgradeCard) {
         try {
             if (!upgradeCards.contains(upgradeCard)) {
                 throw new IllegalPlayerPropertyAccess("ERROR - Attempted to remove upgradeCard: \"" + upgradeCard.getName() + "\" that player: \"" + name + "\" doesn't own.");
             }
-            upgradeCards.remove(upgradeCard);
+            // Removing player as owner of card and removes card events from EventHandler.
             upgradeCard.unInitialize();
+
+            // Return to shop
             board.getUpgradeShop().returnCardToShop(upgradeCard);
             System.out.println("Player: \"" + name + "\" returned: \"" + upgradeCard.getName() + "\" to the shop.");
+
+            // Remove from player
+            upgradeCards.remove(upgradeCard);
+            if (upgradeCard instanceof UpgradeCardPermanent) {
+                for (CardField cardField : permanentUpgradeCardFields) {
+                    if (cardField.getCard().equals(upgradeCard)) {
+                        cardField.setCard(null);
+                    }
+                }
+            } else if (upgradeCard instanceof UpgradeCardTemporary) {
+                for (CardField cardField : temporaryUpgradeCardFields) {
+                    if (cardField.getCard().equals(upgradeCard)) {
+                        cardField.setCard(null);
+                    }
+                }
+            }
         } catch (NullPointerException e) {
             System.out.println("ERROR - Attempted to remove upgradeCard of value NULL from player: \"" + name + "\".");
         } catch (IllegalPlayerPropertyAccess e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public boolean tryAddFreeUpgradeCard(UpgradeCard card, GameController gameController) {
-        boolean couldAdd = false;
-
-        if (card instanceof UpgradeCardPermanent) {
-            for (int i = 0; i < permanentUpgradeCardFields.length; i++) {
-                if (permanentUpgradeCardFields[i].getCard() == null) {
-                    permanentUpgradeCardFields[i].setCard(card);
-                    couldAdd = true;
-                    break;
-                }
-            }
-        } else if (card instanceof UpgradeCardTemporary) {
-            for (int i = 0; i < temporaryUpgradeCardFields.length; i++) {
-                if (temporaryUpgradeCardFields[i].getCard() == null) {
-                    temporaryUpgradeCardFields[i].setCard(card);
-                    couldAdd = true;
-                    break;
-                }
-            }
-        }
-
-        if (couldAdd) {
-            System.out.println("Player: \"" + name + "\" got: \"" + card.getName() + "\" for free.");
-            addUpgradeCard(card, gameController);
-        }
-
-        return couldAdd;
     }
 
     /**
@@ -609,7 +640,7 @@ public class Player extends Subject {
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
                     CommandCard topCard = drawFromDeck();
                     queueCommand(topCard.getCommand(), gameController);
-                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
             case TROJAN_HORSE:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
@@ -618,12 +649,12 @@ public class Player extends Subject {
                     }
                     CommandCard topCard = drawFromDeck();
                     queueCommand(topCard.getCommand(), gameController);
-                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
             case WORM:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
                     EventHandler.event_PlayerReboot(this, false, gameController);
-                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
             case VIRUS:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
@@ -635,7 +666,7 @@ public class Player extends Subject {
                     }
                     CommandCard topCard = drawFromDeck();
                     queueCommand(topCard.getCommand(), gameController);
-                }, Duration.millis(150), "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
 
             // Special programming cards
@@ -696,7 +727,7 @@ public class Player extends Subject {
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
                 }
-            }, Duration.millis(150), "Player movement: " + getName()));
+            }, 150, "Player movement: " + getName()));
         }
 
         // For each sideways movement
@@ -708,7 +739,7 @@ public class Player extends Subject {
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
                 }
-            }, Duration.millis(150), "Player movement: " + getName()));
+            }, 150, "Player movement: " + getName()));
         }
     }
 
@@ -726,7 +757,7 @@ public class Player extends Subject {
                 if (!getIsRebooting()) {
                     setHeading(newOrientation);
                 }
-            }, Duration.millis(150), "Player rotation: " + getName()));
+            }, 150, "Player rotation: " + getName()));
         }
     }
 

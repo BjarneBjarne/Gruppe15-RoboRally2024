@@ -1,7 +1,7 @@
 package gruppe15.roborally.coursecreator;
 
 import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.utils.ImageUtils;
+import gruppe15.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -11,7 +11,7 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 
-import static gruppe15.roborally.model.utils.ImageUtils.buildConveyorBeltStringFromConnections;
+import static gruppe15.utils.ImageUtils.buildConveyorBeltStringFromConnections;
 
 /**
  * Modified SpaceView class, that handles the view of each space view in the course creator.

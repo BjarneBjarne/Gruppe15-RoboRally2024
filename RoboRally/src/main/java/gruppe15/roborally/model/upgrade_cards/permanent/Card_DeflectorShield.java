@@ -1,6 +1,6 @@
 package gruppe15.roborally.model.upgrade_cards.permanent;
 
-import gruppe15.roborally.GameVariables;
+import gruppe15.roborally.ApplicationSettings;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.events.PlayerLaserHitListener;
@@ -24,7 +24,7 @@ public class Card_DeflectorShield extends UpgradeCardPermanent {
             if (owner == playerTakingDamage) {
                 if (activated) {
                     activated = false;
-                    if (GameVariables.SHOW_DEBUG_UPGRADE_CARD_USAGE) {
+                    if (ApplicationSettings.DEBUG_SHOW_UPGRADE_CARD_USAGE) {
                         System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\" to negate laser damage.");
                     }
                     damage.clear();
