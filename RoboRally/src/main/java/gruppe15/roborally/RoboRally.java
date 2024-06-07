@@ -121,6 +121,7 @@ public class RoboRally extends Application {
         root.setMinHeight(Region.USE_COMPUTED_SIZE);
         root.setMinWidth(Region.USE_COMPUTED_SIZE);
         stackPane = new StackPane(root);
+
         StackPane.setAlignment(root, Pos.CENTER);
         stage.setTitle("Robo Rally");
 

@@ -227,6 +227,7 @@ public class BoardView extends VBox implements ViewObserver {
         upgradeShopCardsHBox.getChildren().clear();
         UpgradeShop upgradeShop = board.getUpgradeShop();
         CardFieldView[] upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
+
         for (int i = 0; i < board.getNoOfPlayers(); i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
