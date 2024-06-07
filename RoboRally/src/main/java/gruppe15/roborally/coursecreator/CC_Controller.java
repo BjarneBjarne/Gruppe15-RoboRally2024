@@ -1,5 +1,6 @@
 package gruppe15.roborally.coursecreator;
 
+import gruppe15.roborally.ApplicationSettings;
 import gruppe15.roborally.model.*;
 import gruppe15.roborally.exceptions.EmptyCourseException;
 import gruppe15.utils.ImageUtils;
@@ -24,6 +25,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,6 +59,7 @@ public class CC_Controller extends BorderPane {
     private final StackPane centerPane;
     private final ZoomableScrollPane boardScrollPane;
     private final AnchorPane boardPane; // Course creator board pane
+    private final ImageView backgroundImageView;
 
     private Scene primaryScene;
 
@@ -115,8 +118,9 @@ public class CC_Controller extends BorderPane {
         boardScrollPane = new ZoomableScrollPane(interactablePane);
         boardScrollPane.setPannable(true);
 
-        ImageView backgroundImageView = new ImageView(ImageUtils.getImageFromName("Background_CourseCreator.png"));
+        backgroundImageView = new ImageView(ImageUtils.getImageFromName("Background_CourseCreator.png"));
         centerPane = new StackPane(backgroundImageView, boardScrollPane);
+        //centerPane.setStyle("-fx-border-width: 14px; -fx-border-color: RED");
 
         Platform.runLater(()-> {
             double interactablePaneWidth = boardPane.getWidth() + 22500;
@@ -125,7 +129,7 @@ public class CC_Controller extends BorderPane {
             interactablePane.setPrefSize(interactablePaneWidth, interactablePaneHeight);
             interactablePane.setMaxSize(interactablePaneWidth, interactablePaneHeight);
 
-            // Background and center pane
+            // Background
             backgroundImageView.setFitWidth(boardScrollPane.getWidth());
             backgroundImageView.setPreserveRatio(true);
             //backgroundImageView.setFitHeight(boardScrollPane.getHeight());
