@@ -26,5 +26,5 @@ public class ApplicationSettings {
     public final static boolean DEBUG_SHOW_COORDINATES = false;
     public final static boolean DEBUG_WITH_ACTION_MESSAGE = false;
     public static final boolean DEBUG_SHOW_UPGRADE_CARD_USAGE = true;
-    public final static boolean DEBUG_ALLOW_MANUAL_PLAYER_POSITION = false;
+    public final static boolean DEBUG_ALLOW_MANUAL_PLAYER_POSITION = true;
 }
