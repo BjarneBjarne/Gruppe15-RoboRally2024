@@ -1,13 +1,12 @@
 @startuml
 
 start
-:Press 'Join game' button;
-repeat :Client enter GameId;
-repeat while (GameId in DB?) is (no)
-->yes;
+:Start server application;
+:Press 'Host game' button in RoboRally;
+:Change player state to 'host';
 :Enter player name;
-:Send name and GameId to server;
-:Receives generated playerId and lobby state;
+:Send name to server;
+:Receives generated playerId and gameId from server;
 :Update client view;
 :Client enters lobby;
 note right
@@ -24,6 +23,8 @@ fork
             - PlayerId
             - Robot
             - Ready status
+            - Chosen map
+            - Game phase
         end note
         if(Player state disconnected?) then (yes)
             stop
@@ -46,6 +47,8 @@ fork again
             - Change robot
             - Change ready status
             - Pressed 'Exit Lobby'?
+            - Change map
+            - Press start?
         end note
         if (Player exit lobby?) then (yes)
             :Change client state to 'disconnected';
