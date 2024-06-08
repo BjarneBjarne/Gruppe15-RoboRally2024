@@ -1,11 +1,9 @@
 package gruppe15.roborally.view;
 
-import java.io.File;
 import java.io.IOException;
 
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
-import gruppe15.roborally.exceptions.GameLoadingException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -17,16 +15,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 
 public class MainMenuView {
-    
     @FXML
     AnchorPane mainMenu;
     @FXML
-    Button newGame;
+    Button hostGame;
     @FXML
-    Button loadGame;
+    Button joinGame;
     @FXML
     Button help;
     @FXML
@@ -66,60 +62,34 @@ public class MainMenuView {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        createNewGameButton();
-        createLoadGameButton();
+        createHostGameButton();
+        createJoinGameButton();
         createCourseCreatorButton();
         createExitButton();
         setButtonEffect();
         return this;
     }
 
-    private void createNewGameButton() {
-        newGame = (Button) mainMenu.lookup("#newGame");
-        newGame.setOnAction(e -> appController.courseSelection());
-        buttons[0] = newGame;
+    private void createHostGameButton() {
+        hostGame = (Button) mainMenu.lookup("#hostGame");
+        hostGame.setOnAction(e -> appController.courseSelection());
+        buttons[0] = hostGame;
 
         //newGame.setGraphic(createButtonTextPane(newGame.getText()));
     }
 
-    private void createLoadGameButton() {
-        loadGame = (Button) mainMenu.lookup("#loadGame");
-        loadGame.setOnAction(event -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Load Game");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
-            String userHome = System.getProperty("user.home");
-            String relativePath = "\\RoboRally\\saves";
-            String directoryPath = userHome + relativePath;
+    private void createJoinGameButton() {
+        joinGame = (Button) mainMenu.lookup("#joinGame");
+        joinGame.setOnAction(event -> {
+            // TODO: Add join logic
 
-            File folderFile = new File(directoryPath);
-            // Create saves folder if it doesn't exist
-            if (!folderFile.exists()) {
-                if (folderFile.mkdirs()) {
-                    System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
-                } else {
-                    System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
-                }
-            }
-
-            fileChooser.setInitialDirectory(new File(directoryPath));
-            File loadedFile = fileChooser.showOpenDialog(mainMenu.getScene().getWindow());
-            if (loadedFile != null) {
-                try {
-                    appController.loadGame(loadedFile);
-                } catch (GameLoadingException e) {
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
-                }
-
-            }
         });
-        buttons[1] = loadGame;
+        buttons[1] = joinGame;
 
         //loadGame.setGraphic(createButtonTextPane(loadGame.getText()));
     }
 
-    private void createCourseCreatorButton(){
+    private void createCourseCreatorButton() {
         courseCreator = (Button) mainMenu.lookup("#courseCreator");
         courseCreator.setOnMouseClicked(e -> appController.createCourseCreator(mainMenu.getScene()));
         buttons[2] = courseCreator;
