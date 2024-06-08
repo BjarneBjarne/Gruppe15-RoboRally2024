@@ -57,12 +57,12 @@
                   <Insets bottom="125.0" />
                </VBox.margin>
             </StackPane>
-            <Button fx:id="newGame" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="1450.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+            <Button fx:id="hostGame" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="1450.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
                <font>
                   <Font name="OCR A Extended" size="48.0" />
                </font>
                <graphic>
-                  <Text fill="WHITE" mouseTransparent="true" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="New Game">
+                  <Text fill="WHITE" mouseTransparent="true" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Host Game">
                      <font>
                         <Font name="OCR A Extended" size="72.0" />
                      </font>
@@ -72,12 +72,12 @@
                   <Insets />
                </VBox.margin>
             </Button>
-            <Button fx:id="loadGame" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="1450.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+            <Button fx:id="joinGame" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="1450.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
                <font>
                   <Font name="OCR A Extended" size="48.0" />
                </font>
                <graphic>
-                  <Text fill="WHITE" mouseTransparent="true" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Load Game">
+                  <Text fill="WHITE" mouseTransparent="true" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Join Game">
                      <font>
                         <Font name="OCR A Extended" size="72.0" />
                      </font>

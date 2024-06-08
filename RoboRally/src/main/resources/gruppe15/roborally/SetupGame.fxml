@@ -252,27 +252,6 @@
                                     <Insets bottom="25.0" />
                                  </VBox.margin>
                               </Text>
-                              <AnchorPane minWidth="400.0" prefWidth="1000.0">
-                                 <children>
-                                    <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                       <children>
-                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Number of players">
-                                             <font>
-                                                <Font name="OCR A Extended" size="24.0" />
-                                             </font>
-                                          </Text>
-                                       </children>
-                                       <opaqueInsets>
-                                          <Insets />
-                                       </opaqueInsets>
-                                    </StackPane>
-                                    <ComboBox fx:id="settings_noOfPlayers" nodeOrientation="LEFT_TO_RIGHT" prefHeight="45.0" prefWidth="100.0" visibleRowCount="5" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                       <opaqueInsets>
-                                          <Insets />
-                                       </opaqueInsets>
-                                    </ComboBox>
-                                 </children>
-                              </AnchorPane>
                               <AnchorPane layoutX="10.0" layoutY="102.0" minWidth="400.0" prefWidth="1000.0">
                                  <children>
                                     <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
