@@ -137,7 +137,7 @@ public class BE_ConveyorBelt extends BoardElement {
                 if (nextSpace != null) {
                     // Rotate the robot.
                     if (nextSpace.getBoardElement() instanceof BE_ConveyorBelt nextBelt) {
-                        if (nextBelt.direction != currentConveyorBelt.getDirection()) {
+                        if (nextBelt.direction != currentConveyorBelt.getDirection() && nextBelt.direction.opposite() != currentConveyorBelt.getDirection()) {
                             int clockwiseOrdinal = (currentConveyorBelt.getDirection().ordinal() + 1) % Heading.values().length;
                             if (nextBelt.getDirection().ordinal() == clockwiseOrdinal) {
                                 player.setHeading(player.getHeading().next());
