@@ -61,6 +61,7 @@ public class PlayersView extends TabPane implements ViewObserver {
                 selectedPlayerView = (PlayerView) newTab;
             }
         });
+        selectedPlayerView = (PlayerView)this.getSelectionModel().selectedItemProperty().get();
 
         board.attach(this);
         update(board);
