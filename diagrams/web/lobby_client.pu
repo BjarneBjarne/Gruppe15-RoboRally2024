@@ -1,0 +1,47 @@
+@startuml
+
+start
+
+repeat :Client enter GameId;
+repeat while (GameId in DB?) is (no)
+->yes;
+:Receives generated playerId;
+:Client enters lobby;
+note right
+    Enters multithreaded process 
+    for sending and receiving 
+    updates to/from server
+end note
+fork
+    repeat 
+        :Post request to server with changes;
+        note left
+            Sends info:
+            - Changes made?
+            - PlayerId
+            - Player slot
+            - Player name
+            - Robot
+            - Ready status
+        end note
+        :Receive updated lobby state from server;
+        :Update client view;
+    repeat while (All players ready && host press 'start'?) is (no)
+    ->yes;
+fork again
+    repeat
+        :Make changes to lobby;
+        note right
+            - Change player slot
+            - Change player name
+            - Change robot
+            - Change ready status
+            If host:
+            - Change map
+            - Press start?
+        end note
+    repeat while (Client ready?) is (no)
+    ->yes;
+end fork
+:Game starts;
+@enduml
