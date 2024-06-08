@@ -53,8 +53,6 @@ public class SetupView {
     Text selectedCourseText;
 
     @FXML
-    ComboBox<Integer> settings_noOfPlayers;
-    @FXML
     ComboBox<String> settings_keepHand;
     @FXML
     ComboBox<String> settings_drawOnEmpty;
@@ -165,13 +163,6 @@ public class SetupView {
         }
 
         // BoardOptions
-        // Number of players
-        settings_noOfPlayers.getItems().addAll(OPTIONS_NO_OF_PLAYERS);
-        settings_noOfPlayers.getSelectionModel().select(0);
-        settings_noOfPlayers.setOnAction(e -> {
-            NO_OF_PLAYERS = (int)(settings_noOfPlayers.getSelectionModel().getSelectedItem());
-            updateUI();
-        });
 
         // Keep hand
         settings_keepHand.getItems().addAll(OPTIONS_KEEP_HAND);
