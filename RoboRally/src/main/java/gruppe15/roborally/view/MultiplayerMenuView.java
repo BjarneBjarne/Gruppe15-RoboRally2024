@@ -29,42 +29,45 @@ import static gruppe15.roborally.BoardOptions.*;
 /**
  * @author Maximillian Bjørn Mortensen
  */
-public class LobbyView {
-    private final List<ComboBox> charSelection = new ArrayList<>();
+public class MultiplayerMenuView {
     private final ImageView[] playerRobotImageViews = new ImageView[6];
     private final HBox[] playerHBoxes = new HBox[6];
     private final List<CC_CourseData> courses = new ArrayList<>();
 
     @FXML
-    AnchorPane lobbyMenu;
+    Button multiplayerMenuButtonBack;
 
-    // Join menu
+    // "Join or host" menu
     @FXML
-    StackPane lobbyPaneJoinGame;
+    StackPane multiplayerMenuPaneJoinOrHost;
     @FXML
-    TextField lobbyTextFieldGameID;
+    TextField multiplayerMenuTextFieldGameID;
     @FXML
-    Button lobbyButtonJoin;
+    Button multiplayerMenuButtonJoin;
+    @FXML
+    Button multiplayerMenuButtonHost;
+    @FXML
+    StackPane multiplayerMenuPaneConnectionInfo;
+    @FXML
+    Text multiplayerMenuTextConnectionInfo;
 
     // Lobby menu
     @FXML
-    StackPane lobbyPaneSetupGame;
+    StackPane multiplayerMenuLobbyPane;
     @FXML
     Text lobbyTextGameID;
     @FXML
-    ScrollPane coursesScrollPane;
+    ScrollPane lobbyCoursesScrollPane;
     @FXML
-    VBox coursesVBox;
+    VBox lobbyCoursesVBox;
     @FXML
-    VBox playersVBox;
+    VBox lobbyPlayersVBox;
     @FXML
-    ImageView map;
+    ImageView lobbySelectedCourseImageView;
     @FXML
     Button lobbyButtonStart;
     @FXML
-    Button lobbyButtonBack;
-    @FXML
-    Text selectedCourseText;
+    Text lobbySelectedCourseText;
 
     @FXML
     ComboBox<String> lobbySettingsKeepHand;
@@ -76,16 +79,34 @@ public class LobbyView {
     private final String[] playerNames = {"", "", "", "", "", ""};
     private final String[] playerCharacters = new String[6];
 
-    public LobbyView() {
+    public MultiplayerMenuView() {
 
+    }
+
+    /**
+     * Initializes the multiplayer menu.
+     */
+    @FXML
+    public void initialize() {
+        showLobby(false);
+        setConnectionInfo("");
     }
 
     public void setupJoinButton(AppController appController) {
         // Join button
-        lobbyButtonJoin.setOnMouseClicked(e -> {
-            if(!lobbyTextFieldGameID.getText().isBlank()) {
-                appController.tryJoinLobbyWithGameID(lobbyTextFieldGameID.getText());
+        multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
+            if(!multiplayerMenuTextFieldGameID.getText().isBlank()) {
+                setConnectionInfo("Attempting to connect to lobby...");
+                appController.tryJoinLobbyWithGameID(multiplayerMenuTextFieldGameID.getText());
             }
+        });
+    }
+
+    public void setupHostButton(AppController appController) {
+        // Join button
+        multiplayerMenuButtonHost.setOnMouseClicked(e -> {
+            setConnectionInfo("Waiting for server...");
+            appController.tryHostNewLobby();
         });
     }
 
@@ -100,33 +121,42 @@ public class LobbyView {
 
     public void setupBackButton(RoboRally roboRally) {
         // Back button
-        lobbyButtonBack.setOnMouseClicked(e -> {
+        multiplayerMenuButtonBack.setOnMouseClicked(e -> {
             roboRally.goToMainMenu();
         });
     }
 
-    public void setupLobby(String gameID) {
+    public void setupLobby(boolean isHost, String gameID) {
+        initializeLobby();
         lobbyTextGameID.setText("Game ID: " + gameID);
+        setConnectionInfo("");
+        showLobby(true);
+
+        if (isHost) {
+
+        } else {
+
+        }
     }
 
     /**
-     * creates the selection menu
+     * Initializes the lobby.
      * @author Maximillian Bjørn Mortensen
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    @FXML
-    public void initialize() {
-        coursesScrollPane.setBackground(new Background(new BackgroundFill(
+    public void initializeLobby() {
+        lobbyCoursesScrollPane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        coursesVBox.setBackground(new Background(new BackgroundFill(
+        lobbyCoursesVBox.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        coursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        coursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
+        lobbyCoursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        lobbyCoursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
 
         // Players
         NO_OF_PLAYERS = 2;
         int playerIndex = 0;
         for (int i = 0; i < 3; i++) {
-            HBox playerRow = (HBox)playersVBox.getChildren().get(i);
+            HBox playerRow = (HBox) lobbyPlayersVBox.getChildren().get(i);
             for (int j = 0; j < 2; j++) {
                 playerHBoxes[playerIndex] = (HBox)playerRow.getChildren().get(j);
                 playerIndex++;
@@ -153,19 +183,13 @@ public class LobbyView {
                                 updateUI();
                             });
                         }
+
                         // Player robot
                         if (grandChild instanceof ComboBox chosenCharacter) {
                             List<String> robotNames = Arrays.stream(Robots.values())
                                     .map(Robots::getRobotName)
                                     .toList();
                             chosenCharacter.getItems().addAll(robotNames);
-                            Platform.runLater(() -> {
-                                chosenCharacter.getSelectionModel().select(localI);
-                                String name = (String) chosenCharacter.getSelectionModel().getSelectedItem();
-                                String robotImageName = Robots.getRobotByName(name).getSelectionImageName();
-                                playerRobotImageViews[localI].setImage(ImageUtils.getImageFromName(robotImageName));
-                                playerCharacters[localI] = name;
-                            });
                             chosenCharacter.valueProperty().addListener((obs, oldValue, newValue) -> {
                                 String localName = (String) chosenCharacter.getSelectionModel().getSelectedItem();
                                 String localRobotImageName = Robots.getRobotByName(localName).getSelectionImageName();
@@ -173,7 +197,14 @@ public class LobbyView {
                                 playerCharacters[localI] = localName;
                                 updateUI();
                             });
-                            charSelection.add(chosenCharacter);
+                            // Set next character as default.
+                            Platform.runLater(() -> {
+                                chosenCharacter.getSelectionModel().select(localI);
+                                String robotName = (String) chosenCharacter.getSelectionModel().getSelectedItem();
+                                String robotImageName = Robots.getRobotByName(robotName).getSelectionImageName();
+                                playerRobotImageViews[localI].setImage(ImageUtils.getImageFromName(robotImageName));
+                                playerCharacters[localI] = robotName;
+                            });
                         }
                     }
                 }
@@ -181,7 +212,6 @@ public class LobbyView {
         }
 
         // BoardOptions
-
         // Keep hand
         lobbySettingsKeepHand.getItems().addAll(OPTIONS_KEEP_HAND);
         lobbySettingsKeepHand.getSelectionModel().select(1);
@@ -199,8 +229,7 @@ public class LobbyView {
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI();
         });
-
-        Platform.runLater(this::updateUI);
+        updateUI();
     }
 
     public void initializeCourses(List<CC_CourseData> loadedCourses) {
@@ -208,7 +237,7 @@ public class LobbyView {
         Platform.runLater(() -> {
             courses.addAll(loadedCourses);
 
-            int courseButtonSize = (int)(coursesVBox.getWidth() - coursesVBox.getPadding().getLeft() - coursesVBox.getPadding().getRight());
+            int courseButtonSize = (int)(lobbyCoursesVBox.getWidth() - lobbyCoursesVBox.getPadding().getLeft() - lobbyCoursesVBox.getPadding().getRight());
             Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
 
             // Making course button
@@ -246,14 +275,14 @@ public class LobbyView {
                     // Buttons OnMouseClicked
                     int courseIndex = i;
                     courseButton.setOnMouseClicked(e -> {
-                        map.setImage(courses.get(courseIndex).getImage());
+                        lobbySelectedCourseImageView.setImage(courses.get(courseIndex).getImage());
                         mapIndex = courseIndex;
-                        selectedCourseText.setText(course.getCourseName().toUpperCase());
+                        lobbySelectedCourseText.setText(course.getCourseName().toUpperCase());
                     });
-                    coursesVBox.getChildren().add(newCourseVBox);
+                    lobbyCoursesVBox.getChildren().add(newCourseVBox);
                 }
-                selectedCourseText.setText(courses.getFirst().getCourseName().toUpperCase());
-                map.setImage(courses.getFirst().getImage());
+                lobbySelectedCourseText.setText(courses.getFirst().getCourseName().toUpperCase());
+                lobbySelectedCourseImageView.setImage(courses.getFirst().getImage());
             } else {
                 System.out.println(new NoCoursesException().getMessage());
             }
@@ -307,19 +336,26 @@ public class LobbyView {
         return true;
     }
 
-    public void showLobby() {
-        lobbyPaneSetupGame.setVisible(true);
-        lobbyPaneSetupGame.setDisable(false);
+    public void showLobby(boolean showLobby) {
+        multiplayerMenuLobbyPane.setVisible(showLobby);
+        multiplayerMenuLobbyPane.setDisable(!showLobby);
 
-        lobbyPaneJoinGame.setDisable(true);
-        lobbyPaneJoinGame.setVisible(false);
+        multiplayerMenuPaneJoinOrHost.setVisible(!showLobby);
+        multiplayerMenuPaneJoinOrHost.setDisable(showLobby);
     }
 
-    public void showJoinMenu() {
-        lobbyPaneSetupGame.setVisible(false);
-        lobbyPaneSetupGame.setDisable(true);
-
-        lobbyPaneJoinGame.setDisable(false);
-        lobbyPaneJoinGame.setVisible(true);
+    /**
+     * Method for showing the connection status to the player.
+     * @param connectionInfo If blank, hides the connection info pane. If not, shows the pane and sets the connection info text to connectionInfo.
+     */
+    private void setConnectionInfo(String connectionInfo) {
+        if (connectionInfo.isBlank()) {
+            multiplayerMenuPaneConnectionInfo.setVisible(false);
+            multiplayerMenuPaneConnectionInfo.setDisable(true);
+            multiplayerMenuTextConnectionInfo.setText(connectionInfo);
+        } else {
+            multiplayerMenuPaneConnectionInfo.setVisible(true);
+            multiplayerMenuPaneConnectionInfo.setDisable(false);
+        }
     }
 }

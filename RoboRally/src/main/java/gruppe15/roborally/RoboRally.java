@@ -28,7 +28,7 @@ import gruppe15.roborally.exceptions.NoCoursesException;
 import gruppe15.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
-import gruppe15.roborally.view.LobbyView;
+import gruppe15.roborally.view.MultiplayerMenuView;
 import gruppe15.roborally.view.WinScreenView;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -69,9 +69,12 @@ public class RoboRally extends Application {
     private static Scene primaryScene;
     private BorderPane root;
     private BoardView boardView;
-    private AnchorPane mainMenu;
-    private AnchorPane lobbyMenu;
+    private AnchorPane mainMenuPane;
+    private AnchorPane multiplayerMenuPane;
+    private MultiplayerMenuView multiplayerMenuView;
     private static CC_Controller courseCreator;
+
+    private static AppController appController;
 
     public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Can be used to log to a file. Doesn't work currently.
 
@@ -83,9 +86,6 @@ public class RoboRally extends Application {
     HBox upgradeShopCardsHBox;
     @FXML
     Button finishUpgradingButton;
-
-    // private RoboRallyMenuBar menuBar;
-    // private AppController appController;
 
     StackPane stackPane;
     StackPane backgroundStackPane;
@@ -105,7 +105,7 @@ public class RoboRally extends Application {
     public void start(Stage primaryStage) {
         // TODO: Clean up this mess.
         stage = primaryStage;
-        AppController appController = new AppController(this);
+        appController = new AppController(this);
         try {
             appController.loadCourses();
         } catch (NoCoursesException e) {
@@ -123,7 +123,7 @@ public class RoboRally extends Application {
         StackPane.setAlignment(root, Pos.CENTER);
         stage.setTitle("Robo Rally");
 
-        createMainMenu(appController);
+        createMainMenu();
 
         stage.setFullScreen(START_FULLSCREEN);
         // Get screen bounds and calculate scale
@@ -167,7 +167,7 @@ public class RoboRally extends Application {
         // Handling save option on close
         stage.setOnCloseRequest(e -> {
             e.consume();
-            closeGame(appController);
+            closeGame();
         });
     }
 
@@ -188,9 +188,8 @@ public class RoboRally extends Application {
      * Then game will be saved, and closed
      *
      * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param appController the AppController of the game
      */
-    public static void closeGame(AppController appController) {
+    public static void closeGame() {
         Boolean isGameRunning = appController.isGameRunning();
         Boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 
@@ -264,12 +263,13 @@ public class RoboRally extends Application {
         Platform.exit();
     }
 
-    public void createMainMenu(AppController appController) {
+    public void createMainMenu() {
         // create and add view for new board
-        mainMenu = new MainMenuView().initialize(appController).getMainMenu();
-        for (Node child : mainMenu.getChildren()) {
+        mainMenuPane = new MainMenuView().initialize(appController).getMainMenu();
+        for (Node child : mainMenuPane.getChildren()) {
             if (child instanceof StackPane b) {
                 backgroundStackPane = b;
+                break;
             }
         }
         goToMainMenu();
@@ -282,60 +282,57 @@ public class RoboRally extends Application {
      * @Author Marcus Rémi Lemser Eychenne, s230985
      */
     public void goToMainMenu() {
-        // if present, remove old BoardView
-        root.getChildren().clear();
-        root.setCenter(mainMenu);
+        resetMultiplayerMenu();
+        // TODO: Disconnect player from server, if they are in one.
+        root.getChildren().clear(); // If present, remove old BoardView
+        root.setCenter(mainMenuPane);
         courseCreator = null;
     }
 
     /**
-     * sets selection menu to null as to not reuse saved information from last game
+     * Sets multiplayer menu and pane to null.
      * @author Maximillian Bjørn Mortensen
      */
-    public void resetSelectionMenu() {
-        lobbyMenu = null;
+    public void resetMultiplayerMenu() {
+        multiplayerMenuView = null;
+        multiplayerMenuPane = null;
     }
 
-    public void createLobbyMenu(AppController appController, boolean isHost) {
-        if (lobbyMenu != null) {
-            goToLobbyMenu();
-        } else {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/Lobby.fxml"));
-                LobbyView lobbyView = new LobbyView();
-                loader.setController(lobbyView);
-                lobbyMenu = loader.load();
-                lobbyView.setupStartButton(appController);
-                lobbyView.setupBackButton(this);
-                lobbyView.initializeCourses(appController.getCourses());
+    public void createMultiplayerMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/MultiplayerMenu.fxml"));
+            multiplayerMenuView = new MultiplayerMenuView();
+            loader.setController(multiplayerMenuView);
+            multiplayerMenuPane = loader.load();
+            multiplayerMenuView.setupStartButton(appController);
+            multiplayerMenuView.setupBackButton(this);
+            multiplayerMenuView.setupJoinButton(appController);
+            multiplayerMenuView.setupHostButton(appController);
 
-                if (isHost) {
-                    lobbyView.showLobby();
-                } else {
-                    lobbyView.setupJoinButton(appController);
-                    lobbyView.showJoinMenu();
-                }
-
-                goToLobbyMenu();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
+            goToMultiplayerMenu();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
-    public void goToLobbyMenu() {
+
+    public void goToMultiplayerMenu() {
         // if present, remove old BoardView
         root.getChildren().clear();
-        root.setCenter(lobbyMenu);
+        root.setCenter(multiplayerMenuPane);
+    }
+
+    public void joinLobby(boolean isHost, String gameID) {
+        multiplayerMenuView.initializeCourses(appController.getCourses());
+        multiplayerMenuView.setupLobby(isHost, gameID);
     }
 
     /**
-     * creates and apllys a winscreen
+     * Creates and shows the win screen.
      * @param gameController
-     * @param appController
      * @author Maximillian Bjørn Mortensen
      */
-    public void goToWinScreen(GameController gameController, AppController appController){
+    public void goToWinScreen(GameController gameController){
         root.getChildren().clear();
 
         AnchorPane w = new WinScreenView().initialize(gameController, appController, this).getWinScreen();
@@ -344,8 +341,7 @@ public class RoboRally extends Application {
     }
 
     public void createBoardView(GameController gameController) {
-        // if present, remove old BoardView
-        root.getChildren().clear();
+        root.getChildren().clear(); // If present, remove old BoardView
 
         if (gameController != null) {
             // Loading UpgradeShop.fxml
@@ -386,11 +382,6 @@ public class RoboRally extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-
-        // XXX just in case we need to do something here eventually;
-        //     but right now the only way for the user to exit the app
-        //     is delegated to the exit() method in the AppController,
-        //     so that the AppController can take care of that.
     }
 
     public static void main(String[] args) {

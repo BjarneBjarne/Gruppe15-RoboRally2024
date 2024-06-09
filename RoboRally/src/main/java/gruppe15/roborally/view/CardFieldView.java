@@ -235,13 +235,15 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 String cardName = card.getName();
                 String cardImageName;
                 String cardFolderPath = "";
-                if (card instanceof CommandCard) {
+                if (card instanceof CommandCard commandCard) {
                     cardImageName = cardName + ".png";
                     cardFolderPath = "Cards/Programming Cards/";
-                    Image cardForegroundImage = ImageUtils.getImageFromName(cardFolderPath + "Foregrounds/" + cardImageName);
-                    if (cardForegroundImage != null && field.player != null) {
-                        Color playerColor = Color.valueOf(field.player.getRobot().name());
-                        cardForegroundImageView.setImage(ImageUtils.getImageColored(cardForegroundImage, playerColor, .75));
+                    if (commandCard.command.isNormalProgramCommand()) {
+                        Image cardForegroundImage = ImageUtils.getImageFromName(cardFolderPath + "Foregrounds/" + cardImageName);
+                        if (cardForegroundImage != null && field.player != null) {
+                            Color playerColor = Color.valueOf(field.player.getRobot().name());
+                            cardForegroundImageView.setImage(ImageUtils.getImageColored(cardForegroundImage, playerColor, .75));
+                        }
                     }
                 } else if (card instanceof UpgradeCard) {
                     cardImageName =  cardName.toUpperCase() + ".png";

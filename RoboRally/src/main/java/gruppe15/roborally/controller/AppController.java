@@ -68,27 +68,42 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void hostNewLobby() {
-        roboRally.createLobbyMenu(this, true);
-    }
 
-    public void initializeJoinMenu() {
-        roboRally.createLobbyMenu(this, false);
-    }
-
-    public void tryJoinLobbyWithGameID(String gameID) {
-        // TODO: Call server and look for game with ID "gameID".
-
-        // For now we just go to a dummy lobby
-        enterLobby(gameID); // Should be deleted
+    /**
+     * Method for going to the join menu.
+     */
+    public void initializeMultiplayerMenu() {
+        roboRally.createMultiplayerMenu();
     }
 
     /**
-     * Initializes the lobby for the player joining. Is called when the server lets the player join the lobby.
-     * @param gameID The ID of the game. TODO: Should be replaced with all the lobby data from the server.
+     * Method for the player to host a new lobby.
+     * Calls the server and requests to host a new game.
      */
-    public void enterLobby(String gameID) {
+    public void tryHostNewLobby() {
+        // TODO: Call server and ask to start new game.
+        // For now, we just go to a dummy lobby
+        initializeLobby(true, "dummyGameID"); // Should be deleted
+    }
 
+    /**
+     * Method for a player to join an existing lobby.
+     * @param gameID The gameID of the server.
+     */
+    public void tryJoinLobbyWithGameID(String gameID) {
+        // TODO: Call server and look for game with ID "gameID".
+        // For now, we just go to a dummy lobby
+        initializeLobby(false, gameID); // Should be deleted
+    }
+
+    /**
+     * Initializes the lobby with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobby.
+     * TODO: Parameters should be replaced with "lobby data" from the server.
+     * @param isHost If the player is the host of the lobby.
+     * @param gameID The ID of the game.
+     */
+    public void initializeLobby(boolean isHost, String gameID) {
+        roboRally.joinLobby(isHost, gameID);
     }
 
     public void beginCourse(CC_CourseData courseData, String[] playerNames, String[] playerCharacters) {
@@ -198,7 +213,7 @@ public class AppController implements Observer {
      * @author Maximillian Bjørn Mortensen
      */
     public void gameOver() {
-        roboRally.goToWinScreen(gameController, this);
+        roboRally.goToWinScreen(gameController);
     }
 
     /**
