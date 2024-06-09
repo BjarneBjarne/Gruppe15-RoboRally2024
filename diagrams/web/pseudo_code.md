@@ -36,22 +36,33 @@ ResponseEntity<NewPlayer> newPlayer(NewPlayer newPlayer){
 ```
 ### Receive update POST
 ```
-ResponseEntity<updateClient> updatePlayer(UpdateClient updateClient){
-    update object 'updateClient' as shown in class diagram 'class_diagram_web'
+ResponseEntity<UpdateClient> updatePlayer(UpdateClient updateClient){
+    update object 'updateClient' (with variables as shown in class diagram 'class_diagram_web')
 
-    if(player.hasChange == false){
+    if(updateClient.hasChange == false){
         return postResponse;
     }
 
-    if(player.isDisconnected == true){
-        delete row from 'Players' where Pid == playerId;
+    if(updateClient.isDisconnected == true){
+        delete row from 'Players' where Pid == updateClient.pId;
         update slotNr in 'Players';
-        NrOfPlayers-- where Gid == gameId;
+        NrOfPlayers-- where Gid == updateClient.pId;
         return no repsonse;
     }
 
-    update values(player.robot, player.isReady) in Player(Robot, isReady) where playerId == Pid;
+    update values(updateClient.robot, updateClient.isReady) in Player(Robot, isReady) where Pid == updateClient.pId;
 
     return ResponseEntity.ok(updateClient);
+}
+```
+## Client (Lobby)
+### Send update POST
+```
+void updateServer(Player player){
+    HttpPostRequest with updateClient as body;
+    updateClient = HttpClient.send(postRequest, bodyHandler.respons);
+    player.updateInfo(updateClient);
+    gameController.updateInfo(updateClient);
+    board.updateInfo(updateClient);
 }
 ```
