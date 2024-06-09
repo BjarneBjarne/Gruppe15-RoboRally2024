@@ -72,7 +72,7 @@ public class MainMenuView {
 
     private void createHostGameButton() {
         hostGame = (Button) mainMenu.lookup("#hostGame");
-        hostGame.setOnAction(e -> appController.courseSelection());
+        hostGame.setOnAction(event -> appController.hostNewLobby());
         buttons[0] = hostGame;
 
         //newGame.setGraphic(createButtonTextPane(newGame.getText()));
@@ -80,10 +80,7 @@ public class MainMenuView {
 
     private void createJoinGameButton() {
         joinGame = (Button) mainMenu.lookup("#joinGame");
-        joinGame.setOnAction(event -> {
-            // TODO: Add join logic
-
-        });
+        joinGame.setOnAction(event -> appController.initializeJoinMenu());
         buttons[1] = joinGame;
 
         //loadGame.setGraphic(createButtonTextPane(loadGame.getText()));

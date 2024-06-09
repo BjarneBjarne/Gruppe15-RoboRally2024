@@ -21,14 +21,11 @@
  */
 package gruppe15.roborally.view;
 
-import java.util.Optional;
-
 import gruppe15.roborally.RoboRally;
 import gruppe15.roborally.controller.AppController;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
 
 /**
  * ...
@@ -59,7 +56,7 @@ public class RoboRallyMenuBar extends MenuBar {
         this.getMenus().add(controlMenu);
 
         newGame = new MenuItem("New Game");
-        newGame.setOnAction( e -> this.appController.courseSelection());
+        newGame.setOnAction( e -> this.appController.hostNewLobby());
         controlMenu.getItems().add(newGame);
 
         stopGame = new MenuItem("Stop Game");
