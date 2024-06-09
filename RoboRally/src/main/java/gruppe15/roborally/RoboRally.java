@@ -24,12 +24,11 @@ package gruppe15.roborally;
 import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.coursecreator.CC_Controller;
 import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.coursecreator.CC_CourseData;
 import gruppe15.roborally.exceptions.NoCoursesException;
 import gruppe15.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
-import gruppe15.roborally.view.SetupView;
+import gruppe15.roborally.view.LobbyView;
 import gruppe15.roborally.view.WinScreenView;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -53,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 
 import static gruppe15.roborally.ApplicationSettings.*;
@@ -72,7 +70,7 @@ public class RoboRally extends Application {
     private BorderPane root;
     private BoardView boardView;
     private AnchorPane mainMenu;
-    private AnchorPane selectionMenu;
+    private AnchorPane lobbyMenu;
     private static CC_Controller courseCreator;
 
     public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Can be used to log to a file. Doesn't work currently.
@@ -295,33 +293,40 @@ public class RoboRally extends Application {
      * @author Maximillian Bjørn Mortensen
      */
     public void resetSelectionMenu() {
-        selectionMenu = null;
+        lobbyMenu = null;
     }
 
-    public void createSetupMenu(AppController appController) {
-        if (selectionMenu != null) {
-            goToSelectionMenu();
+    public void createLobbyMenu(AppController appController, boolean isHost) {
+        if (lobbyMenu != null) {
+            goToLobbyMenu();
         } else {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/SetupGame.fxml"));
-                SetupView setupView = new SetupView();
-                loader.setController(setupView);
-                selectionMenu = loader.load();
-                setupView.setupStartButton(appController);
-                setupView.setupBackButton(this);
-                setupView.initializeCourses(appController.getCourses());
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/Lobby.fxml"));
+                LobbyView lobbyView = new LobbyView();
+                loader.setController(lobbyView);
+                lobbyMenu = loader.load();
+                lobbyView.setupStartButton(appController);
+                lobbyView.setupBackButton(this);
+                lobbyView.initializeCourses(appController.getCourses());
 
-                goToSelectionMenu();
+                if (isHost) {
+                    lobbyView.showLobby();
+                } else {
+                    lobbyView.setupJoinButton(appController);
+                    lobbyView.showJoinMenu();
+                }
+
+                goToLobbyMenu();
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         }
     }
-    public void goToSelectionMenu() {
+    public void goToLobbyMenu() {
         // if present, remove old BoardView
         root.getChildren().clear();
-        root.setCenter(selectionMenu);
+        root.setCenter(lobbyMenu);
     }
 
     /**

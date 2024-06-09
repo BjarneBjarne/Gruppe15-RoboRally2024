@@ -29,14 +29,28 @@ import static gruppe15.roborally.BoardOptions.*;
 /**
  * @author Maximillian Bjørn Mortensen
  */
-public class SetupView {
+public class LobbyView {
     private final List<ComboBox> charSelection = new ArrayList<>();
     private final ImageView[] playerRobotImageViews = new ImageView[6];
     private final HBox[] playerHBoxes = new HBox[6];
     private final List<CC_CourseData> courses = new ArrayList<>();
 
     @FXML
-    AnchorPane selection_menu;
+    AnchorPane lobbyMenu;
+
+    // Join menu
+    @FXML
+    StackPane lobbyPaneJoinGame;
+    @FXML
+    TextField lobbyTextFieldGameID;
+    @FXML
+    Button lobbyButtonJoin;
+
+    // Lobby menu
+    @FXML
+    StackPane lobbyPaneSetupGame;
+    @FXML
+    Text lobbyTextGameID;
     @FXML
     ScrollPane coursesScrollPane;
     @FXML
@@ -46,38 +60,38 @@ public class SetupView {
     @FXML
     ImageView map;
     @FXML
-    Button start;
+    Button lobbyButtonStart;
     @FXML
-    Button selection_back;
+    Button lobbyButtonBack;
     @FXML
     Text selectedCourseText;
 
     @FXML
-    ComboBox<String> settings_keepHand;
+    ComboBox<String> lobbySettingsKeepHand;
     @FXML
-    ComboBox<String> settings_drawOnEmpty;
+    ComboBox<String> lobbySettingsDrawOnEmpty;
 
 
     private int mapIndex = 0;
     private final String[] playerNames = {"", "", "", "", "", ""};
     private final String[] playerCharacters = new String[6];
 
-    public SetupView() {
+    public LobbyView() {
 
     }
 
-    /**
-     * returns the field selection_menu
-     * @return AnchorPane
-     * @author Maximillian Bjørn Mortensen
-     */
-    public AnchorPane getSetupMenu() {
-        return selection_menu;
+    public void setupJoinButton(AppController appController) {
+        // Join button
+        lobbyButtonJoin.setOnMouseClicked(e -> {
+            if(!lobbyTextFieldGameID.getText().isBlank()) {
+                appController.tryJoinLobbyWithGameID(lobbyTextFieldGameID.getText());
+            }
+        });
     }
 
     public void setupStartButton(AppController appController) {
         // Start button
-        start.setOnMouseClicked(e -> {
+        lobbyButtonStart.setOnMouseClicked(e -> {
             if(isReady()) {
                 appController.beginCourse(appController.getCourses().get(mapIndex), playerNames, playerCharacters);
             }
@@ -86,9 +100,13 @@ public class SetupView {
 
     public void setupBackButton(RoboRally roboRally) {
         // Back button
-        selection_back.setOnMouseClicked(e -> {
+        lobbyButtonBack.setOnMouseClicked(e -> {
             roboRally.goToMainMenu();
         });
+    }
+
+    public void setupLobby(String gameID) {
+        lobbyTextGameID.setText("Game ID: " + gameID);
     }
 
     /**
@@ -165,19 +183,19 @@ public class SetupView {
         // BoardOptions
 
         // Keep hand
-        settings_keepHand.getItems().addAll(OPTIONS_KEEP_HAND);
-        settings_keepHand.getSelectionModel().select(1);
-        settings_keepHand.setOnAction(e -> {
-            String keepHandString = settings_keepHand.getSelectionModel().getSelectedItem().toString();
+        lobbySettingsKeepHand.getItems().addAll(OPTIONS_KEEP_HAND);
+        lobbySettingsKeepHand.getSelectionModel().select(1);
+        lobbySettingsKeepHand.setOnAction(e -> {
+            String keepHandString = lobbySettingsKeepHand.getSelectionModel().getSelectedItem().toString();
             KEEP_HAND = keepHandString.equals("Yes");
             updateUI();
         });
 
         // Draw on empty register
-        settings_drawOnEmpty.getItems().addAll(OPTIONS_DRAW_ON_EMPTY_REGISTER);
-        settings_drawOnEmpty.getSelectionModel().select(0);
-        settings_drawOnEmpty.setOnAction(e -> {
-            String keepHandString = settings_drawOnEmpty.getSelectionModel().getSelectedItem().toString();
+        lobbySettingsDrawOnEmpty.getItems().addAll(OPTIONS_DRAW_ON_EMPTY_REGISTER);
+        lobbySettingsDrawOnEmpty.getSelectionModel().select(0);
+        lobbySettingsDrawOnEmpty.setOnAction(e -> {
+            String keepHandString = lobbySettingsDrawOnEmpty.getSelectionModel().getSelectedItem().toString();
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI();
         });
@@ -253,15 +271,15 @@ public class SetupView {
             }*/
         }
         if (isReady()) {
-            start.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
-            start.setStyle("-fx-background-color:  #3a993c60;" +
+            lobbyButtonStart.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
+            lobbyButtonStart.setStyle("-fx-background-color:  #3a993c60;" +
                     "-fx-background-radius:  15;" +
                     "-fx-border-radius: 15;" +
                     "-fx-border-color:  ffffff;" +
                     "-fx-border-width: 1");
         } else {
             //start.setStyle("-fx-background-color: lightgray; -fx-text-fill: black; -fx-font-weight: bold;");
-            start.setStyle("-fx-background-color:  #993a3a60;" +
+            lobbyButtonStart.setStyle("-fx-background-color:  #993a3a60;" +
                     "-fx-background-radius:  15;" +
                     "-fx-border-radius: 15;" +
                     "-fx-border-color:  ffffff;" +
@@ -287,5 +305,21 @@ public class SetupView {
         if (courses.size() <= mapIndex) return false;
 
         return true;
+    }
+
+    public void showLobby() {
+        lobbyPaneSetupGame.setVisible(true);
+        lobbyPaneSetupGame.setDisable(false);
+
+        lobbyPaneJoinGame.setDisable(true);
+        lobbyPaneJoinGame.setVisible(false);
+    }
+
+    public void showJoinMenu() {
+        lobbyPaneSetupGame.setVisible(false);
+        lobbyPaneSetupGame.setDisable(true);
+
+        lobbyPaneJoinGame.setDisable(false);
+        lobbyPaneJoinGame.setVisible(true);
     }
 }

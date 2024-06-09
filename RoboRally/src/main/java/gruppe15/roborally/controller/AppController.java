@@ -68,8 +68,27 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void courseSelection() {
-        roboRally.createSetupMenu(this);
+    public void hostNewLobby() {
+        roboRally.createLobbyMenu(this, true);
+    }
+
+    public void initializeJoinMenu() {
+        roboRally.createLobbyMenu(this, false);
+    }
+
+    public void tryJoinLobbyWithGameID(String gameID) {
+        // TODO: Call server and look for game with ID "gameID".
+
+        // For now we just go to a dummy lobby
+        enterLobby(gameID); // Should be deleted
+    }
+
+    /**
+     * Initializes the lobby for the player joining. Is called when the server lets the player join the lobby.
+     * @param gameID The ID of the game. TODO: Should be replaced with all the lobby data from the server.
+     */
+    public void enterLobby(String gameID) {
+
     }
 
     public void beginCourse(CC_CourseData courseData, String[] playerNames, String[] playerCharacters) {
