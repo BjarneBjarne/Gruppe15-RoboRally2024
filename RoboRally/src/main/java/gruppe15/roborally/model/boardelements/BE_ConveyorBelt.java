@@ -258,7 +258,7 @@ public class BE_ConveyorBelt extends BoardElement {
         }
         protected boolean getIsWallBetween(SimulatedSpace otherSpace) {
             if (otherSpace == null) {
-                System.out.println("ERROR in code. otherSpace is null. This method only takes two spaces next to each other (not diagonally). Check the Space.getDirectionToOtherSpace() method.");
+                System.out.println("ERROR in code. otherSpace is null. This method only takes two spaces next to each other (not diagonally). Check the SimulatedSpace.getDirectionToOtherSpace() method.");
                 return false;
             }
             Heading directionToOtherSpace = getDirectionToOtherSpace(otherSpace);

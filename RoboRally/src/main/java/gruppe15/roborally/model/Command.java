@@ -100,4 +100,10 @@ public enum Command {
     public boolean isDamage() {
         return this == SPAM || this == TROJAN_HORSE || this == WORM || this == VIRUS;
     }
+
+    public boolean isNormalProgramCommand() {
+        return (this == MOVE_1 || this == MOVE_2 || this == MOVE_3 || this == MOVE_BACK ||
+                this == RIGHT_TURN || this == LEFT_TURN || this == U_TURN ||
+                this == AGAIN || this == POWER_UP);
+    }
 }

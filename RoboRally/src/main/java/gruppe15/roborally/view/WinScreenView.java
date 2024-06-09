@@ -59,14 +59,14 @@ public class WinScreenView {
         toMainMenu = (Button) wincon.lookup("#toMainMenu");
         toMainMenu.setOnAction(e -> {
             appController.setGameController(null);
-            roboRally.resetSelectionMenu();
+            roboRally.resetMultiplayerMenu();
             roboRally.goToMainMenu();
         });
 
         winnerText1 = (Text) wincon.lookup("#winnerText1");
         winnerText2 = (Text) wincon.lookup("#winnerText2");
-        winnerText1.setText(winnerText1.getText()+gameController.getWinnerName());
-        winnerText2.setText(winnerText2.getText()+gameController.getWinnerName());
+        winnerText1.setText(winnerText1.getText() + gameController.getWinnerName());
+        winnerText2.setText(winnerText2.getText() + gameController.getWinnerName());
 
         playerIMG = (ImageView) wincon.lookup("#playerIMG");
         playerIMG.setImage(gameController.getWinnerIMG());

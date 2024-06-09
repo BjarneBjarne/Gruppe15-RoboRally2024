@@ -20,17 +20,13 @@ public class MainMenuView {
     @FXML
     AnchorPane mainMenu;
     @FXML
-    Button hostGame;
+    Button mainMenuButtonMultiplayer;
     @FXML
-    Button joinGame;
+    Button mainMenuButtonCourseCreator;
     @FXML
-    Button help;
-    @FXML
-    Button courseCreator;
-    @FXML
-    Button exit;
+    Button mainMenuButtonQuit;
 
-    Button[] buttons = new Button[4];
+    Button[] buttons = new Button[3];
     AppController appController;
 
     /**
@@ -57,47 +53,39 @@ public class MainMenuView {
     public MainMenuView initialize(AppController appController) {
         this.appController = appController;
         try {
-            FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("mainMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("MainMenu.fxml"));
             mainMenu = loader.load();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        createHostGameButton();
-        createJoinGameButton();
+        createMultiplayerButton();
+        //createJoinGameButton();
         createCourseCreatorButton();
         createExitButton();
         setButtonEffect();
         return this;
     }
 
-    private void createHostGameButton() {
-        hostGame = (Button) mainMenu.lookup("#hostGame");
-        hostGame.setOnAction(event -> appController.hostNewLobby());
-        buttons[0] = hostGame;
+    private void createMultiplayerButton() {
+        mainMenuButtonMultiplayer = (Button) mainMenu.lookup("#mainMenuButtonMultiplayer");
+        mainMenuButtonMultiplayer.setOnAction(event -> appController.initializeMultiplayerMenu());
+        buttons[0] = mainMenuButtonMultiplayer;
 
         //newGame.setGraphic(createButtonTextPane(newGame.getText()));
     }
 
-    private void createJoinGameButton() {
-        joinGame = (Button) mainMenu.lookup("#joinGame");
-        joinGame.setOnAction(event -> appController.initializeJoinMenu());
-        buttons[1] = joinGame;
-
-        //loadGame.setGraphic(createButtonTextPane(loadGame.getText()));
-    }
-
     private void createCourseCreatorButton() {
-        courseCreator = (Button) mainMenu.lookup("#courseCreator");
-        courseCreator.setOnMouseClicked(e -> appController.createCourseCreator(mainMenu.getScene()));
-        buttons[2] = courseCreator;
+        mainMenuButtonCourseCreator = (Button) mainMenu.lookup("#mainMenuButtonCourseCreator");
+        mainMenuButtonCourseCreator.setOnMouseClicked(e -> appController.createCourseCreator(mainMenu.getScene()));
+        buttons[1] = mainMenuButtonCourseCreator;
 
         //courseCreator.setGraphic(createButtonTextPane(courseCreator.getText()));
     }
 
     private void createExitButton(){
-        exit = (Button) mainMenu.lookup("#exit");
-        exit.setOnAction(e -> appController.exit());
-        buttons[3] = exit;
+        mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
+        mainMenuButtonQuit.setOnAction(e -> appController.exit());
+        buttons[2] = mainMenuButtonQuit;
 
         //exit.setGraphic(createButtonTextPane(exit.getText()));
     }

@@ -100,9 +100,6 @@ public class BoardView extends VBox implements ViewObserver {
 
         GridPane boardTilesPane = new GridPane();
         boardTilesPane.setAlignment(Pos.CENTER);
-        playersView = new PlayersView(gameController);
-        StackPane playersViewStackPane = new StackPane(playersView);
-
         AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
         StackPane interactablePane = new StackPane(boardTilesPane, anchorPane);
         StackPane.setAlignment(boardTilesPane, Pos.CENTER);
@@ -134,7 +131,10 @@ public class BoardView extends VBox implements ViewObserver {
         zoomableScrollPane.setPannable(true);
         //statusLabel = new Label("<no status>");
 
+        playersView = new PlayersView(gameController);
+        StackPane playersViewStackPane = new StackPane(playersView);
         playersViewStackPane.setAlignment(Pos.CENTER);
+        playersViewStackPane.setPrefHeight(464);
         //this.getChildren().add(statusLabel);
         this.getChildren().add(mainBoardPane);
         this.getChildren().add(playersViewStackPane);
@@ -144,11 +144,13 @@ public class BoardView extends VBox implements ViewObserver {
         VBox.setVgrow(mainBoardPane, Priority.ALWAYS);
         VBox.setVgrow(playersViewStackPane, Priority.ALWAYS);
 
-        mainBoardPane.setPrefWidth(APP_BOUNDS.getWidth());
         mainBoardPane.setMinWidth(APP_BOUNDS.getWidth());
+        mainBoardPane.setPrefWidth(APP_BOUNDS.getWidth());
 
-        playersView.setPrefWidth(APP_BOUNDS.getWidth());
         playersView.setMinWidth(APP_BOUNDS.getWidth());
+        playersView.setPrefWidth(APP_BOUNDS.getWidth());
+
+        //StackPane.setMargin(playersView, new Insets(0, 0, 0, 0));
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -197,7 +199,7 @@ public class BoardView extends VBox implements ViewObserver {
         });
 
         // Button text
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 36);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
         Text buttonText = new Text();
         buttonText.setFont(textFont);
         buttonText.setFill(Color.WHITE);
@@ -210,11 +212,11 @@ public class BoardView extends VBox implements ViewObserver {
         finishUpgradingButton.setGraphic(buttonText);
 
         upgradeShopTitelPane.setStyle(
-                "-fx-background-color: rgba(0,0,0,.35); " +
+                "-fx-background-color: rgba(0,0,0,.5); " +
                 "-fx-background-radius: 15px"
         );
         upgradeShopMainPane.setStyle(
-                "-fx-background-color: rgba(0,0,0,.35); " +
+                "-fx-background-color: rgba(0,0,0,.5); " +
                         "-fx-background-radius: 15px"
         );
     }

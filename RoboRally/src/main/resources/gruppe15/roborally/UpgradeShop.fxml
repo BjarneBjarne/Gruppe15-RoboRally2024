@@ -9,7 +9,7 @@
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <StackPane fx:id="upgradeShopTitelPane" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-radius: 15;" StackPane.alignment="TOP_CENTER">
-      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Upgrade Shop" textAlignment="CENTER">
+      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Upgrade Shop" textAlignment="CENTER">
          <font>
             <Font name="OCR A Extended" size="64.0" />
          </font>
@@ -21,7 +21,7 @@
          <Insets />
       </StackPane.margin>
       <padding>
-         <Insets bottom="25.0" left="50.0" right="50.0" top="25.0" />
+         <Insets bottom="26.5" left="50.0" right="50.0" top="25.0" />
       </padding>
    </StackPane>
    <StackPane fx:id="upgradeShopMainPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="682.0" style="-fx-background-radius: 15;" StackPane.alignment="BOTTOM_CENTER">
@@ -35,7 +35,7 @@
             </StackPane.margin>
          </HBox>
          <StackPane alignment="BOTTOM_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="BOTTOM_CENTER">
-            <Button fx:id="finishUpgradingButton" alignment="CENTER" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 5;" textAlignment="CENTER">
+            <Button fx:id="finishUpgradingButton" alignment="CENTER" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-border-width: 1; -fx-border-color: white; -fx-border-radius: 5;" textAlignment="CENTER">
                <font>
                   <Font name="OCR A Extended" size="36.0" />
                </font>

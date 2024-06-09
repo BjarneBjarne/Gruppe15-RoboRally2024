@@ -15,7 +15,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="lobbyMenu" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView fitHeight="1440.0" fitWidth="2560.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -25,7 +25,93 @@
             <Rectangle2D />
          </viewport>
       </ImageView>
-      <StackPane fx:id="lobbyPaneSetupGame" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <StackPane fx:id="multiplayerMenuPaneJoinOrHost" layoutX="10.0" layoutY="10.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Multiplayer" StackPane.alignment="TOP_CENTER">
+               <font>
+                  <Font name="OCR A Extended" size="148.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets top="40.0" />
+               </StackPane.margin>
+            </Text>
+            <VBox alignment="BOTTOM_CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="25.0" StackPane.alignment="CENTER">
+               <children>
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Connect to an existing lobby by entering the Game ID below:" textAlignment="CENTER" wrappingWidth="750.0">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Text>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <TextField fx:id="multiplayerMenuTextFieldGameID" alignment="CENTER" prefHeight="100.0" prefWidth="450.0" promptText="Game ID..." style="-fx-background-radius: 15;">
+                           <font>
+                              <Font name="OCR A Extended" size="32.0" />
+                           </font>
+                           <padding>
+                              <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                           </padding>
+                        </TextField>
+                        <Button fx:id="multiplayerMenuButtonJoin" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                           <font>
+                              <Font name="OCR A Extended" size="30.0" />
+                           </font>
+                           <graphic>
+                              <StackPane mouseTransparent="true">
+                                 <children>
+                                    <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Join" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                       <font>
+                                          <Font name="OCR A Extended" size="55.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </StackPane>
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Create a new lobby as host:" textAlignment="CENTER" wrappingWidth="750.0">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="100.0" />
+                     </VBox.margin>
+                  </Text>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Button fx:id="multiplayerMenuButtonHost" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="300.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                           <font>
+                              <Font name="OCR A Extended" size="30.0" />
+                           </font>
+                           <graphic>
+                              <StackPane mouseTransparent="true">
+                                 <children>
+                                    <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Host" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                       <font>
+                                          <Font name="OCR A Extended" size="55.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </StackPane>
+                           </graphic>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+               <StackPane.margin>
+                  <Insets bottom="100.0" />
+               </StackPane.margin>
+            </VBox>
+         </children>
+      </StackPane>
+      <StackPane fx:id="multiplayerMenuLobbyPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <VBox alignment="TOP_CENTER" StackPane.alignment="CENTER">
                <children>
@@ -49,12 +135,12 @@
                                     <Insets bottom="25.0" />
                                  </VBox.margin>
                               </Text>
-                              <ScrollPane fx:id="coursesScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER">
+                              <ScrollPane fx:id="lobbyCoursesScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER">
                                  <VBox.margin>
                                     <Insets />
                                  </VBox.margin>
                                  <content>
-                                    <VBox fx:id="coursesVBox" alignment="TOP_CENTER" spacing="35.0" style="-fx-background-color: transparent;">
+                                    <VBox fx:id="lobbyCoursesVBox" alignment="TOP_CENTER" spacing="35.0" style="-fx-background-color: transparent;">
                                        <padding>
                                           <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                                        </padding>
@@ -73,7 +159,7 @@
                                     <Insets bottom="25.0" />
                                  </VBox.margin>
                               </Text>
-                              <VBox fx:id="playersVBox" alignment="TOP_CENTER" spacing="50.0">
+                              <VBox fx:id="lobbyPlayersVBox" alignment="TOP_CENTER" spacing="50.0">
                                  <children>
                                     <HBox alignment="TOP_CENTER" spacing="25.0">
                                        <children>
@@ -295,7 +381,7 @@
                <children>
                   <StackPane mouseTransparent="true">
                      <children>
-                        <Text fx:id="selectedCourseText" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course" textAlignment="CENTER">
+                        <Text fx:id="lobbySelectedCourseText" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course" textAlignment="CENTER">
                            <font>
                               <Font name="OCR A Extended" size="48.0" />
                            </font>
@@ -305,7 +391,7 @@
                         </Text>
                      </children>
                   </StackPane>
-                  <ImageView fx:id="map" fitHeight="450.0" fitWidth="450.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="lobbySelectedCourseImageView" fitHeight="450.0" fitWidth="450.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
                      <VBox.margin>
                         <Insets bottom="50.0" />
                      </VBox.margin>
@@ -336,66 +422,11 @@
             </VBox>
          </children>
       </StackPane>
-      <StackPane fx:id="lobbyPaneJoinGame" layoutX="10.0" layoutY="10.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Join Game" StackPane.alignment="TOP_CENTER">
-               <font>
-                  <Font name="OCR A Extended" size="148.0" />
-               </font>
-               <StackPane.margin>
-                  <Insets top="40.0" />
-               </StackPane.margin>
-            </Text>
-            <VBox alignment="BOTTOM_CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="50.0" StackPane.alignment="CENTER">
-               <children>
-                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Connect to an existing lobby by entering the Game ID below:" textAlignment="CENTER" wrappingWidth="750.0">
-                     <font>
-                        <Font name="OCR A Extended" size="36.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </Text>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <children>
-                        <TextField fx:id="lobbyTextFieldGameID" alignment="CENTER" prefHeight="100.0" prefWidth="450.0" promptText="Game ID..." style="-fx-background-radius: 15;">
-                           <font>
-                              <Font name="OCR A Extended" size="32.0" />
-                           </font>
-                           <padding>
-                              <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-                           </padding>
-                        </TextField>
-                        <Button fx:id="lobbyButtonJoin" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="225.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
-                           <font>
-                              <Font name="OCR A Extended" size="30.0" />
-                           </font>
-                           <graphic>
-                              <StackPane mouseTransparent="true">
-                                 <children>
-                                    <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Join" textAlignment="CENTER" StackPane.alignment="CENTER">
-                                       <font>
-                                          <Font name="OCR A Extended" size="55.0" />
-                                       </font>
-                                    </Text>
-                                 </children>
-                              </StackPane>
-                           </graphic>
-                        </Button>
-                     </children>
-                  </HBox>
-               </children>
-               <StackPane.margin>
-                  <Insets bottom="175.0" />
-               </StackPane.margin>
-            </VBox>
-         </children>
-      </StackPane>
       <AnchorPane layoutX="10.0" layoutY="10.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="128.0">
          <children>
             <VBox alignment="BOTTOM_CENTER">
                <children>
-                  <Button fx:id="lobbyButtonBack" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                  <Button fx:id="multiplayerMenuButtonBack" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
                      <font>
                         <Font name="OCR A Extended" size="32.0" />
                      </font>
@@ -418,5 +449,17 @@
             </VBox>
          </children>
       </AnchorPane>
+      <StackPane fx:id="multiplayerMenuPaneConnectionInfo" disable="true" style="-fx-background-color: #000000A5;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Text fx:id="multiplayerMenuTextConnectionInfo" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Waiting for server..." textAlignment="CENTER" StackPane.alignment="CENTER">
+               <font>
+                  <Font name="OCR A Extended" size="124.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="75.0" />
+               </StackPane.margin>
+            </Text>
+         </children>
+      </StackPane>
    </children>
 </AnchorPane>
