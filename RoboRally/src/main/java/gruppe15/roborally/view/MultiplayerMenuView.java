@@ -158,13 +158,13 @@ public class MultiplayerMenuView {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void setupLobby(LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
-        isHost = lobbyData.getHName().equals(lobbyData.getpName());
+        isHost = lobbyData.getHName().equals(lobbyData.getPName());
         initializeCourses(loadedCourses);
-        playerSlots[0].setName(lobbyData.getpName());
         initializeLobby();
-        lobbyTextGameID.setText("Game ID: " + lobbyData.getgId());
+        lobbyTextGameID.setText("Game ID: " + lobbyData.getGId());
 
         updateLobby(lobbyData);
+        playerSlots[0].setName(lobbyData.getPName());
 
         setConnectionInfo("");
         showLobby(true);
@@ -172,12 +172,12 @@ public class MultiplayerMenuView {
 
     public void updateLobby(LobbyData lobbyData) {
         this.lobbyData = lobbyData;
-        NO_OF_PLAYERS = lobbyData.getpNames().length;
+        NO_OF_PLAYERS = lobbyData.getPNames().length;
 
         for (int i = 1; i < playerSlots.length; i++) {
-            if (i < lobbyData.getpNames().length) {
+            if (i < lobbyData.getPNames().length) {
                 // Name
-                playerSlots[i].setName(lobbyData.getpNames()[i]);
+                playerSlots[i].setName(lobbyData.getPNames()[i]);
                 // Robot
                 if (lobbyData.getRobots()[i] != null) {
                     playerSlots[i].setRobot(Objects.requireNonNull(Robots.getRobotByName(lobbyData.getRobots()[i])));
@@ -185,7 +185,7 @@ public class MultiplayerMenuView {
                     playerSlots[i].setRobot(null);
                 }
                 // Host star
-                playerSlots[i].setHostStartVisible(lobbyData.getpNames()[i].equals(lobbyData.getHName()));
+                playerSlots[i].setHostStartVisible(lobbyData.getPNames()[i].equals(lobbyData.getHName()));
             }
         }
 
@@ -251,35 +251,39 @@ public class MultiplayerMenuView {
 
         // Proxy players
         for (int i = 0; i < lobbyHBoxProxyPlayers.getChildren().size(); i++) {
-            Text playerNameText = null;
-            ImageView playerRobotImageView = null;
-            Text playerRobotNameText = null;
-            ImageView playerHostStarImageView = null;
-            if (lobbyHBoxProxyPlayers.getChildren().get(i) instanceof StackPane stackPane) {
-                if (stackPane.getChildren().get(i) instanceof VBox vBox) {
-                    if (vBox.getChildren().get(0) instanceof StackPane playerNameStackPane) {
-                        if (playerNameStackPane.getChildren().getFirst() instanceof Text text) {
-                            playerNameText = text;
+            Text proxyPlayerNameText = null;
+            ImageView proxyPlayerRobotImageView = null;
+            Text proxyPlayerRobotNameText = null;
+            ImageView proxyPlayerHostStarImageView = null;
+            if (lobbyHBoxProxyPlayers.getChildren().get(i) instanceof StackPane proxyPlayerStackPane) {
+                if (proxyPlayerStackPane.getChildren().get(0) instanceof VBox vBox) {
+                    if (vBox.getChildren().get(0) instanceof StackPane stackPane) {
+                        if (stackPane.getChildren().getFirst() instanceof Text text) {
+                            proxyPlayerNameText = text;
                         }
                     }
                     if (vBox.getChildren().get(1) instanceof ImageView imageView) {
-                        playerRobotImageView = imageView;
+                        proxyPlayerRobotImageView = imageView;
                     }
-                    if (vBox.getChildren().get(2) instanceof Text text) {
-                        playerRobotNameText = text;
-                    }
-                }
-                if (stackPane.getChildren().get(i) instanceof StackPane hostStarStackPane) {
-                    if (hostStarStackPane.getChildren().getFirst() instanceof ImageView imageView) {
-                        playerHostStarImageView = imageView;
+                    if (vBox.getChildren().get(2) instanceof StackPane stackPane) {
+                        if (stackPane.getChildren().getFirst() instanceof Text text) {
+                            proxyPlayerRobotNameText = text;
+                        }
                     }
                 }
-
-                if (playerNameText == null || playerRobotImageView == null || playerRobotNameText == null || playerHostStarImageView == null) {
-                    new Exception("One or more PlayerSlot UI elements could not be instantiated for a proxy player.").printStackTrace();
+                if (proxyPlayerStackPane.getChildren().get(1) instanceof StackPane stackPane) {
+                    if (stackPane.getChildren().getFirst() instanceof ImageView imageView) {
+                        proxyPlayerHostStarImageView = imageView;
+                    }
                 }
 
-                playerSlots[i] = new LobbyPlayerSlot(playerNameText, playerRobotImageView, playerRobotNameText, playerHostStarImageView);
+                System.out.println("Making player " + (i + 1));
+                if (proxyPlayerNameText == null) System.out.println("proxyPlayerNameText is null.");
+                if (proxyPlayerRobotImageView == null) System.out.println("proxyPlayerRobotImageView is null.");
+                if (proxyPlayerRobotNameText == null) System.out.println("proxyPlayerRobotNameText is null.");
+                if (proxyPlayerHostStarImageView == null) System.out.println("proxyPlayerHostStarImageView is null.");
+
+                playerSlots[i + 1] = new LobbyPlayerSlot(proxyPlayerNameText, proxyPlayerRobotImageView, proxyPlayerRobotNameText, proxyPlayerHostStarImageView);
             }
         }
 
@@ -373,7 +377,7 @@ public class MultiplayerMenuView {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateUI() {
-        for (int i = 0; i < 6; i++) {
+        for (int i = 1; i < 6; i++) {
             playerSlots[i].setVisible(i < NO_OF_PLAYERS);
         }
         if (isReady()) {
@@ -399,10 +403,10 @@ public class MultiplayerMenuView {
      */
     private boolean isReady() {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (lobbyData.getpNames()[i].isBlank() || lobbyData.getRobots()[i] == null) return false;
+            if (lobbyData.getPNames()[i].isBlank() || lobbyData.getRobots()[i] == null) return false;
 
             for (int j = i - 1; j >= 0; j--) {
-                if(lobbyData.getpNames()[i].equals(lobbyData.getpNames()[j])) return false;
+                if(lobbyData.getPNames()[i].equals(lobbyData.getPNames()[j])) return false;
                 if(lobbyData.getRobots()[i].equals(lobbyData.getRobots()[j])) return false;
             }
         }

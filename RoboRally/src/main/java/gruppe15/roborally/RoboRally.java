@@ -283,8 +283,8 @@ public class RoboRally extends Application {
      * @Author Marcus Rémi Lemser Eychenne, s230985
      */
     public void goToMainMenu() {
-        resetMultiplayerMenu();
         appController.disconnectFromServer();
+        resetMultiplayerMenu();
         root.getChildren().clear(); // If present, remove old BoardView
         root.setCenter(mainMenuPane);
         courseCreator = null;

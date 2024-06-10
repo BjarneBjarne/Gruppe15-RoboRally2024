@@ -11,17 +11,18 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class ServerCommunication {
+    private boolean isConnectedToServer = false;
     private LobbyData lobbyData = new LobbyData();
     private final Gson gson = new Gson();
 
     public LobbyData createLobby(String playerName) throws URISyntaxException, IOException, InterruptedException {
-        lobbyData.setpName(playerName);
+        lobbyData.setPName(playerName);
         return lobbyPostRequest("hostGame");
     }
 
     public LobbyData joinLobby(Long gameID, String playerName) throws URISyntaxException, IOException, InterruptedException {
-        lobbyData.setgId(gameID);
-        lobbyData.setpName(playerName);
+        lobbyData.setGId(gameID);
+        lobbyData.setPName(playerName);
         return lobbyPostRequest("joinGame");
     }
 
@@ -42,13 +43,14 @@ public class ServerCommunication {
         HttpResponse<String> postResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
         lobbyData = gson.fromJson(postResponse != null ? postResponse.body() : null, LobbyData.class);
 
-        System.out.println("Transcription completed");
+        isConnectedToServer = true;
 
         return lobbyData;
     }
 
     public void leaveLobby() {
         // TODO: tell the server that the player has left
+        isConnectedToServer = false;
     }
 
     public void playerReady() {
@@ -61,5 +63,9 @@ public class ServerCommunication {
 
     public void changeSelectionPlayer(String robot) {
         // TODO: send new robot to server
+    }
+
+    public boolean getIsConnectedToServer() {
+        return isConnectedToServer;
     }
 }
