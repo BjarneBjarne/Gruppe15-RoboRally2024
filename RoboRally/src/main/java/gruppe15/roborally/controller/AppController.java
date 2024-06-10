@@ -80,20 +80,20 @@ public class AppController implements Observer {
      * Method for the player to host a new lobby.
      * Calls the server and requests to host a new game.
      */
-    public void tryHostNewLobby() {
+    public void tryHostNewLobby(String playerName) {
         // TODO: Call server and ask to start new game.
         // For now, we just go to a dummy lobby
-        initializeLobby(true, "dummyGameID"); // Should be deleted
+        initializeLobby(true, "dummyGameID", playerName); // Should be deleted
     }
 
     /**
      * Method for a player to join an existing lobby.
      * @param gameID The gameID of the server.
      */
-    public void tryJoinLobbyWithGameID(String gameID) {
+    public void tryJoinLobbyWithGameID(String gameID, String playerName) {
         // TODO: Call server and look for game with ID "gameID".
         // For now, we just go to a dummy lobby
-        initializeLobby(false, gameID); // Should be deleted
+        initializeLobby(false, gameID, playerName); // Should be deleted
     }
 
     /**
@@ -102,8 +102,8 @@ public class AppController implements Observer {
      * @param isHost If the player is the host of the lobby.
      * @param gameID The ID of the game.
      */
-    public void initializeLobby(boolean isHost, String gameID) {
-        roboRally.joinLobby(isHost, gameID);
+    public void initializeLobby(boolean isHost, String gameID, String playerName) {
+        roboRally.joinLobby(isHost, gameID, playerName);
     }
 
     public void beginCourse(CC_CourseData courseData, String[] playerNames, String[] playerCharacters) {

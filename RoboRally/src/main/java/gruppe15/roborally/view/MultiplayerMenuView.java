@@ -41,6 +41,8 @@ public class MultiplayerMenuView {
     @FXML
     StackPane multiplayerMenuPaneJoinOrHost;
     @FXML
+    TextField multiplayerMenuTextFieldPlayerName;
+    @FXML
     TextField multiplayerMenuTextFieldGameID;
     @FXML
     Button multiplayerMenuButtonJoin;
@@ -56,6 +58,10 @@ public class MultiplayerMenuView {
     StackPane multiplayerMenuLobbyPane;
     @FXML
     Text lobbyTextGameID;
+    @FXML
+    VBox lobbyVBoxLocalPlayer;
+    @FXML
+    HBox lobbyHBoxOtherPlayers;
     @FXML
     ScrollPane lobbyCoursesScrollPane;
     @FXML
@@ -97,7 +103,7 @@ public class MultiplayerMenuView {
         multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank()) {
                 setConnectionInfo("Attempting to connect to lobby...");
-                appController.tryJoinLobbyWithGameID(multiplayerMenuTextFieldGameID.getText());
+                appController.tryJoinLobbyWithGameID(multiplayerMenuTextFieldGameID.getText(), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
     }
@@ -106,7 +112,7 @@ public class MultiplayerMenuView {
         // Join button
         multiplayerMenuButtonHost.setOnMouseClicked(e -> {
             setConnectionInfo("Waiting for server...");
-            appController.tryHostNewLobby();
+            appController.tryHostNewLobby(multiplayerMenuTextFieldPlayerName.getText());
         });
     }
 
@@ -126,9 +132,10 @@ public class MultiplayerMenuView {
         });
     }
 
-    public void setupLobby(boolean isHost, String gameID) {
+    public void setupLobby(boolean isHost, String gameID, String playerName) {
         initializeLobby();
         lobbyTextGameID.setText("Game ID: " + gameID);
+
         setConnectionInfo("");
         showLobby(true);
 

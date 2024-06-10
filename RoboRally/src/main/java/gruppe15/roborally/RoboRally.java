@@ -322,9 +322,9 @@ public class RoboRally extends Application {
         root.setCenter(multiplayerMenuPane);
     }
 
-    public void joinLobby(boolean isHost, String gameID) {
+    public void joinLobby(boolean isHost, String gameID, String playerName) {
         multiplayerMenuView.initializeCourses(appController.getCourses());
-        multiplayerMenuView.setupLobby(isHost, gameID);
+        multiplayerMenuView.setupLobby(isHost, gameID, playerName);
     }
 
     /**
