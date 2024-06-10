@@ -15,7 +15,9 @@ public class LobbyData {
     String map;
     String hName;
 
-    public LobbyData() { }
+    public LobbyData() {
+        this(-1, -1, "", -1, -1, new String[]{""}, new String[]{""}, new int[]{-1}, "", "");
+    }
 
     public LobbyData(long pId, long gId, String pName, int isReady, int hasChanged, String[] pNames, String[] robots, int[] areReady, String map, String hName) {
         this.pId = pId;
@@ -30,15 +32,15 @@ public class LobbyData {
         this.hName = hName;
     }
 
-    public Long getpId() {
+    public Long getPId() {
         return pId;
     }
 
-    public Long getgId() {
+    public Long getGId() {
         return gId;
     }
 
-    public String getpName() {
+    public String getPName() {
         return pName;
     }
 
@@ -50,7 +52,7 @@ public class LobbyData {
         return hasChanged;
     }
 
-    public String[] getpNames() {
+    public String[] getPNames() {
         return pNames;
     }
 
@@ -70,15 +72,15 @@ public class LobbyData {
         return hName;
     }
 
-    public void setpId(long pId) {
+    public void setPId(long pId) {
         this.pId = pId;
     }
 
-    public void setgId(long gId) {
+    public void setGId(long gId) {
         this.gId = gId;
     }
 
-    public void setpName(String pName) {
+    public void setPName(String pName) {
         this.pName = pName;
     }
 
@@ -90,7 +92,7 @@ public class LobbyData {
         this.hasChanged = hasChanged;
     }
 
-    public void setpNames(String[] pNames) {
+    public void setPNames(String[] pNames) {
         this.pNames = pNames;
     }
 
