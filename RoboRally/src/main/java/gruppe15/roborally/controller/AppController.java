@@ -64,10 +64,11 @@ import static gruppe15.roborally.BoardOptions.*;
  */
 public class AppController implements Observer {
     private final RoboRally roboRally;
-    public Boolean isCourseCreatorOpen;
+    public boolean isCourseCreatorOpen = false;
     private GameController gameController;
     private final ServerCommunication serverCommunication;
     private final ScheduledExecutorService lobbyUpdateScheduler;
+    private LobbyData lobbyData = new LobbyData();
 
     private List<CC_CourseData> courses = new ArrayList<>();
 
@@ -91,12 +92,7 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryHostNewLobby(String playerName) {
-        LobbyData lobbyData;
-        try {
-            lobbyData = serverCommunication.createLobby(playerName);
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        lobbyData = serverCommunication.createLobby(lobbyData, playerName);
 
         // TODO: Handle lobbyData error message
         if (lobbyData == null) {
@@ -112,38 +108,34 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryJoinLobbyWithGameID(Long gameID, String playerName) {
-        LobbyData lobbyData = null;
-        try {
-            lobbyData = serverCommunication.joinLobby(gameID, playerName);
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        // TODO: Handle lobbyData error message
-        if (lobbyData == null) {
-            return;
-        }
+        lobbyData = serverCommunication.joinLobby(lobbyData, gameID, playerName);
 
         roboRally.connectedToLobby(lobbyData);
+    }
+
+    public void changeRobot(Robots robot) {
+        serverCommunication.changePlayerRobot(robot);
+    }
+
+    public void changeCourse(String courseName) {
+        serverCommunication.changeCourse(courseName);
     }
 
     public void startLobbyUpdateLoop() {
         Runnable lobbyUpdate = () -> {
             LobbyData updatedLobbyData;
             try {
-                updatedLobbyData = serverCommunication.requestUpdatedLobby();
+                updatedLobbyData = serverCommunication.requestUpdatedLobby(lobbyData);
             } catch (URISyntaxException | IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
             LobbyData finalUpdatedLobbyData = updatedLobbyData;
             Platform.runLater(() -> roboRally.updateLobby(finalUpdatedLobbyData));
         };
-        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 0, 1, TimeUnit.SECONDS);
+        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 1, TimeUnit.SECONDS);
     }
 
     public void stopLobbyUpdateLoop() {
-        System.out.println("Stopping lobby update loop.");
-        new Exception().printStackTrace();
         lobbyUpdateScheduler.close();
     }
 
@@ -172,7 +164,7 @@ public class AppController implements Observer {
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.getRobots()[i])), lobbyData.getPNames()[i]);
+            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.getPlayerRobots()[i])), lobbyData.getPlayerNames()[i]);
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }

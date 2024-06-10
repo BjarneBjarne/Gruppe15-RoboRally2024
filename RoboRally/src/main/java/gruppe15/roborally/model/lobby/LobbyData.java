@@ -4,111 +4,94 @@ package gruppe15.roborally.model.lobby;
  * To be serialized/deserialized and synchronized with the server.
  */
 public class LobbyData {
-    long pId;
-    long gId;
-    String pName;
-    int isReady;    // Boolean
-    int hasChanged; // Boolean
-    String[] pNames;
-    String[] robots;
-    int[] areReady; // Boolean
-    String map;
-    String hName;
+    private long playerId; // The player making the request
+
+    // Lobby constants
+    private long gameId;
+    private long hostId;
+
+    // Lobby variables
+    private String courseName;
+
+    // Player constants
+    private long[] playerIds;
+    private String[] playerNames;
+
+    // Player variables
+    private String[] playerRobots;
+    private int[] playersReady; // Booleans
 
     public LobbyData() {
-        this(-1, -1, "", -1, -1, new String[]{""}, new String[]{""}, new int[]{-1}, "", "");
+        this(-1, -1, -1, "", new long[]{-1L}, new String[]{""}, new String[]{""}, new int[]{-1});
     }
 
-    public LobbyData(long pId, long gId, String pName, int isReady, int hasChanged, String[] pNames, String[] robots, int[] areReady, String map, String hName) {
-        this.pId = pId;
-        this.gId = gId;
-        this.pName = pName;
-        this.isReady = isReady;
-        this.hasChanged = hasChanged;
-        this.pNames = pNames;
-        this.robots = robots;
-        this.areReady = areReady;
-        this.map = map;
-        this.hName = hName;
+    public LobbyData(long playerId, long gameId, long hostId, String courseName, long[] playerIds, String[] playerNames, String[] playerRobots, int[] playersReady) {
+        this.playerId = playerId;
+        this.gameId = gameId;
+        this.hostId = hostId;
+        this.courseName = courseName;
+        this.playerIds = playerIds;
+        this.playerNames = playerNames;
+        this.playerRobots = playerRobots;
+        this.playersReady = playersReady;
     }
 
-    public Long getPId() {
-        return pId;
+    public long getPlayerId() {
+        return playerId;
+    }
+    public void setPlayerId(long playerId) {
+        this.playerId = playerId;
     }
 
-    public Long getGId() {
-        return gId;
+    public long getGameId() {
+        return gameId;
+    }
+    public void setGameId(long gameId) {
+        this.gameId = gameId;
     }
 
-    public String getPName() {
-        return pName;
+    public long getHostId() {
+        return hostId;
+    }
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
-    public int getIsReady() {
-        return isReady;
+    public String getCourseName() {
+        return courseName;
+    }
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public int getHasChanged() {
-        return hasChanged;
+    public long[] getPlayerIds() {
+        return playerIds;
+    }
+    public void setPlayerIds(long[] playerIds) {
+        this.playerIds = playerIds;
     }
 
-    public String[] getPNames() {
-        return pNames;
+    public String[] getPlayerNames() {
+        return playerNames;
+    }
+    public void setPlayerNames(String[] playerNames) {
+        this.playerNames = playerNames;
+    }
+    public void setPlayerName(int index, String playerName) {
+        this.playerNames[index] = playerName;
     }
 
-    public String[] getRobots() {
-        return robots;
+    public String[] getPlayerRobots() {
+        return playerRobots;
+    }
+    public void setPlayerRobots(String[] playerRobots) {
+        this.playerRobots = playerRobots;
     }
 
-    public int[] getAreReady() {
-        return areReady;
+    public int[] getPlayersReady() {
+        return playersReady;
     }
-
-    public String getCourse() {
-        return map;
-    }
-
-    public String getHName() {
-        return hName;
-    }
-
-    public void setPId(long pId) {
-        this.pId = pId;
-    }
-
-    public void setGId(long gId) {
-        this.gId = gId;
-    }
-
-    public void setPName(String pName) {
-        this.pName = pName;
-    }
-
-    public void setIsReady(int isReady) {
-        this.isReady = isReady;
-    }
-
-    public void setHasChanged(int hasChanged) {
-        this.hasChanged = hasChanged;
-    }
-
-    public void setPNames(String[] pNames) {
-        this.pNames = pNames;
-    }
-
-    public void setRobots(String[] robots) {
-        this.robots = robots;
-    }
-
-    public void setAreReady(int[] areReady) {
-        this.areReady = areReady;
-    }
-
-    public void setMap(String map) {
-        this.map = map;
-    }
-
-    public void setHName(String hName) {
-        this.hName = hName;
+    public void setPlayersReady(int[] playersReady) {
+        this.playersReady = playersReady;
     }
 }

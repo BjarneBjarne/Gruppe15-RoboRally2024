@@ -1,6 +1,7 @@
 package gruppe15.roborally.communication;
 
 import com.google.gson.Gson;
+import gruppe15.roborally.model.Robots;
 import gruppe15.roborally.model.lobby.LobbyData;
 
 import java.io.IOException;
@@ -12,30 +13,42 @@ import java.net.http.HttpResponse;
 
 public class ServerCommunication {
     private boolean isConnectedToServer = false;
-    private LobbyData lobbyData = new LobbyData();
     private final Gson gson = new Gson();
 
-    public LobbyData createLobby(String playerName) throws URISyntaxException, IOException, InterruptedException {
-        lobbyData.setPName(playerName);
-        return lobbyPostRequest("hostGame");
+    public LobbyData createLobby(LobbyData lobbyData, String playerName) {
+        lobbyData.setPlayerName(0, playerName);
+        try {
+            lobbyData = lobbyPostRequest(lobbyData, "hostGame");
+        } catch (IOException | InterruptedException | URISyntaxException e) {
+            // TODO: Handle lobbyData error message
+            System.out.println("Couldn't create lobby.");
+        }
+        return lobbyData;
     }
 
-    public LobbyData joinLobby(Long gameID, String playerName) throws URISyntaxException, IOException, InterruptedException {
-        lobbyData.setGId(gameID);
-        lobbyData.setPName(playerName);
-        return lobbyPostRequest("joinGame");
+    public LobbyData joinLobby(LobbyData lobbyData, Long gameID, String playerName) {
+        lobbyData.setGameId(gameID);
+        lobbyData.setPlayerName(0, playerName);
+        try {
+            lobbyData = lobbyPostRequest(lobbyData, "joinGame");
+        } catch (IOException | InterruptedException | URISyntaxException e) {
+            // TODO: Handle lobbyData error message
+            System.out.println("Couldn't join lobby.");
+        }
+        return lobbyData;
     }
 
-    public LobbyData requestUpdatedLobby() throws URISyntaxException, IOException, InterruptedException {
-        return lobbyPostRequest("updateClient");
+    public LobbyData requestUpdatedLobby(LobbyData lobbyData) throws URISyntaxException, IOException, InterruptedException {
+        return lobbyPostRequest(lobbyData, "updateClient");
     }
 
-    private LobbyData lobbyPostRequest(String uriEndPoint) throws URISyntaxException, IOException, InterruptedException {
+    private LobbyData lobbyPostRequest(LobbyData lobbyData, String uriEndPoint) throws URISyntaxException, IOException, InterruptedException {
         String lobbyAsJson = gson.toJson(lobbyData);
 
         HttpRequest postRequest;
         postRequest = HttpRequest.newBuilder()
                 .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(lobbyAsJson))
                 .build();
 
@@ -44,6 +57,8 @@ public class ServerCommunication {
         lobbyData = gson.fromJson(postResponse != null ? postResponse.body() : null, LobbyData.class);
 
         isConnectedToServer = true;
+
+        System.out.println("Got data with gameID: " + lobbyData.getGameId());
 
         return lobbyData;
     }
@@ -57,12 +72,12 @@ public class ServerCommunication {
         // TODO: tell the server that the player has left
     }
 
-    public void changeSelectionHost(String map,String robot) {
-        // TODO: change map and robot from
+    public void changePlayerRobot(Robots robot) {
+        // TODO: send new robot to server
     }
 
-    public void changeSelectionPlayer(String robot) {
-        // TODO: send new robot to server
+    public void changeCourse(String courseName) {
+        // TODO: change map and robot from
     }
 
     public boolean getIsConnectedToServer() {
