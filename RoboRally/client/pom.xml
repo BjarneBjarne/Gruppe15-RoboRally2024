@@ -8,7 +8,7 @@
   <artifactId>roborally</artifactId>
   <version>0.1</version>
 
-  <name>roborally</name>
+  <name>roborally-client</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
