@@ -157,14 +157,25 @@ public class MultiplayerMenuView {
      * @param loadedCourses The courses loaded from the courses folder.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setupLobby(LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
-        isHost = lobbyData.getHName().equals(lobbyData.getPName());
-        initializeCourses(loadedCourses);
-        initializeLobby();
-        lobbyTextGameID.setText("Game ID: " + lobbyData.getGId());
+    public void setupLobby(AppController appController, LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
+        isHost = lobbyData.getHostId() == lobbyData.getPlayerId();
+        initializeCourses(appController, loadedCourses);
+        initializeLobby(appController);
+        lobbyTextGameID.setText("Game ID: " + lobbyData.getGameId());
 
         updateLobby(lobbyData);
-        playerSlots[0].setName(lobbyData.getPName());
+        for (long playerId : lobbyData.getPlayerIds()) {
+            if (playerId == lobbyData.getPlayerId()) {
+                int playerIndex = Arrays.stream(lobbyData.getPlayerIds())
+                        .boxed()
+                        .toList()
+                        .indexOf(lobbyData.getPlayerId());
+                if (playerIndex != -1) {
+                    String playerName = lobbyData.getPlayerNames()[playerIndex];
+                    playerSlots[0].setName(playerName);
+                }
+            }
+        }
 
         setConnectionInfo("");
         showLobby(true);
@@ -172,20 +183,36 @@ public class MultiplayerMenuView {
 
     public void updateLobby(LobbyData lobbyData) {
         this.lobbyData = lobbyData;
-        NO_OF_PLAYERS = lobbyData.getPNames().length;
 
-        for (int i = 1; i < playerSlots.length; i++) {
-            if (i < lobbyData.getPNames().length) {
+        // Course
+        for (CC_CourseData course : courses) {
+            if (course.getCourseName().equals(lobbyData.getCourseName())) {
+                selectedCourse = course;
+                break;
+            }
+        }
+        if (selectedCourse != null) {
+            lobbySelectedCourseImageView.setImage(selectedCourse.getImage());
+            lobbySelectedCourseText.setText(selectedCourse.getCourseName().toUpperCase());
+        }
+
+        // Players
+        NO_OF_PLAYERS = lobbyData.getPlayerNames().length;
+        int proxyPlayerSlotIndex = 0;
+        for (int i = 0; (i < playerSlots.length) && (i < lobbyData.getPlayerNames().length); i++) {
+            String playerName = lobbyData.getPlayerNames()[i];
+            if (!playerName.equals(playerSlots[0].getName())) {
                 // Name
-                playerSlots[i].setName(lobbyData.getPNames()[i]);
+                playerSlots[proxyPlayerSlotIndex].setName(playerName);
                 // Robot
-                if (lobbyData.getRobots()[i] != null) {
-                    playerSlots[i].setRobot(Objects.requireNonNull(Robots.getRobotByName(lobbyData.getRobots()[i])));
+                if (lobbyData.getPlayerRobots()[i] != null && !lobbyData.getPlayerRobots()[i].isBlank()) {
+                    playerSlots[proxyPlayerSlotIndex].setRobot(Objects.requireNonNull(Robots.getRobotByName(lobbyData.getPlayerRobots()[i])));
                 } else {
-                    playerSlots[i].setRobot(null);
+                    playerSlots[proxyPlayerSlotIndex].setRobot(null);
                 }
                 // Host star
-                playerSlots[i].setHostStartVisible(lobbyData.getPNames()[i].equals(lobbyData.getHName()));
+                playerSlots[proxyPlayerSlotIndex].setHostStartVisible(lobbyData.getPlayerIds()[i] == lobbyData.getHostId());
+                proxyPlayerSlotIndex++;
             }
         }
 
@@ -197,7 +224,7 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeLobby() {
+    public void initializeLobby(AppController appController) {
         lobbyCoursesScrollPane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         lobbyCoursesVBox.setBackground(new Background(new BackgroundFill(
@@ -244,7 +271,11 @@ public class MultiplayerMenuView {
             ComboBox<String> finalLocalPlayerRobotComboBox = localPlayerRobotComboBox;
             localPlayerRobotComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
                 String localRobotName = finalLocalPlayerRobotComboBox.getSelectionModel().getSelectedItem();
-                playerSlots[0].setRobot(Objects.requireNonNull(Robots.getRobotByName(localRobotName)));
+                Robots localRobot = Robots.getRobotByName(localRobotName);
+                if (localRobot != null) {
+                    playerSlots[0].setRobot(localRobot);
+                    appController.changeRobot(localRobot);
+                }
                 updateUI();
             });
         }
@@ -277,7 +308,6 @@ public class MultiplayerMenuView {
                     }
                 }
 
-                System.out.println("Making player " + (i + 1));
                 if (proxyPlayerNameText == null) System.out.println("proxyPlayerNameText is null.");
                 if (proxyPlayerRobotImageView == null) System.out.println("proxyPlayerRobotImageView is null.");
                 if (proxyPlayerRobotNameText == null) System.out.println("proxyPlayerRobotNameText is null.");
@@ -314,7 +344,7 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeCourses(List<CC_CourseData> loadedCourses) {
+    public void initializeCourses(AppController appController, List<CC_CourseData> loadedCourses) {
         // Courses
         Platform.runLater(() -> {
             courses.addAll(loadedCourses);
@@ -354,12 +384,11 @@ public class MultiplayerMenuView {
                     newCourseVBox.setSpacing(5);
                     newCourseVBox.setAlignment(Pos.CENTER);
 
-                    // Buttons OnMouseClicked
-                    int courseIndex = i;
+                    // Course buttons OnMouseClicked
                     courseButton.setOnMouseClicked(e -> {
-                        lobbySelectedCourseImageView.setImage(courses.get(courseIndex).getImage());
-                        selectedCourse = course;
-                        lobbySelectedCourseText.setText(course.getCourseName().toUpperCase());
+                        if (isHost) {
+                            appController.changeCourse(course.getCourseName());
+                        }
                     });
                     courseButton.setDisable(!isHost);
                     lobbyCoursesVBox.getChildren().add(newCourseVBox);
@@ -403,18 +432,18 @@ public class MultiplayerMenuView {
      */
     private boolean isReady() {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (lobbyData.getPNames()[i].isBlank() || lobbyData.getRobots()[i] == null) return false;
+            if (lobbyData.getPlayerNames()[i].isBlank() || lobbyData.getPlayerRobots()[i] == null) return false;
 
             for (int j = i - 1; j >= 0; j--) {
-                if(lobbyData.getPNames()[i].equals(lobbyData.getPNames()[j])) return false;
-                if(lobbyData.getRobots()[i].equals(lobbyData.getRobots()[j])) return false;
+                if(lobbyData.getPlayerNames()[i].equals(lobbyData.getPlayerNames()[j])) return false;
+                if(lobbyData.getPlayerRobots()[i].equals(lobbyData.getPlayerRobots()[j])) return false;
             }
         }
         if (courses.isEmpty()) return false;
         if (selectedCourse == null) return false;
 
-        for (int i = 0; i < lobbyData.getAreReady().length; i++) {
-            if (lobbyData.getAreReady()[i] == 0) return false;
+        for (int i = 0; i < lobbyData.getPlayersReady().length; i++) {
+            if (lobbyData.getPlayersReady()[i] == 0) return false;
         }
 
         return true;

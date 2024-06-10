@@ -29,6 +29,10 @@ public class LobbyPlayerSlot {
         nameText.setText(name);
     }
 
+    public String getName() {
+        return nameText.getText();
+    }
+
     public void setRobot(Robots robot) {
         if (robot != null) {
             robotImageView.setImage(ImageUtils.getImageFromName(robot.getSelectionImageName()));

@@ -191,8 +191,8 @@ public class RoboRally extends Application {
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
     public static void closeGame() {
-        Boolean isGameRunning = appController.isGameRunning();
-        Boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
+        boolean isGameRunning = appController.isGameRunning();
+        boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 
         if (isGameRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -200,7 +200,7 @@ public class RoboRally extends Application {
             alert.setContentText("Are you sure you want to exit RoboRally?");
             Optional<ButtonType> result = alert.showAndWait();
 
-            if (!result.isPresent() || result.get() != ButtonType.OK) {
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
             } else {
                 // If the user did not cancel, the RoboRally application will exit
@@ -329,7 +329,7 @@ public class RoboRally extends Application {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void connectedToLobby(LobbyData lobbyData) {
-        multiplayerMenuView.setupLobby(lobbyData, appController.getCourses());
+        multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
         appController.startLobbyUpdateLoop();
     }
 
