@@ -50,7 +50,7 @@
                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                      </padding>
                   </TextField>
-                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Connect to an existing lobby by entering the Game ID below:" textAlignment="CENTER" wrappingWidth="750.0">
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Connect to an existing lobbyData by entering the Game ID below:" textAlignment="CENTER" wrappingWidth="750.0">
                      <font>
                         <Font name="OCR A Extended" size="36.0" />
                      </font>
@@ -86,7 +86,7 @@
                         </Button>
                      </children>
                   </HBox>
-                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Create a new lobby as host:" textAlignment="CENTER" wrappingWidth="750.0">
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Create a new lobbyData as host:" textAlignment="CENTER" wrappingWidth="750.0">
                      <font>
                         <Font name="OCR A Extended" size="36.0" />
                      </font>
@@ -155,188 +155,288 @@
                               </ScrollPane>
                            </children>
                         </VBox>
-                        <VBox alignment="TOP_CENTER" spacing="175.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="500.0" AnchorPane.rightAnchor="500.0" AnchorPane.topAnchor="0.0">
+                        <VBox alignment="TOP_CENTER" spacing="175.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="600.0" AnchorPane.rightAnchor="600.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <VBox fx:id="lobbyVBoxLocalPlayer" alignment="CENTER" fillWidth="false">
+                              <StackPane fx:id="lobbyStackPaneLocalPlayer" maxHeight="-Infinity" maxWidth="-Infinity">
                                  <children>
-                                    <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                    <VBox alignment="CENTER" fillWidth="false">
                                        <children>
-                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
-                                             <font>
-                                                <Font name="OCR A Extended" size="48.0" />
-                                             </font>
-                                          </Text>
+                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                             <children>
+                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                   <font>
+                                                      <Font name="OCR A Extended" size="48.0" />
+                                                   </font>
+                                                </Text>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="20.0" />
+                                             </VBox.margin>
+                                          </StackPane>
+                                          <ImageView fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                             </image>
+                                          </ImageView>
+                                          <ComboBox prefHeight="50.0" prefWidth="300.0" promptText="Character" VBox.vgrow="SOMETIMES">
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </ComboBox>
                                        </children>
-                                       <VBox.margin>
-                                          <Insets bottom="20.0" />
-                                       </VBox.margin>
+                                    </VBox>
+                                    <StackPane maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="TOP_LEFT">
+                                       <children>
+                                          <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/HostStar.png" />
+                                             </image>
+                                          </ImageView>
+                                       </children>
+                                       <StackPane.margin>
+                                          <Insets left="-35.0" top="75.0" />
+                                       </StackPane.margin>
                                     </StackPane>
-                                    <ImageView fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
-                                    <ComboBox prefHeight="50.0" prefWidth="300.0" promptText="Character" VBox.vgrow="SOMETIMES">
-                                       <VBox.margin>
-                                          <Insets />
-                                       </VBox.margin>
-                                       <opaqueInsets>
-                                          <Insets />
-                                       </opaqueInsets>
-                                    </ComboBox>
                                  </children>
                                  <VBox.margin>
                                     <Insets top="100.0" />
                                  </VBox.margin>
-                              </VBox>
-                              <HBox fx:id="lobbyHBoxOtherPlayers" alignment="CENTER" spacing="75.0">
+                              </StackPane>
+                              <HBox fx:id="lobbyHBoxProxyPlayers" alignment="CENTER" spacing="75.0">
                                  <children>
-                                    <VBox alignment="CENTER">
+                                    <StackPane prefHeight="150.0" prefWidth="200.0">
                                        <children>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          <VBox alignment="CENTER">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="30.0" />
-                                                   </font>
-                                                </Text>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="30.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets bottom="15.0" />
+                                                   </VBox.margin>
+                                                </StackPane>
+                                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="20.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                </StackPane>
                                              </children>
-                                             <VBox.margin>
-                                                <Insets bottom="15.0" />
-                                             </VBox.margin>
-                                          </StackPane>
-                                          <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
-                                             </image>
-                                          </ImageView>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          </VBox>
+                                          <StackPane maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="TOP_LEFT">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="20.0" />
-                                                   </font>
-                                                </Text>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
                                              </children>
+                                             <StackPane.margin>
+                                                <Insets left="25.0" top="50.0" />
+                                             </StackPane.margin>
                                           </StackPane>
                                        </children>
-                                    </VBox>
-                                    <VBox alignment="CENTER" layoutX="690.0" layoutY="10.0">
+                                    </StackPane>
+                                    <StackPane layoutX="690.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0">
                                        <children>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          <VBox alignment="CENTER">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="30.0" />
-                                                   </font>
-                                                </Text>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="30.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets bottom="15.0" />
+                                                   </VBox.margin>
+                                                </StackPane>
+                                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="20.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                </StackPane>
                                              </children>
-                                             <VBox.margin>
-                                                <Insets bottom="15.0" />
-                                             </VBox.margin>
-                                          </StackPane>
-                                          <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
-                                             </image>
-                                          </ImageView>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          </VBox>
+                                          <StackPane maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="TOP_LEFT">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="20.0" />
-                                                   </font>
-                                                </Text>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
                                              </children>
+                                             <StackPane.margin>
+                                                <Insets left="25.0" top="50.0" />
+                                             </StackPane.margin>
                                           </StackPane>
                                        </children>
-                                    </VBox>
-                                    <VBox alignment="CENTER" layoutX="790.0" layoutY="10.0">
+                                    </StackPane>
+                                    <StackPane layoutX="828.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0">
                                        <children>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          <VBox alignment="CENTER">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="30.0" />
-                                                   </font>
-                                                </Text>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="30.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets bottom="15.0" />
+                                                   </VBox.margin>
+                                                </StackPane>
+                                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="20.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                </StackPane>
                                              </children>
-                                             <VBox.margin>
-                                                <Insets bottom="15.0" />
-                                             </VBox.margin>
-                                          </StackPane>
-                                          <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
-                                             </image>
-                                          </ImageView>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          </VBox>
+                                          <StackPane maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="TOP_LEFT">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="20.0" />
-                                                   </font>
-                                                </Text>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
                                              </children>
+                                             <StackPane.margin>
+                                                <Insets left="25.0" top="50.0" />
+                                             </StackPane.margin>
                                           </StackPane>
                                        </children>
-                                    </VBox>
-                                    <VBox alignment="CENTER" layoutX="890.0" layoutY="10.0">
+                                    </StackPane>
+                                    <StackPane layoutX="965.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0">
                                        <children>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          <VBox alignment="CENTER">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="30.0" />
-                                                   </font>
-                                                </Text>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="30.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets bottom="15.0" />
+                                                   </VBox.margin>
+                                                </StackPane>
+                                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="20.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                </StackPane>
                                              </children>
-                                             <VBox.margin>
-                                                <Insets bottom="15.0" />
-                                             </VBox.margin>
-                                          </StackPane>
-                                          <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
-                                             </image>
-                                          </ImageView>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          </VBox>
+                                          <StackPane maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="TOP_LEFT">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="20.0" />
-                                                   </font>
-                                                </Text>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
                                              </children>
+                                             <StackPane.margin>
+                                                <Insets left="25.0" top="50.0" />
+                                             </StackPane.margin>
                                           </StackPane>
                                        </children>
-                                    </VBox>
-                                    <VBox alignment="CENTER" layoutX="990.0" layoutY="10.0">
+                                    </StackPane>
+                                    <StackPane layoutX="1103.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0">
                                        <children>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          <VBox alignment="CENTER">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="30.0" />
-                                                   </font>
-                                                </Text>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="30.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets bottom="15.0" />
+                                                   </VBox.margin>
+                                                </StackPane>
+                                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                                   <children>
+                                                      <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                                         <font>
+                                                            <Font name="OCR A Extended" size="20.0" />
+                                                         </font>
+                                                      </Text>
+                                                   </children>
+                                                </StackPane>
                                              </children>
-                                             <VBox.margin>
-                                                <Insets bottom="15.0" />
-                                             </VBox.margin>
-                                          </StackPane>
-                                          <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
-                                             </image>
-                                          </ImageView>
-                                          <StackPane maxWidth="200.0" prefHeight="25.0" prefWidth="200.0">
+                                          </VBox>
+                                          <StackPane maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="TOP_LEFT">
                                              <children>
-                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
-                                                   <font>
-                                                      <Font name="OCR A Extended" size="20.0" />
-                                                   </font>
-                                                </Text>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
                                              </children>
+                                             <StackPane.margin>
+                                                <Insets left="25.0" top="50.0" />
+                                             </StackPane.margin>
                                           </StackPane>
                                        </children>
-                                    </VBox>
+                                    </StackPane>
                                  </children>
                               </HBox>
                            </children>

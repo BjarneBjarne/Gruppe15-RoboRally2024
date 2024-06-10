@@ -10,17 +10,20 @@ module gruppe15.roborally {
     requires org.checkerframework.checker.qual;
     requires org.slf4j;
     requires jdk.unsupported.desktop;
+    requires java.net.http;
 
     exports gruppe15.roborally;
     exports gruppe15.roborally.view;
     exports gruppe15.roborally.exceptions;
     exports gruppe15.roborally.model;
     exports gruppe15.roborally.model.upgrade_cards;
+    exports gruppe15.roborally.model.lobby;
 
     opens gruppe15.roborally.model to com.google.gson;
     opens gruppe15.roborally.templates to com.google.gson;
     opens gruppe15.roborally.model.boardelements to com.google.gson;
     opens gruppe15.roborally.model.upgrade_cards to com.google.gson;
+    opens gruppe15.roborally.model.lobby to com.google.gson;
 
     opens gruppe15.roborally to javafx.fxml;
     opens gruppe15.roborally.view to javafx.fxml;
