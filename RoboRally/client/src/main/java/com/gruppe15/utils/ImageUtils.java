@@ -32,7 +32,7 @@ public class ImageUtils {
      *         /gruppe15/roborally/images/ folder.
      */
     public static Image getImageFromName(String imageName) {
-        String imagePath = "/gruppe15/roborally/images/" + imageName;
+        String imagePath = "/com/gruppe15/images/" + imageName;
         try {
             return new Image(Objects.requireNonNull(BoardElement.class.getResourceAsStream(imagePath)));
         } catch (Exception e) {
