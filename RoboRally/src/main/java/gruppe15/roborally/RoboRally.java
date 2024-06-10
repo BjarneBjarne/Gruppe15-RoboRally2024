@@ -25,6 +25,7 @@ import gruppe15.roborally.controller.AppController;
 import gruppe15.roborally.coursecreator.CC_Controller;
 import gruppe15.roborally.controller.GameController;
 import gruppe15.roborally.exceptions.NoCoursesException;
+import gruppe15.roborally.model.lobby.LobbyData;
 import gruppe15.utils.ImageUtils;
 import gruppe15.roborally.view.BoardView;
 import gruppe15.roborally.view.MainMenuView;
@@ -283,7 +284,7 @@ public class RoboRally extends Application {
      */
     public void goToMainMenu() {
         resetMultiplayerMenu();
-        // TODO: Disconnect player from server, if they are in one.
+        appController.disconnectFromServer();
         root.getChildren().clear(); // If present, remove old BoardView
         root.setCenter(mainMenuPane);
         courseCreator = null;
@@ -322,9 +323,18 @@ public class RoboRally extends Application {
         root.setCenter(multiplayerMenuPane);
     }
 
-    public void joinLobby(boolean isHost, String gameID, String playerName) {
-        multiplayerMenuView.initializeCourses(appController.getCourses());
-        multiplayerMenuView.setupLobby(isHost, gameID, playerName);
+    /**
+     * Initializes the lobbyData with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobbyData.
+     * @param lobbyData The lobbyData object received from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectedToLobby(LobbyData lobbyData) {
+        multiplayerMenuView.setupLobby(lobbyData, appController.getCourses());
+        appController.startLobbyUpdateLoop();
+    }
+
+    public void updateLobby(LobbyData updatedLobbyData) {
+        multiplayerMenuView.updateLobby(updatedLobbyData);
     }
 
     /**

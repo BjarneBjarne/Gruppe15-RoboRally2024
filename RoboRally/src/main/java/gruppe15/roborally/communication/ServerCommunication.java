@@ -1,55 +1,65 @@
 package gruppe15.roborally.communication;
 
+import com.google.gson.Gson;
+import gruppe15.roborally.model.lobby.LobbyData;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 public class ServerCommunication {
-    String playerName;
-    String lobbyID;
+    private LobbyData lobbyData = new LobbyData();
+    private final Gson gson = new Gson();
 
-public void startLobby(String PlayerName){
-this.playerName = playerName;
+    public LobbyData createLobby(String playerName) throws URISyntaxException, IOException, InterruptedException {
+        lobbyData.setpName(playerName);
+        return lobbyPostRequest("hostGame");
+    }
 
-//Todo Insert generation of lobby id and communicate with server
+    public LobbyData joinLobby(Long gameID, String playerName) throws URISyntaxException, IOException, InterruptedException {
+        lobbyData.setgId(gameID);
+        lobbyData.setpName(playerName);
+        return lobbyPostRequest("joinGame");
+    }
 
+    public LobbyData requestUpdatedLobby() throws URISyntaxException, IOException, InterruptedException {
+        return lobbyPostRequest("updateClient");
+    }
 
-}
+    private LobbyData lobbyPostRequest(String uriEndPoint) throws URISyntaxException, IOException, InterruptedException {
+        String lobbyAsJson = gson.toJson(lobbyData);
 
-public void playerReady(){
+        HttpRequest postRequest;
+        postRequest = HttpRequest.newBuilder()
+                .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
+                .POST(HttpRequest.BodyPublishers.ofString(lobbyAsJson))
+                .build();
 
-}
+        HttpClient httpClient = HttpClient.newHttpClient();
+        HttpResponse<String> postResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        lobbyData = gson.fromJson(postResponse != null ? postResponse.body() : null, LobbyData.class);
 
-public void joinLobby(String PlayerName, String lobbyID){
-    this.lobbyID=lobbyID;
-    this.playerName= playerName;
+        System.out.println("Transcription completed");
 
+        return lobbyData;
+    }
 
-}
-public void leaveLobby(){
-    //todo tell the server that the player has left
+    public void leaveLobby() {
+        // TODO: tell the server that the player has left
+    }
 
+    public void playerReady() {
+        // TODO: tell the server that the player has left
+    }
 
-}
+    public void changeSelectionHost(String map,String robot) {
+        // TODO: change map and robot from
+    }
 
-public void changeSelectionHost(String map,String robot){
-    //todo change map and robot from
-
-
-}
-
-public void changeSelectionPlayer(String robot){
-
-    //todo send new robot to server
-
-}
-
-
-public LobbyStatus requestLobbyStatus(){
-
-    LobbyStatus lobbyStatus = new LobbyStatus();
-
-    //todo fetch lobby status
-
-    return lobbyStatus ;
-
-}
-
-
+    public void changeSelectionPlayer(String robot) {
+        // TODO: send new robot to server
+    }
 }
