@@ -300,7 +300,7 @@ public class RoboRally extends Application {
 
     public void createMultiplayerMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/MultiplayerMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/gruppe15/MultiplayerMenu.fxml"));
             multiplayerMenuView = new MultiplayerMenuView();
             loader.setController(multiplayerMenuView);
             multiplayerMenuPane = loader.load();
@@ -346,7 +346,7 @@ public class RoboRally extends Application {
         if (gameController != null) {
             // Loading UpgradeShop.fxml
             try {
-                FXMLLoader upgradeShopFXMLLoader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/UpgradeShop.fxml"));
+                FXMLLoader upgradeShopFXMLLoader = new FXMLLoader(getClass().getResource("/com/gruppe15/UpgradeShop.fxml"));
                 upgradeShopFXMLLoader.setController(this);
                 upgradeShopPane = upgradeShopFXMLLoader.load();
             } catch (IOException e) {
@@ -391,7 +391,7 @@ public class RoboRally extends Application {
     public void createCourseCreator(Scene primaryScene) {
         root.getChildren().clear();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/gruppe15/roborally/CourseCreator.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/gruppe15/CourseCreator.fxml"));
 
         try {
             // Load the FXML and set the controller
