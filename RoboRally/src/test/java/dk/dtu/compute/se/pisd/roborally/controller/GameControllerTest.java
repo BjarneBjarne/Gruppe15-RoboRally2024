@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class GameControllerTest {
 
-    /*private final int TEST_WIDTH = 8;
+    private final int TEST_WIDTH = 8;
     private final int TEST_HEIGHT = 8;
 
     private GameController gameController;
@@ -92,6 +92,6 @@ class GameControllerTest {
 
         Assertions.assertEquals(current, board.getSpace(0, 0).getPlayer(), "Player " + current.getName() + " should beSpace (0,0)!");
         Assertions.assertEquals(Heading.EAST, current.getHeading(), "Player 0 should be heading EAST!");
-    }*/
+    }
 
 }
