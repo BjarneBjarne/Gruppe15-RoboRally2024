@@ -18,10 +18,8 @@ public class ServerCommunication {
     private final Gson gson = new Gson();
 
     public LobbyData createLobby(String playerName) {
-        // Prepare message to send
-        String createLobbyMessageAsJson = gson.toJson(playerName);
         // Send message and receive response
-        HttpResponse<String> createLobbyResponse = lobbyPostRequest(createLobbyMessageAsJson, "createLobby");
+        HttpResponse<String> createLobbyResponse = lobbyPostRequest(playerName, "createLobby");
         // Handle received message
         LobbyData lobbyData = gson.fromJson(createLobbyResponse != null ? createLobbyResponse.body() : null, LobbyData.class);
         if (lobbyData != null) {
