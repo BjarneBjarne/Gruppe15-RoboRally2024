@@ -1,8 +1,8 @@
-package gruppe15.roborally.communication;
+package com.gruppe15.communication;
 
 import com.google.gson.Gson;
-import gruppe15.roborally.model.Robots;
-import gruppe15.roborally.model.lobby.LobbyData;
+import com.gruppe15.model.Robots;
+import com.gruppe15.model.lobby.LobbyData;
 
 import java.io.IOException;
 import java.net.URI;

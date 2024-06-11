@@ -5,6 +5,8 @@ import com.gruppe15.controller.AppController;
 import com.gruppe15.coursecreator.CC_CourseData;
 import com.gruppe15.model.Robots;
 import com.gruppe15.exceptions.NoCoursesException;
+import com.gruppe15.model.lobby.LobbyData;
+import com.gruppe15.model.lobby.LobbyPlayerSlot;
 import com.gruppe15.utils.ImageUtils;
 import com.gruppe15.utils.TextUtils;
 import javafx.application.Platform;

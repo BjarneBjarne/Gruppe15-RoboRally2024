@@ -1,4 +1,4 @@
-package gruppe15.roborally.model.lobby;
+package com.gruppe15.model.lobby;
 
 /**
  * To be serialized/deserialized and synchronized with the server.

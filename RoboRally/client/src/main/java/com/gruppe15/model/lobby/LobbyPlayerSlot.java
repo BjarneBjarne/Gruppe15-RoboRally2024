@@ -1,7 +1,9 @@
-package gruppe15.roborally.model.lobby;
+package com.gruppe15.model.lobby;
 
-import gruppe15.roborally.model.Robots;
-import gruppe15.utils.ImageUtils;
+import com.gruppe15.model.Robots;
+import com.gruppe15.utils.ImageUtils;
+import com.gruppe15.model.Robots;
+import com.gruppe15.utils.ImageUtils;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
