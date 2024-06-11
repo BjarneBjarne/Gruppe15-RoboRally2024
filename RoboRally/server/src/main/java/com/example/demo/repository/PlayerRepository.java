@@ -11,5 +11,5 @@ public interface PlayerRepository extends JpaRepository<Player, Long>{
     // Player findByGId(Long gId);
 
     List<Player> findAllBygId(Long gId);
-    
+    Player findByPlayerId(Long playerId);
 }

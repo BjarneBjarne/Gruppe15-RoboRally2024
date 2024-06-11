@@ -99,6 +99,12 @@ public class LobbyController {
         return ResponseEntity.ok(getLobbySend(player.getGId()));
     }
 
+    @PostMapping(value = "/leaveGame", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> leaveGame(@RequestBody long playerId) {
+        playerRepository.deleteById(playerId);
+        return ResponseEntity.ok("Successfully left the game.");
+    }
+
     //================================================================================================
     /*
      * 
