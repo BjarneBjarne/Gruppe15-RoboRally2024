@@ -99,31 +99,24 @@ public class MultiplayerMenuView {
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setupJoinButton(AppController appController) {
+    public void setupMenuUI(AppController appController) {
+        // GameId TextField
+        multiplayerMenuTextFieldGameID.setTextFormatter(new TextFormatter<>((change) -> {
+            change.setText(change.getText().toUpperCase());
+            return change;
+        }));
         // Join button
         multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank()) {
                 setConnectionInfo("Attempting to connect to lobbyData...");
-                appController.tryJoinLobbyWithGameID(Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
+                appController.tryJoinLobbyWithGameID(multiplayerMenuTextFieldGameID.getText(), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
-    }
-
-    /**
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void setupHostButton(AppController appController) {
-        // Join button
+        // Host button
         multiplayerMenuButtonHost.setOnMouseClicked(e -> {
             setConnectionInfo("Waiting for server...");
             appController.tryHostNewLobby(multiplayerMenuTextFieldPlayerName.getText());
         });
-    }
-
-    /**
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void setupReadyOrStartButton(AppController appController) {
         // Ready/Start button
         lobbyButtonStart.setOnMouseClicked(e -> {
             if (isHost) {
@@ -153,6 +146,8 @@ public class MultiplayerMenuView {
     public void setupLobby(AppController appController, LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
         isHost = lobbyData.hostIndex() == 0;
 
+        System.out.println("Hostindex: " + lobbyData.hostIndex());
+
         initializeCourses(appController, loadedCourses);
         initializeLobby(appController);
         lobbyTextGameID.setText("Game ID: " + lobbyData.gameId());
@@ -162,6 +157,13 @@ public class MultiplayerMenuView {
 
         setConnectionInfo("");
         showLobby(true);
+
+        updateUI();
+    }
+
+    public void failedToConnect() {
+        setConnectionInfo("");
+        showLobby(false);
     }
 
     public void updateLobby(LobbyData lobbyData) {
@@ -229,7 +231,7 @@ public class MultiplayerMenuView {
 
         // Proxy players
         for (int i = 0; i < lobbyHBoxProxyPlayers.getChildren().size(); i++) {
-            if (lobbyHBoxProxyPlayers.getChildren() instanceof VBox proxyPlayerVBox) {
+            if (lobbyHBoxProxyPlayers.getChildren().get(i) instanceof VBox proxyPlayerVBox) {
                 playerSlots[i + 1] = getNewPlayerSlotFromParentNode(proxyPlayerVBox);
             }
         }
@@ -252,7 +254,6 @@ public class MultiplayerMenuView {
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI();
         });
-        updateUI();
     }
 
     private LobbyPlayerSlot getNewPlayerSlotFromParentNode(VBox playerVBox) {

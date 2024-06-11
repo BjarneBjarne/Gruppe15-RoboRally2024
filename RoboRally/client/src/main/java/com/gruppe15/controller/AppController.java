@@ -66,14 +66,13 @@ public class AppController implements Observer {
     public boolean isCourseCreatorOpen = false;
     private GameController gameController;
     private final ServerCommunication serverCommunication;
-    private final ScheduledExecutorService lobbyUpdateScheduler;
+    private ScheduledExecutorService lobbyUpdateScheduler;
 
     private List<CC_CourseData> courses = new ArrayList<>();
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
         this.serverCommunication = new ServerCommunication();
-        this.lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
     }
 
     /**
@@ -91,22 +90,16 @@ public class AppController implements Observer {
      */
     public void tryHostNewLobby(String playerName) {
         LobbyData lobbyData = serverCommunication.createLobby(playerName);
-
-        // TODO: Handle lobbyClientToServer error message
-        if (lobbyData == null) {
-            return;
-        }
-
         roboRally.connectedToLobby(lobbyData);
     }
 
     /**
      * Method for a player to join an existing lobby.
-     * @param gameID The gameID of the server.
+     * @param gameId The gameID of the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryJoinLobbyWithGameID(long gameID, String playerName) {
-        LobbyData lobbyData = serverCommunication.joinLobby(gameID, playerName);
+    public void tryJoinLobbyWithGameID(String gameId, String playerName) {
+        LobbyData lobbyData = serverCommunication.joinLobby(gameId, playerName);
         roboRally.connectedToLobby(lobbyData);
     }
 
@@ -129,17 +122,32 @@ public class AppController implements Observer {
     public void startLobbyUpdateLoop() {
         Runnable lobbyUpdate = () -> {
             // TODO: Potential issue with de-sync of local LobbyData. Should be investigated.
-            LobbyData updatedLobbyServerReceive = serverCommunication.getUpdatedLobby(roboRally.getCurrentLobbyData());
+            LobbyData updatedLobbyServerReceive;
+            if (serverCommunication.getIsConnectedToServer()) {
+                updatedLobbyServerReceive = serverCommunication.getUpdatedLobby(roboRally.getCurrentLobbyData());
+            } else {
+                updatedLobbyServerReceive = null;
+            }
+            if (updatedLobbyServerReceive == null) {
+                System.out.println("Disconnected from server.");
+                roboRally.goToMainMenu();
+            } else {
+                System.out.println(updatedLobbyServerReceive);
+            }
             Platform.runLater(() -> updateLobby(updatedLobbyServerReceive));
         };
-        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 1, TimeUnit.SECONDS);
+        lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
+        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 5, TimeUnit.SECONDS);
     }
     public void stopLobbyUpdateLoop() {
         lobbyUpdateScheduler.close();
+        lobbyUpdateScheduler = null;
     }
 
     public void updateLobby(LobbyData updatedLobbyData) {
-        roboRally.updateLobby(updatedLobbyData);
+        if (serverCommunication.getIsConnectedToServer()) {
+            roboRally.updateLobby(updatedLobbyData);
+        }
     }
 
     /**
@@ -149,7 +157,7 @@ public class AppController implements Observer {
     public void disconnectFromServer() {
         if (serverCommunication.getIsConnectedToServer()) {
             stopLobbyUpdateLoop();
-            serverCommunication.leaveGame(roboRally.getCurrentLobbyData().gameId());
+            serverCommunication.leaveGame(roboRally.getCurrentLobbyData().playerId());
         }
     }
 

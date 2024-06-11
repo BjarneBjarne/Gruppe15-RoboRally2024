@@ -23,6 +23,7 @@ package com.gruppe15.utils;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
+import com.gruppe15.RoboRally;
 
 import java.io.*;
 import java.net.URI;
@@ -88,7 +89,7 @@ public class IOUtil {
         List<InputStream> jsonFiles = new ArrayList<>();
 
         // Get the URL of the directory
-        URL dirURL = IOUtil.class.getClassLoader().getResource(folderName);
+        URL dirURL = RoboRally.class.getClassLoader().getResource(folderName);
         if (dirURL != null) {
             if (dirURL.getProtocol().equals("file")) {
                 // Load resources from the file system
