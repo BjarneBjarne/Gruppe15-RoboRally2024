@@ -16,7 +16,7 @@ public class ServerCommunication {
     private final Gson gson = new Gson();
 
     public LobbyData createLobby(LobbyData lobbyData, String playerName) {
-        lobbyData.setPlayerName(0, playerName);
+        lobbyData.setPlayerName(playerName);
         try {
             lobbyData = lobbyPostRequest(lobbyData, "hostGame");
         } catch (IOException | InterruptedException | URISyntaxException e) {
@@ -28,7 +28,7 @@ public class ServerCommunication {
 
     public LobbyData joinLobby(LobbyData lobbyData, long gameID, String playerName) {
         lobbyData.setGameId(gameID);
-        lobbyData.setPlayerName(0, playerName);
+        lobbyData.setPlayerName(playerName);
         try {
             lobbyData = lobbyPostRequest(lobbyData, "joinGame");
         } catch (IOException | InterruptedException | URISyntaxException e) {
