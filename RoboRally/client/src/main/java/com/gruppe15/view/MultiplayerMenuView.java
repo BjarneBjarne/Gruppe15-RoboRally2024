@@ -159,24 +159,13 @@ public class MultiplayerMenuView {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void setupLobby(AppController appController, LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
-        isHost = lobbyData.getHostId() == lobbyData.getPlayerId();
+        isHost = lobbyData.gethName().equals(lobbyData.getPlayerName());
         initializeCourses(appController, loadedCourses);
         initializeLobby(appController);
         lobbyTextGameID.setText("Game ID: " + lobbyData.getGameId());
+        playerSlots[0].setName(lobbyData.getPlayerName());
 
         updateLobby(lobbyData);
-        for (long playerId : lobbyData.getPlayerIds()) {
-            if (playerId == lobbyData.getPlayerId()) {
-                int playerIndex = Arrays.stream(lobbyData.getPlayerIds())
-                        .boxed()
-                        .toList()
-                        .indexOf(lobbyData.getPlayerId());
-                if (playerIndex != -1) {
-                    String playerName = lobbyData.getPlayerNames()[playerIndex];
-                    playerSlots[0].setName(playerName);
-                }
-            }
-        }
 
         setConnectionInfo("");
         showLobby(true);
@@ -187,7 +176,7 @@ public class MultiplayerMenuView {
 
         // Course
         for (CC_CourseData course : courses) {
-            if (course.getCourseName().equals(lobbyData.getCourseName())) {
+            if (course.getCourseName().equals(lobbyData.getMap())) {
                 selectedCourse = course;
                 break;
             }
@@ -200,19 +189,19 @@ public class MultiplayerMenuView {
         // Players
         NO_OF_PLAYERS = lobbyData.getPlayerNames().length;
         int proxyPlayerSlotIndex = 1;
-        for (int i = 0; (i < playerSlots.length) && (i < lobbyData.getPlayerIds().length); i++) {
+        for (int i = 0; (i < playerSlots.length) && (i < lobbyData.getPlayerNames().length); i++) {
             String playerName = lobbyData.getPlayerNames()[i];
             if (!playerName.equals(playerSlots[0].getName())) {
                 // Name
                 playerSlots[proxyPlayerSlotIndex].setName(playerName);
                 // Robot
-                if (lobbyData.getPlayerRobots()[i] != null && !lobbyData.getPlayerRobots()[i].isBlank()) {
-                    playerSlots[proxyPlayerSlotIndex].setRobot(Objects.requireNonNull(Robots.getRobotByName(lobbyData.getPlayerRobots()[i])));
+                if (lobbyData.getRobots()[i] != null && !lobbyData.getRobots()[i].isBlank()) {
+                    playerSlots[proxyPlayerSlotIndex].setRobot(Objects.requireNonNull(Robots.getRobotByName(lobbyData.getRobots()[i])));
                 } else {
                     playerSlots[proxyPlayerSlotIndex].setRobot(null);
                 }
                 // Host star
-                playerSlots[proxyPlayerSlotIndex].setHostStartVisible(lobbyData.getPlayerIds()[i] == lobbyData.getHostId());
+                playerSlots[proxyPlayerSlotIndex].setHostStartVisible(lobbyData.getPlayerNames()[i].equals(lobbyData.gethName()));
                 proxyPlayerSlotIndex++;
             }
         }
@@ -433,18 +422,19 @@ public class MultiplayerMenuView {
      */
     private boolean isReady() {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (lobbyData.getPlayerNames()[i].isBlank() || lobbyData.getPlayerRobots()[i] == null) return false;
+            if (lobbyData.getPlayerNames()[i].isBlank() || lobbyData.getRobots()[i] == null) return false;
 
             for (int j = i - 1; j >= 0; j--) {
                 if(lobbyData.getPlayerNames()[i].equals(lobbyData.getPlayerNames()[j])) return false;
-                if(lobbyData.getPlayerRobots()[i].equals(lobbyData.getPlayerRobots()[j])) return false;
+                if(lobbyData.getRobots()[i].equals(lobbyData.getRobots()[j])) return false;
             }
         }
         if (courses.isEmpty()) return false;
         if (selectedCourse == null) return false;
 
-        for (int i = 0; i < lobbyData.getPlayersReady().length; i++) {
-            if (lobbyData.getPlayersReady()[i] == 0) return false;
+        if (lobbyData.getIsReady() == 0) return false;
+        for (int i = 0; i < lobbyData.getAreReady().length; i++) {
+            if (lobbyData.getAreReady()[i] == 0) return false;
         }
 
         return true;

@@ -164,7 +164,7 @@ public class AppController implements Observer {
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.getPlayerRobots()[i])), lobbyData.getPlayerNames()[i]);
+            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.getRobots()[i])), lobbyData.getPlayerNames()[i]);
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
