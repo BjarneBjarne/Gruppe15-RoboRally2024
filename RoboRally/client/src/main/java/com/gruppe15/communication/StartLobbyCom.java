@@ -1,4 +1,4 @@
-package gruppe15.roborally.communication;
+package com.gruppe15.communication;
 
 public class StartLobbyCom {
 

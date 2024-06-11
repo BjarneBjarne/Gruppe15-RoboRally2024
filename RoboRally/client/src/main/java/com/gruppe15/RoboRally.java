@@ -25,6 +25,7 @@ import com.gruppe15.controller.AppController;
 import com.gruppe15.coursecreator.CC_Controller;
 import com.gruppe15.controller.GameController;
 import com.gruppe15.exceptions.NoCoursesException;
+import com.gruppe15.model.lobby.LobbyData;
 import com.gruppe15.utils.ImageUtils;
 import com.gruppe15.view.BoardView;
 import com.gruppe15.view.MainMenuView;
