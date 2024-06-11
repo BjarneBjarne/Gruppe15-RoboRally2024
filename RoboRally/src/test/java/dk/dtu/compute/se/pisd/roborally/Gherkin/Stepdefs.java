@@ -1,9 +1,12 @@
 package dk.dtu.compute.se.pisd.roborally.Gherkin;
 
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.coursecreator.CC_CourseData;
+import gruppe15.roborally.coursecreator.CC_JsonUtil;
 import gruppe15.roborally.model.Board;
 import gruppe15.roborally.model.*;
 import io.cucumber.java.en.*;
+import javafx.util.Pair;
 import org.testfx.framework.junit5.ApplicationTest;
 
 import java.util.ArrayList;
@@ -26,7 +29,10 @@ public class Stepdefs extends ApplicationTest {
     @Given("The application has started")
     public void applicationHasStarted() throws Exception {
         // ApplicationTest.launch(RoboRally.class);
-        board = new Board(8, 8);
+        List<CC_CourseData> courses = CC_JsonUtil.getCoursesInFolder("courses");
+        CC_CourseData courseData = courses.get(0);
+        Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
+        Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
         players = new ArrayList<>();
         // players.add(new Player(board, "red", "player 1"));
