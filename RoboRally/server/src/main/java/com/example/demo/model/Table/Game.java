@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.security.SecureRandom;
+
 @Entity
 @Table(name = "games")
 @Getter
@@ -15,14 +17,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Game {
-    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long gameId;
+    private String gameId;
+
     private int turnId;
-    private int hostId;
+    private long hostId;
     private int nrOfPlayers;
     private GamePhase phase;
     private String courseName;
 
+    public static class GameIdGenerator {
+        final static String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        final static int ID_LENGTH = 4;
+        final static SecureRandom random = new SecureRandom();
+
+        public static String generateGameId() {
+            StringBuilder sb = new StringBuilder(ID_LENGTH);
+            for (int i = 0; i < ID_LENGTH; i++) {
+                sb.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
+            }
+            return sb.toString();
+        }
+    }
 }

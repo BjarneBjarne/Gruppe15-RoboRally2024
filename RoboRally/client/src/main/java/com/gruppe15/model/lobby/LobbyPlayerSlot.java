@@ -69,6 +69,8 @@ public class LobbyPlayerSlot {
         playerNameText.setVisible(visible);
         robotImageView.setVisible(visible);
         robotText.setVisible(visible);
+        hostStarImageView.setVisible(visible);
+        readyCheckImageView.setVisible(visible);
     }
 
     public ComboBox<String> getRobotComboBox() {

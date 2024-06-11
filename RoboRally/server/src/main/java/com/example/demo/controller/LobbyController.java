@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -40,11 +39,19 @@ public class LobbyController {
     public ResponseEntity<LobbyServerSend> createLobby(@RequestBody String playerName) {
 
         Game game = new Game();
+        boolean idAssigned = false;
+        while (!idAssigned) {
+            String generatedId = Game.GameIdGenerator.generateGameId();
+            Game existing = gameRepository.findByGameId(generatedId);
+            if (existing == null) {
+                game.setGameId(generatedId);
+                idAssigned = true;
+            }
+        }
         game.setNrOfPlayers(1);
         game.setTurnId(1);
         game.setPhase(GamePhase.LOBBY);
         game.setCourseName(null);
-        gameRepository.save(game);
 
         Player player = new Player();
         player.setGameId(game.getGameId());
@@ -52,12 +59,15 @@ public class LobbyController {
         player.setRobotName(null);
         playerRepository.save(player);
 
-        return ResponseEntity.ok(getLobbyServerSend(game.getGameId()));
+        game.setHostId(player.getPlayerId());
+        gameRepository.save(game);
+
+        return ResponseEntity.ok(getLobbyServerSend(player.getPlayerId()));
     }
 
     @PostMapping(value = "/joinLobby", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LobbyServerSend> joinLobby(@RequestBody LobbyJoin lobby) {
-        Game game = gameRepository.findById(lobby.gameId()).orElse(null);
+        Game game = gameRepository.findByGameId(lobby.gameId());
         if (game == null)
             return ResponseEntity.badRequest().build();
 
@@ -67,26 +77,25 @@ public class LobbyController {
         player.setRobotName(null);
         playerRepository.save(player);
 
-        return ResponseEntity.ok(getLobbyServerSend(game.getGameId()));
+        return ResponseEntity.ok(getLobbyServerSend(player.getPlayerId()));
     }
 
     @PostMapping(value = "/updateLobby", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LobbyServerSend> updateLobby(@RequestBody LobbyServerReceive body) {
-
-        Player player = playerRepository.findById(body.playerId()).orElse(null);
+        Game game = gameRepository.findByGameId(body.gameId());
+        Player player = playerRepository.findByPlayerId(body.playerId());
         if (player == null)
             return ResponseEntity.badRequest().build();
 
         player.setRobotName(body.robotName());
         player.setIsReady(body.isReady());
-        Game game = gameRepository.findById(player.getGameId()).orElse(null);
         if (player.getPlayerId() == game.getHostId()) {
             game.setCourseName(body.courseName());
             gameRepository.save(game);
         }
         playerRepository.save(player);
 
-        return ResponseEntity.ok(getLobbyServerSend(player.getGameId()));
+        return ResponseEntity.ok(getLobbyServerSend(player.getPlayerId()));
     }
 
     @PostMapping(value = "/leaveGame", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -95,7 +104,15 @@ public class LobbyController {
         if (player == null) {
             return ResponseEntity.badRequest().build();
         }
+        String gameId = player.getGameId();
         playerRepository.delete(player);
+
+        if (playerRepository.findAllByGameId(gameId).isEmpty()) {
+            Game game = gameRepository.findByGameId(gameId);
+            gameRepository.delete(game);
+            return ResponseEntity.ok("Successfully left and closed the game.");
+        }
+
         return ResponseEntity.ok("Successfully left the game.");
     }
 
@@ -110,13 +127,13 @@ public class LobbyController {
         String[] playerNames = new String[players.size()];
         String[] robots = new String[players.size()];
         int[] areReady = new int[players.size()];
-        int hostIndex = 0;
+        int hostIndex = -1;
 
         // Setting the data of the player to receive the message at index 0.
         playerNames[0] = playerSend.getPlayerName();
         robots[0] = playerSend.getRobotName();
         areReady[0] = playerSend.getIsReady();
-        if (playerSend.getPlayerId() == hostIndex) {
+        if (playerSend.getPlayerId() == game.getHostId()) {
             hostIndex = 0;
         }
 

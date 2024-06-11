@@ -6,6 +6,7 @@ import com.gruppe15.model.lobby.LobbyClientJoin;
 import com.gruppe15.model.lobby.LobbyData;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -23,7 +24,7 @@ public class ServerCommunication {
         HttpResponse<String> createLobbyResponse = lobbyPostRequest(createLobbyMessageAsJson, "createLobby");
         // Handle received message
         LobbyData lobbyData = gson.fromJson(createLobbyResponse != null ? createLobbyResponse.body() : null, LobbyData.class);
-        if (createLobbyResponse != null) {
+        if (lobbyData != null) {
             System.out.println("Successfully created new lobby with gameId: " + lobbyData.gameId() + ".");
             isConnectedToServer = true;
         } else {
@@ -33,7 +34,7 @@ public class ServerCommunication {
         return lobbyData;
     }
 
-    public LobbyData joinLobby(long gameId, String playerName) {
+    public LobbyData joinLobby(String gameId, String playerName) {
         // Prepare message to send
         LobbyClientJoin joinLobbyMessage = new LobbyClientJoin(gameId, playerName);
         String joinLobbyMessageAsJson = gson.toJson(joinLobbyMessage);
@@ -41,7 +42,7 @@ public class ServerCommunication {
         HttpResponse<String> joinLobbyResponse = lobbyPostRequest(joinLobbyMessageAsJson, "joinLobby");
         // Handle received message
         LobbyData lobbyData = gson.fromJson(joinLobbyResponse != null ? joinLobbyResponse.body() : null, LobbyData.class);
-        if (joinLobbyResponse != null) {
+        if (lobbyData != null) {
             System.out.println("Connected to game with gameId: " + lobbyData.gameId() + ".");
             isConnectedToServer = true;
         } else {
@@ -54,14 +55,14 @@ public class ServerCommunication {
 
     // In-lobby messages
     public LobbyData getUpdatedLobby(LobbyData lobbyData) {
-        LobbyClientUpdate changeCourseMessage = new LobbyClientUpdate(
+        LobbyClientUpdate updateCourseMessage = new LobbyClientUpdate(
                 lobbyData.playerId(),
                 lobbyData.gameId(),
                 lobbyData.playerNames()[0],
                 lobbyData.robotNames()[0],
                 lobbyData.areReady()[0],
                 lobbyData.courseName());
-        return requestUpdatedLobby(changeCourseMessage);
+        return requestUpdatedLobby(updateCourseMessage);
     }
     public LobbyData changeCourse(LobbyData lobbyData, String newCourseName) {
         LobbyClientUpdate changeCourseMessage = new LobbyClientUpdate(
@@ -99,10 +100,9 @@ public class ServerCommunication {
         HttpResponse<String> leaveGameResponse = lobbyPostRequest(leaveGameMessageAsJson, "leaveGame");
 
         // Handle received message
-        LobbyData lobbyData = gson.fromJson(leaveGameResponse != null ? leaveGameResponse.body() : null, LobbyData.class);
         if (leaveGameResponse != null) {
-            System.out.println("Successfully left game with gameId: " + lobbyData.gameId() + ".");
-            isConnectedToServer = true;
+            System.out.println(leaveGameResponse.body());
+            isConnectedToServer = false;
         } else {
             System.out.println("Failed to leave game.");
         }
@@ -130,9 +130,12 @@ public class ServerCommunication {
                     .build();
             HttpClient httpClient = HttpClient.newHttpClient();
             serverResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException | URISyntaxException e) {
             // TODO: Handle lobbyClientToServer error message
-            System.out.println("Couldn't create lobby.");
+            //System.out.println(serverResponse.statusCode());
+        } catch (ConnectException e) {
+            System.out.println("Failed to connect to server.");
+        } catch (IOException | InterruptedException | URISyntaxException e) {
+            System.out.println(e.getMessage());
         }
         return serverResponse;
     }

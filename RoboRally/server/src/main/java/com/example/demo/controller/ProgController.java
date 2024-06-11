@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Table.Player;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,8 +45,7 @@ public class ProgController {
                 progData.getOwnMoves()[4]
         );
         registerRepository.save(register);
-        
-        Game game = gameRepository.findById(playerRepository.findById(progData.getPlayerId()).orElse(null).getGameId()).orElse(null);
+        Game game = gameRepository.findByGameId(playerRepository.findByPlayerId(progData.getPlayerId()).getGameId());
         if(progData.getTurnId() > game.getTurnId()){
             game.setTurnId(progData.getTurnId());
             gameRepository.save(game);

@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.Query;
 import com.example.demo.model.Table.Game;
 
 public interface GameRepository extends JpaRepository<Game, Long>{
-
-    Game findByGameId(long gameId);
+    Game findByGameId(String gameId);
 }

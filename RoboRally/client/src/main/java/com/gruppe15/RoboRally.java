@@ -306,10 +306,8 @@ public class RoboRally extends Application {
             multiplayerMenuView = new MultiplayerMenuView();
             loader.setController(multiplayerMenuView);
             multiplayerMenuPane = loader.load();
-            multiplayerMenuView.setupReadyOrStartButton(appController);
+            multiplayerMenuView.setupMenuUI(appController);
             multiplayerMenuView.setupBackButton(this);
-            multiplayerMenuView.setupJoinButton(appController);
-            multiplayerMenuView.setupHostButton(appController);
 
             goToMultiplayerMenu();
         } catch (IOException e) {
@@ -382,7 +380,12 @@ public class RoboRally extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        try {
+            launch(args);
+        } catch (Exception e) {
+            System.err.println("Unchecked exception: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void createCourseCreator(Scene primaryScene) {
@@ -413,8 +416,12 @@ public class RoboRally extends Application {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void connectedToLobby(LobbyData lobbyData) {
-        multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
-        appController.startLobbyUpdateLoop();
+        if (lobbyData != null) {
+            multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
+            appController.startLobbyUpdateLoop();
+        } else {
+            multiplayerMenuView.failedToConnect();
+        }
     }
 
     public void updateLobby(LobbyData lobbyData) {
