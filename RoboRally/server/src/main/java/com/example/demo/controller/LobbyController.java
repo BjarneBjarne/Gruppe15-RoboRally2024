@@ -4,13 +4,13 @@ import com.example.demo.model.GamePhase;
 import com.example.demo.model.Table.Game;
 import com.example.demo.model.Table.Player;
 import com.example.demo.model.httpBody.Lobby;
+import com.example.demo.model.httpBody.LobbyRecieve;
+import com.example.demo.model.httpBody.LobbySend;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-//Base endpoint
 @RequestMapping("/Lobby")
 
 public class LobbyController {
@@ -53,7 +52,7 @@ public class LobbyController {
 
         // Adding new Player to 'Players' table
         Player player = newPlayer(lobby, newGame.getGId());
-        
+
         // Updating lobby object
         lobby.setPlayerId(player.getPlayerId());
         lobby.setGameId(newGame.getGId());
@@ -82,12 +81,22 @@ public class LobbyController {
     }
 
     @PostMapping(value = "/updateClient", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Lobby> updateClient(@RequestBody Lobby lobby){
-        /* TO DO:
-         * Logic for updating tables based on client updates
-         * and returning with changes made by other players
-         */
-        return ResponseEntity.ok(lobby);
+    public ResponseEntity<LobbySend> updateClient(@RequestBody LobbyRecieve body) {
+
+        Player player = playerRepository.findById(body.getPlayerId()).orElse(null);
+        if (player == null)
+            return ResponseEntity.badRequest().build();
+
+        player.setRobot(body.getRobotName());
+        player.setIsReady(body.getIsReady());
+        Game game = gameRepository.findById(player.getGId()).orElse(null);
+        if (player.getPlayerId() == game.getHostId()) {
+            game.setMap(body.getMap());
+            gameRepository.save(game);
+        }
+        playerRepository.save(player);
+
+        return ResponseEntity.ok(getLobbySend(player.getGId()));
     }
 
     //================================================================================================
@@ -105,6 +114,32 @@ public class LobbyController {
         player.setIsReady(0);
         playerRepository.save(player);
         return player;
+    }
+
+    private LobbySend getLobbySend(Long gId) {
+        LobbySend sendLobby = new LobbySend();
+
+        Game game = gameRepository.findById(gId).orElse(null);
+        List<Player> players = playerRepository.findAllBygId(gId);
+        String[] playerNames = new String[players.size() - 1];
+        String[] robots = new String[players.size() - 1];
+        int[] areReady = new int[players.size() - 1];
+
+        for (int i = 0; i < players.size(); i++) {
+            Player player = players.get(i);
+            if (player.getPlayerId() == game.getHostId()) {
+                sendLobby.setHostName(player.getPName());
+            }
+            playerNames[i] = player.getPName();
+            robots[i] = player.getRobot();
+            areReady[i] = player.getIsReady();
+        }
+        sendLobby.setPlayerNames(playerNames);
+        sendLobby.setRobots(robots);
+        sendLobby.setAreReady(areReady);
+        sendLobby.setMap(game.getMap());
+
+        return sendLobby;
     }
 
     private void updateLobby(Lobby lobby) {
