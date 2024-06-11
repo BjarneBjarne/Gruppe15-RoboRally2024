@@ -71,6 +71,8 @@ public class LobbyController {
 
         // Adding new Player to 'Players' table
         Player player = newPlayer(lobby, game.getGId());
+        game.setNrOfPlayers(game.getNrOfPlayers() + 1);
+        gameRepository.save(game);
         lobby.setPlayerId(player.getPlayerId());
 
         // Updating lobby object
