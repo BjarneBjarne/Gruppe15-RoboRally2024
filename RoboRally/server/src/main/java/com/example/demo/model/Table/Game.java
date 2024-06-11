@@ -20,6 +20,7 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gId;
     private int turnId;
+    private int hostId;
     private int nrOfPlayers;
     private GamePhase phase;
     private String map;
