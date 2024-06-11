@@ -23,19 +23,21 @@ package com.gruppe15.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.gruppe15.RoboRally;
 import com.gruppe15.observer.Observer;
 import com.gruppe15.observer.Subject;
-import com.gruppe15.coursecreator.CC_CourseData;
-import com.gruppe15.coursecreator.CC_JsonUtil;
-import com.gruppe15.exceptions.EmptyCourseException;
-import com.gruppe15.exceptions.GameLoadingException;
-import com.gruppe15.exceptions.NoCoursesException;
+import com.gruppe15.roborally.RoboRally;
+import com.gruppe15.roborally.communication.ServerCommunication;
+import com.gruppe15.roborally.coursecreator.CC_CourseData;
+import com.gruppe15.roborally.coursecreator.CC_JsonUtil;
+import com.gruppe15.roborally.exceptions.EmptyCourseException;
+import com.gruppe15.roborally.exceptions.GameLoadingException;
+import com.gruppe15.roborally.exceptions.NoCoursesException;
+import com.gruppe15.roborally.model.lobby.LobbyData;
 import com.gruppe15.utils.Adapter;
-import com.gruppe15.utils.SaveAndLoadUtils;
-import com.gruppe15.templates.BoardTemplate;
-import com.gruppe15.model.*;
-import com.gruppe15.model.boardelements.BoardElement;
+import com.gruppe15.roborally.utils.SaveAndLoadUtils;
+import com.gruppe15.roborally.templates.BoardTemplate;
+import com.gruppe15.roborally.model.*;
+import com.gruppe15.roborally.model.boardelements.BoardElement;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -46,31 +48,39 @@ import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.gruppe15.BoardOptions.*;
 
 /**
- * ...
  *
  * @author Ekkart Kindler, ekki@dtu.dk
- *
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class AppController implements Observer {
     private final RoboRally roboRally;
-    public Boolean isCourseCreatorOpen;
+    public boolean isCourseCreatorOpen = false;
     private GameController gameController;
+    private final ServerCommunication serverCommunication;
+    private final ScheduledExecutorService lobbyUpdateScheduler;
+    private LobbyData lobbyData = new LobbyData();
 
     private List<CC_CourseData> courses = new ArrayList<>();
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
+        this.serverCommunication = new ServerCommunication();
+        this.lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
     }
 
-
     /**
-     * Method for going to the join menu.
+     * Method for going to the join/host multiplayer menu.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void initializeMultiplayerMenu() {
         roboRally.createMultiplayerMenu();
@@ -79,34 +89,73 @@ public class AppController implements Observer {
     /**
      * Method for the player to host a new lobby.
      * Calls the server and requests to host a new game.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryHostNewLobby() {
-        // TODO: Call server and ask to start new game.
-        // For now, we just go to a dummy lobby
-        initializeLobby(true, "dummyGameID"); // Should be deleted
+    public void tryHostNewLobby(String playerName) {
+        lobbyData = serverCommunication.createLobby(lobbyData, playerName);
+
+        // TODO: Handle lobbyData error message
+        if (lobbyData == null) {
+            return;
+        }
+
+        roboRally.connectedToLobby(lobbyData);
     }
 
     /**
      * Method for a player to join an existing lobby.
      * @param gameID The gameID of the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryJoinLobbyWithGameID(String gameID) {
-        // TODO: Call server and look for game with ID "gameID".
-        // For now, we just go to a dummy lobby
-        initializeLobby(false, gameID); // Should be deleted
+    public void tryJoinLobbyWithGameID(long gameID, String playerName) {
+        lobbyData = serverCommunication.joinLobby(lobbyData, gameID, playerName);
+
+        roboRally.connectedToLobby(lobbyData);
+    }
+
+    public void changeRobot(Robots robot) {
+        serverCommunication.changePlayerRobot(robot);
+    }
+
+    public void changeCourse(String courseName) {
+        serverCommunication.changeCourse(courseName);
+    }
+
+    public void startLobbyUpdateLoop() {
+        Runnable lobbyUpdate = () -> {
+            LobbyData updatedLobbyData;
+            try {
+                updatedLobbyData = serverCommunication.requestUpdatedLobby(lobbyData);
+            } catch (URISyntaxException | IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LobbyData finalUpdatedLobbyData = updatedLobbyData;
+            Platform.runLater(() -> roboRally.updateLobby(finalUpdatedLobbyData));
+        };
+        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 1, TimeUnit.SECONDS);
+    }
+
+    public void stopLobbyUpdateLoop() {
+        lobbyUpdateScheduler.close();
     }
 
     /**
-     * Initializes the lobby with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobby.
-     * TODO: Parameters should be replaced with "lobby data" from the server.
-     * @param isHost If the player is the host of the lobby.
-     * @param gameID The ID of the game.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeLobby(boolean isHost, String gameID) {
-        roboRally.joinLobby(isHost, gameID);
+    public void disconnectFromServer() {
+        if (serverCommunication.getIsConnectedToServer()) {
+            stopLobbyUpdateLoop();
+            serverCommunication.leaveLobby();
+        }
     }
 
-    public void beginCourse(CC_CourseData courseData, String[] playerNames, String[] playerCharacters) {
+    /**
+     *
+     * @param courseData
+     * @param lobbyData
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void beginCourse(CC_CourseData courseData, LobbyData lobbyData) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
@@ -115,7 +164,7 @@ public class AppController implements Observer {
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(playerCharacters[i])), playerNames[i]);
+            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.getPlayerRobots()[i])), lobbyData.getPlayerNames()[i]);
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
@@ -227,10 +276,6 @@ public class AppController implements Observer {
      */
     public boolean stopGame() {
         if (gameController != null) {
-
-            // here we save the game (without asking the user).
-            // saveGame(null);
-
             gameController = null;
             roboRally.createBoardView(null);
             return true;
@@ -247,7 +292,7 @@ public class AppController implements Observer {
         this.gameController = gameController;
     }
 
-    public void exit() {
+    public void quit() {
         if (gameController != null) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Exit RoboRally?");
@@ -275,11 +320,21 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
+    /**
+     *
+     * @param primaryScene
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public void createCourseCreator(Scene primaryScene) {
         roboRally.createCourseCreator(primaryScene);
         isCourseCreatorOpen = true;
     }
 
+    /**
+     * Loads the courses from resources and puts them in the courses variable.
+     * @throws NoCoursesException If there were not found any courses.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public void loadCourses() throws NoCoursesException {
         // Loading courses
         courses = CC_JsonUtil.getCoursesInFolder("courses");
@@ -288,6 +343,10 @@ public class AppController implements Observer {
         }
     }
 
+    /**
+     * @return The loaded courses.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     public List<CC_CourseData> getCourses() {
         return courses;
     }

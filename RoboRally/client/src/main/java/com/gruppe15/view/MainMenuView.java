@@ -82,9 +82,9 @@ public class MainMenuView {
         //courseCreator.setGraphic(createButtonTextPane(courseCreator.getText()));
     }
 
-    private void createExitButton(){
+    private void createExitButton() {
         mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
-        mainMenuButtonQuit.setOnAction(e -> appController.exit());
+        mainMenuButtonQuit.setOnAction(e -> appController.quit());
         buttons[2] = mainMenuButtonQuit;
 
         //exit.setGraphic(createButtonTextPane(exit.getText()));

@@ -190,8 +190,8 @@ public class RoboRally extends Application {
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
     public static void closeGame() {
-        Boolean isGameRunning = appController.isGameRunning();
-        Boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
+        boolean isGameRunning = appController.isGameRunning();
+        boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 
         if (isGameRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -199,7 +199,7 @@ public class RoboRally extends Application {
             alert.setContentText("Are you sure you want to exit RoboRally?");
             Optional<ButtonType> result = alert.showAndWait();
 
-            if (!result.isPresent() || result.get() != ButtonType.OK) {
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
             } else {
                 // If the user did not cancel, the RoboRally application will exit
@@ -254,12 +254,13 @@ public class RoboRally extends Application {
             alert.setContentText("Are you sure you want to exit the RoboRally course creator?");
             Optional<ButtonType> result = alert.showAndWait();
 
-            if (!result.isPresent() || result.get() != ButtonType.OK) {
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
             } else {
                 courseCreator.saveCourseDialog();
             }
         }
+        appController.disconnectFromServer();
         Platform.exit();
     }
 
@@ -282,8 +283,8 @@ public class RoboRally extends Application {
      * @Author Marcus Rémi Lemser Eychenne, s230985
      */
     public void goToMainMenu() {
+        appController.disconnectFromServer();
         resetMultiplayerMenu();
-        // TODO: Disconnect player from server, if they are in one.
         root.getChildren().clear(); // If present, remove old BoardView
         root.setCenter(mainMenuPane);
         courseCreator = null;
@@ -322,9 +323,18 @@ public class RoboRally extends Application {
         root.setCenter(multiplayerMenuPane);
     }
 
-    public void joinLobby(boolean isHost, String gameID) {
-        multiplayerMenuView.initializeCourses(appController.getCourses());
-        multiplayerMenuView.setupLobby(isHost, gameID);
+    /**
+     * Initializes the lobbyData with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobbyData.
+     * @param lobbyData The lobbyData object received from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectedToLobby(LobbyData lobbyData) {
+        multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
+        appController.startLobbyUpdateLoop();
+    }
+
+    public void updateLobby(LobbyData updatedLobbyData) {
+        multiplayerMenuView.updateLobby(updatedLobbyData);
     }
 
     /**
