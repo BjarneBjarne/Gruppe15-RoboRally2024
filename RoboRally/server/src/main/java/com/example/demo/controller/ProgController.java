@@ -35,13 +35,13 @@ public class ProgController {
     public ResponseEntity<ProgData> receiveRegisters(@RequestBody ProgData progData){
 
         Register register = new Register(
-            progData.getPlayerId(), 
-            progData.getOwnMoves()[0],
-            progData.getOwnMoves()[1],
-            progData.getOwnMoves()[2],
-            progData.getOwnMoves()[3],
-            progData.getOwnMoves()[4],
-            progData.getTurnId() 
+                progData.getPlayerId(),
+                progData.getTurnId(),
+                progData.getOwnMoves()[0],
+                progData.getOwnMoves()[1],
+                progData.getOwnMoves()[2],
+                progData.getOwnMoves()[3],
+                progData.getOwnMoves()[4]
         );
         registerRepository.save(register);
         

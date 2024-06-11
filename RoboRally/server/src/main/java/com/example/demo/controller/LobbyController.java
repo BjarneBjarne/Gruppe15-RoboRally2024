@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -90,7 +91,11 @@ public class LobbyController {
 
     @PostMapping(value = "/leaveGame", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> leaveGame(@RequestBody long playerId) {
-        playerRepository.deleteById(playerId);
+        Player player = playerRepository.findByPlayerId(playerId);
+        if (player == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        playerRepository.delete(player);
         return ResponseEntity.ok("Successfully left the game.");
     }
 
@@ -99,25 +104,37 @@ public class LobbyController {
     // ================================================================================================
 
     private LobbyServerSend getLobbyServerSend(Long playerId) {
-        Player player = playerRepository.findById(playerId).orElse(null);
-        Game game = gameRepository.findById(player.getGameId()).orElse(null);
-        List<Player> players = playerRepository.findAllBygId(game.getGameId());
-        String[] playerNames = new String[players.size() - 1];
-        String[] robots = new String[players.size() - 1];
-        int[] areReady = new int[players.size() - 1];
-        String hostName = "";
+        Player playerSend = playerRepository.findByPlayerId(playerId);
+        Game game = gameRepository.findByGameId(playerSend.getGameId());
+        List<Player> players = playerRepository.findAllByGameId(game.getGameId());
+        String[] playerNames = new String[players.size()];
+        String[] robots = new String[players.size()];
+        int[] areReady = new int[players.size()];
+        int hostIndex = 0;
 
-        for (int i = 0; i < players.size(); i++) {
-            player = players.get(i);
-            if (player.getPlayerId() == game.getHostId()) {
-                hostName = player.getPlayerName();
-            }
-            playerNames[i] = player.getPlayerName();
-            robots[i] = player.getRobotName();
-            areReady[i] = player.getIsReady();
+        // Setting the data of the player to receive the message at index 0.
+        playerNames[0] = playerSend.getPlayerName();
+        robots[0] = playerSend.getRobotName();
+        areReady[0] = playerSend.getIsReady();
+        if (playerSend.getPlayerId() == hostIndex) {
+            hostIndex = 0;
         }
 
-        LobbyServerSend sendLobby = new LobbyServerSend(playerId, game.getGameId(), playerNames, robots, areReady, game.getCourseName(), hostName);
-        return sendLobby;
+        // Looping though players to find host and set other player's data.
+        int playerIndex = 1;
+        players.remove(playerSend);
+        for (Player player : players) {
+            if (player.getPlayerId() == game.getHostId()) {
+                hostIndex = playerIndex;
+            }
+
+            // Other players.
+            playerNames[playerIndex] = player.getPlayerName();
+            robots[playerIndex] = player.getRobotName();
+            areReady[playerIndex] = player.getIsReady();
+            playerIndex++;
+        }
+
+        return new LobbyServerSend(playerId, game.getGameId(), playerNames, robots, areReady, game.getCourseName(), hostIndex);
     }
 }

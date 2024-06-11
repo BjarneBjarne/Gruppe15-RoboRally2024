@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.example.demo.model.Table.Register;
 
-public interface RegisterRepository extends JpaRepository<Register, Long>{
+public interface RegisterRepository extends JpaRepository<Register, Long> {
     Register findByPlayerId(Long playerId);
 }

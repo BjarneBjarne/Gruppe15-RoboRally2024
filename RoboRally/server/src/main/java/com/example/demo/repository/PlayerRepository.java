@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.demo.model.Table.Player;
 
 public interface PlayerRepository extends JpaRepository<Player, Long>{
-
-    List<Player> findAllBygId(Long gId);
+    List<Player> findAllByGameId(Long gameId);
     Player findByPlayerId(Long playerId);
 }
