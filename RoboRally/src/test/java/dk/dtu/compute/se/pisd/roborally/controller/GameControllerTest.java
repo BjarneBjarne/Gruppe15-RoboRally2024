@@ -1,22 +1,27 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import gruppe15.roborally.controller.GameController;
+import gruppe15.roborally.coursecreator.CC_CourseData;
+import gruppe15.roborally.coursecreator.CC_JsonUtil;
 import gruppe15.roborally.model.*;
+import javafx.util.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class GameControllerTest {
+import java.util.List;
 
-    private final int TEST_WIDTH = 8;
-    private final int TEST_HEIGHT = 8;
+class GameControllerTest {
 
     private GameController gameController;
 
     @BeforeEach
     void setUp() {
-        Board board = new Board(TEST_WIDTH, TEST_HEIGHT);
+        List<CC_CourseData> courses = CC_JsonUtil.getCoursesInFolder("courses");
+        CC_CourseData courseData = courses.get(0);
+        Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
+        Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
         // gameController = new GameController(board);
         for (int i = 0; i < 6; i++) {
             Player player = new Player(board, null,"Player " + i);
