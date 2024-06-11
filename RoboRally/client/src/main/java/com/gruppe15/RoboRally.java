@@ -306,7 +306,7 @@ public class RoboRally extends Application {
             multiplayerMenuView = new MultiplayerMenuView();
             loader.setController(multiplayerMenuView);
             multiplayerMenuPane = loader.load();
-            multiplayerMenuView.setupStartButton(appController);
+            multiplayerMenuView.setupReadyOrStartButton(appController);
             multiplayerMenuView.setupBackButton(this);
             multiplayerMenuView.setupJoinButton(appController);
             multiplayerMenuView.setupHostButton(appController);
@@ -322,20 +322,6 @@ public class RoboRally extends Application {
         // if present, remove old BoardView
         root.getChildren().clear();
         root.setCenter(multiplayerMenuPane);
-    }
-
-    /**
-     * Initializes the lobbyData with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobbyData.
-     * @param lobbyData The lobbyData object received from the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void connectedToLobby(LobbyData lobbyData) {
-        multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
-        appController.startLobbyUpdateLoop();
-    }
-
-    public void updateLobby(LobbyData updatedLobbyData) {
-        multiplayerMenuView.updateLobby(updatedLobbyData);
     }
 
     /**
@@ -417,5 +403,25 @@ public class RoboRally extends Application {
         }
 
         courseCreator.initializeExitButton(this::goToMainMenu);
+    }
+
+
+    // Lobby methods
+    /**
+     * Initializes the lobbyServerReceive with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobbyServerReceive.
+     * @param lobbyData The LobbyData object received from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectedToLobby(LobbyData lobbyData) {
+        multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
+        appController.startLobbyUpdateLoop();
+    }
+
+    public void updateLobby(LobbyData lobbyData) {
+        multiplayerMenuView.updateLobby(lobbyData);
+    }
+
+    public LobbyData getCurrentLobbyData() {
+        return multiplayerMenuView.getCurrentLobbyData();
     }
 }

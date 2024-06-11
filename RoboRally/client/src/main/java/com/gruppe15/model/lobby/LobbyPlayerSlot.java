@@ -2,6 +2,8 @@ package com.gruppe15.model.lobby;
 
 import com.gruppe15.model.Robots;
 import com.gruppe15.utils.ImageUtils;
+import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
@@ -10,43 +12,48 @@ import javafx.scene.text.Text;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class LobbyPlayerSlot {
-    private final Text nameText;
+    private final ImageView hostStarImageView;
+    private final Text playerNameText;
+    private final ImageView readyCheckImageView;
     private final ImageView robotImageView;
     private final Text robotText;
-    private final ImageView hostStarImageView;
-    private final ImageView readyCheckImageView;
+    private final ComboBox<String> robotComboBox;
 
-    public LobbyPlayerSlot(Text nameText, ImageView robotImageView, Text robotText, ImageView hostStarImageView, ImageView readyCheckImageView) {
-        this.nameText = nameText;
+    public LobbyPlayerSlot(ImageView hostStarImageView, Text playerNameText, ImageView readyCheckImageView, ImageView robotImageView, Text robotText, ComboBox<String> robotComboBox) {
+        this.hostStarImageView = hostStarImageView;
+        this.playerNameText = playerNameText;
+        this.readyCheckImageView = readyCheckImageView;
         this.robotImageView = robotImageView;
         this.robotText = robotText;
-        this.hostStarImageView = hostStarImageView;
-        this.readyCheckImageView = readyCheckImageView;
-
-        setRobot(null);
+        this.robotComboBox = robotComboBox;
+        setRobotByRobotName(null);
         setHostStarVisible(false);
         setReadyCheckVisible(false);
     }
 
     public void setName(String name) {
-        nameText.setText(name);
+        playerNameText.setText(name);
     }
 
     public String getName() {
-        return nameText.getText();
+        return playerNameText.getText();
     }
 
-    public void setRobot(Robots robot) {
-        if (robot != null) {
-            robotImageView.setImage(ImageUtils.getImageFromName(robot.getSelectionImageName()));
-            if (robotText != null) {
-                robotText.setText(robot.getRobotName());
+    public void setRobotByRobotName(String robotName) {
+        Image robotImage = null;
+        String robotNameText = "";
+
+        if (robotName != null) {
+            Robots robot = Robots.getRobotByName(robotName);
+            if (robot != null) {
+                robotImage = ImageUtils.getImageFromName(robot.getSelectionImageName());
+                robotNameText = robotName;
             }
-        } else {
-            robotImageView.setImage(null);
-            if (robotText != null) {
-                robotText.setText("");
-            }
+        }
+
+        robotImageView.setImage(robotImage);
+        if (robotComboBox == null) {
+            robotText.setText(robotNameText);
         }
     }
 
@@ -59,8 +66,12 @@ public class LobbyPlayerSlot {
     }
 
     public void setVisible(boolean visible) {
-        nameText.setVisible(visible);
+        playerNameText.setVisible(visible);
         robotImageView.setVisible(visible);
         robotText.setVisible(visible);
+    }
+
+    public ComboBox<String> getRobotComboBox() {
+        return robotComboBox;
     }
 }

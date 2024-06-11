@@ -23,6 +23,7 @@ package com.gruppe15.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.gruppe15.model.lobby.*;
 import com.gruppe15.observer.Observer;
 import com.gruppe15.observer.Subject;
 import com.gruppe15.RoboRally;
@@ -32,7 +33,6 @@ import com.gruppe15.coursecreator.CC_JsonUtil;
 import com.gruppe15.exceptions.EmptyCourseException;
 import com.gruppe15.exceptions.GameLoadingException;
 import com.gruppe15.exceptions.NoCoursesException;
-import com.gruppe15.model.lobby.LobbyData;
 import com.gruppe15.utils.Adapter;
 import com.gruppe15.utils.SaveAndLoadUtils;
 import com.gruppe15.templates.BoardTemplate;
@@ -48,7 +48,6 @@ import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -68,7 +67,6 @@ public class AppController implements Observer {
     private GameController gameController;
     private final ServerCommunication serverCommunication;
     private final ScheduledExecutorService lobbyUpdateScheduler;
-    private LobbyData lobbyData = new LobbyData();
 
     private List<CC_CourseData> courses = new ArrayList<>();
 
@@ -92,9 +90,9 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryHostNewLobby(String playerName) {
-        lobbyData = serverCommunication.createLobby(lobbyData, playerName);
+        LobbyData lobbyData = serverCommunication.createLobby(playerName);
 
-        // TODO: Handle lobbyData error message
+        // TODO: Handle lobbyClientToServer error message
         if (lobbyData == null) {
             return;
         }
@@ -108,51 +106,54 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryJoinLobbyWithGameID(long gameID, String playerName) {
-        lobbyData = serverCommunication.joinLobby(lobbyData, gameID, playerName);
-
+        LobbyData lobbyData = serverCommunication.joinLobby(gameID, playerName);
         roboRally.connectedToLobby(lobbyData);
     }
 
-    public void changeRobot(Robots robot) {
-        serverCommunication.changePlayerRobot(robot);
+    public void changeRobot(LobbyData lobbyData, String robotName) {
+        updateLobby(serverCommunication.changeRobot(lobbyData, robotName));
     }
 
-    public void changeCourse(String courseName) {
-        serverCommunication.changeCourse(courseName);
+    public void changeCourse(LobbyData lobbyData, CC_CourseData chosenCourse) {
+        updateLobby(serverCommunication.changeCourse(lobbyData,chosenCourse.getCourseName()));
+    }
+
+    public void toggleIsReady(LobbyData lobbyData) {
+        // Toggling whether the player is ready.
+        int isReady = lobbyData.areReady()[0] == 0 ? 1 : 0;
+        if (lobbyData.areReady()[0] == 1) lobbyData.areReady()[0] = 0;
+
+        updateLobby(serverCommunication.setIsReady(lobbyData, isReady));
     }
 
     public void startLobbyUpdateLoop() {
         Runnable lobbyUpdate = () -> {
-            LobbyData updatedLobbyData;
-            try {
-                updatedLobbyData = serverCommunication.requestUpdatedLobby(lobbyData);
-            } catch (URISyntaxException | IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            LobbyData finalUpdatedLobbyData = updatedLobbyData;
-            Platform.runLater(() -> roboRally.updateLobby(finalUpdatedLobbyData));
+            // TODO: Potential issue with de-sync of local LobbyData. Should be investigated.
+            LobbyData updatedLobbyServerReceive = serverCommunication.getUpdatedLobby(roboRally.getCurrentLobbyData());
+            Platform.runLater(() -> updateLobby(updatedLobbyServerReceive));
         };
         lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 1, TimeUnit.SECONDS);
     }
-
     public void stopLobbyUpdateLoop() {
         lobbyUpdateScheduler.close();
     }
 
+    public void updateLobby(LobbyData updatedLobbyData) {
+        roboRally.updateLobby(updatedLobbyData);
+    }
+
     /**
+     *
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void disconnectFromServer() {
         if (serverCommunication.getIsConnectedToServer()) {
             stopLobbyUpdateLoop();
-            serverCommunication.leaveLobby();
+            serverCommunication.leaveGame(roboRally.getCurrentLobbyData().gameId());
         }
     }
 
     /**
-     *
-     * @param courseData
-     * @param lobbyData
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void beginCourse(CC_CourseData courseData, LobbyData lobbyData) {
@@ -164,7 +165,7 @@ public class AppController implements Observer {
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.getRobots()[i])), lobbyData.getPlayerNames()[i]);
+            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.robotNames()[i])), lobbyData.playerNames()[i]);
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
@@ -211,7 +212,6 @@ public class AppController implements Observer {
             newBoard = SaveAndLoadUtils.loadBoard(boardTemplate, courses);
         } catch (EmptyCourseException e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
             return;
         }
 
@@ -285,7 +285,7 @@ public class AppController implements Observer {
 
     /**
      * sets game controller to null
-     * @param gameController
+     * @param gameController The gameController.
      * @author Maximillian Bjørn Mortensen
      */
     public void setGameController(GameController gameController){
@@ -299,7 +299,7 @@ public class AppController implements Observer {
             alert.setContentText("Are you sure you want to exit RoboRally?");
             Optional<ButtonType> result = alert.showAndWait();
 
-            if (!result.isPresent() || result.get() != ButtonType.OK) {
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
             }
         }
@@ -321,8 +321,6 @@ public class AppController implements Observer {
     }
 
     /**
-     *
-     * @param primaryScene
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void createCourseCreator(Scene primaryScene) {

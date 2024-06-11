@@ -12,5 +12,4 @@ public class ProgData {
     private int turnId;
     private String[] ownMoves;
     private String[][] otherMoves;
-
 }
