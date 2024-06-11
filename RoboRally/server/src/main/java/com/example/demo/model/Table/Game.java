@@ -18,11 +18,11 @@ public class Game {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long gId;
+    private long gameId;
     private int turnId;
     private int hostId;
     private int nrOfPlayers;
     private GamePhase phase;
-    private String map;
+    private String courseName;
 
 }

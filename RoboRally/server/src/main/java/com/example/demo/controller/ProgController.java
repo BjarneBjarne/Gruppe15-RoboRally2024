@@ -1,7 +1,5 @@
 package com.example.demo.controller;
 
-import java.util.List;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,11 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.GamePhase;
 import com.example.demo.model.Table.Game;
-import com.example.demo.model.Table.Player;
 import com.example.demo.model.Table.Register;
-import com.example.demo.model.httpBody.Lobby;
 import com.example.demo.model.httpBody.ProgData;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
@@ -50,7 +45,7 @@ public class ProgController {
         );
         registerRepository.save(register);
         
-        Game game = gameRepository.findById(playerRepository.findById(progData.getPlayerId()).orElse(null).getGId()).orElse(null);
+        Game game = gameRepository.findById(playerRepository.findById(progData.getPlayerId()).orElse(null).getGameId()).orElse(null);
         if(progData.getTurnId() > game.getTurnId()){
             game.setTurnId(progData.getTurnId());
             gameRepository.save(game);
