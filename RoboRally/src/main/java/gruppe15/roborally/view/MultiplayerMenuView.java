@@ -107,7 +107,7 @@ public class MultiplayerMenuView {
         multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank()) {
                 setConnectionInfo("Attempting to connect to lobbyData...");
-                appController.tryJoinLobbyWithGameID(Long.getLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
+                appController.tryJoinLobbyWithGameID(Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
     }
@@ -198,8 +198,8 @@ public class MultiplayerMenuView {
 
         // Players
         NO_OF_PLAYERS = lobbyData.getPlayerNames().length;
-        int proxyPlayerSlotIndex = 0;
-        for (int i = 0; (i < playerSlots.length) && (i < lobbyData.getPlayerNames().length); i++) {
+        int proxyPlayerSlotIndex = 1;
+        for (int i = 0; (i < playerSlots.length) && (i < lobbyData.getPlayerIds().length); i++) {
             String playerName = lobbyData.getPlayerNames()[i];
             if (!playerName.equals(playerSlots[0].getName())) {
                 // Name
