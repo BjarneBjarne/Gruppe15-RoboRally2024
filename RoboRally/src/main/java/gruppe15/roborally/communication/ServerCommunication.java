@@ -26,7 +26,7 @@ public class ServerCommunication {
         return lobbyData;
     }
 
-    public LobbyData joinLobby(LobbyData lobbyData, Long gameID, String playerName) {
+    public LobbyData joinLobby(LobbyData lobbyData, long gameID, String playerName) {
         lobbyData.setGameId(gameID);
         lobbyData.setPlayerName(0, playerName);
         try {

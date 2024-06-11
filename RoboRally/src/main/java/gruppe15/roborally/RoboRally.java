@@ -255,12 +255,13 @@ public class RoboRally extends Application {
             alert.setContentText("Are you sure you want to exit the RoboRally course creator?");
             Optional<ButtonType> result = alert.showAndWait();
 
-            if (!result.isPresent() || result.get() != ButtonType.OK) {
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
             } else {
                 courseCreator.saveCourseDialog();
             }
         }
+        appController.disconnectFromServer();
         Platform.exit();
     }
 

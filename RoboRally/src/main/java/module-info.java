@@ -9,7 +9,6 @@ module gruppe15.roborally {
     requires com.google.common;
     requires org.checkerframework.checker.qual;
     requires org.slf4j;
-    requires jdk.unsupported.desktop;
     requires java.net.http;
 
     exports gruppe15.roborally;

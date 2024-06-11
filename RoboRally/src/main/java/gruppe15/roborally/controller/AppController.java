@@ -107,7 +107,7 @@ public class AppController implements Observer {
      * @param gameID The gameID of the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryJoinLobbyWithGameID(Long gameID, String playerName) {
+    public void tryJoinLobbyWithGameID(long gameID, String playerName) {
         lobbyData = serverCommunication.joinLobby(lobbyData, gameID, playerName);
 
         roboRally.connectedToLobby(lobbyData);
