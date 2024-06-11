@@ -69,8 +69,8 @@ public class LobbyController {
         return ResponseEntity.ok(getLobbyServerSend(game.getGameId()));
     }
 
-    @PostMapping(value = "/updateClient", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LobbyServerSend> updateClient(@RequestBody LobbyServerReceive body) {
+    @PostMapping(value = "/updateLobby", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LobbyServerSend> updateLobby(@RequestBody LobbyServerReceive body) {
 
         Player player = playerRepository.findById(body.playerId()).orElse(null);
         if (player == null)
