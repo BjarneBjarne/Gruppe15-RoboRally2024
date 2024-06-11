@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 
 public class Lobby {
-    private Long playerId;
-    private Long gameId;
+    private long playerId;
+    private long gameId;
     private String playerName;
     private int slotNr;
     private int isReady; // Boolean
@@ -17,4 +17,5 @@ public class Lobby {
     private String[] robots;
     private int[] areReady; // Booleans
     private String map;
+    private String hName;
 }
