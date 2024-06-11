@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LobbySend {
+public class LobbyServerSend {
     private String[] playerNames;
     private String[] robots;
     private int[] areReady;

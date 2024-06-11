@@ -5,9 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LobbyRecieve {
+public class LobbyServerReceive {
     private long playerId;
-    // private long gameId;
+    private long gameId;
+    private String playerName;
     private String robotName;
     private int isReady;
     private String map;

@@ -4,13 +4,15 @@ import com.example.demo.model.GamePhase;
 import com.example.demo.model.Table.Game;
 import com.example.demo.model.Table.Player;
 import com.example.demo.model.httpBody.Lobby;
-import com.example.demo.model.httpBody.LobbyRecieve;
-import com.example.demo.model.httpBody.LobbySend;
+import com.example.demo.model.httpBody.LobbyServerReceive;
+import com.example.demo.model.httpBody.LobbyServerSend;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+//Base endpoint
 @RequestMapping("/Lobby")
 
 public class LobbyController {
@@ -33,9 +36,9 @@ public class LobbyController {
 
     //================================================================================================
     /*
-     * 
+     *
      * ENDPOINTS FOR LOBBY POST REQUESTS
-     * 
+     *
      */
     //================================================================================================
 
@@ -52,6 +55,7 @@ public class LobbyController {
 
         // Adding new Player to 'Players' table
         Player player = newPlayer(lobby, newGame.getGId());
+
 
         // Updating lobby object
         lobby.setPlayerId(player.getPlayerId());
@@ -81,7 +85,7 @@ public class LobbyController {
     }
 
     @PostMapping(value = "/updateClient", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LobbySend> updateClient(@RequestBody LobbyRecieve body) {
+    public ResponseEntity<LobbyServerSend> updateClient(@RequestBody LobbyServerReceive body) {
 
         Player player = playerRepository.findById(body.getPlayerId()).orElse(null);
         if (player == null)
@@ -96,7 +100,7 @@ public class LobbyController {
         }
         playerRepository.save(player);
 
-        return ResponseEntity.ok(getLobbySend(player.getGId()));
+        return ResponseEntity.ok(getLobbyServerSend(player.getGId()));
     }
 
     @PostMapping(value = "/leaveGame", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -107,9 +111,9 @@ public class LobbyController {
 
     //================================================================================================
     /*
-     * 
+     *
      * PRIVATE UTIL FUNCTIONS
-     * 
+     *
      */
     //================================================================================================
 
@@ -122,8 +126,8 @@ public class LobbyController {
         return player;
     }
 
-    private LobbySend getLobbySend(Long gId) {
-        LobbySend sendLobby = new LobbySend();
+    private LobbyServerSend getLobbyServerSend(Long gId) {
+        LobbyServerSend sendLobby = new LobbyServerSend();
 
         Game game = gameRepository.findById(gId).orElse(null);
         List<Player> players = playerRepository.findAllBygId(gId);

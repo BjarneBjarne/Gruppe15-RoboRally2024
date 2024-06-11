@@ -2,8 +2,6 @@ package com.gruppe15.model.lobby;
 
 import com.gruppe15.model.Robots;
 import com.gruppe15.utils.ImageUtils;
-import com.gruppe15.model.Robots;
-import com.gruppe15.utils.ImageUtils;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
@@ -16,15 +14,18 @@ public class LobbyPlayerSlot {
     private final ImageView robotImageView;
     private final Text robotText;
     private final ImageView hostStarImageView;
+    private final ImageView readyCheckImageView;
 
-    public LobbyPlayerSlot(Text nameText, ImageView robotImageView, Text robotText, ImageView hostStarImageView) {
+    public LobbyPlayerSlot(Text nameText, ImageView robotImageView, Text robotText, ImageView hostStarImageView, ImageView readyCheckImageView) {
         this.nameText = nameText;
         this.robotImageView = robotImageView;
         this.robotText = robotText;
         this.hostStarImageView = hostStarImageView;
+        this.readyCheckImageView = readyCheckImageView;
 
         setRobot(null);
-        setHostStartVisible(false);
+        setHostStarVisible(false);
+        setReadyCheckVisible(false);
     }
 
     public void setName(String name) {
@@ -49,8 +50,12 @@ public class LobbyPlayerSlot {
         }
     }
 
-    public void setHostStartVisible(boolean visible) {
+    public void setHostStarVisible(boolean visible) {
         hostStarImageView.setVisible(visible);
+    }
+
+    public void setReadyCheckVisible(boolean visible) {
+        readyCheckImageView.setVisible(visible);
     }
 
     public void setVisible(boolean visible) {

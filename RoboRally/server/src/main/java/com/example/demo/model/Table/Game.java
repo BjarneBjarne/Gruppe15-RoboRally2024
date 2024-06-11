@@ -18,7 +18,7 @@ public class Game {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long gId;
+    private long gId;
     private int turnId;
     private int hostId;
     private int nrOfPlayers;

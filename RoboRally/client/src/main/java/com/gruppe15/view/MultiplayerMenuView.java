@@ -7,7 +7,6 @@ import com.gruppe15.model.Robots;
 import com.gruppe15.exceptions.NoCoursesException;
 import com.gruppe15.model.lobby.LobbyData;
 import com.gruppe15.model.lobby.LobbyPlayerSlot;
-import com.gruppe15.utils.ImageUtils;
 import com.gruppe15.utils.TextUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -59,7 +58,7 @@ public class MultiplayerMenuView {
     @FXML
     Text lobbyTextGameID;
     @FXML
-    StackPane lobbyStackPaneLocalPlayer;
+    VBox lobbyVBoxLocalPlayer;
     @FXML
     HBox lobbyHBoxProxyPlayers;
     @FXML
@@ -187,6 +186,11 @@ public class MultiplayerMenuView {
         }
 
         // Players
+        // Local
+        playerSlots[0].setHostStarVisible(lobbyData.getPlayerName().equals(lobbyData.gethName()));
+        playerSlots[0].setReadyCheckVisible(lobbyData.getIsReady() == 1);
+
+        // Proxy
         NO_OF_PLAYERS = lobbyData.getPlayerNames().length;
         int proxyPlayerSlotIndex = 1;
         for (int i = 0; (i < playerSlots.length) && (i < lobbyData.getPlayerNames().length); i++) {
@@ -201,11 +205,12 @@ public class MultiplayerMenuView {
                     playerSlots[proxyPlayerSlotIndex].setRobot(null);
                 }
                 // Host star
-                playerSlots[proxyPlayerSlotIndex].setHostStartVisible(lobbyData.getPlayerNames()[i].equals(lobbyData.gethName()));
+                playerSlots[proxyPlayerSlotIndex].setHostStarVisible(lobbyData.getPlayerNames()[i].equals(lobbyData.gethName()));
+                playerSlots[proxyPlayerSlotIndex].setReadyCheckVisible(lobbyData.getAreReady()[i] == 1);
+
                 proxyPlayerSlotIndex++;
             }
         }
-
         updateUI();
     }
 
@@ -223,87 +228,90 @@ public class MultiplayerMenuView {
         lobbyCoursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
 
         // Local player
-        Text localPlayerNameText = null;
-        ImageView localPlayerRobotImageView = null;
-        ComboBox<String> localPlayerRobotComboBox = null;
-        ImageView localPlayerHostStarImageView = null;
-        for (int i = 0; i < lobbyStackPaneLocalPlayer.getChildren().size(); i++) {
-            if (lobbyStackPaneLocalPlayer.getChildren().get(i) instanceof VBox vBox) {
-                for (Node node : vBox.getChildren()) {
-                    if (node instanceof StackPane stackPane) {
-                        if (stackPane.getChildren().getFirst() instanceof Text text) {
-                            localPlayerNameText = text;
-                        }
+        {
+            ImageView localPlayerHostStarImageView = null;
+            Text localPlayerNameText = null;
+            ImageView localPlayerReadyCheckImageView = null;
+            ImageView localPlayerRobotImageView = null;
+            ComboBox<String> localPlayerRobotComboBox = null;
+            for (Node localPlayerNode : lobbyVBoxLocalPlayer.getChildren()) {
+                if (localPlayerNode instanceof HBox hBox) {
+                    if (hBox.getChildren().get(0) instanceof ImageView imageView) {
+                        localPlayerHostStarImageView = imageView;
                     }
-                    if (node instanceof ImageView imageView) {
-                        localPlayerRobotImageView = imageView;
+                    if (hBox.getChildren().get(1) instanceof Text text) {
+                        localPlayerNameText = text;
                     }
-                    if (node instanceof ComboBox comboBox) {
-                        localPlayerRobotComboBox = comboBox;
+                    if (hBox.getChildren().get(2) instanceof ImageView imageView) {
+                        localPlayerReadyCheckImageView = imageView;
                     }
                 }
-            }
-            if (lobbyStackPaneLocalPlayer.getChildren().get(i) instanceof StackPane stackPane) {
-                if (stackPane.getChildren().getFirst() instanceof ImageView imageView) {
-                    localPlayerHostStarImageView = imageView;
+                if (localPlayerNode instanceof ImageView imageView) {
+                    localPlayerRobotImageView = imageView;
+                }
+                if (localPlayerNode instanceof ComboBox comboBox) {
+                    localPlayerRobotComboBox = comboBox;
                 }
             }
-        }
-        if (localPlayerNameText == null || localPlayerRobotImageView == null || localPlayerRobotComboBox == null || localPlayerHostStarImageView == null) {
-            new Exception("One or more PlayerSlot UI elements could not be instantiated for the local player.").printStackTrace();
-        } else {
-            playerSlots[0] = new LobbyPlayerSlot(localPlayerNameText, localPlayerRobotImageView, null, localPlayerHostStarImageView);
+            if (localPlayerHostStarImageView == null || localPlayerNameText == null || localPlayerReadyCheckImageView == null || localPlayerRobotImageView == null || localPlayerRobotComboBox == null) {
+                new Exception("One or more PlayerSlot UI elements could not be instantiated for the local player.").printStackTrace();
+            } else {
+                playerSlots[0] = new LobbyPlayerSlot(localPlayerNameText, localPlayerRobotImageView, null, localPlayerHostStarImageView, localPlayerReadyCheckImageView);
 
-            List<String> robotNames = Arrays.stream(Robots.values())
-                    .map(Robots::getRobotName)
-                    .toList();
-            localPlayerRobotComboBox.getItems().addAll(robotNames);
-            ComboBox<String> finalLocalPlayerRobotComboBox = localPlayerRobotComboBox;
-            localPlayerRobotComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
-                String localRobotName = finalLocalPlayerRobotComboBox.getSelectionModel().getSelectedItem();
-                Robots localRobot = Robots.getRobotByName(localRobotName);
-                if (localRobot != null) {
-                    playerSlots[0].setRobot(localRobot);
-                    appController.changeRobot(localRobot);
-                }
-                updateUI();
-            });
+                List<String> robotNames = Arrays.stream(Robots.values())
+                        .map(Robots::getRobotName)
+                        .toList();
+                localPlayerRobotComboBox.getItems().addAll(robotNames);
+                ComboBox<String> finalLocalPlayerRobotComboBox = localPlayerRobotComboBox;
+                localPlayerRobotComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+                    String localRobotName = finalLocalPlayerRobotComboBox.getSelectionModel().getSelectedItem();
+                    Robots localRobot = Robots.getRobotByName(localRobotName);
+                    if (localRobot != null) {
+                        playerSlots[0].setRobot(localRobot);
+                        appController.changeRobot(localRobot);
+                    }
+                    updateUI();
+                });
+            }
         }
 
         // Proxy players
-        for (int i = 0; i < lobbyHBoxProxyPlayers.getChildren().size(); i++) {
+        for (int i = 1; i < lobbyHBoxProxyPlayers.getChildren().size(); i++) {
+            ImageView proxyPlayerHostStarImageView = null;
             Text proxyPlayerNameText = null;
+            ImageView proxyPlayerReadyCheckImageView = null;
             ImageView proxyPlayerRobotImageView = null;
             Text proxyPlayerRobotNameText = null;
-            ImageView proxyPlayerHostStarImageView = null;
-            if (lobbyHBoxProxyPlayers.getChildren().get(i) instanceof StackPane proxyPlayerStackPane) {
-                if (proxyPlayerStackPane.getChildren().get(0) instanceof VBox vBox) {
-                    if (vBox.getChildren().get(0) instanceof StackPane stackPane) {
-                        if (stackPane.getChildren().getFirst() instanceof Text text) {
+
+            if (lobbyHBoxProxyPlayers.getChildren() instanceof VBox proxyPlayerVBox) {
+                for (Node proxyPlayerNode : proxyPlayerVBox.getChildren()) {
+                    if (proxyPlayerNode instanceof HBox hBox) {
+                        if (hBox.getChildren().get(0) instanceof ImageView imageView) {
+                            proxyPlayerHostStarImageView = imageView;
+                        }
+                        if (hBox.getChildren().get(1) instanceof Text text) {
                             proxyPlayerNameText = text;
                         }
-                    }
-                    if (vBox.getChildren().get(1) instanceof ImageView imageView) {
-                        proxyPlayerRobotImageView = imageView;
-                    }
-                    if (vBox.getChildren().get(2) instanceof StackPane stackPane) {
-                        if (stackPane.getChildren().getFirst() instanceof Text text) {
-                            proxyPlayerRobotNameText = text;
+                        if (hBox.getChildren().get(2) instanceof ImageView imageView) {
+                            proxyPlayerReadyCheckImageView = imageView;
                         }
                     }
-                }
-                if (proxyPlayerStackPane.getChildren().get(1) instanceof StackPane stackPane) {
-                    if (stackPane.getChildren().getFirst() instanceof ImageView imageView) {
-                        proxyPlayerHostStarImageView = imageView;
+                    if (proxyPlayerNode instanceof ImageView imageView) {
+                        proxyPlayerRobotImageView = imageView;
+                    }
+                    if (proxyPlayerNode instanceof Text text) {
+                        proxyPlayerRobotNameText = text;
                     }
                 }
 
+                if (proxyPlayerHostStarImageView == null) System.out.println("proxyPlayerHostStarImageView is null.");
                 if (proxyPlayerNameText == null) System.out.println("proxyPlayerNameText is null.");
+                if (proxyPlayerReadyCheckImageView == null) System.out.println("proxyPlayerReadyCheckImageView is null.");
                 if (proxyPlayerRobotImageView == null) System.out.println("proxyPlayerRobotImageView is null.");
                 if (proxyPlayerRobotNameText == null) System.out.println("proxyPlayerRobotNameText is null.");
-                if (proxyPlayerHostStarImageView == null) System.out.println("proxyPlayerHostStarImageView is null.");
 
-                playerSlots[i + 1] = new LobbyPlayerSlot(proxyPlayerNameText, proxyPlayerRobotImageView, proxyPlayerRobotNameText, proxyPlayerHostStarImageView);
+
+                playerSlots[i] = new LobbyPlayerSlot(proxyPlayerNameText, proxyPlayerRobotImageView, proxyPlayerRobotNameText, proxyPlayerHostStarImageView, proxyPlayerReadyCheckImageView);
             }
         }
 

@@ -16,7 +16,7 @@ import lombok.Setter;
 public class Register {
 
     @Id
-    private Long playerId;
+    private long playerId;
 
     private String m1;
     private String m2;
