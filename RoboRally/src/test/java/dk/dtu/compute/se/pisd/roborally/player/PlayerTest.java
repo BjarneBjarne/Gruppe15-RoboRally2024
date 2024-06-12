@@ -71,35 +71,7 @@ public class PlayerTest {
             if(temp == null){
                 count[9]++;
             }else {
-                switch (temp.command) {
-                    case Command.MOVE_1:
-                        count[0]++;
-                        break;
-                    case Command.MOVE_2:
-                        count[1]++;
-                        break;
-                    case Command.MOVE_3:
-                        count[2]++;
-                        break;
-                    case Command.RIGHT_TURN:
-                        count[3]++;
-                        break;
-                    case Command.LEFT_TURN:
-                        count[4]++;
-                        break;
-                    case Command.U_TURN:
-                        count[5]++;
-                        break;
-                    case Command.MOVE_BACK:
-                        count[6]++;
-                        break;
-                    case Command.POWER_UP:
-                        count[7]++;
-                        break;
-                    case Command.AGAIN:
-                        count[8]++;
-                        break;
-                }
+                count[getCommandNr(temp.command)]++;
             }
         }
         Assertions.assertArrayEquals(facit, count);
@@ -107,8 +79,9 @@ public class PlayerTest {
 
     @Test
     void drawFromDeck(){
+        player.getProgrammingDeck().clear();
         player.getProgrammingDeck().add(new CommandCard(Command.AGAIN));
-        Assertions.assertSame(player.drawFromDeck().command, Command.AGAIN);
+        Assertions.assertSame(Command.AGAIN, player.drawFromDeck().command);
     }
 
     @Test
@@ -135,86 +108,66 @@ public class PlayerTest {
                     temp = temp2.command;
                 }
             }
-            if (temp == null) {
-                count[9]++;
-            } else {
-                switch (temp) {
-                    case Command.MOVE_1:
-                        count[0]++;
-                        break;
-                    case Command.MOVE_2:
-                        count[1]++;
-                        break;
-                    case Command.MOVE_3:
-                        count[2]++;
-                        break;
-                    case Command.RIGHT_TURN:
-                        count[3]++;
-                        break;
-                    case Command.LEFT_TURN:
-                        count[4]++;
-                        break;
-                    case Command.U_TURN:
-                        count[5]++;
-                        break;
-                    case Command.MOVE_BACK:
-                        count[6]++;
-                        break;
-                    case Command.POWER_UP:
-                        count[7]++;
-                        break;
-                    case Command.AGAIN:
-                        count[8]++;
-                        break;
-                }
-            }
-
+            count[getCommandNr(temp)]++;
         }
         Assertions.assertArrayEquals(facit, count);
     }
 
     @Test
     void discardAll(){
-        player.discardAll();
-    }
-
-    @Test
-    void discardProgram(){
-        player.discardProgram();
-    }
-
-    @Test
-    void discardHand(){
-        player.discardHand();
-    }
-
-    @Test
-    void fillRestOfRegisters(){
+        int[] count = new int[10];
+        int[] facit = {4,3,1,4,4,1,1,1,1,1};
+        player.setProgrammingDeckToDefault();
+        player.drawHand();
         player.fillRestOfRegisters();
+        player.discardAll();
+        Queue<CommandCard> deck = player.getProgrammingDeck();
+        int size = deck.size();
+        Assertions.assertEquals(21, size);
+        for(int i = 0; i < size; i++){
+            CommandCard temp = deck.poll();
+            if(temp == null){
+                count[9]++;
+            }else {
+                count[getCommandNr(temp.command)]++;
+            }
+        }
+        Assertions.assertArrayEquals(facit, count);
     }
 
     @Test
     void queueCommand(){
-        player.queueCommand(null, null);
+        int before = player.getEnergyCubes();
+        player.queueCommand(Command.POWER_UP, null);
+        int after = player.getEnergyCubes();
+        Assertions.assertTrue(before+1 == after);
     }
 
-    @Test
-    void startMovement(){
-        player.startMovement(null);
-    }
-
-    @Test
-    void turn(){
-        player.turn(1);
-    }
-
-    @Test
-    void shootLaser(){
-        player.shootLaser(null);
-    }
-
-    @Test
-    void useTemporaryBonusDamage(){
-        player.useTemporaryBonusDamage();
+    private int getCommandNr(Command cmd){
+        if(cmd == null){
+            return 9;
+        }else {
+            switch (cmd) {
+                case Command.MOVE_1:
+                    return 0;
+                case Command.MOVE_2:
+                    return 1;
+                case Command.MOVE_3:
+                    return 2;
+                case Command.RIGHT_TURN:
+                    return 3;
+                case Command.LEFT_TURN:
+                    return 4;
+                case Command.U_TURN:
+                    return 5;
+                case Command.MOVE_BACK:
+                    return 6;
+                case Command.POWER_UP:
+                    return 7;
+                case Command.AGAIN:
+                    return 8;
+            }
+        }
+        return -1;
     }
 }
