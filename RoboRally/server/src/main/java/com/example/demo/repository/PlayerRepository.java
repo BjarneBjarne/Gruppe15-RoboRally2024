@@ -8,6 +8,6 @@ import com.example.demo.model.Table.Player;
 
 public interface PlayerRepository extends JpaRepository<Player, Long>{
 
-    List<Player> findAllBygId(Long gId);
+    List<Player> findAllBygameId(Long gameId);
     Player findByPlayerId(Long playerId);
 }

@@ -101,7 +101,7 @@ public class LobbyController {
     private LobbyServerSend getLobbyServerSend(Long playerId) {
         Player player = playerRepository.findById(playerId).orElse(null);
         Game game = gameRepository.findById(player.getGameId()).orElse(null);
-        List<Player> players = playerRepository.findAllBygId(game.getGameId());
+        List<Player> players = playerRepository.findAllBygameId(game.getGameId());
         String[] playerNames = new String[players.size() - 1];
         String[] robots = new String[players.size() - 1];
         int[] areReady = new int[players.size() - 1];
