@@ -1,9 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.Board;
 
-import gruppe15.roborally.model.Board;
-import gruppe15.roborally.model.Heading;
-import gruppe15.roborally.model.Player;
-import gruppe15.roborally.model.Space;
+import gruppe15.roborally.BoardOptions;
+import gruppe15.roborally.model.*;
 import gruppe15.roborally.model.boardelements.BE_Antenna;
 import gruppe15.roborally.model.boardelements.BE_Checkpoint;
 import gruppe15.roborally.model.boardelements.BE_Hole;
@@ -68,22 +66,40 @@ public class BoardTest {
 
     @Test
     void updatePriorityList(){
+        Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
+        Player p2 = new Player(board, Robots.getRobotByName("ZOOM BOT"), "p2");
+        board.addPlayer(p1);
+        board.addPlayer(p2);
+        p1.setSpace(spaces[7][5]);
+        p2.setSpace(spaces[3][1]);
+        BoardOptions.NO_OF_PLAYERS = 2;
         board.updatePriorityList();
+        Assertions.assertEquals(0, p1.getPriority());
+        Assertions.assertEquals(1, p2.getPriority());
     }
 
     @Test
     void getPlayerDistance(){
-        board.getPlayerDistance(null, null);
+        Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
+        board.addPlayer(p1);
+        p1.setSpace(spaces[1][1]);
+        BoardOptions.NO_OF_PLAYERS = 1;
+        int d = board.getPlayerDistance(p1, spaces[9][9]);
+        Assertions.assertEquals(16, d);
     }
 
     @Test
     void findAntenna(){
-        board.findAntenna();
+        Space antenna = board.findAntenna();
+        Assertions.assertSame(spaces[9][9], antenna);
     }
 
     @Test
     void getSubBoardOfSpace(){
-        board.getSubBoardOfSpace(null);
+        Space[][] sub1 = board.getSubBoardOfSpace(spaces[2][3]);
+        Space[][] sub2 = board.getSubBoardOfSpace(spaces[6][8]);
+        Assertions.assertSame(subSpaces.get(0), sub1);
+        Assertions.assertSame(subSpaces.get(1), sub2);
     }
 
 }
