@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.model.GamePhase;
 import com.example.demo.model.Table.Game;
 import com.example.demo.model.Table.Player;
-import com.example.demo.model.httpBody.LobbyInfo;
+import com.example.demo.model.httpBody.PlayerUpdate;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
 
@@ -67,36 +67,9 @@ public class LobbyController {
 
     }
 
-    @GetMapping(value = "/lobby/players", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LobbyInfo> getLobby(@RequestParam ("ownId") Long playerId){
-        Player player = playerRepository.findById(playerId).orElse(null);
-
-        Game game = gameRepository.findById(player.getGameId()).orElse(null);
-        if (game == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        List<Player> players = playerRepository.findAllBygameId(player.getGameId());
-        String[] playerNames = new String[players.size() - 1];
-        String[] robots = new String[players.size() - 1];
-        int[] areReady = new int[players.size() - 1];
-        String hostName = "";
-
-        for (int i = 0; i < players.size(); i++) {
-            Player currentPlayer = players.get(i);
-            if (currentPlayer.getPlayerId() == game.getHostId()) {
-                hostName = currentPlayer.getPlayerName();
-            }
-            if (currentPlayer.getPlayerId() == playerId) {
-                continue;
-            }
-            playerNames[i] = currentPlayer.getPlayerName();
-            robots[i] = currentPlayer.getRobotName();
-            areReady[i] = currentPlayer.getIsReady();
-        }
-
-        LobbyInfo sendLobby = new LobbyInfo(playerNames, robots, areReady, game.getCourseName(), hostName);
-
-        return ResponseEntity.ok(sendLobby);
+    @GetMapping(value = "/games/{gameId}/players", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Player>> getLobby(@PathVariable("gameId") Long gameId){
+        List<Player> players = playerRepository.findAllByGameId(gameId);
+        return ResponseEntity.ok(players);
     }
 }
