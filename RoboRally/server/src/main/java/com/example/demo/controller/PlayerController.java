@@ -41,13 +41,15 @@ public class PlayerController {
     }
 
     @PutMapping(value = "/{playerId}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updatePlayer(@RequestBody PlayerUpdate playerUpdate) {
-        Player player = playerRepository.findById(playerUpdate.getPlayerId()).orElse(null);
+    public ResponseEntity<String> updatePlayer(@RequestBody PlayerUpdate playerUpdate, @PathVariable("playerId") Long playerId){
+        Player player = playerRepository.findById(playerId).orElse(null);
         if (player == null) {
             return ResponseEntity.badRequest().build();
         }
         player.setRobotName(playerUpdate.getRobotName());
-                
+        player.setIsReady(playerUpdate.getIsReady());
+        player.setRobotName(playerUpdate.getRobotName());
+
         playerRepository.save(player);
         return ResponseEntity.ok().build();
     }
