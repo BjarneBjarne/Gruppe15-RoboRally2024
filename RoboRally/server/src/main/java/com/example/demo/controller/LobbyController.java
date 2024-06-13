@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.Game;
 import com.example.demo.model.GamePhase;
-import com.example.demo.model.Table.Game;
-import com.example.demo.model.Table.Player;
-import com.example.demo.model.httpBody.PlayerUpdate;
+import com.example.demo.model.Player;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
 

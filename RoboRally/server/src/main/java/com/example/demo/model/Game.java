@@ -1,6 +1,4 @@
-package com.example.demo.model.Table;
-
-import com.example.demo.model.GamePhase;
+package com.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

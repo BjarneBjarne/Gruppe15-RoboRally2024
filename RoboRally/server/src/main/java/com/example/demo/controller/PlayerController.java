@@ -11,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.Table.Game;
-import com.example.demo.model.Table.Player;
-import com.example.demo.model.Table.Register;
-import com.example.demo.model.httpBody.PlayerUpdate;
+import com.example.demo.model.Game;
+import com.example.demo.model.Player;
+import com.example.demo.model.Register;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
 import com.example.demo.repository.RegisterRepository;
@@ -40,16 +39,16 @@ public class PlayerController {
     }
 
     @PutMapping(value = "/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updatePlayer(@RequestBody PlayerUpdate playerUpdate, @PathVariable("playerId") Long playerId){
-        Player player = playerRepository.findById(playerId).orElse(null);
+    public ResponseEntity<String> updatePlayer(@RequestBody Player player, @PathVariable("playerId") Long playerId) {
+        Player playerUpdate = playerRepository.findById(playerId).orElse(null);
         if (player == null) {
             return ResponseEntity.badRequest().build();
         }
-        player.setRobotName(playerUpdate.robotName());
-        player.setPlayerName(playerUpdate.playerName());
-        player.setIsReady(playerUpdate.isReady());
+        playerUpdate.setRobotName(player.getRobotName());
+        playerUpdate.setPlayerName(player.getPlayerName());
+        playerUpdate.setIsReady(player.getIsReady());
 
-        playerRepository.save(player);
+        playerRepository.save(playerUpdate);
         return ResponseEntity.ok().build();
     }
     
