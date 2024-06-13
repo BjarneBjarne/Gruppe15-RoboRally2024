@@ -72,25 +72,4 @@ public class GameController {
         List<Player> players = playerRepository.findAllByGameId(gameId);
         return ResponseEntity.ok(players);
     }
-
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @RequestMapping(value = "/{gameId}")
-    public ResponseEntity<Long> addPlayer(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
-        
-        Game game = gameRepository.findById(gameId).orElse(null);
-        if (game == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Player player = new Player();
-        player.setPlayerName(playerName);
-        player.setRobotName(null);
-        player.setGameId(game.getGameId());
-        playerRepository.save(player);
-
-        game.setNrOfPlayers(game.getNrOfPlayers() + 1);
-        gameRepository.save(game);
-
-        return ResponseEntity.ok().body(player.getPlayerId());
-    }
 }
