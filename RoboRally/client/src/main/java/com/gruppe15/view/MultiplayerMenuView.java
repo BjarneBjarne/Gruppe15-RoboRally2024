@@ -185,17 +185,24 @@ public class MultiplayerMenuView {
             lobbySelectedCourseText.setText(selectedCourse.getCourseName().toUpperCase());
         }
 
-        boolean isReadyCheck = isReady();
-
         // Players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             playerSlots[i].setName(lobbyData.playerNames()[i]);
             playerSlots[i].setRobotByRobotName(lobbyData.robotNames()[i]);
             boolean thisPlayerIsHost = i == lobbyData.hostIndex();
             playerSlots[i].setHostStarVisible(thisPlayerIsHost);
-            playerSlots[i].setReadyCheckVisible((thisPlayerIsHost && isReadyCheck) || lobbyData.areReady()[i] == 1);
+            playerSlots[i].setReadyCheckVisible(lobbyData.areReady()[i] == 1 || (thisPlayerIsHost && allAreReady(lobbyData, i)));
         }
         updateUI();
+    }
+
+    private boolean allAreReady(LobbyData lobbyData, int h){
+        if(lobbyData.playerNames()[h] == null || lobbyData.robotNames()[h] == null || lobbyData.playerNames()[h].isBlank() || lobbyData.robotNames()[h].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[h]) == null) return false;
+        for(int i = 0; i < NO_OF_PLAYERS; i++){
+            if(i != h && (lobbyData.areReady()[i] == 0 || lobbyData.playerNames()[h].equals(lobbyData.playerNames()[i]) || lobbyData.robotNames()[h].equals(lobbyData.robotNames()[i]))) return false;
+        }
+        if (courses.isEmpty() || selectedCourse == null) return false;
+        return true;
     }
 
     /**
