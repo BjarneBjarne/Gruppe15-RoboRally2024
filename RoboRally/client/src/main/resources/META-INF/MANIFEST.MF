@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: com.gruppe15.StartRoboRally
+Main-Class: com.group15.StartRoboRally
 
