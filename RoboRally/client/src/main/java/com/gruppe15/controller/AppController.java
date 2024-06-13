@@ -111,11 +111,7 @@ public class AppController implements Observer {
         updateLobby(serverCommunication.changeCourse(lobbyData,chosenCourse.getCourseName()));
     }
 
-    public void toggleIsReady(LobbyData lobbyData) {
-        // Toggling whether the player is ready.
-        int isReady = lobbyData.areReady()[0] == 0 ? 1 : 0;
-        lobbyData.areReady()[0] = isReady;
-
+    public void setIsReady(LobbyData lobbyData, int isReady) {
         updateLobby(serverCommunication.setIsReady(lobbyData, isReady));
     }
 
