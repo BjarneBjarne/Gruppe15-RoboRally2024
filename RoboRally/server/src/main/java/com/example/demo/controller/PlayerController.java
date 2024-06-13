@@ -2,26 +2,18 @@ package com.example.demo.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.Game;
 import com.example.demo.model.Player;
-import com.example.demo.model.Register;
-import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
-import com.example.demo.repository.RegisterRepository;
 
 @RestController
-//Base endpoint
 @RequestMapping("/players")
-
 public class PlayerController {
 
     PlayerRepository playerRepository;
@@ -51,5 +43,4 @@ public class PlayerController {
         playerRepository.save(playerUpdate);
         return ResponseEntity.ok().build();
     }
-    
 }
