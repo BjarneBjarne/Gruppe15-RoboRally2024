@@ -29,19 +29,6 @@ public class LobbyController {
         this.gameRepository = gameRepository;
     }
 
-    @PostMapping(value = "/create-game", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> createGame() {
-        
-        Game game = new Game();
-        game.setNrOfPlayers(0);
-        game.setTurnId(1);
-        game.setPhase(GamePhase.LOBBY);
-
-        gameRepository.save(game);
-
-        return ResponseEntity.ok(game.getGameId());
-    }
-
     @PutMapping(value = "/join-game/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> joinGame(@RequestBody Long playerId, @PathVariable("gameId") Long gameId){
         
