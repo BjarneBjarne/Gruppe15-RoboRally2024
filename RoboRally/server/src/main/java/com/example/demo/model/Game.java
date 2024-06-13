@@ -1,6 +1,4 @@
-package com.example.demo.model.Table;
-
-import com.example.demo.model.GamePhase;
+package com.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,14 +13,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Game {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long gameId;
     private int turnId;
-    private int hostId;
+    private long hostId;
     private int nrOfPlayers;
     private GamePhase phase;
     private String courseName;
-
 }
