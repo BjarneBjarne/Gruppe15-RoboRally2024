@@ -15,7 +15,6 @@ import com.example.demo.model.Table.Game;
 import com.example.demo.model.Table.Player;
 import com.example.demo.model.Table.Register;
 import com.example.demo.model.httpBody.PlayerUpdate;
-import com.example.demo.model.httpBody.ProgData;
 import com.example.demo.repository.GameRepository;
 import com.example.demo.repository.PlayerRepository;
 import com.example.demo.repository.RegisterRepository;
