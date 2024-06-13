@@ -38,7 +38,7 @@ public class GameController {
 
         gameRepository.save(game);
 
-        return ResponseEntity.ok(game.getGameId());
+        return ResponseEntity.ok().body(game.getGameId());
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -59,7 +59,7 @@ public class GameController {
         game.setNrOfPlayers(game.getNrOfPlayers() + 1);
         gameRepository.save(game);
 
-        return ResponseEntity.ok(player.getPlayerId());
+        return ResponseEntity.ok().body(player.getPlayerId());
     }
 
 
