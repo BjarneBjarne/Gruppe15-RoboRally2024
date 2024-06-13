@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Game {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long gameId;
@@ -22,5 +22,4 @@ public class Game {
     private int nrOfPlayers;
     private GamePhase phase;
     private String courseName;
-
 }
