@@ -66,16 +66,18 @@ public class GameController {
      * @return ResponseEntity<Long> - the generated id of the player created
      */
     @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Player> joinGame(@RequestBody Player player, @PathVariable("gameId") Long gameId){
+    public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
         
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(playerRepository.existsByPlayerNameAndGameId(player.getPlayerName(), gameId)){
+        if(playerRepository.existsByPlayerNameAndGameId(playerName, gameId)){
             return ResponseEntity.badRequest().build();
         }
 
+        Player player = new Player();
+        player.setPlayerName(playerName);
         player.setGameId(gameId);
         playerRepository.save(player);
 
