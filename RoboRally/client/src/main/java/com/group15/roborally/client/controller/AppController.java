@@ -24,6 +24,7 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.observer.Observer;
 import com.group15.roborally.client.observer.Subject;
 import com.group15.roborally.client.RoboRally;
@@ -45,6 +46,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -57,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 import static com.group15.roborally.client.BoardOptions.*;
 
 /**
+ *
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
@@ -110,7 +113,11 @@ public class AppController implements Observer {
         updateLobby(serverCommunication.changeCourse(lobbyData,chosenCourse.getCourseName()));
     }
 
-    public void setIsReady(LobbyData lobbyData, int isReady) {
+    public void toggleIsReady(LobbyData lobbyData) {
+        // Toggling whether the player is ready.
+        int isReady = lobbyData.areReady()[0] == 0 ? 1 : 0;
+        if (lobbyData.areReady()[0] == 1) lobbyData.areReady()[0] = 0;
+
         updateLobby(serverCommunication.setIsReady(lobbyData, isReady));
     }
 
@@ -127,8 +134,9 @@ public class AppController implements Observer {
                 System.out.println("Disconnected from server.");
                 roboRally.goToMainMenu();
             } else {
-                Platform.runLater(() -> updateLobby(updatedLobbyServerReceive));
+                System.out.println(updatedLobbyServerReceive);
             }
+            Platform.runLater(() -> updateLobby(updatedLobbyServerReceive));
         };
         lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
         lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 5, TimeUnit.SECONDS);
