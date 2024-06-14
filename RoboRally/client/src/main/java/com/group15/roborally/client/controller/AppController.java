@@ -24,6 +24,10 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.group15.roborally.client.view.MultiplayerMenuView;
+import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.Player;
+
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.observer.Observer;
 import com.group15.roborally.client.observer.Subject;
@@ -67,14 +71,15 @@ public class AppController implements Observer {
     private final RoboRally roboRally;
     public boolean isCourseCreatorOpen = false;
     private GameController gameController;
-    private final ServerCommunication serverCommunication;
+
+    private MultiplayerMenuView multiplayerMenuView;
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080");
     private ScheduledExecutorService lobbyUpdateScheduler;
 
     private List<CC_CourseData> courses = new ArrayList<>();
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
-        this.serverCommunication = new ServerCommunication();
     }
 
     /**
@@ -82,55 +87,80 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void initializeMultiplayerMenu() {
-        roboRally.createMultiplayerMenu();
+        multiplayerMenuView = new MultiplayerMenuView();
+        roboRally.createMultiplayerMenu(multiplayerMenuView);
+        multiplayerMenuView.setupMenuUI(this);
+        multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
     }
 
     /**
-     * Method for the player to host a new lobby.
-     * Calls the server and requests to host a new game.
+     * Calls the server and requests to create a new game.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryHostNewLobby(String playerName) {
-        LobbyData lobbyData = serverCommunication.createLobby(playerName);
-        roboRally.connectedToLobby(lobbyData);
+    public void tryCreateAndJoinGame(String playerName) {
+        long gameId = serverCommunication.createGame();
+        tryJoinGameWithGameID(gameId, playerName);
     }
 
     /**
-     * Method for a player to join an existing lobby.
-     * @param gameId The gameID of the server.
+     * Calls the server and requests to join a game.
+     * @param gameId The gameID of the lobby.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryJoinLobbyWithGameID(String gameId, String playerName) {
-        LobbyData lobbyData = serverCommunication.joinLobby(gameId, playerName);
-        roboRally.connectedToLobby(lobbyData);
+    public void tryJoinGameWithGameID(long gameId, String playerName) {
+        Player player = serverCommunication.joinGame(gameId, playerName);
+        connectedToGame(gameId, player);
     }
 
-    public void changeRobot(LobbyData lobbyData, String robotName) {
-        updateLobby(serverCommunication.changeRobot(lobbyData, robotName));
+    // Lobby methods
+    /**
+     * Initializes the multiplayer menu with the server data for the local player. Is called when the server tells the player they can join the game.
+     * @param gameId The game's gameId received from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectedToGame(long gameId, Player player) {
+        if (gameId != -1) {
+            Game game = serverCommunication.getGame(gameId);
+            List<Player> players = serverCommunication.getPlayers(gameId);
+            multiplayerMenuView.setupLobby(this, game, player, players, courses);
+            startLobbyUpdateLoop();
+        } else {
+            multiplayerMenuView.failedToConnect();
+        }
     }
 
-    public void changeCourse(LobbyData lobbyData, CC_CourseData chosenCourse) {
-        updateLobby(serverCommunication.changeCourse(lobbyData,chosenCourse.getCourseName()));
+    public List<Player> getUpdatedPlayers(long gameId) {
+        return serverCommunication.getPlayers(gameId);
     }
 
-    public void setIsReady(LobbyData lobbyData, int isReady) {
-        updateLobby(serverCommunication.setIsReady(lobbyData, isReady));
+    public void changeRobot(Game game, String robotName) {
+
+    }
+
+    public void changeCourse(Game game, CC_CourseData chosenCourse) {
+
+    }
+
+    public void setIsReady(Game game, int isReady) {
+
     }
 
     public void startLobbyUpdateLoop() {
         Runnable lobbyUpdate = () -> {
             // TODO: Potential issue with de-sync of local LobbyData. Should be investigated.
-            LobbyData updatedLobbyServerReceive;
+            Game currentGameData = multiplayerMenuView.getCurrentGameData();
+
             if (serverCommunication.getIsConnectedToServer()) {
-                updatedLobbyServerReceive = serverCommunication.getUpdatedLobby(roboRally.getCurrentLobbyData());
+                if (currentGameData == null) return;
+
+                long gameId = currentGameData.getGameId();
+                Game updatedGameData = serverCommunication.getGame(gameId);
+                List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
+
+                Platform.runLater(() -> updateLobby(updatedGameData, updatedPlayers));
             } else {
-                updatedLobbyServerReceive = null;
-            }
-            if (updatedLobbyServerReceive == null) {
                 System.out.println("Disconnected from server.");
-                roboRally.goToMainMenu();
-            } else {
-                Platform.runLater(() -> updateLobby(updatedLobbyServerReceive));
+                roboRally.goToMainMenu(); // Go to main menu and stop update loop.
             }
         };
         lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
@@ -141,9 +171,9 @@ public class AppController implements Observer {
         lobbyUpdateScheduler = null;
     }
 
-    public void updateLobby(LobbyData updatedLobbyData) {
+    public void updateLobby(Game updatedGameData, List<Player> updatedPlayers) {
         if (serverCommunication.getIsConnectedToServer()) {
-            roboRally.updateLobby(updatedLobbyData);
+            multiplayerMenuView.updateLobby(updatedGameData, updatedPlayers);
         }
     }
 
@@ -154,14 +184,14 @@ public class AppController implements Observer {
     public void disconnectFromServer() {
         if (serverCommunication.getIsConnectedToServer()) {
             stopLobbyUpdateLoop();
-            serverCommunication.leaveGame(roboRally.getCurrentLobbyData().playerId());
+            //serverCommunication.leaveGame(roboRally.getCurrentLobbyData().playerId());
         }
     }
 
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void beginCourse(CC_CourseData courseData, LobbyData lobbyData) {
+    public void beginCourse(CC_CourseData courseData, Game game, List<Player> players) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
@@ -170,7 +200,11 @@ public class AppController implements Observer {
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.robotNames()[i])), lobbyData.playerNames()[i]);
+            com.group15.roborally.client.model.Player player =
+                    new com.group15.roborally.client.model.Player(
+                            board,
+                            Objects.requireNonNull(Robots.getRobotByName(players.get(i).getRobotName())),
+                            players.get(i).getPlayerName());
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
@@ -227,9 +261,9 @@ public class AppController implements Observer {
 
         // Players
         for (int i = 0; i < newBoard.getNoOfPlayers(); i++) {
-            Player player = newBoard.getPlayer(i);
+            com.group15.roborally.client.model.Player player = newBoard.getPlayer(i);
             if (player != null) {
-                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
+                for (int j = 0; j < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; j++) {
                     CardField field = player.getProgramField(j);
                     field.setVisible(true);
                 }
@@ -352,5 +386,9 @@ public class AppController implements Observer {
      */
     public List<CC_CourseData> getCourses() {
         return courses;
+    }
+
+    public void resetMultiplayerMenuView() {
+        multiplayerMenuView = null;
     }
 }

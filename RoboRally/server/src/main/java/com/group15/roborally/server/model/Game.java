@@ -19,7 +19,7 @@ public class Game {
     private long gameId;
     private int turnId;
     private long hostId;
-    private int nrOfPlayers;
+    private int nrOfPlayers = 0;
     private GamePhase phase;
     private String courseName;
 }
