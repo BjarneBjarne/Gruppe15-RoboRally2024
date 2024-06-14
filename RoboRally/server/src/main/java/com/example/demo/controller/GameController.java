@@ -65,7 +65,7 @@ public class GameController {
      * 
      * @return ResponseEntity<String> - a response entity with the status of the request
      */
-    @PutMapping(value = "/{gameId}/join-game", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> joinGame(@RequestBody Long playerId, @PathVariable("gameId") Long gameId){
         
         Game game = gameRepository.findById(gameId).orElse(null);

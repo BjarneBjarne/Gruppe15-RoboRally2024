@@ -54,8 +54,10 @@ public class UpgradeController {
      * @return ResponseEntity<Market> - the market of the game
      */
     @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Market> getMarket(@PathVariable("gameId") long gameId) {
-        return ResponseEntity.ok(markRepository.findById(gameId).orElse(null));
+    public ResponseEntity<String[]> getMarket(@PathVariable("gameId") long gameId) {
+        Market market = markRepository.findById(gameId).orElse(null);
+        String[] marketCards = market.getCards();
+        return ResponseEntity.ok().body(marketCards);
     }
 
     /**
