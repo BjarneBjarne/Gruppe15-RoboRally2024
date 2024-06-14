@@ -97,13 +97,13 @@ public class SpaceView extends StackPane implements ViewObserver {
             if (boardElement instanceof BE_EnergySpace) {
                 energyCubeImageView.setFitWidth(ApplicationSettings.SPACE_SIZE);
                 energyCubeImageView.setFitHeight(SPACE_SIZE);
-                energyCubeImageView.setImage(ImageUtils.getImageFromName("Board Pieces/energyCube.png"));
+                energyCubeImageView.setImage(ImageUtils.getImageFromName("Board_Pieces/energyCube.png"));
                 energyCubeImageView.xProperty();
                 energyCubeImageView.setLayoutY(10);
             }
         }
 
-        Image wallImage = ImageUtils.getImageFromName("Board Pieces/wall.png");
+        Image wallImage = ImageUtils.getImageFromName("Board_Pieces/wall.png");
         for (Heading wall : space.getWalls()) {
             ImageView wallImageView = new ImageView();
             wallImageView.setFitWidth(ApplicationSettings.SPACE_SIZE);

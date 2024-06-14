@@ -18,8 +18,8 @@ import static com.group15.roborally.client.utils.ImageUtils.buildConveyorBeltStr
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class CC_SpaceView extends StackPane {
-    private final Image backgroundImage = ImageUtils.getImageFromName("Board Pieces/empty.png");
-    private final Image backgroundStartImage = ImageUtils.getImageFromName("Board Pieces/emptyStart.png");
+    private final Image backgroundImage = ImageUtils.getImageFromName("Board_Pieces/empty.png");
+    private final Image backgroundStartImage = ImageUtils.getImageFromName("Board_Pieces/emptyStart.png");
     private int boardX;
     private int boardY;
 
@@ -218,7 +218,7 @@ public class CC_SpaceView extends StackPane {
             this.debugText.setText("");
             return;
         }
-        Image updatedConveyorImage = ImageUtils.getImageFromName("Board Pieces/" + this.getUpdatedConveyorBeltImage(spaces));
+        Image updatedConveyorImage = ImageUtils.getImageFromName("Board_Pieces/" + this.getUpdatedConveyorBeltImage(spaces));
         CC_setImageView(updatedConveyorImage, this.direction, this.boardElementImageView);
     }
 
