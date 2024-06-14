@@ -1,4 +1,4 @@
-package com.group15.model.damage;
+package com.group15.roborally.client.model.damage;
 
 public class DamageTypeAmount {
     private int amount;

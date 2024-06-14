@@ -19,14 +19,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.model;
+package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.observer.Subject;
-import com.group15.roborally.controller.GameController;
-import com.group15.model.boardelements.*;
-import com.group15.model.damage.DamageType;
-import com.group15.model.events.PhaseChangeListener;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.boardelements.*;
+import com.group15.roborally.client.model.damage.DamageType;
+import com.group15.roborally.client.model.events.PhaseChangeListener;
+import com.group15.roborally.client.model.Player;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
-import static com.group15.model.Phase.INITIALIZATION;
+import static com.group15.roborally.client.model.Phase.INITIALIZATION;
 
 /**
  * ...
@@ -51,9 +51,9 @@ public class Board extends Subject {
     private final Space[][] spaces;
     private List<Space[][]> subBoards;
 
-    private final List<com.group15.roborally.server.model.Player> players = new ArrayList<>();
-    private final Queue<com.group15.roborally.server.model.Player> priorityList = new ArrayDeque<>();
-    private com.group15.roborally.server.model.Player currentPlayer;
+    private final List<com.group15.roborally.client.model.Player> players = new ArrayList<>();
+    private final Queue<com.group15.roborally.client.model.Player> priorityList = new ArrayDeque<>();
+    private com.group15.roborally.client.model.Player currentPlayer;
 
     private Phase currentPhase = INITIALIZATION;
     private int currentRegister = 0;
@@ -130,7 +130,7 @@ public class Board extends Subject {
         return players.size();
     }
 
-    public void addPlayer(@NotNull com.group15.roborally.server.model.Player player) {
+    public void addPlayer(@NotNull com.group15.roborally.client.model.Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);
             notifyChange();
@@ -141,7 +141,7 @@ public class Board extends Subject {
         notifyChange();
     }
 
-    public com.group15.roborally.server.model.Player getPlayer(int i) {
+    public com.group15.roborally.client.model.Player getPlayer(int i) {
         if (i >= 0 && i < players.size()) {
             return players.get(i);
         } else {
@@ -149,27 +149,27 @@ public class Board extends Subject {
         }
     }
 
-    public Queue<com.group15.roborally.server.model.Player> getPriorityList() {
+    public Queue<com.group15.roborally.client.model.Player> getPriorityList() {
        return priorityList;
     }
 
-    public void setPriorityList(List<com.group15.roborally.server.model.Player> newPriorityList) {
+    public void setPriorityList(List<com.group15.roborally.client.model.Player> newPriorityList) {
         priorityList.clear();
         priorityList.addAll(newPriorityList);
     }
 
-    public com.group15.roborally.server.model.Player getCurrentPlayer() {
+    public com.group15.roborally.client.model.Player getCurrentPlayer() {
         return currentPlayer;
     }
 
-    public void setCurrentPlayer(com.group15.roborally.server.model.Player player) {
+    public void setCurrentPlayer(com.group15.roborally.client.model.Player player) {
         if (player != this.currentPlayer && players.contains(player)) {
             this.currentPlayer = player;
         }
         notifyChange();
     }
 
-    public List<com.group15.roborally.server.model.Player> getPlayers() {
+    public List<com.group15.roborally.client.model.Player> getPlayers() {
         return players;
     }
 
@@ -211,7 +211,7 @@ public class Board extends Subject {
         }
     }
 
-    public int getPlayerNumber(@NotNull com.group15.roborally.server.model.Player player) {
+    public int getPlayerNumber(@NotNull com.group15.roborally.client.model.Player player) {
         if (player == null)
             return -1; 
         if (player.board == this) {
@@ -350,7 +350,7 @@ public class Board extends Subject {
                 space.getBoardElement().doAction(space, gameController, boardActionQueue);
             }
             for (int i = 0; i < getNoOfPlayers(); i++) {
-                com.group15.roborally.server.model.Player player = getPlayer(i);
+                com.group15.roborally.client.model.Player player = getPlayer(i);
                 player.goToTemporarySpace();
             }
         }, 100, debugBoardElementName));
@@ -384,29 +384,29 @@ public class Board extends Subject {
         BE_Antenna antenna = (BE_Antenna) antennaSpace.getBoardElement();
 
         // Getting player distances
-        Map<Integer, List<com.group15.roborally.server.model.Player>> distanceMap = new HashMap<>();
-        for (com.group15.roborally.server.model.Player player : players) {
+        Map<Integer, List<com.group15.roborally.client.model.Player>> distanceMap = new HashMap<>();
+        for (com.group15.roborally.client.model.Player player : players) {
             int playerDistance = getPlayerDistance(player, antennaSpace);
             distanceMap.computeIfAbsent(playerDistance, k -> new ArrayList<>()).add(player);
         }
 
         // Determining distance tie-breakers
-        Map<Integer, com.group15.roborally.server.model.Player> priorityMap = new HashMap<>();
+        Map<Integer, com.group15.roborally.client.model.Player> priorityMap = new HashMap<>();
         for (int distance : distanceMap.keySet()) {
-            List<com.group15.roborally.server.model.Player> playersWithSameDistance = distanceMap.get(distance);
+            List<com.group15.roborally.client.model.Player> playersWithSameDistance = distanceMap.get(distance);
             // If there is only one player at this distance, put them in the priorityMap and continue.
             if (playersWithSameDistance.size() == 1) {
                 priorityMap.put(distance * NO_OF_PLAYERS, playersWithSameDistance.getFirst());
                 continue;
             }
             // Getting the angles from the antenna to players
-            Map<Double, com.group15.roborally.server.model.Player> angleMap = new HashMap<>();
-            for (com.group15.roborally.server.model.Player player : playersWithSameDistance) {
+            Map<Double, com.group15.roborally.client.model.Player> angleMap = new HashMap<>();
+            for (com.group15.roborally.client.model.Player player : playersWithSameDistance) {
                 double angleToPlayerRadians = getAngleToPlayerRadians(player, antenna);
                 angleMap.put(angleToPlayerRadians, player);
             }
             // Putting the players with same distance in the priority list based on the antennas angle to them.
-            List<Map.Entry<Double, com.group15.roborally.server.model.Player>> sortedByAngle = angleMap.entrySet()
+            List<Map.Entry<Double, com.group15.roborally.client.model.Player>> sortedByAngle = angleMap.entrySet()
                     .stream()
                     .sorted(Map.Entry.comparingByKey())
                     .toList();
@@ -418,12 +418,12 @@ public class Board extends Subject {
 
         // Adding players to the priorityList
         //System.out.println("New priority:");
-        List<Map.Entry<Integer, com.group15.roborally.server.model.Player>> newPriorityList = priorityMap.entrySet()
+        List<Map.Entry<Integer, com.group15.roborally.client.model.Player>> newPriorityList = priorityMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .toList();
         for (int i = 0; i < newPriorityList.size(); i++) {
-            com.group15.roborally.server.model.Player player = newPriorityList.get(i).getValue();
+            com.group15.roborally.client.model.Player player = newPriorityList.get(i).getValue();
             player.setPriority(i);
             priorityList.add(player);
             //System.out.println("Player \"" + player.getName() + "\": " + i + ". Calculated priority: " + newPriorityList.get(i).getKey());
@@ -437,7 +437,7 @@ public class Board extends Subject {
      * @return Returns the angle in radians between (0 and 2 * Pi).
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private double getAngleToPlayerRadians(com.group15.roborally.server.model.Player player, BE_Antenna antenna) {
+    private double getAngleToPlayerRadians(com.group15.roborally.client.model.Player player, BE_Antenna antenna) {
         double deltaX = player.getSpace().x - antennaSpace.x;
         double deltaY = player.getSpace().y - antennaSpace.y;
 
@@ -461,7 +461,7 @@ public class Board extends Subject {
      * @param antenna to determine the priority we need the antennas position
      * @return the players distance from the antenna, which is also their priority
      */
-    public Integer getPlayerDistance(com.group15.roborally.server.model.Player player, Space antenna) {
+    public Integer getPlayerDistance(com.group15.roborally.client.model.Player player, Space antenna) {
         Space space = player.getSpace();
         if (space == null) 
             return -1;
@@ -534,7 +534,7 @@ public class Board extends Subject {
     public void queuePlayerLasers() {
         updatePriorityList();
         while (!priorityList.isEmpty()) {
-            com.group15.roborally.server.model.Player player = priorityList.poll();
+            com.group15.roborally.client.model.Player player = priorityList.poll();
 
             // First we make an action that lasts 150ms.
             boardActionQueue.addLast(new ActionWithDelay(() -> {
@@ -559,7 +559,7 @@ public class Board extends Subject {
      * @return void
      * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
-    public void movePlayerToSpace(com.group15.roborally.server.model.Player player, Space nextSpace, GameController gameController) {
+    public void movePlayerToSpace(com.group15.roborally.client.model.Player player, Space nextSpace, GameController gameController) {
         // TODO Task1: method should be implemented by the students:
         //   - the current player should be moved to the given space
         //     (if it is free())
@@ -578,7 +578,7 @@ public class Board extends Subject {
             boolean isWallBetween = currentSpace.getIsWallBetween(nextSpace);
             if (!isWallBetween) { // If it isn't a wall
                 if (nextSpace.getPlayer() != null) { // If there is a player on the nextSpace
-                    List<com.group15.roborally.server.model.Player> playersToPush = new ArrayList<>();
+                    List<com.group15.roborally.client.model.Player> playersToPush = new ArrayList<>();
                     Heading pushDirection = currentSpace.getDirectionToOtherSpace(nextSpace);
                     boolean couldPush = tryMovePlayerInDirection(currentSpace, pushDirection, playersToPush);
                     if (couldPush) {
@@ -610,7 +610,7 @@ public class Board extends Subject {
      * @return A list of players being pushed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public boolean tryMovePlayerInDirection(Space space, Heading direction, List<com.group15.roborally.server.model.Player> playersToPush)  {
+    public boolean tryMovePlayerInDirection(Space space, Heading direction, List<com.group15.roborally.client.model.Player> playersToPush)  {
         Player playerOnSpace = space.getPlayer();
         Space nextSpace = space.getSpaceNextTo(direction, spaces);
         if (nextSpace == null) {                                // Base case, player fell off LULW

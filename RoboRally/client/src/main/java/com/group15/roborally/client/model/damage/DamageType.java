@@ -1,6 +1,6 @@
-package com.group15.model.damage;
+package com.group15.roborally.client.model.damage;
 
-import com.group15.model.Command;
+import com.group15.roborally.client.model.Command;
 
 public enum DamageType {
     SPAM("Spam"),

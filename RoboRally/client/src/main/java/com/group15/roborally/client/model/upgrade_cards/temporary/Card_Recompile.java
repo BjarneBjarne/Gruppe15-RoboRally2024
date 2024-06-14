@@ -1,9 +1,9 @@
-package com.group15.model.upgrade_cards.temporary;
+package com.group15.roborally.client.model.upgrade_cards.temporary;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.Phase;
-import com.group15.roborally.server.model.Player;
-import com.group15.model.upgrade_cards.UpgradeCardTemporary;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.Phase;
+import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 
 public class Card_Recompile extends UpgradeCardTemporary {
 

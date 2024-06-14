@@ -21,11 +21,11 @@
  */
 package com.group15.roborally.client;
 
-import com.group15.roborally.controller.AppController;
-import com.group15.roborally.coursecreator.CC_Controller;
-import com.group15.roborally.controller.GameController;
-import com.group15.roborally.exceptions.NoCoursesException;
-import com.group15.model.lobby.LobbyData;
+import com.group15.roborally.client.controller.AppController;
+import com.group15.roborally.client.coursecreator.CC_Controller;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.exceptions.NoCoursesException;
+import com.group15.roborally.client.model.lobby.LobbyData;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.view.MainMenuView;

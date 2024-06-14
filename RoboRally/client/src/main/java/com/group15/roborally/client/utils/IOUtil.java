@@ -23,7 +23,7 @@ package com.group15.roborally.client.utils;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
-import com.gruppe15.RoboRally;
+import com.group15.roborally.client.RoboRally;
 
 import java.io.*;
 import java.net.URI;

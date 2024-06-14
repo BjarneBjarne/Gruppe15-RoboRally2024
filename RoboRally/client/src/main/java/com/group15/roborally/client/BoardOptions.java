@@ -1,7 +1,7 @@
 package com.group15.roborally.client;
 
-import com.group15.model.damage.Damage;
-import com.group15.model.upgrade_cards.UpgradeCard;
+import com.group15.roborally.client.model.damage.Damage;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 
 import java.util.Arrays;
 import java.util.List;

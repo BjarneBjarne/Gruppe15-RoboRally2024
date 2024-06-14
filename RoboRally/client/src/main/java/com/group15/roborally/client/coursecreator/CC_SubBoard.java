@@ -1,6 +1,6 @@
 package com.group15.roborally.client.coursecreator;
 
-import com.group15.model.Heading;
+import com.group15.roborally.client.model.Heading;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.GridPane;
 

@@ -19,9 +19,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.model;
+package com.group15.roborally.client.model;
 
-import com.group15.model.damage.*;
+import com.group15.roborally.client.model.damage.*;
 
 import java.util.Arrays;
 import java.util.Collections;

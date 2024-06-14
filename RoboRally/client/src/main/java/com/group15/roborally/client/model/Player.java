@@ -19,16 +19,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.model;
+package com.group15.roborally.client.model;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.roborally.exceptions.IllegalPlayerPropertyAccess;
-import com.group15.model.damage.Damage;
-import com.group15.model.player_interaction.CommandOptionsInteraction;
-import com.group15.model.player_interaction.RebootInteraction;
-import com.group15.model.upgrade_cards.UpgradeCard;
-import com.group15.model.upgrade_cards.UpgradeCardPermanent;
-import com.group15.model.upgrade_cards.UpgradeCardTemporary;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.exceptions.IllegalPlayerPropertyAccess;
+import com.group15.roborally.client.model.damage.Damage;
+import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
+import com.group15.roborally.client.model.player_interaction.RebootInteraction;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.observer.Subject;
 import javafx.scene.image.Image;
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.group15.model.Heading.SOUTH;
+import static com.group15.roborally.client.model.Heading.SOUTH;
 
 /**
  * ...
@@ -660,7 +660,7 @@ public class Player extends Subject {
                 break;
             case VIRUS:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                    for (com.group15.roborally.server.model.Player foundPlayer : board.getPlayers()) {
+                    for (com.group15.roborally.client.model.Player foundPlayer : board.getPlayers()) {
                         if (space.getDistanceFromOtherSpace(foundPlayer.space) <= 6) {
                             foundPlayer.discard(new CommandCard(Command.VIRUS));
                             foundPlayer.discard(new CommandCard(Command.SPAM));
@@ -768,7 +768,7 @@ public class Player extends Subject {
      * @param direction The direction the laser should fire.
      */
     public void shootLaser(Heading direction) {
-        Laser laser = new Laser(space, direction, this, com.group15.roborally.server.model.Player.class, Space.class);
+        Laser laser = new Laser(space, direction, this, com.group15.roborally.client.model.Player.class, Space.class);
 
         EventHandler.event_PlayerShootHandle(this, laser);
     }

@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.group15.model.Heading;
+import com.group15.roborally.client.model.Heading;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.GridPane;
 import java.io.IOException;

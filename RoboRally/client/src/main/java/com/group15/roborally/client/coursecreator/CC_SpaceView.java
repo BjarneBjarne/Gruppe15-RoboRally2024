@@ -1,6 +1,6 @@
 package com.group15.roborally.client.coursecreator;
 
-import com.group15.model.Heading;
+import com.group15.roborally.client.model.Heading;
 import com.group15.roborally.client.utils.ImageUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

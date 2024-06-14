@@ -26,15 +26,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 
 import com.group15.roborally.client.BoardOptions;
-import com.group15.roborally.controller.GameController;
-import com.group15.roborally.coursecreator.CC_CourseData;
-import com.group15.roborally.exceptions.EmptyCourseException;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.coursecreator.CC_CourseData;
+import com.group15.roborally.client.exceptions.EmptyCourseException;
 import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.templates.PlayerTemplate;
-import com.group15.model.*;
-import com.group15.model.boardelements.BoardElement;
-import com.group15.model.upgrade_cards.UpgradeCard;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.model.boardelements.BoardElement;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
+import com.group15.roborally.client.model.Player;
 import javafx.util.Pair;
 
 import java.io.*;
@@ -82,7 +82,7 @@ public class SaveAndLoadUtils {
 
     public static void loadPlayers(BoardTemplate boardTemplate, Board board, GameController gameController) {
         for (int i = 0; i < boardTemplate.getPlayers().length; i++) {
-            com.group15.roborally.server.model.Player player = loadPlayer(boardTemplate.getPlayers()[i], board, gameController);
+            com.group15.roborally.client.model.Player player = loadPlayer(boardTemplate.getPlayers()[i], board, gameController);
             board.getPlayers().add(player);
         }
     }
@@ -95,8 +95,8 @@ public class SaveAndLoadUtils {
      * @param board the board on which the player is to be loaded
      * @return the player object loaded from the PlayerTemplate object
      */
-    private static com.group15.roborally.server.model.Player loadPlayer(PlayerTemplate playerTemplate, Board board, GameController gameController) {
-        com.group15.roborally.server.model.Player player = new com.group15.roborally.server.model.Player(board, playerTemplate.robot, playerTemplate.name);
+    private static com.group15.roborally.client.model.Player loadPlayer(PlayerTemplate playerTemplate, Board board, GameController gameController) {
+        com.group15.roborally.client.model.Player player = new com.group15.roborally.client.model.Player(board, playerTemplate.robot, playerTemplate.name);
 
         // SpawnPoint
         int spawnX = playerTemplate.spawnPoint.x;

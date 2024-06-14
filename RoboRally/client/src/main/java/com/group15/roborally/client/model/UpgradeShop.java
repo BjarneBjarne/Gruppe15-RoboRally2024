@@ -1,10 +1,10 @@
-package com.group15.model;
+package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.observer.Observer;
 import com.group15.roborally.client.observer.Subject;
-import com.group15.model.upgrade_cards.UpgradeCard;
-import com.group15.model.upgrade_cards.UpgradeCards;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
+import com.group15.roborally.client.model.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -65,7 +65,7 @@ public class UpgradeShop implements Observer {
      * @param player The player buying the card. Used for checking and setting EnergyCubes.
      * @return Returns the purchased UpgradeCard. Return NULL if the CardField isn't in the shop or if the player doesn't have enough energy cubes.
      */
-    public UpgradeCard attemptBuyCardFromShop(CardField shopField, com.group15.roborally.server.model.Player player) {
+    public UpgradeCard attemptBuyCardFromShop(CardField shopField, com.group15.roborally.client.model.Player player) {
         // Purchase criteria checks.
         if (!Arrays.stream(availableCardsFields).toList().contains(shopField)) return null; // FAILED PURCHASE - The CardField isn't in the shop.
         UpgradeCard cardToSell = (UpgradeCard) shopField.getCard();

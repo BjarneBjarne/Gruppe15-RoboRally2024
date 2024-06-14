@@ -1,12 +1,12 @@
-package com.group15.model.upgrade_cards.permanent;
+package com.group15.roborally.client.model.upgrade_cards.permanent;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.CardField;
-import com.group15.model.CommandCard;
-import com.group15.model.EventHandler;
-import com.group15.roborally.server.model.Player;
-import com.group15.model.events.PlayerLaserHitListener;
-import com.group15.model.upgrade_cards.UpgradeCardPermanent;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.CardField;
+import com.group15.roborally.client.model.CommandCard;
+import com.group15.roborally.client.model.EventHandler;
+import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.events.PlayerLaserHitListener;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 
 public class Card_Scrambler extends UpgradeCardPermanent {
 

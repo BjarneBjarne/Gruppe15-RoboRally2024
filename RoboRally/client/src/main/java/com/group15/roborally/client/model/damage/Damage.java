@@ -1,8 +1,8 @@
-package com.group15.model.damage;
+package com.group15.roborally.client.model.damage;
 
-import com.group15.model.Command;
-import com.group15.model.CommandCard;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.Command;
+import com.group15.roborally.client.model.CommandCard;
+import com.group15.roborally.client.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;

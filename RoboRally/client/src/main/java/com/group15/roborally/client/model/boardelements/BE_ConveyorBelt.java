@@ -19,20 +19,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.model.boardelements;
+package com.group15.roborally.client.model.boardelements;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.*;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.*;
 
 import com.group15.roborally.client.utils.ImageUtils;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.group15.model.Heading.*;
+import static com.group15.roborally.client.model.Heading.*;
 
 /**
  * This class represents a conveyor belt on the board. When a player lands on a conveyor belt,
@@ -97,7 +97,7 @@ public class BE_ConveyorBelt extends BoardElement {
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         // Getting the player:
-        com.group15.roborally.server.model.Player player = space.getPlayer();
+        com.group15.roborally.client.model.Player player = space.getPlayer();
 
         if (player == null) {
             return false;
@@ -116,7 +116,7 @@ public class BE_ConveyorBelt extends BoardElement {
                     simulatedSpace.isSameType = true;
                     simulatedSpace.heading = belt.getDirection();
                 }
-                com.group15.roborally.server.model.Player playerOnSpace = originalSpace.getPlayer();
+                com.group15.roborally.client.model.Player playerOnSpace = originalSpace.getPlayer();
                 if (playerOnSpace != null) {
                     simulatedSpace.player = playerOnSpace;
                 }

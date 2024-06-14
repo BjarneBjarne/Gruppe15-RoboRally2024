@@ -1,13 +1,13 @@
-package com.group15.model;
+package com.group15.roborally.client.model;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.boardelements.BE_Hole;
-import com.group15.model.boardelements.BE_Reboot;
-import com.group15.model.damage.Damage;
-import com.group15.model.damage.DamageTypeAmount;
-import com.group15.model.events.EventListener;
-import com.group15.model.events.*;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.boardelements.BE_Hole;
+import com.group15.roborally.client.model.boardelements.BE_Reboot;
+import com.group15.roborally.client.model.damage.Damage;
+import com.group15.roborally.client.model.damage.DamageTypeAmount;
+import com.group15.roborally.client.model.events.EventListener;
+import com.group15.roborally.client.model.events.*;
+import com.group15.roborally.client.model.Player;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,14 +32,14 @@ public class EventHandler {
     /**
      * Generic hashmap for EventListeners/Cards.
      */
-    private static final Map<EventListener, com.group15.roborally.server.model.Player> listeners = new HashMap<>();
+    private static final Map<EventListener, com.group15.roborally.client.model.Player> listeners = new HashMap<>();
 
     /**
      * Subscription method for EventListeners/Cards.
      * @param listener
      * @param owner
      */
-    public static EventListener subscribe(EventListener listener, com.group15.roborally.server.model.Player owner) {
+    public static EventListener subscribe(EventListener listener, com.group15.roborally.client.model.Player owner) {
         listeners.put(listener, owner);
         return listener;
     }
@@ -48,7 +48,7 @@ public class EventHandler {
      * @param listener
      * @param owner
      */
-    public static void unsubscribe(EventListener listener, com.group15.roborally.server.model.Player owner) {
+    public static void unsubscribe(EventListener listener, com.group15.roborally.client.model.Player owner) {
         listeners.entrySet().removeIf(entry -> entry.getKey().equals(listener) && entry.getValue().equals(owner));
     }
 
@@ -60,12 +60,12 @@ public class EventHandler {
      * @param eventListenerType The type of event that is listened to by cards.
      * @return Returns the EventListeners of a type in the cards owned by the player.
      */
-    private static <T extends EventListener> List<T> getPlayerCardEventListeners(com.group15.roborally.server.model.Player player, Class<T> eventListenerType) {
+    private static <T extends EventListener> List<T> getPlayerCardEventListeners(com.group15.roborally.client.model.Player player, Class<T> eventListenerType) {
         List<T> playerEventListeners = new ArrayList<>();
         // Iterate through all cards/listeners
-        for (Map.Entry<EventListener, com.group15.roborally.server.model.Player> entry : listeners.entrySet()) {
+        for (Map.Entry<EventListener, com.group15.roborally.client.model.Player> entry : listeners.entrySet()) {
             EventListener listener = entry.getKey();
-            com.group15.roborally.server.model.Player owner = entry.getValue();
+            com.group15.roborally.client.model.Player owner = entry.getValue();
             // Check if the player is the owner of the card and the listener is of the specified type
             if (owner == player && eventListenerType.isInstance(listener)) {
                 playerEventListeners.add(eventListenerType.cast(listener));
@@ -83,13 +83,13 @@ public class EventHandler {
      * This should ONLY be called from within player.queueLaser().
      * @param playerShooting The player to begin shooting a laser.
      */
-    public static void event_PlayerShootStart(com.group15.roborally.server.model.Player playerShooting) {
+    public static void event_PlayerShootStart(com.group15.roborally.client.model.Player playerShooting) {
         if (playerShooting.getIsRebooting()) {
             return;
         }
 
         // Making new laser
-        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting, com.group15.roborally.server.model.Player.class, Space.class);
+        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting, com.group15.roborally.client.model.Player.class, Space.class);
         // Modify laser
         List<PlayerShootListener> playerShootListeners = getPlayerCardEventListeners(playerShooting, PlayerShootListener.class);
         for (PlayerShootListener listener : playerShootListeners) {
@@ -104,7 +104,7 @@ public class EventHandler {
      * @param playerShooting The player who is currently shooting.
      * @param laser The laser that playerShooting fired.
      */
-    public static void event_PlayerShootHandle(com.group15.roborally.server.model.Player playerShooting, Laser laser) {
+    public static void event_PlayerShootHandle(com.group15.roborally.client.model.Player playerShooting, Laser laser) {
         if (laser == null) return;
 
         Board board = playerShooting.board;
@@ -113,9 +113,9 @@ public class EventHandler {
         laser.startLaser(board.getSpaces()).run();
 
         try {
-            List<com.group15.roborally.server.model.Player> playersHit = calculatePlayersHit(laser);
+            List<com.group15.roborally.client.model.Player> playersHit = calculatePlayersHit(laser);
             // Deal damage to each target player
-            for (com.group15.roborally.server.model.Player target : playersHit) {
+            for (com.group15.roborally.client.model.Player target : playersHit) {
                 if (target == playerShooting) {
                     continue;
                 }
@@ -136,11 +136,11 @@ public class EventHandler {
             System.out.println("Player laser interrupted: " + e.getMessage());
         }
     }
-    private static List<com.group15.roborally.server.model.Player> calculatePlayersHit(Laser laser) throws InterruptedException {
-        List<com.group15.roborally.server.model.Player> playersHit = new ArrayList<>();
+    private static List<com.group15.roborally.client.model.Player> calculatePlayersHit(Laser laser) throws InterruptedException {
+        List<com.group15.roborally.client.model.Player> playersHit = new ArrayList<>();
         // Wait for the laser iteration to complete and get the spaces hit
         for (Space space : laser.getSpacesHit()) {
-            com.group15.roborally.server.model.Player target = space.getPlayer();
+            com.group15.roborally.client.model.Player target = space.getPlayer();
             if (target != null) {
                 playersHit.add(target);
             }
@@ -158,7 +158,7 @@ public class EventHandler {
      * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
      * @param damage The damage to deal to the playerTakingDamage.
      */
-    public static void event_PlayerDamage(@NotNull com.group15.roborally.server.model.Player playerTakingDamage, com.group15.roborally.server.model.Player playerInflictingTheDamage, Damage damage) {
+    public static void event_PlayerDamage(@NotNull com.group15.roborally.client.model.Player playerTakingDamage, com.group15.roborally.client.model.Player playerInflictingTheDamage, Damage damage) {
         LinkedList<ActionWithDelay> actionQueue = playerInflictingTheDamage.board.getBoardActionQueue();
         List<PlayerLaserHitListener> playerLaserHitListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerLaserHitListener.class);
         for (PlayerLaserHitListener listener : playerLaserHitListeners) {
@@ -191,7 +191,7 @@ public class EventHandler {
      * @param command
      * @return
      */
-    public static Command event_RegisterActivate(@NotNull com.group15.roborally.server.model.Player playerActivatingRegister, Command command) {
+    public static Command event_RegisterActivate(@NotNull com.group15.roborally.client.model.Player playerActivatingRegister, Command command) {
         List<PlayerCommandListener> playerCommandListeners = getPlayerCardEventListeners(playerActivatingRegister, PlayerCommandListener.class);
         for (PlayerCommandListener listener : playerCommandListeners) {
             command = listener.onPlayerCommand(command);
@@ -210,9 +210,9 @@ public class EventHandler {
      * @param playersToPush
      * @param pushDirection
      */
-    private static final Map<com.group15.roborally.server.model.Player, com.group15.roborally.server.model.Player> pushPairs = new HashMap<>();
-    public static void event_PlayerPush(Space[][] spaces, com.group15.roborally.server.model.Player playerPushing, List<com.group15.roborally.server.model.Player> playersToPush, Heading pushDirection) {
-        for (com.group15.roborally.server.model.Player playerToPush : playersToPush) {
+    private static final Map<com.group15.roborally.client.model.Player, com.group15.roborally.client.model.Player> pushPairs = new HashMap<>();
+    public static void event_PlayerPush(Space[][] spaces, com.group15.roborally.client.model.Player playerPushing, List<com.group15.roborally.client.model.Player> playersToPush, Heading pushDirection) {
+        for (com.group15.roborally.client.model.Player playerToPush : playersToPush) {
             if (playerToPush == playerPushing) continue; // Player can't push themselves.
             if (!playerToPush.equals(pushPairs.get(playerPushing)) && !playerPushing.getIsRebooting()) {
                 // playerToPush haven't been pushed this movement.
@@ -258,7 +258,7 @@ public class EventHandler {
     /**
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
-    public static void event_PlayerMove(com.group15.roborally.server.model.Player playerMoving, Space space, GameController gc) {
+    public static void event_PlayerMove(com.group15.roborally.client.model.Player playerMoving, Space space, GameController gc) {
         playerMoving.setSpace(space);
         /*List<PlayerEndOfActionListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerEndOfActionListener.class);
         boolean shouldReboot = (space == null || space.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
@@ -284,7 +284,7 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    public static void event_PlayerReboot(com.group15.roborally.server.model.Player player, boolean takeDamage, GameController gameController) {
+    public static void event_PlayerReboot(com.group15.roborally.client.model.Player player, boolean takeDamage, GameController gameController) {
         Space oldSpace = player.getSpace();
         if (oldSpace == null) {
             //System.out.println("old space null for " + player.getName());
@@ -308,9 +308,9 @@ public class EventHandler {
         if (rebootSpaceFinder != null) {
             rebootSpace = rebootSpaceFinder.getKey();
             // If player reboots on reboot element, check if player push is needed
-            com.group15.roborally.server.model.Player playerOnRebootSpace = rebootSpace.getPlayer();
+            com.group15.roborally.client.model.Player playerOnRebootSpace = rebootSpace.getPlayer();
             if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
-                List<com.group15.roborally.server.model.Player> playersToPush = new ArrayList<>();
+                List<com.group15.roborally.client.model.Player> playersToPush = new ArrayList<>();
                 boolean couldPush = player.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
                 if (couldPush) {
                     EventHandler.event_PlayerPush(player.board.getSpaces(), player, playersToPush, rebootSpace.getBoardElement().getDirection());
@@ -325,7 +325,7 @@ public class EventHandler {
             rebootSpace = player.getSpawnPoint();
         }
 
-        com.group15.roborally.server.model.Player otherPlayerOnSpawnpoint = null;
+        com.group15.roborally.client.model.Player otherPlayerOnSpawnpoint = null;
         if (rebootSpace == player.getSpawnPoint()) {
             if (rebootSpace.getPlayer() != null && rebootSpace.getPlayer() != player) {
                 otherPlayerOnSpawnpoint = rebootSpace.getPlayer();

@@ -1,7 +1,7 @@
-package com.group15.model.player_interaction;
+package com.group15.roborally.client.model.player_interaction;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.Player;
 
 public abstract class PlayerInteraction {
     protected final GameController gameController;

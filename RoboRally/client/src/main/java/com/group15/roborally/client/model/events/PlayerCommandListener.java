@@ -1,6 +1,6 @@
-package com.group15.model.events;
+package com.group15.roborally.client.model.events;
 
-import com.group15.model.Command;
+import com.group15.roborally.client.model.Command;
 
 @FunctionalInterface
 public interface PlayerCommandListener extends EventListener {

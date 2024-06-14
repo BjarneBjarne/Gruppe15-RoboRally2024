@@ -1,6 +1,6 @@
 package com.group15.roborally.client.communication;
 
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.lobby.LobbyData;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -32,14 +32,17 @@ public class ServerCommunication {
                 .post("http://localhost:8080/games")
                 .accept(MediaType.APPLICATION_JSON)
                 .body(playerName);
-        ResponseEntity<Long> responseGameId = template.exchange(request, MyResponse.class);
+        ResponseEntity<Long> responseGameId = template.exchange(request, Long.class);
 
         // Joining the newly created game.
-        RequestEntity<Player> request = RequestEntity
+        /*RequestEntity<Player> request = RequestEntity
                 .post("http://localhost:8080/games/" + responseGameId, "bar")
                 .accept(MediaType.APPLICATION_JSON)
                 .body(playerName);
-        ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);
+        ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);*/
+
+        HttpClient httpClient = HttpClient.newHttpClient();
+        serverResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
 
         // Prepare message to send
         String createLobbyMessageAsJson = gson.toJson(playerName);
