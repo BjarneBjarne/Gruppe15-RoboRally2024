@@ -80,6 +80,10 @@ public class GameController {
         player.setGameId(gameId);
         playerRepository.save(player);
 
+        boolean isHost = game.getNrOfPlayers() == 0;
+        if (isHost) {
+            game.setHostId(player.getPlayerId());
+        }
         game.setNrOfPlayers(game.getNrOfPlayers() + 1);
         gameRepository.save(game);
 

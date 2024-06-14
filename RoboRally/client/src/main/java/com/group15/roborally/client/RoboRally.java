@@ -25,7 +25,6 @@ import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_Controller;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.model.lobby.LobbyData;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.view.MainMenuView;
@@ -72,7 +71,6 @@ public class RoboRally extends Application {
     private BoardView boardView;
     private AnchorPane mainMenuPane;
     private AnchorPane multiplayerMenuPane;
-    private MultiplayerMenuView multiplayerMenuView;
     private static CC_Controller courseCreator;
 
     private static AppController appController;
@@ -296,19 +294,15 @@ public class RoboRally extends Application {
      * @author Maximillian Bjørn Mortensen
      */
     public void resetMultiplayerMenu() {
-        multiplayerMenuView = null;
+        appController.resetMultiplayerMenuView();
         multiplayerMenuPane = null;
     }
 
-    public void createMultiplayerMenu() {
+    public void createMultiplayerMenu(MultiplayerMenuView multiplayerMenuView) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("MultiplayerMenu.fxml"));
-            multiplayerMenuView = new MultiplayerMenuView();
             loader.setController(multiplayerMenuView);
             multiplayerMenuPane = loader.load();
-            multiplayerMenuView.setupMenuUI(appController);
-            multiplayerMenuView.setupBackButton(this);
-
             goToMultiplayerMenu();
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -406,29 +400,5 @@ public class RoboRally extends Application {
         }
 
         courseCreator.initializeExitButton(this::goToMainMenu);
-    }
-
-
-    // Lobby methods
-    /**
-     * Initializes the lobbyServerReceive with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobbyServerReceive.
-     * @param lobbyData The LobbyData object received from the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void connectedToLobby(LobbyData lobbyData) {
-        if (lobbyData != null) {
-            multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
-            appController.startLobbyUpdateLoop();
-        } else {
-            multiplayerMenuView.failedToConnect();
-        }
-    }
-
-    public void updateLobby(LobbyData lobbyData) {
-        multiplayerMenuView.updateLobby(lobbyData);
-    }
-
-    public LobbyData getCurrentLobbyData() {
-        return multiplayerMenuView.getCurrentLobbyData();
     }
 }

@@ -1,143 +1,125 @@
 package com.group15.roborally.client.communication;
 
-import com.google.gson.Gson;
-import com.group15.roborally.client.model.lobby.LobbyClientJoin;
-import com.group15.roborally.client.model.lobby.LobbyClientUpdate;
-import com.group15.roborally.client.model.lobby.LobbyData;
-
-import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.Collections;
+import java.util.List;
+
+import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.Player;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.RequestEntity;
+import org.springframework.web.client.RestTemplate;
 
 public class ServerCommunication {
+    private final String baseUrl;
+    private final HttpHeaders headers;
+
     private boolean isConnectedToServer = false;
-    private final Gson gson = new Gson();
 
-    public LobbyData createLobby(String playerName) {
-        // Send message and receive response
-        HttpResponse<String> createLobbyResponse = lobbyPostRequest(playerName, "createLobby");
-        // Handle received message
-        LobbyData lobbyData = gson.fromJson(createLobbyResponse != null ? createLobbyResponse.body() : null, LobbyData.class);
-        if (lobbyData != null) {
-            System.out.println("Successfully created new lobby with gameId: " + lobbyData.gameId() + ".");
-            isConnectedToServer = true;
-        } else {
-            System.out.println("Failed to create a new lobby.");
-        }
-
-        return lobbyData;
+    public ServerCommunication(String baseUrl) {
+        this.baseUrl = baseUrl;
+        headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     }
 
-    public LobbyData joinLobby(String gameId, String playerName) {
-        // Prepare message to send
-        LobbyClientJoin joinLobbyMessage = new LobbyClientJoin(gameId, playerName);
-        String joinLobbyMessageAsJson = gson.toJson(joinLobbyMessage);
-        // Send message and receive response
-        HttpResponse<String> joinLobbyResponse = lobbyPostRequest(joinLobbyMessageAsJson, "joinLobby");
-        // Handle received message
-        LobbyData lobbyData = gson.fromJson(joinLobbyResponse != null ? joinLobbyResponse.body() : null, LobbyData.class);
-        if (lobbyData != null) {
-            System.out.println("Connected to game with gameId: " + lobbyData.gameId() + ".");
-            isConnectedToServer = true;
-        } else {
-            System.out.println("Failed to connect to game with gameId: " + gameId + ".");
-        }
-
-        return lobbyData;
-    }
-
-
-    // In-lobby messages
-    public LobbyData getUpdatedLobby(LobbyData lobbyData) {
-        LobbyClientUpdate updateCourseMessage = new LobbyClientUpdate(
-                lobbyData.playerId(),
-                lobbyData.gameId(),
-                lobbyData.playerNames()[0],
-                lobbyData.robotNames()[0],
-                lobbyData.areReady()[0],
-                lobbyData.courseName());
-        return requestUpdatedLobby(updateCourseMessage);
-    }
-    public LobbyData changeCourse(LobbyData lobbyData, String newCourseName) {
-        LobbyClientUpdate changeCourseMessage = new LobbyClientUpdate(
-                lobbyData.playerId(),
-                lobbyData.gameId(),
-                lobbyData.playerNames()[0],
-                lobbyData.robotNames()[0],
-                lobbyData.areReady()[0],
-                newCourseName);
-        return requestUpdatedLobby(changeCourseMessage);
-    }
-    public LobbyData setIsReady(LobbyData lobbyData, int isReady) {
-        LobbyClientUpdate toggleReadyMessage = new LobbyClientUpdate(
-                lobbyData.playerId(),
-                lobbyData.gameId(),
-                lobbyData.playerNames()[0],
-                lobbyData.robotNames()[0],
-                isReady,
-                lobbyData.courseName());
-        return requestUpdatedLobby(toggleReadyMessage);
-    }
-    public LobbyData changeRobot(LobbyData lobbyData, String robotName) {
-        LobbyClientUpdate changeRobotMessage = new LobbyClientUpdate(
-                lobbyData.playerId(),
-                lobbyData.gameId(),
-                lobbyData.playerNames()[0],
-                robotName,
-                lobbyData.areReady()[0],
-                lobbyData.courseName());
-        return requestUpdatedLobby(changeRobotMessage);
-    }
-
-    public void leaveGame(long playerId) {
-        String leaveGameMessageAsJson = gson.toJson(playerId);
-        HttpResponse<String> leaveGameResponse = lobbyPostRequest(leaveGameMessageAsJson, "leaveGame");
-
-        // Handle received message
-        if (leaveGameResponse != null) {
-            System.out.println(leaveGameResponse.body());
-            isConnectedToServer = false;
-        } else {
-            System.out.println("Failed to leave game.");
-        }
-    }
-
-
-    // Utility methods
-    private LobbyData requestUpdatedLobby(LobbyClientUpdate updateLobbyMessage) {
-        // Prepare message to send
-        String updateLobbyMessageAsJson = gson.toJson(updateLobbyMessage);
-        // Send message and receive response
-        HttpResponse<String> updateLobbyResponse = lobbyPostRequest(updateLobbyMessageAsJson, "updateLobby");
-        // Handle received message
-        return gson.fromJson(updateLobbyResponse != null ? updateLobbyResponse.body() : null, LobbyData.class);
-    }
-
-    private HttpResponse<String> lobbyPostRequest(String message, String uriEndPoint) {
-        HttpResponse<String> serverResponse = null;
+    // Connection to server //
+    public long createGame() {
         try {
-            HttpRequest postRequest;
-            postRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(message))
+            URI uri = new URI(baseUrl + "/games");
+            RequestEntity<Void> request = RequestEntity
+                    .post(uri)
+                    .accept(MediaType.APPLICATION_JSON)
                     .build();
-            HttpClient httpClient = HttpClient.newHttpClient();
-            serverResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
-            // TODO: Handle lobbyClientToServer error message
-            //System.out.println(serverResponse.statusCode());
-        } catch (ConnectException e) {
-            System.out.println("Failed to connect to server.");
-        } catch (IOException | InterruptedException | URISyntaxException e) {
+            ResponseEntity<Long> response = new RestTemplate().exchange(request, Long.class);
+
+            System.out.println("Create game status code: " + response.getStatusCode());
+            if (response.getBody() == null) {
+                throw new Exception("Received null body as response from server.");
+            }
+            System.out.println("Created new game.");
+
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Failed to create new game.");
             System.out.println(e.getMessage());
         }
-        return serverResponse;
+        return -1;
+    }
+
+    public Player joinGame(long gameId, String playerName) {
+        try {
+            URI uri = new URI(baseUrl + "/games/" + gameId + "/join");
+            RequestEntity<String> request = RequestEntity
+                    .post(uri)
+                    .headers(headers)
+                    .body(playerName);
+            ResponseEntity<Player> response = new RestTemplate().exchange(request, Player.class);
+
+            System.out.println("Join game status code: " + response.getStatusCode());
+            if (response.getBody() == null) {
+                throw new Exception("Received null body as response from server.");
+            }
+            isConnectedToServer = true;
+            System.out.println("Joined game.");
+
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Failed to join game.");
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+
+    // ---------------- //
+    public Game getGame(long gameId) {
+        try {
+            URI uri = new URI(baseUrl + "/games/" + gameId);
+            RequestEntity<Void> request = RequestEntity
+                    .get(uri)
+                    .headers(headers)
+                    .build();
+            ResponseEntity<Game> response = new RestTemplate().exchange(request, Game.class);
+
+            System.out.println("Get game status code: " + response.getStatusCode());
+            if (response.getBody() == null) {
+                throw new Exception("Received null body as response from server.");
+            }
+            System.out.println("Received game from server.");
+
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Failed to receive game from server.");
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+    public List<Player> getPlayers(long gameId) {
+        try {
+            URI uri = new URI(baseUrl + "/games/" + gameId + "/players");
+            RequestEntity<Void> request = RequestEntity
+                    .get(uri)
+                    .headers(headers)
+                    .build();
+            ResponseEntity<List<Player>> response = new RestTemplate().exchange(request, new ParameterizedTypeReference<>() {});
+
+            System.out.println("Get players status code: " + response.getStatusCode());
+            if (response.getBody() == null) {
+                throw new Exception("Received null body as response from server.");
+            }
+            System.out.println("Received players from server.");
+
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Failed to receive players from server.");
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     public boolean getIsConnectedToServer() {

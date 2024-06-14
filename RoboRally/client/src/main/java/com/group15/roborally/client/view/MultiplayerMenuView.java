@@ -1,13 +1,13 @@
 package com.group15.roborally.client.view;
 
-import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.Robots;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.model.lobby.LobbyData;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
+import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -20,7 +20,6 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import org.checkerframework.checker.units.qual.N;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,9 +79,11 @@ public class MultiplayerMenuView {
     private final List<CC_CourseData> courses = new ArrayList<>();
     private final LobbyPlayerSlot[] playerSlots = new LobbyPlayerSlot[6];
 
+    private Game game;
+    private Player localPlayer;
+    private List<Player> players;
     private boolean isHost = false;
-    CC_CourseData selectedCourse = null;
-    private LobbyData lobbyData = null;
+    private CC_CourseData selectedCourse = null;
 
     public MultiplayerMenuView() {
 
@@ -110,23 +111,23 @@ public class MultiplayerMenuView {
         multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank()) {
                 setConnectionInfo("Attempting to connect to lobbyData...");
-                appController.tryJoinLobbyWithGameID(multiplayerMenuTextFieldGameID.getText(), multiplayerMenuTextFieldPlayerName.getText());
+                appController.tryJoinGameWithGameID(Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
         // Host button
         multiplayerMenuButtonHost.setOnMouseClicked(e -> {
             setConnectionInfo("Waiting for server...");
-            appController.tryHostNewLobby(multiplayerMenuTextFieldPlayerName.getText());
+            appController.tryCreateAndJoinGame(multiplayerMenuTextFieldPlayerName.getText());
         });
         // Ready/Start button
         lobbyButtonStart.setOnMouseClicked(e -> {
             if (isHost) {
-                appController.beginCourse(selectedCourse, lobbyData);
+                appController.beginCourse(selectedCourse, game, players);
             } else if (isReady()) {
                 // Toggling whether the player is ready.
-                int isReady = lobbyData.areReady()[0] == 0 ? 1 : 0;
-                lobbyData.areReady()[0] = isReady;
-                appController.setIsReady(lobbyData, isReady);
+                int isReady = localPlayer.getIsReady() == 0 ? 1 : 0;
+                localPlayer.setIsReady(isReady);
+                appController.setIsReady(game, isReady);
             }
         });
     }
@@ -134,28 +135,33 @@ public class MultiplayerMenuView {
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setupBackButton(RoboRally roboRally) {
+    public void setupBackButton(Runnable backMethod) {
         // Back button
         multiplayerMenuButtonBack.setOnMouseClicked(e -> {
-            roboRally.goToMainMenu();
+            backMethod.run();
         });
     }
 
     /**
      * Sets up the UI from the lobbyData object received. Called when the user connects to the server.
-     * @param lobbyData The lobbyData object received from the server.
+     * @param game The game object received from the server.
      * @param loadedCourses The courses loaded from the courses folder.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setupLobby(AppController appController, LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
-        isHost = lobbyData.hostIndex() == 0;
+    public void setupLobby(AppController appController, Game game, Player localPlayer, List<Player> players, List<CC_CourseData> loadedCourses) {
+        this.game = game;
+        this.localPlayer = localPlayer;
+        this.players = players;
+        if (localPlayer.getPlayerId() == game.getHostId()) {
+            this.isHost = true;
+        }
 
         initializeCourses(appController, loadedCourses);
         initializeLobby(appController);
-        lobbyTextGameID.setText("Game ID: " + lobbyData.gameId());
-        playerSlots[0].setName(lobbyData.playerNames()[0]);
+        lobbyTextGameID.setText("Game ID: " + game.getGameId());
+        playerSlots[0].setName(localPlayer.getPlayerName());
 
-        updateLobby(lobbyData);
+        updateLobby(game, players);
 
         setConnectionInfo("");
         showLobby(true);
@@ -168,14 +174,15 @@ public class MultiplayerMenuView {
         showLobby(false);
     }
 
-    public void updateLobby(LobbyData lobbyData) {
+    public void updateLobby(Game game, List<Player> players) {
         // Variables
-        this.lobbyData = lobbyData;
-        NO_OF_PLAYERS = lobbyData.playerNames().length;
+        this.game = game;
+        this.players = players;
+        NO_OF_PLAYERS = game.getNrOfPlayers();
 
         // Course
         for (CC_CourseData course : courses) {
-            if (course.getCourseName().equals(lobbyData.courseName())) {
+            if (course.getCourseName().equals(game.getCourseName())) {
                 selectedCourse = course;
                 break;
             }
@@ -185,13 +192,17 @@ public class MultiplayerMenuView {
             lobbySelectedCourseText.setText(selectedCourse.getCourseName().toUpperCase());
         }
 
+        players.forEach(player -> {
+
+        });
+
         // Players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            playerSlots[i].setName(lobbyData.playerNames()[i]);
-            playerSlots[i].setRobotByRobotName(lobbyData.robotNames()[i]);
-            boolean thisPlayerIsHost = i == lobbyData.hostIndex();
+            playerSlots[i].setName(players.get(i).getPlayerName());
+            playerSlots[i].setRobotByRobotName(players.get(i).getRobotName());
+            boolean thisPlayerIsHost = players.get(i).getPlayerId() == game.getHostId();
             playerSlots[i].setHostStarVisible(thisPlayerIsHost);
-            playerSlots[i].setReadyCheckVisible(lobbyData.areReady()[i] == 1);
+            playerSlots[i].setReadyCheckVisible(players.get(i).getIsReady() == 1);
         }
         updateUI();
     }
@@ -219,7 +230,7 @@ public class MultiplayerMenuView {
         localPlayerRobotComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
             String localRobotName = localPlayerRobotComboBox.getSelectionModel().getSelectedItem();
             playerSlots[0].setRobotByRobotName(localRobotName);
-            appController.changeRobot(lobbyData, localRobotName);
+            appController.changeRobot(game, localRobotName);
             updateUI();
         });
         if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
@@ -336,7 +347,7 @@ public class MultiplayerMenuView {
                     // Course buttons OnMouseClicked
                     courseButton.setOnMouseClicked(e -> {
                         if (isHost) {
-                            appController.changeCourse(lobbyData, course);
+                            appController.changeCourse(game, course);
                         }
                     });
                     courseButton.setDisable(!isHost);
@@ -392,14 +403,14 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean isReady() {
-        if (lobbyData.playerNames()[0] == null || lobbyData.robotNames()[0] == null || lobbyData.playerNames()[0].isBlank() || lobbyData.robotNames()[0].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[0]) == null) return false;
+        if (localPlayer.getPlayerName() == null || localPlayer.getRobotName() == null || localPlayer.getPlayerName().isBlank() || localPlayer.getRobotName().isBlank() || Robots.getRobotByName(localPlayer.getRobotName()) == null) return false;
         for (int i = 1; i < NO_OF_PLAYERS; i++) {
-            if (lobbyData.playerNames()[0].equals(lobbyData.playerNames()[i])) return false;
-            if (lobbyData.robotNames()[0].equals(lobbyData.robotNames()[i])) return false;
+            if (localPlayer.getPlayerName().equals(players.get(i).getPlayerName())) return false;
+            if (localPlayer.getRobotName().equals(players.get(i).getRobotName())) return false;
         }
         if (isHost) {
             for (int i = 1; i < NO_OF_PLAYERS; i++) {
-                if (lobbyData.areReady()[i] == 0) {
+                if (players.get(i).getIsReady() == 0) {
                     return false;
                 }
             }
@@ -457,7 +468,10 @@ public class MultiplayerMenuView {
         }
     }
 
-    public LobbyData getCurrentLobbyData() {
-        return lobbyData;
+    public Game getCurrentGameData() {
+        return game;
+    }
+    public List<Player> getCurrentPlayerData() {
+        return players;
     }
 }
