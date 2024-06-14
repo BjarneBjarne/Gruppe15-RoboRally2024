@@ -1,9 +1,9 @@
-package com.gruppe15.communication;
+package com.group15.roborally.client.communication;
 
 import com.google.gson.Gson;
-import com.gruppe15.model.lobby.LobbyClientUpdate;
-import com.gruppe15.model.lobby.LobbyClientJoin;
-import com.gruppe15.model.lobby.LobbyData;
+import com.group15.roborally.client.model.lobby.LobbyClientJoin;
+import com.group15.roborally.client.model.lobby.LobbyClientUpdate;
+import com.group15.roborally.client.model.lobby.LobbyData;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -20,8 +20,10 @@ public class ServerCommunication {
     private final Gson gson = new Gson();
 
     public LobbyData createLobby(String playerName) {
+        // Prepare message to send
+        String createLobbyMessageAsJson = gson.toJson(playerName);
         // Send message and receive response
-        HttpResponse<String> createLobbyResponse = lobbyPostRequest(playerName, "createLobby");
+        HttpResponse<String> createLobbyResponse = lobbyPostRequest(createLobbyMessageAsJson, "createLobby");
         // Handle received message
         LobbyData lobbyData = gson.fromJson(createLobbyResponse != null ? createLobbyResponse.body() : null, LobbyData.class);
         if (lobbyData != null) {
@@ -108,6 +110,7 @@ public class ServerCommunication {
         }
     }
 
+
     // Utility methods
     private LobbyData requestUpdatedLobby(LobbyClientUpdate updateLobbyMessage) {
         // Prepare message to send
@@ -118,11 +121,11 @@ public class ServerCommunication {
         return gson.fromJson(updateLobbyResponse != null ? updateLobbyResponse.body() : null, LobbyData.class);
     }
 
-    private ResponseEntity<String> lobbyPostRequest(String message, String uriEndPoint) {
-        RequestEntity<String> serverResponse = null;
+    private HttpResponse<String> lobbyPostRequest(String message, String uriEndPoint) {
+        HttpResponse<String> serverResponse = null;
         try {
             HttpRequest postRequest;
-            postRequest = RequestEntity.newBuilder()
+            postRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(message))
