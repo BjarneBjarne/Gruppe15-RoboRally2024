@@ -1,10 +1,9 @@
-package com.group15.roborally.client.communication;
+package com.gruppe15.communication;
 
-import com.group15.roborally.client.model.Player;
-import com.group15.roborally.client.model.lobby.LobbyData;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import com.google.gson.Gson;
+import com.gruppe15.model.lobby.LobbyClientUpdate;
+import com.gruppe15.model.lobby.LobbyClientJoin;
+import com.gruppe15.model.lobby.LobbyData;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -13,41 +12,16 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-/*
-MyRequest body = ...
-        RequestEntity<MyRequest> request = RequestEntity
-                .post("http://localhost:8080/Lobby/{foo}", "bar")
-                .accept(MediaType.APPLICATION_JSON)
-                .body(body);
-        ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);
- */
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.RequestEntity;
 
 public class ServerCommunication {
     private boolean isConnectedToServer = false;
+    private final Gson gson = new Gson();
 
-    public long createLobby(String playerName) {
-        // Creating new game.
-        RequestEntity<String> request = RequestEntity
-                .post("http://localhost:8080/games")
-                .accept(MediaType.APPLICATION_JSON)
-                .body(playerName);
-        ResponseEntity<Long> responseGameId = template.exchange(request, Long.class);
-
-        // Joining the newly created game.
-        /*RequestEntity<Player> request = RequestEntity
-                .post("http://localhost:8080/games/" + responseGameId, "bar")
-                .accept(MediaType.APPLICATION_JSON)
-                .body(playerName);
-        ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);*/
-
-        HttpClient httpClient = HttpClient.newHttpClient();
-        serverResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
-
-        // Prepare message to send
-        String createLobbyMessageAsJson = gson.toJson(playerName);
+    public LobbyData createLobby(String playerName) {
         // Send message and receive response
-        HttpResponse<String> createLobbyResponse = lobbyPostRequest(createLobbyMessageAsJson, "createLobby");
+        HttpResponse<String> createLobbyResponse = lobbyPostRequest(playerName, "createLobby");
         // Handle received message
         LobbyData lobbyData = gson.fromJson(createLobbyResponse != null ? createLobbyResponse.body() : null, LobbyData.class);
         if (lobbyData != null) {
@@ -145,11 +119,11 @@ public class ServerCommunication {
         return gson.fromJson(updateLobbyResponse != null ? updateLobbyResponse.body() : null, LobbyData.class);
     }
 
-    private HttpResponse<String> lobbyPostRequest(String message, String uriEndPoint) {
-        HttpResponse<String> serverResponse = null;
+    private ResponseEntity<String> lobbyPostRequest(String message, String uriEndPoint) {
+        RequestEntity<String> serverResponse = null;
         try {
             HttpRequest postRequest;
-            postRequest = HttpRequest.newBuilder()
+            postRequest = RequestEntity.newBuilder()
                     .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(message))
