@@ -56,7 +56,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.group15.roborally.client.BoardOptions.*;
 
-
 /**
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
