@@ -1,8 +1,8 @@
-package com.group15.model.boardelements;
+package com.group15.roborally.client.model.boardelements;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.ActionWithDelay;
-import com.group15.model.Space;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.ActionWithDelay;
+import com.group15.roborally.client.model.Space;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;

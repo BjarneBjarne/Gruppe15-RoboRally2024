@@ -1,7 +1,7 @@
 package com.group15.roborally.client.exceptions;
 
-import com.group15.model.Phase;
-import com.group15.model.player_interaction.PlayerInteraction;
+import com.group15.roborally.client.model.Phase;
+import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 
 public class UnhandledPhaseInteractionException extends Exception {
     /**

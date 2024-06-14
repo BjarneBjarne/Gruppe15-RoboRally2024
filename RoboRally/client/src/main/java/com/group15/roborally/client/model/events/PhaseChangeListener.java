@@ -1,6 +1,6 @@
-package com.group15.model.events;
+package com.group15.roborally.client.model.events;
 
-import com.group15.model.Phase;
+import com.group15.roborally.client.model.Phase;
 
 @FunctionalInterface
 public interface PhaseChangeListener {

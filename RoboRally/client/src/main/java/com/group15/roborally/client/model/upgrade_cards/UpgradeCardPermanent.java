@@ -1,9 +1,9 @@
-package com.group15.model.upgrade_cards;
+package com.group15.roborally.client.model.upgrade_cards;
 
-import com.group15.model.CardField;
-import com.group15.model.EventHandler;
-import com.group15.model.Phase;
-import com.group15.model.events.EventListener;
+import com.group15.roborally.client.model.CardField;
+import com.group15.roborally.client.model.EventHandler;
+import com.group15.roborally.client.model.Phase;
+import com.group15.roborally.client.model.events.EventListener;
 
 import java.util.ArrayList;
 import java.util.List;

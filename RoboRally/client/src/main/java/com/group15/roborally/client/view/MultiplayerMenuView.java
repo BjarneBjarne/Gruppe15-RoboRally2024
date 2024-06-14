@@ -1,12 +1,12 @@
 package com.group15.roborally.client.view;
 
 import com.group15.roborally.client.RoboRally;
-import com.group15.roborally.controller.AppController;
-import com.group15.roborally.coursecreator.CC_CourseData;
-import com.group15.model.Robots;
-import com.group15.roborally.exceptions.NoCoursesException;
-import com.group15.model.lobby.LobbyData;
-import com.group15.model.lobby.LobbyPlayerSlot;
+import com.group15.roborally.client.controller.AppController;
+import com.group15.roborally.client.coursecreator.CC_CourseData;
+import com.group15.roborally.client.model.Robots;
+import com.group15.roborally.client.exceptions.NoCoursesException;
+import com.group15.roborally.client.model.lobby.LobbyData;
+import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import com.group15.roborally.client.utils.TextUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

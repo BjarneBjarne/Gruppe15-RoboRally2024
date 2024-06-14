@@ -19,20 +19,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.model;
+package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.observer.Subject;
-import com.group15.model.boardelements.BE_Antenna;
-import com.group15.model.boardelements.BE_Checkpoint;
-import com.group15.model.boardelements.BE_PushPanel;
-import com.group15.model.boardelements.BoardElement;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.boardelements.BE_Antenna;
+import com.group15.roborally.client.model.boardelements.BE_Checkpoint;
+import com.group15.roborally.client.model.boardelements.BE_PushPanel;
+import com.group15.roborally.client.model.boardelements.BoardElement;
+import com.group15.roborally.client.model.Player;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.group15.model.Heading.*;
+import static com.group15.roborally.client.model.Heading.*;
 
 /**
  * ...
@@ -47,7 +47,7 @@ public class Space extends Subject {
     public final int x;
     public final int y;
 
-    transient private com.group15.roborally.server.model.Player player;
+    transient private com.group15.roborally.client.model.Player player;
     transient private BoardElement boardElement;
     transient private Image backgroundImage;
     transient private final List<Heading> walls = new ArrayList<>();
@@ -86,7 +86,7 @@ public class Space extends Subject {
         this.boardElement = boardElement;
     }
 
-    public com.group15.roborally.server.model.Player getPlayer() {
+    public com.group15.roborally.client.model.Player getPlayer() {
         if (player != null) {
             return player;
         } else {
@@ -94,7 +94,7 @@ public class Space extends Subject {
         }
     }
 
-    public void setPlayer(com.group15.roborally.server.model.Player player) {
+    public void setPlayer(com.group15.roborally.client.model.Player player) {
         Player oldPlayer = this.player;
         if (player != oldPlayer &&
                 (player == null || board == player.board)) {

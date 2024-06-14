@@ -21,7 +21,7 @@
  */
 package com.group15.roborally.client.view;
 
-import com.group15.roborally.controller.AppController;
+import com.group15.roborally.client.controller.AppController;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;

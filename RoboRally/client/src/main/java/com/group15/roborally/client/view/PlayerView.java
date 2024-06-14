@@ -22,12 +22,12 @@
 package com.group15.roborally.client.view;
 
 import com.group15.roborally.client.observer.Subject;
-import com.group15.roborally.controller.GameController;
-import com.group15.model.*;
-import com.group15.model.player_interaction.CommandOptionsInteraction;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.utils.TextUtils;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.Player;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -46,7 +46,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
-import static com.group15.model.Phase.*;
+import static com.group15.roborally.client.model.Phase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
 
 /**
@@ -56,7 +56,7 @@ import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
  *
  */
 public class PlayerView extends Tab implements ViewObserver {
-    private final com.group15.roborally.server.model.Player player;
+    private final com.group15.roborally.client.model.Player player;
 
     private final StackPane mainPlayerViewPane;
 
@@ -87,10 +87,10 @@ public class PlayerView extends Tab implements ViewObserver {
     private final Text playerMatCharacterText = new Text();
     private final ImageView energyCubesImageView = new ImageView();
     private final ImageView checkpointTokenImageView = new ImageView();
-    private final Image[] energyCubeImages = new Image[com.group15.roborally.server.model.Player.NO_OF_ENERGY_CUBES + 1];
+    private final Image[] energyCubeImages = new Image[com.group15.roborally.client.model.Player.NO_OF_ENERGY_CUBES + 1];
     private final Image[] checkpointTokenImages;
 
-    public PlayerView(@NotNull GameController gameController, @NotNull com.group15.roborally.server.model.Player player) {
+    public PlayerView(@NotNull GameController gameController, @NotNull com.group15.roborally.client.model.Player player) {
         super();
         mainPlayerViewPane = new StackPane();
         mainPlayerViewPane.setMinHeight(Region.USE_COMPUTED_SIZE);
@@ -146,8 +146,8 @@ public class PlayerView extends Tab implements ViewObserver {
         cardsPane.setAlignment(Pos.CENTER);
 
         programPane = new GridPane();
-        programCardViews = new CardFieldView[com.group15.roborally.server.model.Player.NO_OF_REGISTERS];
-        for (int i = 0; i < com.group15.roborally.server.model.Player.NO_OF_REGISTERS; i++) {
+        programCardViews = new CardFieldView[com.group15.roborally.client.model.Player.NO_OF_REGISTERS];
+        for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; i++) {
             CardField cardField = player.getProgramField(i);
             if (cardField != null) {
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.4);
@@ -165,8 +165,8 @@ public class PlayerView extends Tab implements ViewObserver {
         programPane.setAlignment(Pos.BOTTOM_CENTER);
 
         permanentUpgradeCardsPane = new GridPane();
-        permanentUpgradeCardViews = new CardFieldView[com.group15.roborally.server.model.Player.NO_OF_PERMANENT_UPGRADE_CARDS];
-        for (int i = 0; i < com.group15.roborally.server.model.Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
+        permanentUpgradeCardViews = new CardFieldView[com.group15.roborally.client.model.Player.NO_OF_PERMANENT_UPGRADE_CARDS];
+        for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
             CardField cardField = player.getPermanentUpgradeCardField(i);
             if (cardField != null) {
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.6);
@@ -187,8 +187,8 @@ public class PlayerView extends Tab implements ViewObserver {
         permanentUpgradeCardsPane.setAlignment(Pos.CENTER);
 
         temporaryUpgradeCardsPane = new GridPane();
-        temporaryUpgradeCardViews = new CardFieldView[com.group15.roborally.server.model.Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
-        for (int i = 0; i < com.group15.roborally.server.model.Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
+        temporaryUpgradeCardViews = new CardFieldView[com.group15.roborally.client.model.Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
+        for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
             CardField cardField = player.getTemporaryUpgradeCardField(i);
             if (cardField != null) {
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.15, 1.6 * 1.15);
@@ -311,7 +311,7 @@ public class PlayerView extends Tab implements ViewObserver {
     public void updateView(Subject subject) {
         Board board = player.board;
         if (subject == board) {
-            for (int i = 0; i < com.group15.roborally.server.model.Player.NO_OF_REGISTERS; i++) {
+            for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; i++) {
                 CardFieldView cardFieldView = programCardViews[i];
                 if (cardFieldView != null && board.getCurrentPhase() == PLAYER_ACTIVATION) {
                     if (i < board.getCurrentRegister()) {

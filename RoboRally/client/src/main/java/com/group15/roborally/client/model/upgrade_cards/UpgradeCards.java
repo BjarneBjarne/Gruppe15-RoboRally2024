@@ -1,7 +1,7 @@
-package com.group15.model.upgrade_cards;
+package com.group15.roborally.client.model.upgrade_cards;
 
-import com.group15.model.upgrade_cards.permanent.*;
-import com.group15.model.upgrade_cards.temporary.*;
+import com.group15.roborally.client.model.upgrade_cards.permanent.*;
+import com.group15.roborally.client.model.upgrade_cards.temporary.*;
 
 public enum UpgradeCards {
     // Permanent upgrade cards

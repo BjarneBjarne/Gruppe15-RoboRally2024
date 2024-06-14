@@ -1,6 +1,6 @@
 package com.group15.roborally.client.model.lobby;
 
-import com.group15.model.Robots;
+import com.group15.roborally.client.model.Robots;
 import com.group15.roborally.client.utils.ImageUtils;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;

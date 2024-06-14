@@ -1,8 +1,8 @@
-package com.group15.model.player_interaction;
+package com.group15.roborally.client.model.player_interaction;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.roborally.server.model.Player;
-import com.group15.model.Space;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.Space;
 
 import java.util.List;
 

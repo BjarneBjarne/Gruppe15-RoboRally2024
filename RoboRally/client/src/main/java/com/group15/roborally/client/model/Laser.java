@@ -1,8 +1,8 @@
-package com.group15.model;
+package com.group15.roborally.client.model;
 
-import com.group15.model.boardelements.BE_Antenna;
-import com.group15.model.boardelements.BE_PushPanel;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.boardelements.BE_Antenna;
+import com.group15.roborally.client.model.boardelements.BE_PushPanel;
+import com.group15.roborally.client.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class Laser {
     public final Space origin;
     public final Heading direction;
     public final List<Space> spacesHit = new ArrayList<>();
-    public final com.group15.roborally.server.model.Player owner;
+    public final com.group15.roborally.client.model.Player owner;
     public final List<Class<?>> objectTypesToCollideWith = new ArrayList<>();
 
     private boolean iterationComplete = false;
@@ -40,7 +40,7 @@ public class Laser {
      * @param owner Indicates that the laser came from a player. The owner is the player shooting the laser.
      * @param objectTypesToCollideWith The class types to collide with. Check the Laser class to see which classes are being looked for. Currently only looks for Player.class and Space.class.
      */
-    public Laser(Space origin, Heading direction, com.group15.roborally.server.model.Player owner, Class<?>... objectTypesToCollideWith) {
+    public Laser(Space origin, Heading direction, com.group15.roborally.client.model.Player owner, Class<?>... objectTypesToCollideWith) {
         this.origin = origin;
         this.direction = direction;
         this.owner = owner;
@@ -81,7 +81,7 @@ public class Laser {
             Space space = boardSpaces[x][y];
             if (space != null) {
                 spacesHit.add(space);
-                com.group15.roborally.server.model.Player playerOnSpace = space.getPlayer();
+                com.group15.roborally.client.model.Player playerOnSpace = space.getPlayer();
                 nextSpace = space.getSpaceNextTo(direction, boardSpaces);
                 String laserName = "Laser_";
 

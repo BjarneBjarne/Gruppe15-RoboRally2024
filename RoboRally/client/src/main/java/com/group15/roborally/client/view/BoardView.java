@@ -22,10 +22,10 @@ package com.group15.roborally.client.view;
 
 import com.group15.roborally.client.observer.Subject;
 import com.group15.roborally.client.ApplicationSettings;
-import com.group15.roborally.controller.GameController;
-import com.group15.model.*;
-import com.group15.model.upgrade_cards.UpgradeCardPermanent;
-import com.group15.model.upgrade_cards.UpgradeCardTemporary;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.utils.TextUtils;
 import javafx.application.Platform;
@@ -45,7 +45,7 @@ import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
-import static com.group15.model.Phase.INITIALIZATION;
+import static com.group15.roborally.client.model.Phase.INITIALIZATION;
 
 import java.util.ArrayList;
 import java.util.List;

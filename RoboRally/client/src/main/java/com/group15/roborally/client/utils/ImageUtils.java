@@ -1,11 +1,11 @@
 package com.group15.roborally.client.utils;
 
 import com.group15.roborally.client.RoboRally;
-import com.group15.model.Space;
-import com.group15.model.boardelements.BE_ConveyorBelt;
-import com.group15.model.boardelements.BoardElement;
-import com.group15.model.Heading;
-import com.group15.roborally.exceptions.EmptyCourseException;
+import com.group15.roborally.client.model.Space;
+import com.group15.roborally.client.model.boardelements.BE_ConveyorBelt;
+import com.group15.roborally.client.model.boardelements.BoardElement;
+import com.group15.roborally.client.model.Heading;
+import com.group15.roborally.client.exceptions.EmptyCourseException;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;

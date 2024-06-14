@@ -1,4 +1,4 @@
-package com.group15.model;
+package com.group15.roborally.client.model;
 
 public enum Robots {
     Blue("SPIN BOT"),

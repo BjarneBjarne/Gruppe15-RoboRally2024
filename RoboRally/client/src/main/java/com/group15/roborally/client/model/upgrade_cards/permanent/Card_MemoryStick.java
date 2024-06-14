@@ -1,8 +1,8 @@
-package com.group15.model.upgrade_cards.permanent;
+package com.group15.roborally.client.model.upgrade_cards.permanent;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.roborally.server.model.Player;
-import com.group15.model.upgrade_cards.UpgradeCardPermanent;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 
 public class Card_MemoryStick extends UpgradeCardPermanent {
     public Card_MemoryStick() {

@@ -19,13 +19,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.model;
+package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.observer.Subject;
-import com.group15.model.upgrade_cards.UpgradeCard;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
+import com.group15.roborally.client.model.Player;
 
-import static com.group15.model.CardField.CardFieldTypes.*;
+import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
 
 /**
  * ...
@@ -41,7 +41,7 @@ public class CardField extends Subject {
         TEMPORARY_UPGRADE_CARD_FIELD
     }
     final public CardFieldTypes cardFieldType;
-    final public com.group15.roborally.server.model.Player player;
+    final public com.group15.roborally.client.model.Player player;
     final public UpgradeShop upgradeShop;
     final public int index;
     private Card card;
@@ -64,7 +64,7 @@ public class CardField extends Subject {
      * @param player The player owning the CardField.
      * @param cardFieldType The type of cards that can go here.
      */
-    public CardField(com.group15.roborally.server.model.Player player, CardFieldTypes cardFieldType) {
+    public CardField(com.group15.roborally.client.model.Player player, CardFieldTypes cardFieldType) {
         index = 0;
         this.player = player;
         this.upgradeShop = null;

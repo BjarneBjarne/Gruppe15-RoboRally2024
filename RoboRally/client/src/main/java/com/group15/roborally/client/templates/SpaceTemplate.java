@@ -25,8 +25,8 @@ package com.group15.roborally.client.templates;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.group15.model.Heading;
-import com.group15.model.boardelements.BoardElement;
+import com.group15.roborally.client.model.Heading;
+import com.group15.roborally.client.model.boardelements.BoardElement;
 
 /**
  * ...

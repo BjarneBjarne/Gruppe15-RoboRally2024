@@ -1,7 +1,7 @@
 package com.group15.roborally.client.coursecreator;
 
 import com.google.gson.*;
-import com.group15.model.Heading;
+import com.group15.roborally.client.model.Heading;
 import javafx.scene.image.Image;
 
 import java.lang.reflect.Type;

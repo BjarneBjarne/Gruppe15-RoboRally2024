@@ -1,4 +1,4 @@
-package com.group15.model.events;
+package com.group15.roborally.client.model.events;
 
 /**
  * A tagging interface that all event listener interfaces must extend.

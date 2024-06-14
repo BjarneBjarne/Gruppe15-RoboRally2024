@@ -1,12 +1,12 @@
-package com.group15.model.boardelements;
+package com.group15.roborally.client.model.boardelements;
 
 import java.util.LinkedList;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.ActionWithDelay;
-import com.group15.model.Heading;
-import com.group15.roborally.server.model.Player;
-import com.group15.model.Space;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.ActionWithDelay;
+import com.group15.roborally.client.model.Heading;
+import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.Space;
 
 /**
  * This class represents a push panel on the board and when

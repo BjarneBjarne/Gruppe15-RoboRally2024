@@ -1,7 +1,7 @@
-package com.group15.model.events;
+package com.group15.roborally.client.model.events;
 
-import com.group15.model.Laser;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.client.model.Laser;
+import com.group15.roborally.client.model.Player;
 
 @FunctionalInterface
 public interface PlayerShootListener extends EventListener {

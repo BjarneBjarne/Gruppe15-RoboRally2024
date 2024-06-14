@@ -1,12 +1,12 @@
-package com.group15.model.upgrade_cards.permanent;
+package com.group15.roborally.client.model.upgrade_cards.permanent;
 
-import com.group15.roborally.controller.GameController;
-import com.group15.model.EventHandler;
-import com.group15.model.Heading;
-import com.group15.roborally.server.model.Player;
-import com.group15.model.Space;
-import com.group15.model.events.PlayerLaserHitListener;
-import com.group15.model.upgrade_cards.UpgradeCardPermanent;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.EventHandler;
+import com.group15.roborally.client.model.Heading;
+import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.Space;
+import com.group15.roborally.client.model.events.PlayerLaserHitListener;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 
 import java.util.ArrayList;
 import java.util.List;

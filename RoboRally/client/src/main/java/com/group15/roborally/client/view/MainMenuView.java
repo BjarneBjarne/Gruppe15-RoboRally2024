@@ -3,7 +3,7 @@ package com.group15.roborally.client.view;
 import java.io.IOException;
 
 import com.group15.roborally.client.RoboRally;
-import com.group15.roborally.controller.AppController;
+import com.group15.roborally.client.controller.AppController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;

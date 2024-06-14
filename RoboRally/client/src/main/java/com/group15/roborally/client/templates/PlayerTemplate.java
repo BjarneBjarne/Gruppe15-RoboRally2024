@@ -5,12 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import com.group15.model.Command;
-import com.group15.model.CommandCard;
-import com.group15.model.Heading;
-import com.group15.model.Robots;
-import com.group15.model.Space;
-import com.group15.model.upgrade_cards.UpgradeCard;
+import com.group15.roborally.client.model.Command;
+import com.group15.roborally.client.model.CommandCard;
+import com.group15.roborally.client.model.Heading;
+import com.group15.roborally.client.model.Robots;
+import com.group15.roborally.client.model.Space;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 
 public class PlayerTemplate {
     public String name;

@@ -1,7 +1,7 @@
 package com.group15.roborally.client.coursecreator;
 
-import com.group15.model.*;
-import com.group15.roborally.exceptions.EmptyCourseException;
+import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.exceptions.EmptyCourseException;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.ZoomableScrollPane;
 import javafx.application.Platform;
@@ -31,7 +31,7 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import static com.group15.model.Heading.*;
+import static com.group15.roborally.client.model.Heading.*;
 import static com.group15.roborally.client.utils.ImageUtils.*;
 
 /**
