@@ -281,18 +281,6 @@
                                           <HBox alignment="CENTER">
                                              <children>
                                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
-
-
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/HostStar.png" />
                                                    </image>
@@ -306,11 +294,6 @@
                                                    </HBox.margin>
                                                 </Text>
                                                 <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/ReadyCheck.png" />
                                                    </image>
@@ -337,18 +320,6 @@
                                           <HBox alignment="CENTER">
                                              <children>
                                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
-
-
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/HostStar.png" />
                                                    </image>
@@ -362,11 +333,6 @@
                                                    </HBox.margin>
                                                 </Text>
                                                 <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/ReadyCheck.png" />
                                                    </image>
@@ -393,18 +359,6 @@
                                           <HBox alignment="CENTER">
                                              <children>
                                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
-
-
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/HostStar.png" />
                                                    </image>
@@ -418,11 +372,6 @@
                                                    </HBox.margin>
                                                 </Text>
                                                 <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/ReadyCheck.png" />
                                                    </image>
@@ -449,18 +398,6 @@
                                           <HBox alignment="CENTER">
                                              <children>
                                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
-
-
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/HostStar.png" />
                                                    </image>
@@ -474,11 +411,6 @@
                                                    </HBox.margin>
                                                 </Text>
                                                 <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-
-
-
-
-
                                                    <image>
                                                       <Image url="@images/ReadyCheck.png" />
                                                    </image>

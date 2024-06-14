@@ -31,9 +31,9 @@ public class ImageUtils {
      *         /group15/roborally/images/ folder.
      */
     public static Image getImageFromName(String imageName) {
-        String imagePath = "/com/group15/images/" + imageName;
+        String imagePath = "/com/group15/roborally/client/images/" + imageName;
         try {
-            return new Image(Objects.requireNonNull(BoardElement.class.getResourceAsStream(imagePath)));
+            return new Image(Objects.requireNonNull(RoboRally.class.getResourceAsStream(imagePath)));
         } catch (Exception e) {
             System.out.println("Error importing image with path: " + imagePath);
             return null;
