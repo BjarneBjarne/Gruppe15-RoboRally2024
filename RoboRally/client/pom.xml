@@ -9,7 +9,6 @@
           <version>0.1</version>
     </parent>
 
-    <groupId>com.group15</groupId>
     <artifactId>client</artifactId>
     <version>0.1</version>
 
