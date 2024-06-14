@@ -192,7 +192,7 @@
 
                                           <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
-                                                <Image url="@images/HostStar.png" />
+                                                <Image url="@images/ReadyCheck.png" />
                                              </image>
                                           </ImageView>
                                        </children>
