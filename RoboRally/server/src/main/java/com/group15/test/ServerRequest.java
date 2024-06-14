@@ -15,31 +15,20 @@ import com.group15.model.Player;
 
 import org.springframework.http.ResponseEntity;
 
-public class ServerTest {
-
-    static String url = "http://localhost:8080";
-    static HttpHeaders headers;
+public class ServerRequest {
     
-    public static void main(String[] args) throws URISyntaxException {
+    String baseUrl;
+    HttpHeaders headers;
+
+    public ServerRequest(String baseURL) {
+        this.baseUrl = baseURL;
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        String playerName = "Marcus";
-        // Create game
-        Long gameId = createGame(new URI(url + "/games"));
-        System.out.println(gameId);
-
-        // Join game
-        Player player = joinGame(new URI(url + "/games/" + gameId + "/join"), playerName);
-        System.out.println(player.getGameId());
-
-        // List of players
-        List<Player> players = getPlayers(new URI(url + "/games/" + gameId + "/players"));
-        players.forEach(p -> System.out.println(p.getPlayerName()));
     }
 
-    private static List<Player> getPlayers(URI uri){
+    public List<Player> getPlayers(Long gameId) throws URISyntaxException{
+        URI uri = new URI(baseUrl + "/games/" + gameId + "/players");
         RequestEntity<Void> request = RequestEntity
             .get(uri)
             .headers(headers)
@@ -50,7 +39,8 @@ public class ServerTest {
         return response.getBody();
     }
 
-    private static Player joinGame(URI uri, String playerName){
+    public Player joinGame(Long gameId, String playerName) throws URISyntaxException{
+        URI uri = new URI(baseUrl + "/games/" + gameId + "/join");
         RequestEntity<String> request = RequestEntity
             .post(uri)
             .headers(headers)
@@ -61,7 +51,8 @@ public class ServerTest {
         return response.getBody();
     }
 
-    private static Long createGame(URI uri){
+    public Long createGame() throws URISyntaxException{
+        URI uri = new URI(baseUrl + "/games");
         RequestEntity<Void> request = RequestEntity
             .post(uri)
             .accept(MediaType.APPLICATION_JSON)
