@@ -55,36 +55,36 @@ public class GameController {
 
     /**
      * Endpoint to join an already existing game, update the number of players in game 
-     * and update the player's gameId in the database
+     * and insert new player into the database
      * 
      * @author  Marcus Rémi Lemser Eychenne, s230985
      *          Tobias 
      * 
-     * @param playerId - the id of the player joining the game
+     * @param playerId - the name of the player joining the game
      * @param gameId - the id of the game to be joined
      * 
-     * @return ResponseEntity<String> - a response entity with the status of the request
+     * @return ResponseEntity<Long> - the generated id of the player created
      */
-    @PutMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> joinGame(@RequestBody Long playerId, @PathVariable("gameId") Long gameId){
+    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
         
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.badRequest().build();
         }
-        
-        Player player = playerRepository.findById(playerId).orElse(null);
-        if (player == null) {
+        if(playerRepository.existsByPlayerNameAndGameId(playerName, gameId)){
             return ResponseEntity.badRequest().build();
         }
-        
-        player.setGameId(game.getGameId());
+
+        Player player = new Player();
+        player.setPlayerName(playerName);
+        player.setGameId(gameId);
         playerRepository.save(player);
 
         game.setNrOfPlayers(game.getNrOfPlayers() + 1);
         gameRepository.save(game);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(player);
 
     }
 
