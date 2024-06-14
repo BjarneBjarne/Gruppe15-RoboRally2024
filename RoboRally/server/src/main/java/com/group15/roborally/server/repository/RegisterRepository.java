@@ -1,11 +1,13 @@
-package com.group15.roborally.server.repository;
+// package com.group15.roborally.server.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+// import java.util.Set;
 
-import com.group15.roborally.server.model.Register;
+// import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RegisterRepository extends JpaRepository<Register, Long> {
-    Register findByPlayerId(Long playerId);
+// import com.group15.roborally.server.model.Register;
 
-    Register[] findByGameId(long gameId);
-}
+// public interface RegisterRepository extends JpaRepository<Register, Long> {
+//     Register findByPlayerId(Long playerId);
+
+//     Set<Register> findByGameId(Long gameId);
+// }

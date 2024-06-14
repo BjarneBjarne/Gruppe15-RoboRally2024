@@ -30,7 +30,6 @@ public class GameController {
         this.gameRepository = gameRepository;
     }
 
-
     /**
      * Endpoint to create a new game and insert it into the database in 'Games' table
      * 
@@ -39,12 +38,11 @@ public class GameController {
      * 
      * @return ResponseEntity<Long> - the generated id of the game created
      */
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public ResponseEntity<Long> createGame() {
         
         Game game = new Game();
         game.setNrOfPlayers(0);
-        game.setTurnId(1);
         game.setPhase(GamePhase.LOBBY);
 
         gameRepository.save(game);
@@ -69,10 +67,10 @@ public class GameController {
 
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
         if(playerRepository.existsByPlayerNameAndGameId(playerName, gameId)){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(409).build();
         }
 
         Player player = new Player();
@@ -84,7 +82,6 @@ public class GameController {
         gameRepository.save(game);
 
         return ResponseEntity.ok().body(player);
-
     }
 
     /**
@@ -96,9 +93,17 @@ public class GameController {
      * 
      * @return ResponseEntity<List<Player>> - a response entity with the list of players in the game
      */
-    @GetMapping(value = "/{gameId}/players", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{gameId}/players")
     public ResponseEntity<List<Player>> getLobby(@PathVariable("gameId") Long gameId){
-        List<Player> players = playerRepository.findAllByGameId(gameId);
+        if (!gameRepository.existsById(gameId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
+        if (players == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok(players);
     }
 
@@ -111,9 +116,14 @@ public class GameController {
      * 
      * @return ResponseEntity<Game> - a response entity with the game
      */
-    @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{gameId}")
     public ResponseEntity<Game> getGame(@PathVariable("gameId") Long gameId){
+        
         Game game = gameRepository.findById(gameId).orElse(null);
+        if (game == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok(game);
     }
 }
