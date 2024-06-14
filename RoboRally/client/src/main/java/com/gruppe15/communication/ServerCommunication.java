@@ -12,6 +12,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.RequestEntity;
 
 public class ServerCommunication {
     private boolean isConnectedToServer = false;
@@ -117,11 +119,11 @@ public class ServerCommunication {
         return gson.fromJson(updateLobbyResponse != null ? updateLobbyResponse.body() : null, LobbyData.class);
     }
 
-    private HttpResponse<String> lobbyPostRequest(String message, String uriEndPoint) {
-        HttpResponse<String> serverResponse = null;
+    private ResponseEntity<String> lobbyPostRequest(String message, String uriEndPoint) {
+        RequestEntity<String> serverResponse = null;
         try {
             HttpRequest postRequest;
-            postRequest = HttpRequest.newBuilder()
+            postRequest = RequestEntity.newBuilder()
                     .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(message))
