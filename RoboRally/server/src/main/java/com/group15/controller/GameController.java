@@ -58,8 +58,8 @@ public class GameController {
      * 
      * @author  Marcus Rémi Lemser Eychenne, s230985
      *          Tobias 
-     * 
-     * @param playerId - the name of the player joining the game
+     *
+     * @param playerName - the name of the player joining the game
      * @param gameId - the id of the game to be joined
      * 
      * @return ResponseEntity<Long> - the generated id of the player created
