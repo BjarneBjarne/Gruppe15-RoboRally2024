@@ -1,13 +1,13 @@
-package com.gruppe15.view;
+package com.group15.roborally.client.view;
 
-import com.gruppe15.RoboRally;
-import com.gruppe15.controller.AppController;
-import com.gruppe15.coursecreator.CC_CourseData;
-import com.gruppe15.model.Robots;
-import com.gruppe15.exceptions.NoCoursesException;
-import com.gruppe15.model.lobby.LobbyPlayerSlot;
-import com.gruppe15.model.lobby.LobbyData;
-import com.gruppe15.utils.TextUtils;
+import com.group15.roborally.client.RoboRally;
+import com.group15.roborally.client.controller.AppController;
+import com.group15.roborally.client.coursecreator.CC_CourseData;
+import com.group15.roborally.client.model.Robots;
+import com.group15.roborally.client.exceptions.NoCoursesException;
+import com.group15.roborally.client.model.lobby.LobbyData;
+import com.group15.roborally.client.utils.TextUtils;
+import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.gruppe15.BoardOptions.*;
+import static com.group15.roborally.client.BoardOptions.*;
 
 /**
  * @author Maximillian Bjørn Mortensen
@@ -191,18 +191,9 @@ public class MultiplayerMenuView {
             playerSlots[i].setRobotByRobotName(lobbyData.robotNames()[i]);
             boolean thisPlayerIsHost = i == lobbyData.hostIndex();
             playerSlots[i].setHostStarVisible(thisPlayerIsHost);
-            playerSlots[i].setReadyCheckVisible(lobbyData.areReady()[i] == 1 || (thisPlayerIsHost && allAreReady(lobbyData, i)));
+            playerSlots[i].setReadyCheckVisible(lobbyData.areReady()[i] == 1);
         }
         updateUI();
-    }
-
-    private boolean allAreReady(LobbyData lobbyData, int h){
-        if(lobbyData.playerNames()[h] == null || lobbyData.robotNames()[h] == null || lobbyData.playerNames()[h].isBlank() || lobbyData.robotNames()[h].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[h]) == null) return false;
-        for(int i = 0; i < NO_OF_PLAYERS; i++){
-            if(i != h && (lobbyData.areReady()[i] == 0 || lobbyData.playerNames()[h].equals(lobbyData.playerNames()[i]) || lobbyData.robotNames()[h].equals(lobbyData.robotNames()[i]))) return false;
-        }
-        if (courses.isEmpty() || selectedCourse == null) return false;
-        return true;
     }
 
     /**
@@ -401,19 +392,19 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean isReady() {
-        if(lobbyData.playerNames()[0] == null || lobbyData.robotNames()[0] == null || lobbyData.playerNames()[0].isBlank() || lobbyData.robotNames()[0].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[0]) == null) return false;
+        if (lobbyData.playerNames()[0] == null || lobbyData.robotNames()[0] == null || lobbyData.playerNames()[0].isBlank() || lobbyData.robotNames()[0].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[0]) == null) return false;
         for (int i = 1; i < NO_OF_PLAYERS; i++) {
-            if(lobbyData.playerNames()[0].equals(lobbyData.playerNames()[i])) return false;
-            if(lobbyData.robotNames()[0].equals(lobbyData.robotNames()[i])) return false;
+            if (lobbyData.playerNames()[0].equals(lobbyData.playerNames()[i])) return false;
+            if (lobbyData.robotNames()[0].equals(lobbyData.robotNames()[i])) return false;
         }
-        if(isHost) {
-            for(int i = 1; i < NO_OF_PLAYERS; i++){
-                if(lobbyData.areReady()[i] == 0){
+        if (isHost) {
+            for (int i = 1; i < NO_OF_PLAYERS; i++) {
+                if (lobbyData.areReady()[i] == 0) {
                     return false;
                 }
             }
             if (courses.isEmpty()) return false;
-            if(selectedCourse == null) return false;
+            if (selectedCourse == null) return false;
         }
 
         return true;
@@ -423,12 +414,6 @@ public class MultiplayerMenuView {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (lobbyData.playerNames()[i] == null || lobbyData.robotNames()[i] == null) return false;
             if (Robots.getRobotByName(lobbyData.robotNames()[i]) == null) return false;
-
-            if (lobbyData.areReady()[i] == 1) {
-                System.out.println("Player " + lobbyData.playerNames()[i] + " is ready.");
-            } else {
-                System.out.println("Player " + lobbyData.playerNames()[i] + " is NOT ready.");
-            }
         }
 
         // After that, we check for ready conditions.

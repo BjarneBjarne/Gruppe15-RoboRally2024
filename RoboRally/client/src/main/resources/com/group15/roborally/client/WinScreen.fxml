@@ -14,7 +14,7 @@
    <children>
       <ImageView fitHeight="1440.0" fitWidth="2560.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <image>
-            <Image url="@images/Background_MainMenu.png" />
+            <Image url="@images/Background_SelectionMenu.png" />
          </image>
          <viewport>
             <Rectangle2D />

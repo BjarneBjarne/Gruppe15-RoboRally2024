@@ -89,7 +89,7 @@ public class IOUtil {
         List<InputStream> jsonFiles = new ArrayList<>();
 
         // Get the URL of the directory
-        URL dirURL = RoboRally.class.getClassLoader().getResource(folderName);
+        URL dirURL = RoboRally.class.getResource(folderName);
         if (dirURL != null) {
             if (dirURL.getProtocol().equals("file")) {
                 // Load resources from the file system

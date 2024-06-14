@@ -54,7 +54,7 @@ public class CC_JsonUtil {
     public static List<CC_CourseData> getCoursesInFolder(String folderName) {
         List<InputStream> courseFiles;
         try {
-            courseFiles = IOUtil.loadJsonFilesFromResources("group15/roborally/" + folderName);
+            courseFiles = IOUtil.loadJsonFilesFromResources(folderName);
         } catch (IOException | URISyntaxException e) {
             // logger.error("Error loading JSON files from resources", e);
             throw new RuntimeException(e);

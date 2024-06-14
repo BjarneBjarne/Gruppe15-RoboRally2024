@@ -1,6 +1,7 @@
 package com.group15.roborally.client.model.lobby;
 import com.group15.roborally.client.model.Robots;
 import com.group15.roborally.client.utils.ImageUtils;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -11,6 +12,7 @@ import javafx.scene.text.Text;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class LobbyPlayerSlot {
+    private final Node rootNode;
     private final ImageView hostStarImageView;
     private final Text playerNameText;
     private final ImageView readyCheckImageView;
@@ -18,16 +20,16 @@ public class LobbyPlayerSlot {
     private final Text robotText;
     private final ComboBox<String> robotComboBox;
 
-    public LobbyPlayerSlot(ImageView hostStarImageView, Text playerNameText, ImageView readyCheckImageView, ImageView robotImageView, Text robotText, ComboBox<String> robotComboBox) {
+    public LobbyPlayerSlot(Node rootNode, ImageView hostStarImageView, Text playerNameText, ImageView readyCheckImageView, ImageView robotImageView, Text robotText, ComboBox<String> robotComboBox) {
+        this.rootNode = rootNode;
         this.hostStarImageView = hostStarImageView;
         this.playerNameText = playerNameText;
         this.readyCheckImageView = readyCheckImageView;
         this.robotImageView = robotImageView;
         this.robotText = robotText;
         this.robotComboBox = robotComboBox;
-        setRobotByRobotName(null);
-        setHostStarVisible(false);
-        setReadyCheckVisible(false);
+
+        setVisible(false);
     }
 
     public void setName(String name) {
@@ -65,11 +67,7 @@ public class LobbyPlayerSlot {
     }
 
     public void setVisible(boolean visible) {
-        playerNameText.setVisible(visible);
-        robotImageView.setVisible(visible);
-        robotText.setVisible(visible);
-        hostStarImageView.setVisible(visible);
-        readyCheckImageView.setVisible(visible);
+        rootNode.setVisible(visible);
     }
 
     public ComboBox<String> getRobotComboBox() {
