@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +29,16 @@ public class GameController {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
     }
-    
+
+
+    /**
+     * Endpoint to create a new game and insert it into the database in 'Games' table
+     * 
+     * @author  Marcus Rémi Lemser Eychenne, s230985
+     *          Tobias 
+     * 
+     * @return ResponseEntity<Long> - the generated id of the game created
+     */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createGame() {
         
@@ -44,53 +52,68 @@ public class GameController {
         return ResponseEntity.ok().body(game.getGameId());
     }
 
-    @PutMapping(value = "/join-game/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> joinGame(@RequestBody Long playerId, @PathVariable("gameId") Long gameId){
+    /**
+     * Endpoint to join an already existing game, update the number of players in game 
+     * and insert new player into the database
+     * 
+     * @author  Marcus Rémi Lemser Eychenne, s230985
+     *          Tobias 
+     * 
+     * @param playerId - the name of the player joining the game
+     * @param gameId - the id of the game to be joined
+     * 
+     * @return ResponseEntity<Long> - the generated id of the player created
+     */
+    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
         
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.badRequest().build();
         }
-        
-        Player player = playerRepository.findById(playerId).orElse(null);
-        if (player == null) {
+        if(playerRepository.existsByPlayerNameAndGameId(playerName, gameId)){
             return ResponseEntity.badRequest().build();
         }
-        
-        player.setGameId(game.getGameId());
+
+        Player player = new Player();
+        player.setPlayerName(playerName);
+        player.setGameId(gameId);
         playerRepository.save(player);
 
         game.setNrOfPlayers(game.getNrOfPlayers() + 1);
         gameRepository.save(game);
 
-        return ResponseEntity.ok().body(gameId);
+        return ResponseEntity.ok().body(player);
 
     }
 
+    /**
+     * Endpoint to get the list of players in a game
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * 
+     * @param gameId - the id of the game
+     * 
+     * @return ResponseEntity<List<Player>> - a response entity with the list of players in the game
+     */
     @GetMapping(value = "/{gameId}/players", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Player>> getLobby(@PathVariable("gameId") Long gameId){
         List<Player> players = playerRepository.findAllByGameId(gameId);
         return ResponseEntity.ok(players);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @RequestMapping(value = "/{gameId}")
-    public ResponseEntity<Long> addPlayer(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
-        
+    /**
+     * Endpoint to get a game by its id
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * 
+     * @param gameId - the id of the game
+     * 
+     * @return ResponseEntity<Game> - a response entity with the game
+     */
+    @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Game> getGame(@PathVariable("gameId") Long gameId){
         Game game = gameRepository.findById(gameId).orElse(null);
-        if (game == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Player player = new Player();
-        player.setPlayerName(playerName);
-        player.setRobotName(null);
-        player.setGameId(game.getGameId());
-        playerRepository.save(player);
-
-        game.setNrOfPlayers(game.getNrOfPlayers() + 1);
-        gameRepository.save(game);
-
-        return ResponseEntity.ok().body(player.getPlayerId());
+        return ResponseEntity.ok(game);
     }
 }
