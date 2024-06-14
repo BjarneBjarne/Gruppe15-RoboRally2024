@@ -126,7 +126,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <mainClass>com.group15.StartRoboRally</mainClass>
+                    <mainClass>com.group15.roborally.client.StartRoboRally</mainClass>
                 </configuration>
             </plugin>
 
@@ -146,7 +146,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.group15.StartRoboRally</mainClass>
+                            <mainClass>com.group15.roborally.client.StartRoboRally</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
@@ -171,7 +171,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.group15.StartRoboRally</mainClass>
+                    <mainClass>com.group15.roborally.client.StartRoboRally</mainClass>
                     <options>
                         <option>--add-modules</option>
                         <option>javafx.controls,javafx.fxml</option>

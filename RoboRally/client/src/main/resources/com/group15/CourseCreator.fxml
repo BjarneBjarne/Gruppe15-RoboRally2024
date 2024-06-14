@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane maxHeight="1440.0" maxWidth="2560.0" minHeight="1440.0" minWidth="2560.0" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group15.coursecreator.CC_Controller">
+<BorderPane maxHeight="1440.0" maxWidth="2560.0" minHeight="1440.0" minWidth="2560.0" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group15.roborally.coursecreator.CC_Controller">
    <top>
       <MenuBar fx:id="topPane" BorderPane.alignment="CENTER">
          <padding>
