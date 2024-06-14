@@ -108,7 +108,6 @@ public class ServerCommunication {
         }
     }
 
-
     // Utility methods
     private LobbyData requestUpdatedLobby(LobbyClientUpdate updateLobbyMessage) {
         // Prepare message to send
