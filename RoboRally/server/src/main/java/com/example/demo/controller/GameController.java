@@ -65,7 +65,7 @@ public class GameController {
      * 
      * @return ResponseEntity<String> - a response entity with the status of the request
      */
-    @PutMapping(value = "/join-game/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{gameId}/join-game", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> joinGame(@RequestBody Long playerId, @PathVariable("gameId") Long gameId){
         
         Game game = gameRepository.findById(gameId).orElse(null);
@@ -91,7 +91,7 @@ public class GameController {
     /**
      * Endpoint to get the list of players in a game
      * 
-     * @author  Marcus Rémi Lemser Eychenne, s230985
+     * @author Marcus Rémi Lemser Eychenne, s230985
      * 
      * @param gameId - the id of the game
      * 
@@ -101,5 +101,20 @@ public class GameController {
     public ResponseEntity<List<Player>> getLobby(@PathVariable("gameId") Long gameId){
         List<Player> players = playerRepository.findAllByGameId(gameId);
         return ResponseEntity.ok(players);
+    }
+
+    /**
+     * Endpoint to get a game by its id
+     * 
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * 
+     * @param gameId - the id of the game
+     * 
+     * @return ResponseEntity<Game> - a response entity with the game
+     */
+    @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Game> getGame(@PathVariable("gameId") Long gameId){
+        Game game = gameRepository.findById(gameId).orElse(null);
+        return ResponseEntity.ok(game);
     }
 }
