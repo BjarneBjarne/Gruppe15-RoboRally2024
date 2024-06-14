@@ -65,26 +65,24 @@ public class GameController {
      * 
      * @return ResponseEntity<Long> - the generated id of the player created
      */
-    @PutMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
+    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Player> joinGame(@RequestBody Player player, @PathVariable("gameId") Long gameId){
         
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.badRequest().build();
         }
-        if(playerRepository.existsByPlayerNameAndGameId(playerName)){
+        if(playerRepository.existsByPlayerNameAndGameId(player.getPlayerName(), gameId)){
             return ResponseEntity.badRequest().build();
         }
 
-        Player newPlayer = new Player();
-        newPlayer.setPlayerName(playerName);
-        newPlayer.setGameId(gameId);
-        playerRepository.save(newPlayer);
+        player.setGameId(gameId);
+        playerRepository.save(player);
 
         game.setNrOfPlayers(game.getNrOfPlayers() + 1);
         gameRepository.save(game);
 
-        return ResponseEntity.ok().body(newPlayer.getPlayerId());
+        return ResponseEntity.ok().body(player);
 
     }
 
