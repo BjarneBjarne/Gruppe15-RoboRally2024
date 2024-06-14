@@ -1,10 +1,12 @@
 package com.group15.communication;
 
 import com.google.gson.Gson;
-import com.group15.model.Robots;
-import com.group15.model.lobby.LobbyData;
+import com.gruppe15.model.lobby.LobbyClientUpdate;
+import com.gruppe15.model.lobby.LobbyClientJoin;
+import com.gruppe15.model.lobby.LobbyData;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -15,69 +17,127 @@ public class ServerCommunication {
     private boolean isConnectedToServer = false;
     private final Gson gson = new Gson();
 
-    public LobbyData createLobby(LobbyData lobbyData, String playerName) {
-        lobbyData.setPlayerName(playerName);
-        try {
-            lobbyData = lobbyPostRequest(lobbyData, "hostGame");
-        } catch (IOException | InterruptedException | URISyntaxException e) {
-            // TODO: Handle lobbyData error message
-            System.out.println("Couldn't create lobby.");
+    public LobbyData createLobby(String playerName) {
+        // Prepare message to send
+        String createLobbyMessageAsJson = gson.toJson(playerName);
+        // Send message and receive response
+        HttpResponse<String> createLobbyResponse = lobbyPostRequest(createLobbyMessageAsJson, "createLobby");
+        // Handle received message
+        LobbyData lobbyData = gson.fromJson(createLobbyResponse != null ? createLobbyResponse.body() : null, LobbyData.class);
+        if (lobbyData != null) {
+            System.out.println("Successfully created new lobby with gameId: " + lobbyData.gameId() + ".");
+            isConnectedToServer = true;
+        } else {
+            System.out.println("Failed to create a new lobby.");
         }
+
         return lobbyData;
     }
 
-    public LobbyData joinLobby(LobbyData lobbyData, long gameID, String playerName) {
-        lobbyData.setGameId(gameID);
-        lobbyData.setPlayerName(playerName);
-        try {
-            lobbyData = lobbyPostRequest(lobbyData, "joinGame");
-        } catch (IOException | InterruptedException | URISyntaxException e) {
-            // TODO: Handle lobbyData error message
-            System.out.println("Couldn't join lobby.");
+    public LobbyData joinLobby(String gameId, String playerName) {
+        // Prepare message to send
+        LobbyClientJoin joinLobbyMessage = new LobbyClientJoin(gameId, playerName);
+        String joinLobbyMessageAsJson = gson.toJson(joinLobbyMessage);
+        // Send message and receive response
+        HttpResponse<String> joinLobbyResponse = lobbyPostRequest(joinLobbyMessageAsJson, "joinLobby");
+        // Handle received message
+        LobbyData lobbyData = gson.fromJson(joinLobbyResponse != null ? joinLobbyResponse.body() : null, LobbyData.class);
+        if (lobbyData != null) {
+            System.out.println("Connected to game with gameId: " + lobbyData.gameId() + ".");
+            isConnectedToServer = true;
+        } else {
+            System.out.println("Failed to connect to game with gameId: " + gameId + ".");
         }
-        return lobbyData;
-    }
-
-    public LobbyData requestUpdatedLobby(LobbyData lobbyData) throws URISyntaxException, IOException, InterruptedException {
-        return lobbyPostRequest(lobbyData, "updateClient");
-    }
-
-    private LobbyData lobbyPostRequest(LobbyData lobbyData, String uriEndPoint) throws URISyntaxException, IOException, InterruptedException {
-        String lobbyAsJson = gson.toJson(lobbyData);
-
-        HttpRequest postRequest;
-        postRequest = HttpRequest.newBuilder()
-                .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(lobbyAsJson))
-                .build();
-
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpResponse<String> postResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        lobbyData = gson.fromJson(postResponse != null ? postResponse.body() : null, LobbyData.class);
-
-        isConnectedToServer = true;
-
-        System.out.println("Got data with gameID: " + lobbyData.getGameId());
 
         return lobbyData;
     }
 
-    public void leaveLobby() {
-        // TODO: tell the server that the player has left
-        isConnectedToServer = false;
+
+    // In-lobby messages
+    public LobbyData getUpdatedLobby(LobbyData lobbyData) {
+        LobbyClientUpdate updateCourseMessage = new LobbyClientUpdate(
+                lobbyData.playerId(),
+                lobbyData.gameId(),
+                lobbyData.playerNames()[0],
+                lobbyData.robotNames()[0],
+                lobbyData.areReady()[0],
+                lobbyData.courseName());
+        return requestUpdatedLobby(updateCourseMessage);
+    }
+    public LobbyData changeCourse(LobbyData lobbyData, String newCourseName) {
+        LobbyClientUpdate changeCourseMessage = new LobbyClientUpdate(
+                lobbyData.playerId(),
+                lobbyData.gameId(),
+                lobbyData.playerNames()[0],
+                lobbyData.robotNames()[0],
+                lobbyData.areReady()[0],
+                newCourseName);
+        return requestUpdatedLobby(changeCourseMessage);
+    }
+    public LobbyData setIsReady(LobbyData lobbyData, int isReady) {
+        LobbyClientUpdate toggleReadyMessage = new LobbyClientUpdate(
+                lobbyData.playerId(),
+                lobbyData.gameId(),
+                lobbyData.playerNames()[0],
+                lobbyData.robotNames()[0],
+                isReady,
+                lobbyData.courseName());
+        return requestUpdatedLobby(toggleReadyMessage);
+    }
+    public LobbyData changeRobot(LobbyData lobbyData, String robotName) {
+        LobbyClientUpdate changeRobotMessage = new LobbyClientUpdate(
+                lobbyData.playerId(),
+                lobbyData.gameId(),
+                lobbyData.playerNames()[0],
+                robotName,
+                lobbyData.areReady()[0],
+                lobbyData.courseName());
+        return requestUpdatedLobby(changeRobotMessage);
     }
 
-    public void playerReady() {
-        // TODO: tell the server that the player has left
+    public void leaveGame(long playerId) {
+        String leaveGameMessageAsJson = gson.toJson(playerId);
+        HttpResponse<String> leaveGameResponse = lobbyPostRequest(leaveGameMessageAsJson, "leaveGame");
+
+        // Handle received message
+        if (leaveGameResponse != null) {
+            System.out.println(leaveGameResponse.body());
+            isConnectedToServer = false;
+        } else {
+            System.out.println("Failed to leave game.");
+        }
     }
 
-    public void changePlayerRobot(Robots robot) {
-        // TODO: send new robot to server
+
+    // Utility methods
+    private LobbyData requestUpdatedLobby(LobbyClientUpdate updateLobbyMessage) {
+        // Prepare message to send
+        String updateLobbyMessageAsJson = gson.toJson(updateLobbyMessage);
+        // Send message and receive response
+        HttpResponse<String> updateLobbyResponse = lobbyPostRequest(updateLobbyMessageAsJson, "updateLobby");
+        // Handle received message
+        return gson.fromJson(updateLobbyResponse != null ? updateLobbyResponse.body() : null, LobbyData.class);
     }
 
-    public void changeCourse(String courseName) {
-        // TODO: change map and robot from
+    private HttpResponse<String> lobbyPostRequest(String message, String uriEndPoint) {
+        HttpResponse<String> serverResponse = null;
+        try {
+            HttpRequest postRequest;
+            postRequest = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/Lobby/" + uriEndPoint))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(message))
+                    .build();
+            HttpClient httpClient = HttpClient.newHttpClient();
+            serverResponse = httpClient.send(postRequest, HttpResponse.BodyHandlers.ofString());
+            // TODO: Handle lobbyClientToServer error message
+            //System.out.println(serverResponse.statusCode());
+        } catch (ConnectException e) {
+            System.out.println("Failed to connect to server.");
+        } catch (IOException | InterruptedException | URISyntaxException e) {
+            System.out.println(e.getMessage());
+        }
+        return serverResponse;
     }
 
     public boolean getIsConnectedToServer() {
