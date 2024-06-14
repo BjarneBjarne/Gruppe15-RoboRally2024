@@ -33,11 +33,11 @@ public enum CC_Items {
     public final Image image;
     public final boolean canBeRotated;
     CC_Items(String imageName, boolean canBeRotated) {
-        this.image = ImageUtils.getImageFromName("Board Pieces/" + imageName);
+        this.image = ImageUtils.getImageFromName("Board_Pieces/" + imageName);
         this.canBeRotated = canBeRotated;
     }
     CC_Items(String imageName) {
-        this.image = ImageUtils.getImageFromName("Board Pieces/" + imageName);
+        this.image = ImageUtils.getImageFromName("Board_Pieces/" + imageName);
         this.canBeRotated = false;
     }
 }

@@ -102,7 +102,7 @@ public class CC_CourseData {
                 for (int subBoardY = 0; subBoardY < subBoardHeight; subBoardY++) {
                     CC_SpaceView spaceView = subBoardSpaceViews[subBoardX][subBoardY];
                     boolean isOnStartBoard = boardWidth <= 3 || boardHeight <= 3;
-                    Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board Pieces/emptyStart.png" : "Board Pieces/empty.png");
+                    Image backgroundImage = ImageUtils.getImageFromName(isOnStartBoard ? "Board_Pieces/emptyStart.png" : "Board_Pieces/empty.png");
                     BoardElement boardElement = getBoardElementFromSpaceView(spaceView);
                     BE_Checkpoint checkpoint = getCheckpointFromSpaceView(spaceView);
                     int boardX = (int)(boardRelativePos.getX() + subBoardX);

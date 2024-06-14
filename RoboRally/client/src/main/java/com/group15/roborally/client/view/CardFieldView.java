@@ -238,7 +238,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 String cardFolderPath = "";
                 if (card instanceof CommandCard commandCard) {
                     cardImageName = cardName + ".png";
-                    cardFolderPath = "Cards/Programming Cards/";
+                    cardFolderPath = "Cards/Programming_Cards/";
                     if (commandCard.command.isNormalProgramCommand()) {
                         Image cardForegroundImage = ImageUtils.getImageFromName(cardFolderPath + "Foregrounds/" + cardImageName);
                         if (cardForegroundImage != null && field.player != null) {
@@ -248,7 +248,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                     }
                 } else if (card instanceof UpgradeCard) {
                     cardImageName =  cardName.toUpperCase() + ".png";
-                    cardFolderPath = "Cards/Upgrade Cards/";
+                    cardFolderPath = "Cards/Upgrade_Cards/";
                 } else {
                     cardImageName = "Card_Error.png";
                 }

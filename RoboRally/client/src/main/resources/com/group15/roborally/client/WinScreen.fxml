@@ -42,7 +42,7 @@
                      <children>
                         <ImageView fx:id="playerIMGB" fitHeight="400.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@images/Board%20Pieces/empty.png" />
+                              <Image url="@images/Board_Pieces/empty.png" />
                            </image>
                         </ImageView>
                         <ImageView fx:id="playerIMG" fitHeight="400.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
