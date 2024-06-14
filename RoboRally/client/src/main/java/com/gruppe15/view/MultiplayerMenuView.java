@@ -20,6 +20,7 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import org.checkerframework.checker.units.qual.N;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,7 +123,10 @@ public class MultiplayerMenuView {
             if (isHost) {
                 appController.beginCourse(selectedCourse, lobbyData);
             } else if (isReady()) {
-                appController.toggleIsReady(lobbyData);
+                // Toggling whether the player is ready.
+                int isReady = lobbyData.areReady()[0] == 0 ? 1 : 0;
+                lobbyData.areReady()[0] = isReady;
+                appController.setIsReady(lobbyData, isReady);
             }
         });
     }
@@ -145,8 +149,6 @@ public class MultiplayerMenuView {
      */
     public void setupLobby(AppController appController, LobbyData lobbyData, List<CC_CourseData> loadedCourses) {
         isHost = lobbyData.hostIndex() == 0;
-
-        System.out.println("Hostindex: " + lobbyData.hostIndex());
 
         initializeCourses(appController, loadedCourses);
         initializeLobby(appController);
@@ -187,10 +189,20 @@ public class MultiplayerMenuView {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             playerSlots[i].setName(lobbyData.playerNames()[i]);
             playerSlots[i].setRobotByRobotName(lobbyData.robotNames()[i]);
-            playerSlots[i].setHostStarVisible(i == lobbyData.hostIndex());
-            playerSlots[i].setReadyCheckVisible(lobbyData.areReady()[i] == 1);
+            boolean thisPlayerIsHost = i == lobbyData.hostIndex();
+            playerSlots[i].setHostStarVisible(thisPlayerIsHost);
+            playerSlots[i].setReadyCheckVisible(lobbyData.areReady()[i] == 1 || (thisPlayerIsHost && allAreReady(lobbyData, i)));
         }
         updateUI();
+    }
+
+    private boolean allAreReady(LobbyData lobbyData, int h){
+        if(lobbyData.playerNames()[h] == null || lobbyData.robotNames()[h] == null || lobbyData.playerNames()[h].isBlank() || lobbyData.robotNames()[h].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[h]) == null) return false;
+        for(int i = 0; i < NO_OF_PLAYERS; i++){
+            if(i != h && (lobbyData.areReady()[i] == 0 || lobbyData.playerNames()[h].equals(lobbyData.playerNames()[i]) || lobbyData.robotNames()[h].equals(lobbyData.robotNames()[i]))) return false;
+        }
+        if (courses.isEmpty() || selectedCourse == null) return false;
+        return true;
     }
 
     /**
@@ -292,7 +304,7 @@ public class MultiplayerMenuView {
         if (hostStarImageView == null || nameText == null || readyCheckImageView == null || robotImageView == null || (proxyPlayerRobotNameText == null && localPlayerRobotComboBox == null)) {
             System.out.println("One or more PlayerSlot UI elements could not be instantiated for the local player.");
         }
-        return new LobbyPlayerSlot(hostStarImageView, nameText, readyCheckImageView, robotImageView, proxyPlayerRobotNameText, localPlayerRobotComboBox);
+        return new LobbyPlayerSlot(playerVBox, hostStarImageView, nameText, readyCheckImageView, robotImageView, proxyPlayerRobotNameText, localPlayerRobotComboBox);
     }
 
     /**
@@ -364,7 +376,7 @@ public class MultiplayerMenuView {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateUI() {
-        for (int i = 1; i < 6; i++) {
+        for (int i = 0; i < 6; i++) {
             playerSlots[i].setVisible(i < NO_OF_PLAYERS);
         }
         if (isReady()) {
@@ -389,15 +401,39 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean isReady() {
+        if(lobbyData.playerNames()[0] == null || lobbyData.robotNames()[0] == null || lobbyData.playerNames()[0].isBlank() || lobbyData.robotNames()[0].isBlank() || Robots.getRobotByName(lobbyData.robotNames()[0]) == null) return false;
+        for (int i = 1; i < NO_OF_PLAYERS; i++) {
+            if(lobbyData.playerNames()[0].equals(lobbyData.playerNames()[i])) return false;
+            if(lobbyData.robotNames()[0].equals(lobbyData.robotNames()[i])) return false;
+        }
+        if(isHost) {
+            for(int i = 1; i < NO_OF_PLAYERS; i++){
+                if(lobbyData.areReady()[i] == 0){
+                    return false;
+                }
+            }
+            if (courses.isEmpty()) return false;
+            if(selectedCourse == null) return false;
+        }
+
+        return true;
+
+        /*System.out.println("Host has index: " + lobbyData.hostIndex());
         // First we check for null values
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (lobbyData.playerNames()[i] == null || lobbyData.robotNames()[i] == null) return false;
             if (Robots.getRobotByName(lobbyData.robotNames()[i]) == null) return false;
+
+            if (lobbyData.areReady()[i] == 1) {
+                System.out.println("Player " + lobbyData.playerNames()[i] + " is ready.");
+            } else {
+                System.out.println("Player " + lobbyData.playerNames()[i] + " is NOT ready.");
+            }
         }
 
         // After that, we check for ready conditions.
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            if (lobbyData.playerNames()[i].isBlank()) return false;
+            if (lobbyData.playerNames()[i].isBlank() || lobbyData.robotNames()[i].isBlank()) return false;
             if (i != lobbyData.hostIndex() && lobbyData.areReady()[i] == 0) return false; // We don't check ready for host.
 
             for (int j = NO_OF_PLAYERS - 1; j >= 0; j--) {
@@ -406,7 +442,7 @@ public class MultiplayerMenuView {
             }
         }
         if (courses.isEmpty()) return false;
-        return selectedCourse != null;
+        return selectedCourse != null;*/
     }
 
     /**
