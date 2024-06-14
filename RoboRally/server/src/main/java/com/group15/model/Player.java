@@ -16,7 +16,7 @@ public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long playerId;
-    private String gameId;
+    private long gameId;
     private String robotName;
     private String playerName;
     private int isReady;

@@ -39,7 +39,7 @@ public class GameController {
      * 
      * @return ResponseEntity<Long> - the generated id of the game created
      */
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping()
     public ResponseEntity<Long> createGame() {
         
         Game game = new Game();

@@ -20,11 +20,11 @@ public class ProgController {
         this.registerRepository = registerRepository;
     }
 
-    @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Register[]> getRegisters(@PathVariable("gameId") long gameId) {
-        Register[] registers = registerRepository.findByGameId(gameId);
-        return ResponseEntity.ok(registers);
-    }
+    // @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<Register[]> getRegisters(@PathVariable("gameId") long gameId) {
+    //     Register[] registers = registerRepository.findByGameId(gameId);
+    //     return ResponseEntity.ok(registers);
+    // }
 
     @PostMapping(value = "/games/{gameId}/registers/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void postRegister(@RequestBody Register register, @PathVariable("playerId") long playerId) {
