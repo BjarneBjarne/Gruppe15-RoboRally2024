@@ -1,7 +1,6 @@
 package com.group15.test;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 
