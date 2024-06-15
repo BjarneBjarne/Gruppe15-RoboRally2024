@@ -7,5 +7,5 @@ import com.group15.roborally.server.model.Register;
 public interface RegisterRepository extends JpaRepository<Register, Long> {
     Register findByPlayerId(Long playerId);
 
-    Register[] findByGameId(long gameId);
+    // Register[] findByGameId(long gameId);
 }
