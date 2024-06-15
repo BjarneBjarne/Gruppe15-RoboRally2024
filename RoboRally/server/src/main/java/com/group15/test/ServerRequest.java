@@ -94,10 +94,10 @@ public class ServerRequest {
      * @param playerId - id of the player to update
      * @return message - message from the server
      */
-    public String updatePlayer(Player player, Long playerId) {
+    public String updatePlayer(Player player) {
         
         String message = sendRequest(
-            baseUrl + "/players/" + playerId, 
+            baseUrl + "/players/" + player.getPlayerId(), 
             HttpMethod.PUT, 
             player, 
             new ParameterizedTypeReference<String>() {}
