@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.server.model.Market;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.repository.GameRepository;
+import com.group15.roborally.server.repository.MarketRepository;
 
 @RestController
 @RequestMapping("/games")
@@ -24,10 +26,12 @@ public class GameController {
 
     PlayerRepository playerRepository;
     GameRepository gameRepository;
+    MarketRepository marketRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository marketRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
+        this.marketRepository = marketRepository;
     }
 
 
@@ -48,6 +52,11 @@ public class GameController {
         game.setPhase(GamePhase.LOBBY);
 
         gameRepository.save(game);
+
+        Market market = new Market();
+        market.setGameId(game.getGameId());
+        market.setTurn(1);
+        marketRepository.save(market);
 
         return ResponseEntity.ok().body(game.getGameId());
     }
