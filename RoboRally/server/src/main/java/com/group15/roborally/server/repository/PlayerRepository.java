@@ -11,7 +11,7 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     Player findByPlayerId(Long playerId);
 
-    Player PlayerIdAndGameId(String playerName, Long gameId);
+    Player PlayerIdAndGameId(Long playerId, Long gameId);
 
     boolean existsByPlayerNameAndGameId(String playerName, Long gameId);
 }
