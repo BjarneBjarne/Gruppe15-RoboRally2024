@@ -14,7 +14,7 @@ public class ServerTest_2 {
         System.out.println(gameId);
 
         // Join game
-        Player player = serverRequest.joinGame(gameId, "Marcus");
+        Player player = serverRequest.joinGame(gameId, "John");
         System.out.println(player.getGameId());
 
         // List of players
