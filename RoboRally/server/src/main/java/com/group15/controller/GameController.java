@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.group15.model.Game;
 import com.group15.model.GamePhase;
+import com.group15.model.Market;
 import com.group15.model.Player;
 import com.group15.repository.GameRepository;
+import com.group15.repository.MarketRepository;
 import com.group15.repository.PlayerRepository;
 
 @RestController
@@ -24,10 +26,12 @@ public class GameController {
 
     PlayerRepository playerRepository;
     GameRepository gameRepository;
+    MarketRepository markRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository markRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
+        this.markRepository = markRepository;
     }
 
 
@@ -48,6 +52,11 @@ public class GameController {
         game.setPhase(GamePhase.LOBBY);
 
         gameRepository.save(game);
+
+        Market market = new Market();
+        market.setGameId(game.getGameId());
+        market.setTurn(1);
+        markRepository.save(market);
 
         return ResponseEntity.ok().body(game.getGameId());
     }

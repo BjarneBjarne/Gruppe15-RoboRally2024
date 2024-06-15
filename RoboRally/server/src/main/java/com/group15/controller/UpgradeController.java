@@ -72,6 +72,14 @@ public class UpgradeController {
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postMarket(@RequestBody String[] marketCards, @PathVariable("gameId") long gameId) {
         Market market = markRepository.findById(gameId).orElse(null);
+        if (market == null) {
+            Market newMarket = new Market();
+            newMarket.setGameId(gameId);
+            newMarket.setTurn(1);
+            newMarket.setCards(marketCards);
+            markRepository.save(newMarket);
+            return ResponseEntity.ok().build();
+        }
         market.setCards(marketCards); 
         markRepository.save(market);
         return ResponseEntity.ok().build();
