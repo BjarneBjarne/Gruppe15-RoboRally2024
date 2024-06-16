@@ -72,7 +72,7 @@ public class AppController implements Observer {
     private GameController gameController;
 
     private MultiplayerMenuView multiplayerMenuView;
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080");
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Remote server: 129.151.221.13
     private ScheduledExecutorService lobbyUpdateScheduler;
 
     private List<CC_CourseData> courses = new ArrayList<>();
