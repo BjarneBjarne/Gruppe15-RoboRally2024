@@ -24,6 +24,7 @@ import javafx.scene.text.TextAlignment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.group15.roborally.client.BoardOptions.*;
 
@@ -119,18 +120,19 @@ public class MultiplayerMenuView {
 
         updateLobby(game, players);
 
-        setConnectionInfo("");
-        showLobby(true);
-
         updateUI();
     }
 
-    public void failedToConnect() {
-        setConnectionInfo("");
-        showLobby(false);
-    }
-
     public void updateLobby(Game game, List<Player> players) {
+        // Check if any change has happened
+        boolean hasChanges = this.game == null || this.players == null ||
+                this.game.hasChanges(game) ||
+                this.players.size() != players.size() ||
+                IntStream.range(0, players.size()).anyMatch(i -> this.players.get(i).hasChanges(players.get(i)));
+        if (!hasChanges) {
+            return; // If there are no changes, return.
+        }
+
         // Variables
         this.game = game;
         this.players = players;
@@ -150,10 +152,6 @@ public class MultiplayerMenuView {
             lobbySelectedCourseImageView.setImage(null);
             lobbySelectedCourseText.setText("Selected course");
         }
-
-        players.forEach(player -> {
-
-        });
 
         // Players
         int slotIndexer = 1;
@@ -353,7 +351,6 @@ public class MultiplayerMenuView {
         // Join button
         multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank() && !multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
-                setConnectionInfo("Attempting to connect to server...");
                 appController.tryJoinGameWithGameID(Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
@@ -361,7 +358,6 @@ public class MultiplayerMenuView {
         // Host button
         multiplayerMenuButtonHost.setOnMouseClicked(e -> {
             if (!multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
-                setConnectionInfo("Waiting for server...");
                 appController.tryCreateAndJoinGame(multiplayerMenuTextFieldPlayerName.getText());
             }
         });
@@ -446,7 +442,6 @@ public class MultiplayerMenuView {
     public void showLobby(boolean showLobby) {
         multiplayerMenuLobbyPane.setVisible(showLobby);
         multiplayerMenuLobbyPane.setDisable(!showLobby);
-
         multiplayerMenuPaneJoinOrHost.setVisible(!showLobby);
         multiplayerMenuPaneJoinOrHost.setDisable(showLobby);
     }
@@ -456,14 +451,15 @@ public class MultiplayerMenuView {
      * @param connectionInfo If blank, hides the connection info pane. If not, shows the pane and sets the connection info text to connectionInfo.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void setConnectionInfo(String connectionInfo) {
-        if (connectionInfo == null || connectionInfo.isBlank()) {
-            multiplayerMenuPaneConnectionInfo.setVisible(false);
-            multiplayerMenuPaneConnectionInfo.setDisable(true);
-        } else {
+    public void setConnectionInfo(String connectionInfo) {
+        if (connectionInfo != null && !connectionInfo.isBlank()) {
             multiplayerMenuTextConnectionInfo.setText(connectionInfo);
+            System.out.println(connectionInfo);
             multiplayerMenuPaneConnectionInfo.setVisible(true);
             multiplayerMenuPaneConnectionInfo.setDisable(false);
+        } else {
+            multiplayerMenuPaneConnectionInfo.setVisible(false);
+            multiplayerMenuPaneConnectionInfo.setDisable(true);
         }
     }
 
