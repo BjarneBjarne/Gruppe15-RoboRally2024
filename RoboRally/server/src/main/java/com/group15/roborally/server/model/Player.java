@@ -30,10 +30,12 @@ public class Player {
      * @throws IllegalArgumentException If the argument player has another playerId than this.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public boolean hasChanges(Player player) throws IllegalArgumentException {
+    public boolean hasChanged(Player player) throws IllegalArgumentException {
         if (this.playerId != player.playerId) {
             throw new IllegalArgumentException("This playerId is: \"" + this.playerId + "\". Argument player has playerId: \"" + player.playerId + "\". Can't compare two different players.");
         }
-        return !Objects.equals(this.robotName, player.robotName) || !Objects.equals(this.playerName, player.playerName) || this.isReady != player.isReady;
+        return  (this.robotName != null && player.robotName != null && !Objects.equals(this.robotName, player.robotName)) ||
+                (this.playerName != null && player.playerName != null && !Objects.equals(this.playerName, player.playerName)) ||
+                 this.isReady != player.isReady;
     }
 }

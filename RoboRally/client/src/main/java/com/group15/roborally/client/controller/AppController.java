@@ -106,7 +106,7 @@ public class AppController implements Observer {
     public void tryCreateAndJoinGame(String playerName) {
         multiplayerMenuView.setConnectionInfo("Creating new game...");
         AtomicLong gameId = new AtomicLong();
-        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame()), random.nextInt(500, 1000)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame()), random.nextInt(125, 500)), () -> {
             if (gameId.get() != -1) {
                 runActionAndCallback(new ActionWithDelay(() -> {
                     multiplayerMenuView.setConnectionInfo("Successfully created new game!");
@@ -134,7 +134,7 @@ public class AppController implements Observer {
     public void tryJoinGameWithGameID(long gameId, String playerName) {
         multiplayerMenuView.setConnectionInfo("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
-        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(gameId, playerName)), random.nextInt(500, 1000)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(gameId, playerName)), random.nextInt(125, 500)), () -> {
             if (player.get() != null) {
                 runActionAndCallback(new ActionWithDelay(() -> {
                     multiplayerMenuView.setConnectionInfo("Successfully joined game!");

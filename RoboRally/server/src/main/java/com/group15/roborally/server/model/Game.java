@@ -29,10 +29,13 @@ public class Game {
      * @throws IllegalArgumentException If the argument game has another gameId than this.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public boolean hasChanges(Game game) throws IllegalArgumentException {
+    public boolean hasChanged(Game game) throws IllegalArgumentException {
         if (this.gameId != game.gameId) {
             throw new IllegalArgumentException("This gameId is: \"" + this.gameId + "\". Argument game has gameId: \"" + game.gameId + "\". Can't compare two different games.");
         }
-        return this.turnId != game.turnId || this.hostId != game.hostId || this.nrOfPlayers != game.nrOfPlayers || this.phase != game.phase || this.courseName.equals(game.courseName);
+        return  this.turnId != game.turnId ||
+                this.hostId != game.hostId ||
+                this.nrOfPlayers != game.nrOfPlayers ||
+                this.phase != game.phase || (this.courseName != null && game.courseName != null && this.courseName.equals(game.courseName));
     }
 }
