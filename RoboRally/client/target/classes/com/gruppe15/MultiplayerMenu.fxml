@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fitHeight="1440.0" fitWidth="2560.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Background_SelectionMenu3.png" />
+         </image>
+         <viewport>
+            <Rectangle2D />
+         </viewport>
+      </ImageView>
+      <StackPane fx:id="multiplayerMenuPaneJoinOrHost" layoutX="10.0" layoutY="10.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Multiplayer" StackPane.alignment="TOP_CENTER">
+               <font>
+                  <Font name="OCR A Extended" size="148.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets top="40.0" />
+               </StackPane.margin>
+            </Text>
+            <VBox alignment="BOTTOM_CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" spacing="25.0" StackPane.alignment="CENTER">
+               <children>
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Enter a name to join or host:" textAlignment="CENTER" wrappingWidth="750.0">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="multiplayerMenuTextFieldPlayerName" alignment="CENTER" prefHeight="100.0" prefWidth="450.0" promptText="Player name..." style="-fx-background-radius: 15;">
+                     <font>
+                        <Font name="OCR A Extended" size="32.0" />
+                     </font>
+                     <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                     </padding>
+                  </TextField>
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Connect to an existing lobbyData by entering the Game ID below:" textAlignment="CENTER" wrappingWidth="750.0">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="100.0" />
+                     </VBox.margin>
+                  </Text>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <TextField fx:id="multiplayerMenuTextFieldGameID" alignment="CENTER" prefHeight="100.0" prefWidth="450.0" promptText="Game ID..." style="-fx-background-radius: 15;">
+                           <font>
+                              <Font name="OCR A Extended" size="32.0" />
+                           </font>
+                           <padding>
+                              <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                           </padding>
+                        </TextField>
+                        <Button fx:id="multiplayerMenuButtonJoin" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                           <font>
+                              <Font name="OCR A Extended" size="30.0" />
+                           </font>
+                           <graphic>
+                              <StackPane mouseTransparent="true">
+                                 <children>
+                                    <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Join" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                       <font>
+                                          <Font name="OCR A Extended" size="55.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </StackPane>
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Create a new lobbyData as host:" textAlignment="CENTER" wrappingWidth="750.0">
+                     <font>
+                        <Font name="OCR A Extended" size="36.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="300.0" />
+                     </VBox.margin>
+                  </Text>
+                  <Button fx:id="multiplayerMenuButtonHost" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="300.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                     <font>
+                        <Font name="OCR A Extended" size="30.0" />
+                     </font>
+                     <graphic>
+                        <StackPane mouseTransparent="true">
+                           <children>
+                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Host" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="55.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </StackPane>
+                     </graphic>
+                  </Button>
+               </children>
+               <StackPane.margin>
+                  <Insets top="100.0" />
+               </StackPane.margin>
+            </VBox>
+         </children>
+      </StackPane>
+      <StackPane fx:id="multiplayerMenuLobbyPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox alignment="TOP_CENTER" StackPane.alignment="CENTER">
+               <children>
+                  <Text fx:id="lobbyTextGameID" fill="#dabf51" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Game ID: " textAlignment="CENTER">
+                     <font>
+                        <Font name="OCR A Extended" size="148.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="50.0" top="40.0" />
+                     </VBox.margin>
+                  </Text>
+                  <AnchorPane>
+                     <children>
+                        <VBox alignment="TOP_CENTER" prefHeight="940.0" prefWidth="350.0" AnchorPane.leftAnchor="90.0">
+                           <children>
+                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Courses" textAlignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="64.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="25.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <ScrollPane fx:id="lobbyCoursesScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="940.0" style="-fx-background-color: transparent;" vbarPolicy="NEVER">
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                                 <content>
+                                    <VBox fx:id="lobbyCoursesVBox" alignment="TOP_CENTER" spacing="35.0" style="-fx-background-color: transparent;">
+                                       <padding>
+                                          <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                       </padding>
+                                    </VBox>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" spacing="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="475.0" AnchorPane.rightAnchor="575.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <VBox fx:id="lobbyVBoxLocalPlayer" alignment="CENTER" fillWidth="false">
+                                 <children>
+                                    <HBox alignment="CENTER">
+                                       <children>
+                                          <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+
+
+
+
+
+
+
+                                             <image>
+                                                <Image url="@images/HostStar.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                             <font>
+                                                <Font name="OCR A Extended" size="48.0" />
+                                             </font>
+                                             <HBox.margin>
+                                                <Insets left="15.0" right="15.0" />
+                                             </HBox.margin>
+                                          </Text>
+
+
+
+
+                                          <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/ReadyCheck.png" />
+                                             </image>
+                                          </ImageView>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="25.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <ImageView fitHeight="300.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                       </image>
+                                    </ImageView>
+                                    <ComboBox prefHeight="50.0" prefWidth="300.0" promptText="Character" VBox.vgrow="SOMETIMES">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </ComboBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets top="100.0" />
+                                 </VBox.margin>
+                              </VBox>
+                              <HBox fx:id="lobbyHBoxProxyPlayers" alignment="CENTER" spacing="50.0">
+                                 <children>
+                                    <VBox alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                   <font>
+                                                      <Font name="OCR A Extended" size="28.0" />
+                                                   </font>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" right="10.0" />
+                                                   </HBox.margin>
+                                                </Text>
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/ReadyCheck.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ImageView fitHeight="125.0" fitWidth="125.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                             <font>
+                                                <Font name="OCR A Extended" size="20.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" fillWidth="false" layoutX="637.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                   <font>
+                                                      <Font name="OCR A Extended" size="28.0" />
+                                                   </font>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" right="10.0" />
+                                                   </HBox.margin>
+                                                </Text>
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/ReadyCheck.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ImageView fitHeight="125.0" fitWidth="125.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                             <font>
+                                                <Font name="OCR A Extended" size="20.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" fillWidth="false" layoutX="790.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                   <font>
+                                                      <Font name="OCR A Extended" size="28.0" />
+                                                   </font>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" right="10.0" />
+                                                   </HBox.margin>
+                                                </Text>
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/ReadyCheck.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ImageView fitHeight="125.0" fitWidth="125.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                             <font>
+                                                <Font name="OCR A Extended" size="20.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" fillWidth="false" layoutX="944.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                   <font>
+                                                      <Font name="OCR A Extended" size="28.0" />
+                                                   </font>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" right="10.0" />
+                                                   </HBox.margin>
+                                                </Text>
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/ReadyCheck.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ImageView fitHeight="125.0" fitWidth="125.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                             <font>
+                                                <Font name="OCR A Extended" size="20.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" fillWidth="false" layoutX="1097.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/HostStar.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Player Name">
+                                                   <font>
+                                                      <Font name="OCR A Extended" size="28.0" />
+                                                   </font>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" right="10.0" />
+                                                   </HBox.margin>
+                                                </Text>
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+
+
+
+
+
+                                                   <image>
+                                                      <Image url="@images/ReadyCheck.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ImageView fitHeight="125.0" fitWidth="125.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@images/Robots/CharacterSelection/RobotSelection_Orange.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Robot Name">
+                                             <font>
+                                                <Font name="OCR A Extended" size="20.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" prefWidth="475.0" AnchorPane.rightAnchor="75.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Settings">
+                                 <font>
+                                    <Font name="OCR A Extended" size="64.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="25.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <AnchorPane layoutX="10.0" layoutY="102.0" minWidth="400.0" prefWidth="1000.0">
+                                 <children>
+                                    <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                       <children>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Keep hand">
+                                             <font>
+                                                <Font name="OCR A Extended" size="28.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </StackPane>
+                                    <ComboBox fx:id="lobbySettingsKeepHand" nodeOrientation="LEFT_TO_RIGHT" prefHeight="45.0" prefWidth="75.0" visibleRowCount="5" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </ComboBox>
+                                 </children>
+                              </AnchorPane>
+                              <AnchorPane layoutX="10.0" layoutY="147.0" minWidth="400.0" prefWidth="1000.0">
+                                 <children>
+                                    <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                       <children>
+                                          <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" text="Draw on empty register">
+                                             <font>
+                                                <Font name="OCR A Extended" size="28.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                    </StackPane>
+                                    <ComboBox fx:id="lobbySettingsDrawOnEmpty" nodeOrientation="LEFT_TO_RIGHT" prefHeight="45.0" prefWidth="75.0" visibleRowCount="5" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </ComboBox>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="BOTTOM_RIGHT">
+               <children>
+                  <StackPane mouseTransparent="true">
+                     <children>
+                        <Text fx:id="lobbySelectedCourseText" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Selected course" textAlignment="CENTER">
+                           <font>
+                              <Font name="OCR A Extended" size="48.0" />
+                           </font>
+                           <StackPane.margin>
+                              <Insets bottom="10.0" />
+                           </StackPane.margin>
+                        </Text>
+                     </children>
+                  </StackPane>
+                  <ImageView fx:id="lobbySelectedCourseImageView" fitHeight="450.0" fitWidth="450.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+                     <VBox.margin>
+                        <Insets bottom="50.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <Button fx:id="lobbyButtonStart" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" style="-fx-background-color: ffffff60; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER" textFill="#993a3a85">
+                     <font>
+                        <Font name="OCR A Extended" size="32.0" />
+                     </font>
+                     <graphic>
+                        <StackPane mouseTransparent="true">
+                           <children>
+                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Start" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="96.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </StackPane>
+                     </graphic>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Button>
+               </children>
+               <StackPane.margin>
+                  <Insets bottom="60.0" right="90.0" />
+               </StackPane.margin>
+            </VBox>
+         </children>
+      </StackPane>
+      <AnchorPane layoutX="10.0" layoutY="10.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="128.0">
+         <children>
+            <VBox alignment="BOTTOM_CENTER">
+               <children>
+                  <Button fx:id="multiplayerMenuButtonBack" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+                     <font>
+                        <Font name="OCR A Extended" size="32.0" />
+                     </font>
+                     <graphic>
+                        <StackPane mouseTransparent="true">
+                           <children>
+                              <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Back" textAlignment="CENTER" StackPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="OCR A Extended" size="96.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </StackPane>
+                     </graphic>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+      <StackPane fx:id="multiplayerMenuPaneConnectionInfo" disable="true" style="-fx-background-color: #000000A5;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Text fx:id="multiplayerMenuTextConnectionInfo" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Waiting for server..." textAlignment="CENTER" StackPane.alignment="CENTER">
+               <font>
+                  <Font name="OCR A Extended" size="124.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="75.0" />
+               </StackPane.margin>
+            </Text>
+         </children>
+      </StackPane>
+   </children>
+</AnchorPane>
