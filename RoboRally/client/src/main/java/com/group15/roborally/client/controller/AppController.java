@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder;
 
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
 
 import com.group15.roborally.client.model.*;
@@ -140,7 +141,7 @@ public class AppController implements Observer {
                     multiplayerMenuView.setConnectionInfo("Successfully joined game!");
                     connectedToGame(gameId, player.get());
                     multiplayerMenuView.showLobby(true);
-                }, 1000), () -> {
+                }, 500), () -> {
                     multiplayerMenuView.setConnectionInfo("");
                 });
             } else {
@@ -173,12 +174,6 @@ public class AppController implements Observer {
         startUpdateGameLoop();
     }
 
-    public void changeCourse(Game game, CC_CourseData chosenCourse) {
-        game.setCourseName(chosenCourse.getCourseName());
-        String serverResponse = serverCommunication.updateGame(game);
-        if (serverResponse != null) System.out.println(serverResponse);
-    }
-
     public void changeRobot(Player player, String robotName) {
         player.setRobotName(robotName);
         String serverResponse = serverCommunication.updatePlayer(player);
@@ -188,6 +183,18 @@ public class AppController implements Observer {
     public void setIsReady(Player player, int isReady) {
         player.setIsReady(isReady);
         String serverResponse = serverCommunication.updatePlayer(player);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void changeCourse(Game game, CC_CourseData chosenCourse) {
+        game.setCourseName(chosenCourse.getCourseName());
+        String serverResponse = serverCommunication.updateGame(game);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void setGameStart(Game game) {
+        game.setPhase(GamePhase.PROGRAMMING);
+        String serverResponse = serverCommunication.updateGame(game);
         if (serverResponse != null) System.out.println(serverResponse);
     }
 
@@ -220,7 +227,7 @@ public class AppController implements Observer {
 
     public void updateGame(Game updatedGameData, List<Player> updatedPlayers) {
         if (serverCommunication.getIsConnectedToServer()) {
-            multiplayerMenuView.updateLobby(updatedGameData, updatedPlayers);
+            multiplayerMenuView.updateLobby(this, updatedGameData, updatedPlayers, false);
         }
     }
 
@@ -228,7 +235,7 @@ public class AppController implements Observer {
      * Method for manually leaving the server and game.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void disconnectFromServer() {
+    public void disconnectFromServer() { // TODO: Disconnect from server if the host leaves.
         if (serverCommunication.getIsConnectedToServer()) {
             serverCommunication.deletePlayer(multiplayerMenuView.getCurrentLocalPlayer());
             stopLobbyUpdateLoop();

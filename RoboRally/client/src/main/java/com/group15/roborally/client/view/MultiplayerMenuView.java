@@ -7,6 +7,7 @@ import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -85,10 +86,7 @@ public class MultiplayerMenuView {
     private List<Player> players;
     private boolean isHost = false;
     private CC_CourseData selectedCourse = null;
-
-    public MultiplayerMenuView() {
-
-    }
+    private boolean hasStartedGameLocally = false; // Failsafe to keep the application from starting the game more than once per lobby.
 
     /**
      * Initializes the multiplayer menu.
@@ -106,6 +104,7 @@ public class MultiplayerMenuView {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void setupLobby(AppController appController, Game game, Player localPlayer, List<Player> players, List<CC_CourseData> loadedCourses) {
+        hasStartedGameLocally = false;
         this.game = game;
         this.localPlayer = localPlayer;
         this.players = players;
@@ -118,17 +117,23 @@ public class MultiplayerMenuView {
         lobbyTextGameID.setText("Game ID: " + game.getGameId());
         playerSlots[0].setName(localPlayer.getPlayerName());
 
-        updateLobby(game, players);
+        updateLobby(appController, game, players, true);
 
         updateUI();
     }
 
-    public void updateLobby(Game game, List<Player> players) {
+    public void updateLobby(AppController appController, Game game, List<Player> players, boolean isFirstUpdate) {
+        // Check for start game
+        if (game.getPhase() != GamePhase.LOBBY && !hasStartedGameLocally) {
+            hasStartedGameLocally = true;
+            appController.beginCourse(selectedCourse, players);
+        }
+
         // Check if any change has happened
-        boolean hasChanges = this.game == null || this.players == null ||
+        boolean hasChanges = isFirstUpdate || this.game == null || this.players == null ||
                 this.game.hasChanged(game) ||
                 this.players.size() != players.size() ||
-                IntStream.range(0, players.size()).anyMatch(i -> this.players.get(i).hasChanged(players.get(i)));
+                IntStream.range(0, players.size()).anyMatch(i -> this.players.get(i) == null || players.get(i) == null || this.players.get(i).hasChanged(players.get(i)));
         if (!hasChanges) {
             return; // If there are no changes, return.
         }
@@ -313,7 +318,10 @@ public class MultiplayerMenuView {
                     // Course buttons OnMouseClicked
                     courseButton.setOnMouseClicked(e -> {
                         if (isHost) {
-                            appController.changeCourse(game, course);
+                            selectedCourse = course;
+                            appController.changeCourse(game, selectedCourse);
+                            lobbySelectedCourseImageView.setImage(selectedCourse.getImage());
+                            lobbySelectedCourseText.setText(selectedCourse.getCourseName().toUpperCase());
                         }
                     });
                     courseButton.setDisable(!isHost);
@@ -364,13 +372,15 @@ public class MultiplayerMenuView {
 
         // Ready/Start button
         lobbyButtonStart.setOnMouseClicked(e -> {
-            if (isHost) {
-                appController.beginCourse(selectedCourse, players);
-            } else if (canReadyOrStart()) {
-                // Toggling whether the player is ready.
-                int isReady = localPlayer.getIsReady() == 0 ? 1 : 0;
-                localPlayer.setIsReady(isReady);
-                appController.setIsReady(localPlayer, isReady);
+            if (canReadyOrStart()) {
+                if (isHost) {
+                    appController.setGameStart(game);
+                } else {
+                    // Toggling whether the player is ready.
+                    int isReady = localPlayer.getIsReady() == 0 ? 1 : 0;
+                    localPlayer.setIsReady(isReady);
+                    appController.setIsReady(localPlayer, isReady);
+                }
             }
         });
     }

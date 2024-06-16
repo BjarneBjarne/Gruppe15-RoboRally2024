@@ -137,7 +137,7 @@ public class GameController {
      */
     public void updateNoOfPlayersByGame(Game game) {
         int newNoOfPlayers = playerRepository.findAllByGameId(game.getGameId()).size();
-        if (newNoOfPlayers == 0) {
+        if (newNoOfPlayers == 0) { // Evt. også hvis "game.phase == GamePhase.LOBBY", hvis vi skal gemme spillere under spillet.
             gameRepository.delete(game);
         } else {
             game.setNrOfPlayers(newNoOfPlayers);
