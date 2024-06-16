@@ -126,9 +126,9 @@ public class MultiplayerMenuView {
     public void updateLobby(Game game, List<Player> players) {
         // Check if any change has happened
         boolean hasChanges = this.game == null || this.players == null ||
-                this.game.hasChanges(game) ||
+                this.game.hasChanged(game) ||
                 this.players.size() != players.size() ||
-                IntStream.range(0, players.size()).anyMatch(i -> this.players.get(i).hasChanges(players.get(i)));
+                IntStream.range(0, players.size()).anyMatch(i -> this.players.get(i).hasChanged(players.get(i)));
         if (!hasChanges) {
             return; // If there are no changes, return.
         }

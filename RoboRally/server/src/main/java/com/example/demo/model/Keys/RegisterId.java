@@ -7,15 +7,12 @@ public class RegisterId implements Serializable {
     private long playerId;
     private int turnId;
 
-    // Default constructor
     public RegisterId() {}
 
     public RegisterId(long playerId, int turnId) {
         this.playerId = playerId;
         this.turnId = turnId;
     }
-
-    // Getters and setters, equals() and hashCode() methods
 
     @Override
     public boolean equals(Object o) {
