@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "games")
 @Getter
@@ -36,6 +38,7 @@ public class Game {
         return  this.turnId != game.turnId ||
                 this.hostId != game.hostId ||
                 this.nrOfPlayers != game.nrOfPlayers ||
-                this.phase != game.phase || (this.courseName != null && game.courseName != null && this.courseName.equals(game.courseName));
+                this.phase != game.phase ||
+                ((this.courseName != null || game.courseName != null) && !Objects.equals(this.courseName, game.courseName));
     }
 }

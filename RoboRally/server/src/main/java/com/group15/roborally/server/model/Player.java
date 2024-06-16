@@ -24,18 +24,15 @@ public class Player {
     private int isReady;
 
     /**
-     * Compares whether the player has had variables changed between "this" and the argument playerId.
+     * Compares two player objects.
      * @param player The player at another point. Must have same playerId.
      * @return Whether the player has had any variables changed.
-     * @throws IllegalArgumentException If the argument player has another playerId than this.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public boolean hasChanged(Player player) throws IllegalArgumentException {
-        if (this.playerId != player.playerId) {
-            throw new IllegalArgumentException("This playerId is: \"" + this.playerId + "\". Argument player has playerId: \"" + player.playerId + "\". Can't compare two different players.");
-        }
-        return  (this.robotName != null && player.robotName != null && !Objects.equals(this.robotName, player.robotName)) ||
-                (this.playerName != null && player.playerName != null && !Objects.equals(this.playerName, player.playerName)) ||
+    public boolean hasChanged(Player player) {
+        return  this.playerId != player.playerId ||
+                ((this.robotName != null || player.robotName != null) && !Objects.equals(this.robotName, player.robotName)) ||
+                ((this.playerName != null || player.playerName != null) && !Objects.equals(this.playerName, player.playerName)) ||
                  this.isReady != player.isReady;
     }
 }

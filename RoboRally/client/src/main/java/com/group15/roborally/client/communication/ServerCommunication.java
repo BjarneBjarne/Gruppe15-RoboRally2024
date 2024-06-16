@@ -73,7 +73,6 @@ public class ServerCommunication extends Subject {
         return player;
     }
 
-
     // Player(s)
     /**
      * Get list of players in a game.

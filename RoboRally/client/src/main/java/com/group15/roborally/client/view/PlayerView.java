@@ -114,12 +114,12 @@ public class PlayerView extends Tab implements ViewObserver {
 
         // Images
         for (int i = 0; i < energyCubeImages.length; i++) {
-            energyCubeImages[i] = ImageUtils.getImageFromName("Player Mat/EnergyCubePositions/" + i + ".png");
+            energyCubeImages[i] = ImageUtils.getImageFromName("Player_Mat/EnergyCubePositions/" + i + ".png");
         }
 
         checkpointTokenImages = new Image[player.board.NO_OF_CHECKPOINTS + 1];
         for (int i = 0; i < checkpointTokenImages.length; i++) {
-            checkpointTokenImages[i] = ImageUtils.getImageFromName("Player Mat/CheckpointTokenPositions/" + i + ".png");
+            checkpointTokenImages[i] = ImageUtils.getImageFromName("Player_Mat/CheckpointTokenPositions/" + i + ".png");
         }
 
         double permanentUpgradeCardsPaneOffset = CARDFIELD_SIZE * 1.32;
@@ -251,17 +251,17 @@ public class PlayerView extends Tab implements ViewObserver {
         playerMat.setAlignment(Pos.BOTTOM_CENTER);
         playerMat.getChildren().addAll(playerMatImageView, playerMatColorsImageView, playerMatCharacterImageView, playerMatCharacterNameAnchorPane, energyCubesImageView, checkpointTokenImageView, playerMatAnchorPane);
 
-        playerMatImageView.setImage(ImageUtils.getImageFromName("Player Mat/PlayerMat.png"));
+        playerMatImageView.setImage(ImageUtils.getImageFromName("Player_Mat/PlayerMat.png"));
         playerMatImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
         playerMatImageView.setPreserveRatio(true);
-        Image foregroundImage = ImageUtils.getImageFromName("Player Mat/PlayerMatForeground.png");
+        Image foregroundImage = ImageUtils.getImageFromName("Player_Mat/PlayerMatForeground.png");
         if (foregroundImage != null) {
             Color playerColor = Color.valueOf(player.getRobot().name());
             playerMatColorsImageView.setImage(ImageUtils.getImageColored(foregroundImage, playerColor, .75));
             playerMatColorsImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
             playerMatColorsImageView.setPreserveRatio(true);
         }
-        Image matCharacterImage = ImageUtils.getImageFromName("Player Mat/PlayerMatCharacters/PlayerMat" + player.getRobot() + ".png");
+        Image matCharacterImage = ImageUtils.getImageFromName("Player_Mat/PlayerMatCharacters/PlayerMat" + player.getRobot() + ".png");
         if (matCharacterImage != null) {
             playerMatCharacterImageView.setImage(matCharacterImage);
             playerMatCharacterImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
