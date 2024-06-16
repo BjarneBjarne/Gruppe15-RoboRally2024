@@ -38,11 +38,16 @@ public class ServerCommunication extends Subject {
      * @return gameId - id of the created game
      */
     public long createGame() {
-        Long gameId = sendRequest(
-                "/games",
-                HttpMethod.POST,
-                new ParameterizedTypeReference<>() {}, null
-        );
+        Long gameId = null;
+        try {
+            gameId = sendRequest(
+                    "/games",
+                    HttpMethod.POST,
+                    new ParameterizedTypeReference<>() {}, null
+            );
+        } catch (HttpClientErrorException e) {
+            //System.out.println(e.getStatusCode());
+        }
         return gameId != null ? gameId : -1;
     }
 
