@@ -19,12 +19,14 @@ import com.group15.roborally.server.model.Game;
 @RequestMapping("/players")
 public class PlayerController {
 
+    private final GameController gameController;
     PlayerRepository playerRepository;
     GameRepository gameRepository;
 
-    public PlayerController(PlayerRepository playerRepository, GameRepository gameRepository) {
+    public PlayerController(PlayerRepository playerRepository, GameRepository gameRepository, GameController gameController) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
+        this.gameController = gameController;
     }
 
     /**
@@ -78,15 +80,11 @@ public class PlayerController {
         if (!playerRepository.existsById(playerId)) {
             return ResponseEntity.badRequest().build();
         }
-        Long gameId = playerRepository.findById(playerId).orElse(null).getGameId();
+        long gameId = playerRepository.findByPlayerId(playerId).getGameId();
         playerRepository.deleteById(playerId);
 
         //Update the number of players in the game
-        if(gameId != null){
-            Game game = gameRepository.findById(gameId).orElse(null);
-            game.setNrOfPlayers(game.getNrOfPlayers() - 1);
-            gameRepository.save(game);
-        }
+        gameRepository.findById(gameId).ifPresent(gameController::updateNoOfPlayersByGame);
         return ResponseEntity.ok().build();
     }
 }

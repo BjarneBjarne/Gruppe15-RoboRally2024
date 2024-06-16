@@ -48,7 +48,8 @@ import static com.group15.roborally.client.BoardOptions.*;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class GameController {
+public class
+GameController {
     public final Board board;
     private final Runnable gameOverMethod;
 

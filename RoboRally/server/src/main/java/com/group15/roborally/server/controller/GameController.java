@@ -5,12 +5,7 @@ import java.util.List;
 import com.group15.roborally.server.repository.PlayerRepository;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
@@ -23,7 +18,6 @@ import com.group15.roborally.server.repository.MarketRepository;
 @RequestMapping("/games")
 
 public class GameController {
-
     PlayerRepository playerRepository;
     GameRepository gameRepository;
     MarketRepository marketRepository;
@@ -33,7 +27,6 @@ public class GameController {
         this.gameRepository = gameRepository;
         this.marketRepository = marketRepository;
     }
-
 
     /**
      * Endpoint to create a new game and insert it into the database in 'Games' table
@@ -45,7 +38,6 @@ public class GameController {
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createGame() {
-        
         Game game = new Game();
         game.setNrOfPlayers(0);
         game.setTurnId(1);
@@ -93,8 +85,7 @@ public class GameController {
         if (isHost) {
             game.setHostId(player.getPlayerId());
         }
-        game.setNrOfPlayers(game.getNrOfPlayers() + 1);
-        gameRepository.save(game);
+        gameRepository.findById(gameId).ifPresent(this::updateNoOfPlayersByGame);
 
         return ResponseEntity.ok().body(player);
 
@@ -128,5 +119,29 @@ public class GameController {
     public ResponseEntity<Game> getGame(@PathVariable("gameId") Long gameId){
         Game game = gameRepository.findById(gameId).orElse(null);
         return ResponseEntity.ok(game);
+    }
+
+    @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateGame(@RequestBody Game game, @PathVariable("gameId") Long gameId) {
+        if (!gameRepository.existsById(gameId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        gameRepository.save(game);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Updates the number of players in the game. If there are no players in the game, the game is deleted.
+     * @param game The game to update.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void updateNoOfPlayersByGame(Game game) {
+        int newNoOfPlayers = playerRepository.findAllByGameId(game.getGameId()).size();
+        if (newNoOfPlayers == 0) {
+            gameRepository.delete(game);
+        } else {
+            game.setNrOfPlayers(newNoOfPlayers);
+            gameRepository.save(game);
+        }
     }
 }

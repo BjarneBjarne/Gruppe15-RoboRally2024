@@ -38,7 +38,6 @@ import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
 import com.group15.roborally.client.exceptions.GameLoadingException;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.model.lobby.*;
 import com.group15.roborally.client.utils.Adapter;
 import com.group15.roborally.client.utils.SaveAndLoadUtils;
 import com.group15.roborally.client.templates.BoardTemplate;
@@ -73,7 +72,7 @@ public class AppController implements Observer {
     private GameController gameController;
 
     private MultiplayerMenuView multiplayerMenuView;
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080");
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080");
     private ScheduledExecutorService lobbyUpdateScheduler;
 
     private List<CC_CourseData> courses = new ArrayList<>();
@@ -91,6 +90,7 @@ public class AppController implements Observer {
         roboRally.createMultiplayerMenu(multiplayerMenuView);
         multiplayerMenuView.setupMenuUI(this);
         multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
+        serverCommunication.attach(this);
     }
 
     /**
@@ -99,6 +99,9 @@ public class AppController implements Observer {
      */
     public void tryCreateAndJoinGame(String playerName) {
         long gameId = serverCommunication.createGame();
+        if (gameId == -1) {
+            System.out.println("Failed to create game.");
+        }
         tryJoinGameWithGameID(gameId, playerName);
     }
 
@@ -129,25 +132,26 @@ public class AppController implements Observer {
         }
     }
 
-    public List<Player> getUpdatedPlayers(long gameId) {
-        return serverCommunication.getPlayers(gameId);
-    }
-
-    public void changeRobot(Game game, String robotName) {
-
-    }
-
     public void changeCourse(Game game, CC_CourseData chosenCourse) {
-
+        game.setCourseName(chosenCourse.getCourseName());
+        String serverResponse = serverCommunication.updateGame(game);
+        if (serverResponse != null) System.out.println(serverResponse);
     }
 
-    public void setIsReady(Game game, int isReady) {
+    public void changeRobot(Player player, String robotName) {
+        player.setRobotName(robotName);
+        String serverResponse = serverCommunication.updatePlayer(player);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
 
+    public void setIsReady(Player player, int isReady) {
+        player.setIsReady(isReady);
+        String serverResponse = serverCommunication.updatePlayer(player);
+        if (serverResponse != null) System.out.println(serverResponse);
     }
 
     public void startLobbyUpdateLoop() {
         Runnable lobbyUpdate = () -> {
-            // TODO: Potential issue with de-sync of local LobbyData. Should be investigated.
             Game currentGameData = multiplayerMenuView.getCurrentGameData();
 
             if (serverCommunication.getIsConnectedToServer()) {
@@ -157,17 +161,16 @@ public class AppController implements Observer {
                 Game updatedGameData = serverCommunication.getGame(gameId);
                 List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
 
-                Platform.runLater(() -> updateLobby(updatedGameData, updatedPlayers));
-            } else {
-                System.out.println("Disconnected from server.");
-                roboRally.goToMainMenu(); // Go to main menu and stop update loop.
+                if (updatedGameData != null && updatedPlayers != null) {
+                    Platform.runLater(() -> updateLobby(updatedGameData, updatedPlayers));
+                }
             }
         };
         lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
-        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 5, TimeUnit.SECONDS);
+        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
     }
+
     public void stopLobbyUpdateLoop() {
-        lobbyUpdateScheduler.close();
         lobbyUpdateScheduler = null;
     }
 
@@ -178,20 +181,39 @@ public class AppController implements Observer {
     }
 
     /**
-     *
+     * Method for manually leaving the server and game.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void disconnectFromServer() {
         if (serverCommunication.getIsConnectedToServer()) {
+            serverCommunication.deletePlayer(multiplayerMenuView.getCurrentLocalPlayer());
             stopLobbyUpdateLoop();
-            //serverCommunication.leaveGame(roboRally.getCurrentLobbyData().playerId());
+            System.out.println("Disconnected from server.");
+        }
+    }
+
+    /**
+     * Method for when the connection to the server was lost, and the reconnection timed out.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectionToServerTimedOut() {
+        stopLobbyUpdateLoop();
+        System.out.println("Connection to server timed out.");
+        Platform.runLater(roboRally::goToMainMenu);
+    }
+
+    @Override
+    public void update(Subject subject) {
+        // If the player was disconnected from the server.
+        if (!serverCommunication.getIsConnectedToServer()) {
+            connectionToServerTimedOut();
         }
     }
 
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void beginCourse(CC_CourseData courseData, Game game, List<Player> players) {
+    public void beginCourse(CC_CourseData courseData, List<Player> players) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
@@ -354,11 +376,6 @@ public class AppController implements Observer {
         return gameController != null;
     }
 
-    @Override
-    public void update(Subject subject) {
-        // XXX do nothing for now
-    }
-
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -378,14 +395,6 @@ public class AppController implements Observer {
         if (courses.isEmpty()) {
             throw new NoCoursesException();
         }
-    }
-
-    /**
-     * @return The loaded courses.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public List<CC_CourseData> getCourses() {
-        return courses;
     }
 
     public void resetMultiplayerMenuView() {
