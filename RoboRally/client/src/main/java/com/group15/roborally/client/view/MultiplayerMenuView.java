@@ -353,7 +353,7 @@ public class MultiplayerMenuView {
         // Join button
         multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank() && !multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
-                setConnectionInfo("Attempting to connect to lobbyData...");
+                setConnectionInfo("Attempting to connect to server...");
                 appController.tryJoinGameWithGameID(Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
