@@ -11,6 +11,7 @@ import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.Player;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -53,12 +54,17 @@ public class ServerCommunication extends Subject {
      * @return Player object of the player joining
      */
     public Player joinGame(long gameId, String playerName) {
-        Player player = sendRequest(
-                "/games/" + gameId + "/join",
-                HttpMethod.POST,
-                new ParameterizedTypeReference<>() {}, playerName
-        );
-        isConnectedToServer = true;
+        Player player = null;
+        try {
+            player = sendRequest(
+                    "/games/" + gameId + "/join",
+                    HttpMethod.POST,
+                    new ParameterizedTypeReference<>() {}, playerName
+            );
+            isConnectedToServer = true;
+        } catch (HttpClientErrorException e) {
+            //System.out.println(e.getStatusCode());
+        }
         return player;
     }
 

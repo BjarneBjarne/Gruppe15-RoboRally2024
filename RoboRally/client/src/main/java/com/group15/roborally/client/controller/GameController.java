@@ -321,7 +321,7 @@ GameController {
                     // Handle the next action
                     ActionWithDelay nextAction = actionQueue.removeFirst();
                     nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
-                    int delayInMillis = nextAction.getDelay();
+                    int delayInMillis = nextAction.getDelayInMillis();
                     PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
                     pause.setOnFinished(event -> {
                         EventHandler.event_EndOfAction(this);
