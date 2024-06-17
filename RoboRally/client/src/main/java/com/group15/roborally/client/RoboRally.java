@@ -67,12 +67,11 @@ public class RoboRally extends Application {
     private StackPane upgradeShopPane;
     private Stage stage;
     private static Scene primaryScene;
-    private BorderPane root;
     private BoardView boardView;
     private AnchorPane mainMenuPane;
     private AnchorPane multiplayerMenuPane;
-    private static CC_Controller courseCreator;
 
+    private static CC_Controller courseCreator;
     private static AppController appController;
 
     public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Can be used to log to a file. Doesn't work currently.
@@ -86,8 +85,10 @@ public class RoboRally extends Application {
     @FXML
     Button finishUpgradingButton;
 
-    StackPane stackPane;
-    StackPane backgroundStackPane;
+    private StackPane scalePane;
+    private StackPane mainPane;
+    private BorderPane root;
+    private StackPane backgroundStackPane;
 
     @Override
     public void init() throws Exception {
@@ -104,12 +105,6 @@ public class RoboRally extends Application {
     public void start(Stage primaryStage) {
         // TODO: Clean up this mess.
         stage = primaryStage;
-        appController = new AppController(this);
-        try {
-            appController.loadCourses();
-        } catch (NoCoursesException e) {
-            logger.info(e.getMessage());
-        }
         root = new BorderPane();
         root.setMaxHeight(Double.MAX_VALUE);
         root.setMaxWidth(Double.MAX_VALUE);
@@ -117,7 +112,15 @@ public class RoboRally extends Application {
         root.setPrefWidth(Region.USE_COMPUTED_SIZE);
         root.setMinHeight(Region.USE_COMPUTED_SIZE);
         root.setMinWidth(Region.USE_COMPUTED_SIZE);
-        stackPane = new StackPane(root);
+        mainPane = new StackPane(root);
+        scalePane = new StackPane(mainPane);
+
+        appController = new AppController(this, mainPane);
+        try {
+            appController.loadCourses();
+        } catch (NoCoursesException e) {
+            logger.info(e.getMessage());
+        }
 
         StackPane.setAlignment(root, Pos.CENTER);
         stage.setTitle("Robo Rally");
@@ -131,7 +134,7 @@ public class RoboRally extends Application {
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
             double initialWidth = initialHeight * (16.0 / 9.0);
-            primaryScene = new Scene(stackPane, initialWidth, initialHeight);
+            primaryScene = new Scene(scalePane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
             URL stylesCSS = getClass().getResource("styles.css");
             if (stylesCSS != null) {
@@ -171,8 +174,8 @@ public class RoboRally extends Application {
     }
 
     private void scaleRoot() {
-        stackPane.setScaleX(APP_SCALE);
-        stackPane.setScaleY(APP_SCALE);
+        scalePane.setScaleX(APP_SCALE);
+        scalePane.setScaleY(APP_SCALE);
         StackPane.setMargin(root, new Insets(0, 0, 0, 0));
         //System.out.println(APP_SCALE);
         APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());

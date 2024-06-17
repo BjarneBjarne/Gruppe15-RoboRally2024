@@ -24,10 +24,9 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.MultiplayerMenuView;
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.GamePhase;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.server.model.*;
 
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.observer.Observer;
@@ -44,13 +43,22 @@ import com.group15.roborally.client.utils.SaveAndLoadUtils;
 import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
+import com.group15.roborally.server.model.Player;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -78,12 +86,31 @@ public class AppController implements Observer {
     private List<CC_CourseData> courses = new ArrayList<>();
 
     private MultiplayerMenuView multiplayerMenuView;
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080"); // Remote server: 129.151.221.13
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Remote server: 129.151.221.13
     private ScheduledExecutorService lobbyUpdateScheduler;
     private final Random random = new Random();
 
-    public AppController(@NotNull RoboRally roboRally) {
+    private final StackPane infoPane;
+    private final Text infoText = new Text();
+
+    public AppController(@NotNull RoboRally roboRally, StackPane mainPane) {
         this.roboRally = roboRally;
+
+        infoPane = new StackPane(infoText);
+        mainPane.getChildren().add(infoPane);
+        StackPane.setAlignment(infoPane, Pos.CENTER);
+        infoPane.setAlignment(Pos.CENTER);
+        infoPane.setStyle("-fx-background-color: #000000A5");
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 90);
+        infoText.setFont(textFont);
+        infoText.setFill(Color.WHITE);
+        infoText.setStroke(Color.BLACK);
+        infoText.setStrokeWidth(3);
+        infoText.setStrokeType(StrokeType.OUTSIDE);
+        infoText.setWrappingWidth(2560);
+        infoText.setTextAlignment(TextAlignment.CENTER);
+        StackPane.setMargin(infoText, new Insets(0, 0, 75, 0));
+        setConnectionInfo("");
     }
 
     /**
@@ -105,20 +132,20 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryCreateAndJoinGame(String playerName) {
-        multiplayerMenuView.setConnectionInfo("Creating new game...");
+        setConnectionInfo("Creating new game...");
         AtomicLong gameId = new AtomicLong();
         runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame()), random.nextInt(125, 500)), () -> {
             if (gameId.get() != -1) {
                 runActionAndCallback(new ActionWithDelay(() -> {
-                    multiplayerMenuView.setConnectionInfo("Successfully created new game!");
+                    setConnectionInfo("Successfully created new game!");
                 }, 500), () -> {
                     tryJoinGameWithGameID(gameId.get(), playerName);
                 });
             } else {
                 runActionAndCallback(new ActionWithDelay(() -> {
-                    multiplayerMenuView.setConnectionInfo("Failed to create new game.");
+                    setConnectionInfo("Failed to create new game.");
                 }, 1500), () -> {
-                    multiplayerMenuView.setConnectionInfo("");
+                    setConnectionInfo("");
                 });
             }
         });
@@ -133,22 +160,22 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryJoinGameWithGameID(long gameId, String playerName) {
-        multiplayerMenuView.setConnectionInfo("Joining game...");
+        setConnectionInfo("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
         runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(gameId, playerName)), random.nextInt(125, 500)), () -> {
             if (player.get() != null) {
                 runActionAndCallback(new ActionWithDelay(() -> {
-                    multiplayerMenuView.setConnectionInfo("Successfully joined game!");
+                    setConnectionInfo("Successfully joined game!");
                     connectedToGame(gameId, player.get());
                     multiplayerMenuView.showLobby(true);
                 }, 500), () -> {
-                    multiplayerMenuView.setConnectionInfo("");
+                    setConnectionInfo("");
                 });
             } else {
                 runActionAndCallback(new ActionWithDelay(() -> {
-                    multiplayerMenuView.setConnectionInfo("Failed to join game.");
+                    setConnectionInfo("Failed to join game.");
                 }, 1500), () -> {
-                    multiplayerMenuView.setConnectionInfo("");
+                    setConnectionInfo("");
                 });
             }
         });
@@ -237,9 +264,13 @@ public class AppController implements Observer {
      */
     public void disconnectFromServer() { // TODO: Disconnect from server if the host leaves.
         if (serverCommunication.getIsConnectedToServer()) {
+            runActionAndCallback(new ActionWithDelay(() -> {
+                setConnectionInfo("Disconnected from server.");
+            }, 500), () -> {
+                setConnectionInfo("");
+            });
             serverCommunication.deletePlayer(multiplayerMenuView.getCurrentLocalPlayer());
             stopLobbyUpdateLoop();
-            System.out.println("Disconnected from server.");
         }
     }
 
@@ -450,5 +481,22 @@ public class AppController implements Observer {
 
     public void resetMultiplayerMenuView() {
         multiplayerMenuView = null;
+    }
+
+    /**
+     * Method for showing the connection status to the player.
+     * @param connectionInfo If blank, hides the connection info pane. If not, shows the pane and sets the connection info text to connectionInfo.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void setConnectionInfo(String connectionInfo) {
+        if (connectionInfo != null && !connectionInfo.isBlank()) {
+            infoText.setText(connectionInfo);
+            System.out.println(connectionInfo);
+            infoPane.setVisible(true);
+            infoPane.setDisable(false);
+        } else {
+            infoPane.setVisible(false);
+            infoPane.setDisable(true);
+        }
     }
 }

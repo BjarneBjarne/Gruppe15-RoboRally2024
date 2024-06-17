@@ -48,10 +48,6 @@ public class MultiplayerMenuView {
     Button multiplayerMenuButtonJoin;
     @FXML
     Button multiplayerMenuButtonHost;
-    @FXML
-    StackPane multiplayerMenuPaneConnectionInfo;
-    @FXML
-    Text multiplayerMenuTextConnectionInfo;
 
     // LobbyClientUpdate menu
     @FXML
@@ -94,7 +90,6 @@ public class MultiplayerMenuView {
     @FXML
     public void initialize() {
         showLobby(false);
-        setConnectionInfo("");
     }
 
     /**
@@ -454,23 +449,6 @@ public class MultiplayerMenuView {
         multiplayerMenuLobbyPane.setDisable(!showLobby);
         multiplayerMenuPaneJoinOrHost.setVisible(!showLobby);
         multiplayerMenuPaneJoinOrHost.setDisable(showLobby);
-    }
-
-    /**
-     * Method for showing the connection status to the player.
-     * @param connectionInfo If blank, hides the connection info pane. If not, shows the pane and sets the connection info text to connectionInfo.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void setConnectionInfo(String connectionInfo) {
-        if (connectionInfo != null && !connectionInfo.isBlank()) {
-            multiplayerMenuTextConnectionInfo.setText(connectionInfo);
-            System.out.println(connectionInfo);
-            multiplayerMenuPaneConnectionInfo.setVisible(true);
-            multiplayerMenuPaneConnectionInfo.setDisable(false);
-        } else {
-            multiplayerMenuPaneConnectionInfo.setVisible(false);
-            multiplayerMenuPaneConnectionInfo.setDisable(true);
-        }
     }
 
     public Game getCurrentGameData() {
