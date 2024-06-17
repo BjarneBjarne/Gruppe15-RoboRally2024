@@ -566,17 +566,5 @@
             </VBox>
          </children>
       </AnchorPane>
-      <StackPane fx:id="multiplayerMenuPaneConnectionInfo" disable="true" style="-fx-background-color: #000000A5;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Text fx:id="multiplayerMenuTextConnectionInfo" fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" text="Waiting for server..." textAlignment="CENTER" StackPane.alignment="CENTER">
-               <font>
-                  <Font name="OCR A Extended" size="90.0" />
-               </font>
-               <StackPane.margin>
-                  <Insets bottom="75.0" />
-               </StackPane.margin>
-            </Text>
-         </children>
-      </StackPane>
    </children>
 </AnchorPane>
