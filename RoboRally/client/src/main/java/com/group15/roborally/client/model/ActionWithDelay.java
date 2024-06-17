@@ -1,7 +1,5 @@
 package com.group15.roborally.client.model;
 
-import javafx.util.Duration;
-
 public class ActionWithDelay {
     private final Runnable action;
     private final int delayInMillis;
@@ -23,7 +21,7 @@ public class ActionWithDelay {
         return action;
     }
 
-    public int getDelay() {
+    public int getDelayInMillis() {
         return delayInMillis;
     }
 }

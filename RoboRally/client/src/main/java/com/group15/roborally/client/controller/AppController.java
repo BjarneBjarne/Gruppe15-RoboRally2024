@@ -24,6 +24,10 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.group15.roborally.client.utils.TextUtils;
+import com.group15.roborally.client.view.MultiplayerMenuView;
+import com.group15.roborally.server.model.*;
+
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.observer.Observer;
 import com.group15.roborally.client.observer.Subject;
@@ -34,18 +38,28 @@ import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
 import com.group15.roborally.client.exceptions.GameLoadingException;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.model.lobby.*;
 import com.group15.roborally.client.utils.Adapter;
 import com.group15.roborally.client.utils.SaveAndLoadUtils;
 import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
+import com.group15.roborally.server.model.Player;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,6 +69,8 @@ import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.group15.roborally.client.BoardOptions.*;
 
@@ -67,14 +83,37 @@ public class AppController implements Observer {
     private final RoboRally roboRally;
     public boolean isCourseCreatorOpen = false;
     private GameController gameController;
-    private final ServerCommunication serverCommunication;
-    private ScheduledExecutorService lobbyUpdateScheduler;
-
     private List<CC_CourseData> courses = new ArrayList<>();
 
-    public AppController(@NotNull RoboRally roboRally) {
+    private MultiplayerMenuView multiplayerMenuView;
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Remote server: 129.151.221.13
+    private ScheduledExecutorService lobbyUpdateScheduler;
+    private final Random random = new Random();
+
+    private final StackPane infoPane = new StackPane();
+    private final Text infoText = new Text();
+
+    public AppController(@NotNull RoboRally roboRally, StackPane mainPane) {
         this.roboRally = roboRally;
-        this.serverCommunication = new ServerCommunication();
+        initializeInfoPane(mainPane);
+    }
+
+    public void initializeInfoPane(StackPane mainPane) {
+        infoPane.getChildren().add(infoText);
+        mainPane.getChildren().add(infoPane);
+        StackPane.setAlignment(infoPane, Pos.CENTER);
+        infoPane.setAlignment(Pos.CENTER);
+        infoPane.setStyle("-fx-background-color: #000000A5");
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 90);
+        infoText.setFont(textFont);
+        infoText.setFill(Color.WHITE);
+        infoText.setStroke(Color.BLACK);
+        infoText.setStrokeWidth(3);
+        infoText.setStrokeType(StrokeType.OUTSIDE);
+        infoText.setWrappingWidth(2560);
+        infoText.setTextAlignment(TextAlignment.CENTER);
+        StackPane.setMargin(infoText, new Insets(0, 0, 75, 0));
+        setInfoText("");
     }
 
     /**
@@ -82,86 +121,195 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void initializeMultiplayerMenu() {
-        roboRally.createMultiplayerMenu();
+        setInfoText("Setting up multiplayer...", false);
+        Platform.runLater(() -> {
+            multiplayerMenuView = new MultiplayerMenuView();
+            roboRally.createMultiplayerMenu(multiplayerMenuView);
+            multiplayerMenuView.setupMenuUI(this);
+            multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
+            serverCommunication.attach(this);
+            setInfoText("");
+        });
     }
 
     /**
-     * Method for the player to host a new lobby.
-     * Calls the server and requests to host a new game.
+     * Calls the server and requests to create a new game.
+     * Adds delay in between messages to be able to read them.
+     * Adds a random delay after creating the game.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryHostNewLobby(String playerName) {
-        LobbyData lobbyData = serverCommunication.createLobby(playerName);
-        roboRally.connectedToLobby(lobbyData);
-    }
-
-    /**
-     * Method for a player to join an existing lobby.
-     * @param gameId The gameID of the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void tryJoinLobbyWithGameID(String gameId, String playerName) {
-        LobbyData lobbyData = serverCommunication.joinLobby(gameId, playerName);
-        roboRally.connectedToLobby(lobbyData);
-    }
-
-    public void changeRobot(LobbyData lobbyData, String robotName) {
-        updateLobby(serverCommunication.changeRobot(lobbyData, robotName));
-    }
-
-    public void changeCourse(LobbyData lobbyData, CC_CourseData chosenCourse) {
-        updateLobby(serverCommunication.changeCourse(lobbyData,chosenCourse.getCourseName()));
-    }
-
-    public void setIsReady(LobbyData lobbyData, int isReady) {
-        updateLobby(serverCommunication.setIsReady(lobbyData, isReady));
-    }
-
-    public void startLobbyUpdateLoop() {
-        Runnable lobbyUpdate = () -> {
-            // TODO: Potential issue with de-sync of local LobbyData. Should be investigated.
-            LobbyData updatedLobbyServerReceive;
-            if (serverCommunication.getIsConnectedToServer()) {
-                updatedLobbyServerReceive = serverCommunication.getUpdatedLobby(roboRally.getCurrentLobbyData());
+    public void tryCreateAndJoinGame(String playerName) {
+        setInfoText("Creating new game...");
+        AtomicLong gameId = new AtomicLong();
+        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame()), random.nextInt(125, 500)), () -> {
+            if (gameId.get() != -1) {
+                runActionAndCallback(new ActionWithDelay(() -> {
+                    setInfoText("Successfully created new game!");
+                }, 500), () -> {
+                    tryJoinGameWithGameID(gameId.get(), playerName);
+                });
             } else {
-                updatedLobbyServerReceive = null;
+                runActionAndCallback(new ActionWithDelay(() -> {
+                    setInfoText("Failed to create new game.");
+                }, 1500), () -> {
+                    setInfoText("");
+                });
             }
-            if (updatedLobbyServerReceive == null) {
-                System.out.println("Disconnected from server.");
-                roboRally.goToMainMenu();
+        });
+    }
+
+    /**
+     * Calls the server and requests to join a game.
+     * Adds delay in between messages to be able to read them.
+     * Adds a random delay after joining the game.
+     * @param gameId The ID of the game.
+     * @param playerName The name that the player wants.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void tryJoinGameWithGameID(long gameId, String playerName) {
+        setInfoText("Joining game...");
+        AtomicReference<Player> player = new AtomicReference<>();
+        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(gameId, playerName)), random.nextInt(125, 500)), () -> {
+            if (player.get() != null) {
+                runActionAndCallback(new ActionWithDelay(() -> {
+                    setInfoText("Successfully joined game!");
+                    connectedToGame(gameId, player.get());
+                    multiplayerMenuView.showLobby(true);
+                }, 500), () -> {
+                    setInfoText("");
+                });
             } else {
-                Platform.runLater(() -> updateLobby(updatedLobbyServerReceive));
+                runActionAndCallback(new ActionWithDelay(() -> {
+                    setInfoText("Failed to join game.");
+                }, 1500), () -> {
+                    setInfoText("");
+                });
+            }
+        });
+    }
+
+    // Lobby methods
+    /**
+     * Initializes the multiplayer menu with the server data for the local player. Is called when the server tells the player they can join the game.
+     * @param gameId The game's gameId received from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectedToGame(long gameId, Player player) {
+        Game game = serverCommunication.getGame(gameId);
+        List<Player> players = serverCommunication.getPlayers(gameId);
+        multiplayerMenuView.setupLobby(this, game, player, players, courses);
+        startUpdateGameLoop();
+    }
+
+    public void changeRobot(Player player, String robotName) {
+        player.setRobotName(robotName);
+        String serverResponse = serverCommunication.updatePlayer(player);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void setIsReady(Player player, int isReady) {
+        player.setIsReady(isReady);
+        String serverResponse = serverCommunication.updatePlayer(player);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void changeCourse(Game game, CC_CourseData chosenCourse) {
+        game.setCourseName(chosenCourse.getCourseName());
+        String serverResponse = serverCommunication.updateGame(game);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void setGameStart(Game game) {
+        game.setPhase(GamePhase.PROGRAMMING);
+        String serverResponse = serverCommunication.updateGame(game);
+        if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void startUpdateGameLoop() {
+        Runnable lobbyUpdate = () -> {
+            Game currentGameData = multiplayerMenuView.getCurrentGameData();
+
+            if (serverCommunication.getIsConnectedToServer()) {
+                if (currentGameData == null) return;
+
+                long gameId = currentGameData.getGameId();
+                Game updatedGameData = serverCommunication.getGame(gameId);
+                List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
+
+                if (updatedGameData != null && updatedPlayers != null) {
+                    Platform.runLater(() -> updateGame(updatedGameData, updatedPlayers));
+                }
             }
         };
         lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
-        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 5, TimeUnit.SECONDS);
+        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
     }
+
     public void stopLobbyUpdateLoop() {
-        lobbyUpdateScheduler.close();
+        if (lobbyUpdateScheduler != null) {
+            lobbyUpdateScheduler.shutdownNow();
+        }
         lobbyUpdateScheduler = null;
     }
 
-    public void updateLobby(LobbyData updatedLobbyData) {
+    public void updateGame(Game updatedGameData, List<Player> updatedPlayers) {
         if (serverCommunication.getIsConnectedToServer()) {
-            roboRally.updateLobby(updatedLobbyData);
+            boolean hostIsConnected = updatedPlayers.stream().anyMatch(player -> updatedGameData.getHostId() == player.getPlayerId());
+            if (hostIsConnected) {
+                multiplayerMenuView.updateLobby(this, updatedGameData, updatedPlayers, false);
+            } else {
+                disconnectFromServer("The host left the game.", 3000);
+            }
         }
     }
 
     /**
-     *
+     * Method for manually leaving the server and game.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void disconnectFromServer() {
+    public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
         if (serverCommunication.getIsConnectedToServer()) {
+            if (infoMessage == null || infoMessage.isEmpty()) {
+                infoMessage = "Disconnected from server.";
+            }
+            String finalInfoMessage = infoMessage;
+            runActionAndCallback(new ActionWithDelay(() -> {
+                setInfoText(finalInfoMessage);
+                serverCommunication.deletePlayer(multiplayerMenuView.getCurrentLocalPlayer());
+                multiplayerMenuView.showLobby(false);
+                stopLobbyUpdateLoop();
+            }, showMessageTimeInMillis), () -> {
+                setInfoText("");
+            });
+        }
+    }
+
+    /**
+     * Method for when the connection to the server was lost, and the reconnection timed out.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void connectionToServerTimedOut() {
+        runActionAndCallback(new ActionWithDelay(() -> {
+            setInfoText("Connection to server timed out.");
+            multiplayerMenuView.showLobby(false);
             stopLobbyUpdateLoop();
-            serverCommunication.leaveGame(roboRally.getCurrentLobbyData().playerId());
+        }, 2000), () -> {
+            setInfoText("");
+        });
+    }
+
+    @Override
+    public void update(Subject subject) {
+        // If the player was disconnected from the server.
+        if (!serverCommunication.getIsConnectedToServer()) {
+            connectionToServerTimedOut();
         }
     }
 
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void beginCourse(CC_CourseData courseData, LobbyData lobbyData) {
+    public void beginCourse(CC_CourseData courseData, List<Player> players) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
@@ -170,7 +318,11 @@ public class AppController implements Observer {
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = new Player(board, Objects.requireNonNull(Robots.getRobotByName(lobbyData.robotNames()[i])), lobbyData.playerNames()[i]);
+            com.group15.roborally.client.model.Player player =
+                    new com.group15.roborally.client.model.Player(
+                            board,
+                            Objects.requireNonNull(Robots.getRobotByName(players.get(i).getRobotName())),
+                            players.get(i).getPlayerName());
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
@@ -227,9 +379,9 @@ public class AppController implements Observer {
 
         // Players
         for (int i = 0; i < newBoard.getNoOfPlayers(); i++) {
-            Player player = newBoard.getPlayer(i);
+            com.group15.roborally.client.model.Player player = newBoard.getPlayer(i);
             if (player != null) {
-                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
+                for (int j = 0; j < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; j++) {
                     CardField field = player.getProgramField(j);
                     field.setVisible(true);
                 }
@@ -320,11 +472,6 @@ public class AppController implements Observer {
         return gameController != null;
     }
 
-    @Override
-    public void update(Subject subject) {
-        // XXX do nothing for now
-    }
-
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -346,11 +493,35 @@ public class AppController implements Observer {
         }
     }
 
+    public void resetMultiplayerMenuView() {
+        multiplayerMenuView = null;
+    }
+
+    private void runActionAndCallback(ActionWithDelay actionWithDelay, Runnable callback) {
+        actionWithDelay.getAction(false).run();
+        PauseTransition pause = new PauseTransition(Duration.millis(actionWithDelay.getDelayInMillis()));
+        pause.setOnFinished(event -> callback.run());
+        pause.play();
+    }
+
     /**
-     * @return The loaded courses.
+     * Method for showing the connection status to the player.
+     * @param connectionInfo If blank, hides the connection info pane. If not, shows the pane and sets the connection info text to connectionInfo.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public List<CC_CourseData> getCourses() {
-        return courses;
+    public void setInfoText(String connectionInfo, boolean printMessage) {
+        if (connectionInfo != null && !connectionInfo.isBlank()) {
+            infoText.setText(connectionInfo);
+            if (printMessage) System.out.println(connectionInfo);
+
+            infoPane.setVisible(true);
+            infoPane.setDisable(false);
+        } else {
+            infoPane.setVisible(false);
+            infoPane.setDisable(true);
+        }
+    }
+    public void setInfoText(String connectionInfo) {
+        setInfoText(connectionInfo, true);
     }
 }
