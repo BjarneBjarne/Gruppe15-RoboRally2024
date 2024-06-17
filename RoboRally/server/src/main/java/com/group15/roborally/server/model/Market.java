@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "market")
+@Table(name = "markets")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,8 +16,12 @@ import lombok.Setter;
 public class Market {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long marketId;
+
     private long gameId;
+
     private String[] cards;
+
     private int turn;
-    
 }
