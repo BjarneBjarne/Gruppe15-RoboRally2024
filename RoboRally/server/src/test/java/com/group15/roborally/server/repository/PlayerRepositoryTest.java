@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.group15.roborally.server.model.Player;
 
+// Test class for PlayerRepository
 @DataJpaTest
 public class PlayerRepositoryTest {
 
@@ -18,6 +19,13 @@ public class PlayerRepositoryTest {
     Player testPlayer1;
     Player testPlayer2;
 
+    /**
+     * Initialize the test environment by deleting all players from the repository
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @BeforeEach
     public void initialize() {
         playerRepository.deleteAll();
@@ -37,6 +45,13 @@ public class PlayerRepositoryTest {
         playerRepository.save(testPlayer2);
     }
 
+    /**
+     * Test the save method in PlayerRepository
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     public void SavePlayerTest() {
         assert (playerRepository.existsByPlayerNameAndGameId(testPlayer1.getPlayerName(), testPlayer1.getGameId()));
@@ -46,6 +61,13 @@ public class PlayerRepositoryTest {
         assert (playerRepository.existsByPlayerNameAndGameId("Nonexistent Player Name", 0L) == false);
     }
 
+    /**
+     * Test the findByPlayerNameAndGameId method in PlayerRepository
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     public void FindByPlayerNameAndGameIdTest() {
         Player returnedPlayer1 = playerRepository
@@ -59,6 +81,13 @@ public class PlayerRepositoryTest {
         assert (playerRepository.findByPlayerNameAndGameId("Nonexistent Player Name", 0L).orElse(null) == null);
     }
 
+    /**
+     * Test the findByPlayerId method in PlayerRepository
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     public void FindPlayerByPlayerIdTest() {
         Player returnedPlayer1 = playerRepository.findByPlayerId(testPlayer1.getPlayerId()).orElse(null);
@@ -70,6 +99,13 @@ public class PlayerRepositoryTest {
         assert (playerRepository.findByPlayerId(0L).orElse(null) == null);
     }
 
+    /**
+     * Test the findAllByGameId method in PlayerRepository
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     public void FindAllByGameIdTest() {
         List<Player> returnedPlayers = playerRepository.findAllByGameId(testPlayer1.getGameId()).orElse(null);
