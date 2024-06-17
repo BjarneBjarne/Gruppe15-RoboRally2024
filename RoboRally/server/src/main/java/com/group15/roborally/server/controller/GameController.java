@@ -32,7 +32,7 @@ public class GameController {
      * Endpoint to create a new game and insert it into the database in 'Games' table
      * 
      * @author  Marcus Rémi Lemser Eychenne, s230985
-     *          Tobias 
+     *          Tobias Nicolai Frederiksen, s235086@dtu.dk
      * 
      * @return ResponseEntity<Long> - the generated id of the game created
      */
@@ -57,7 +57,7 @@ public class GameController {
      * and insert new player into the database
      * 
      * @author  Marcus Rémi Lemser Eychenne, s230985
-     *          Tobias 
+     *          Tobias Nicolai Frederiksen, s235086@dtu.dk
      *
      * @param playerName - the name of the player joining the game
      * @param gameId - the id of the game to be joined
