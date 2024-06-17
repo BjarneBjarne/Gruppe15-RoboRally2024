@@ -262,7 +262,7 @@ public class RoboRally extends Application {
                 courseCreator.saveCourseDialog();
             }
         }
-        appController.disconnectFromServer();
+        appController.disconnectFromServer("", 0);
         Platform.exit();
     }
 
@@ -285,7 +285,7 @@ public class RoboRally extends Application {
      * @Author Marcus Rémi Lemser Eychenne, s230985
      */
     public void goToMainMenu() {
-        appController.disconnectFromServer();
+        appController.disconnectFromServer("", 1000);
         resetMultiplayerMenu();
         root.getChildren().clear(); // If present, remove old BoardView
         root.setCenter(mainMenuPane);
