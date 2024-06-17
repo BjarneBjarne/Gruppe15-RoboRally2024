@@ -17,9 +17,9 @@ public class Market {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long marketId;
+    private long marketId;
 
-    private Long gameId;
+    private long gameId;
 
     private String[] cards;
 

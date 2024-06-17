@@ -17,13 +17,13 @@ import lombok.Setter;
 public class Register {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long registerId;
+    private long registerId;
 
-    private Long playerId;
+    private long playerId;
 
-    private Long gameId;
+    private long gameId;
 
-    // private Long turnId;
+    private long turnId;
 
     private String m1;
     private String m2;

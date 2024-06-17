@@ -19,10 +19,9 @@ import java.util.Objects;
 public class Player/*  implements Serializable */ {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long playerId;
+    private long playerId;
 
-    
-    private Long gameId;
+    private long gameId;
 
     private String robotName;
 
@@ -36,7 +35,7 @@ public class Player/*  implements Serializable */ {
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     private List<Register> registers;
-    
+
     /**
      * Compares two player objects.
      * @param player The player at another point. Must have same playerId.
