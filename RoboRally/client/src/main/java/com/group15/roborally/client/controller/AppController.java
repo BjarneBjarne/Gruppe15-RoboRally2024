@@ -78,7 +78,7 @@ public class AppController implements Observer {
     private List<CC_CourseData> courses = new ArrayList<>();
 
     private MultiplayerMenuView multiplayerMenuView;
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Remote server: 129.151.221.13
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080"); // Remote server: 129.151.221.13
     private ScheduledExecutorService lobbyUpdateScheduler;
     private final Random random = new Random();
 
