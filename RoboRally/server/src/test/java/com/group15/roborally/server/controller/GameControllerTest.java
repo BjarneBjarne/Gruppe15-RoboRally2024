@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+// A Spring Boot Test which tests the endpoints in the GameController
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GameControllerTest {
@@ -24,10 +25,17 @@ public class GameControllerTest {
 
     private final Gson gson;
 
-        public GameControllerTest() {
-                this.gson = new Gson();
-        }
+    public GameControllerTest() {
+        this.gson = new Gson();
+    }
 
+    /**
+     * Test the createGame endpoint in the GameController
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     @DirtiesContext
     public void createGameTest() throws Exception {
@@ -40,6 +48,13 @@ public class GameControllerTest {
                 .andExpect(content().string("2"));
     }
 
+    /**
+     * Test the joinGame endpoint in the GameController
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     @DirtiesContext
     public void joinGameTest() throws Exception {
@@ -73,6 +88,13 @@ public class GameControllerTest {
                 .andExpect(status().is(409));
     }
 
+    /**
+     * Test the getLobby endpoint in the GameController
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     @DirtiesContext
     public void getLobbyTest() throws Exception {
@@ -103,6 +125,13 @@ public class GameControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Test the getGame endpoint in the GameController
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
     @Test
     @DirtiesContext
     public void getGameTest() throws Exception {
