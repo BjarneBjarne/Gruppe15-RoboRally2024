@@ -28,7 +28,7 @@ public class PlayerTest {
     }
 
     @Test
-    void moveToTempSpace(){
+    void moveToTempSpaceTest(){
         Space space = new Space(board,0,0,null);
         Space temp = new Space(board,1,1,null);
         player.setTemporarySpace(temp);
@@ -39,7 +39,7 @@ public class PlayerTest {
     }
 
     @Test
-    void rebootPlayer(){
+    void rebootPlayerTest(){
         Space space = new Space(board,0,0,null);
         player.setSpace(space);
         board.setCurrentPhase(Phase.INITIALIZATION);
@@ -59,7 +59,7 @@ public class PlayerTest {
     }
 
     @Test
-    void deafultDeck(){
+    void deafultDeckTest(){
         int[] count = new int[10];
         int[] facit = {4,3,1,4,4,1,1,1,1,1};
         player.setProgrammingDeckToDefault();
@@ -78,14 +78,14 @@ public class PlayerTest {
     }
 
     @Test
-    void drawFromDeck(){
+    void drawFromDeckTest(){
         player.getProgrammingDeck().clear();
         player.getProgrammingDeck().add(new CommandCard(Command.AGAIN));
         Assertions.assertSame(Command.AGAIN, player.drawFromDeck().command);
     }
 
     @Test
-    void drawHand() {
+    void drawHandTest() {
         int[] count = new int[10];
         int[] facit = {4, 3, 1, 4, 4, 1, 1, 1, 1, 1};
         player.setProgrammingDeckToDefault();
@@ -114,7 +114,7 @@ public class PlayerTest {
     }
 
     @Test
-    void discardAll(){
+    void discardAllTest(){
         int[] count = new int[10];
         int[] facit = {4,3,1,4,4,1,1,1,1,1};
         player.setProgrammingDeckToDefault();
@@ -136,7 +136,7 @@ public class PlayerTest {
     }
 
     @Test
-    void queueCommand(){
+    void queueCommandTest(){
         int before = player.getEnergyCubes();
         player.queueCommand(Command.POWER_UP, null);
         int after = player.getEnergyCubes();

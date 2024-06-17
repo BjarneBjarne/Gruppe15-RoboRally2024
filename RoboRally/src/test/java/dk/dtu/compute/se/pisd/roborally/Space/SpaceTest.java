@@ -46,7 +46,7 @@ public class SpaceTest {
     }
 
     @Test
-    void setPlayer(){
+    void setPlayerTest(){
         Space space = board.getSpace(0,0);
         space.setPlayer(p1);
         Assertions.assertSame(space, p1.getSpace());
@@ -59,7 +59,7 @@ public class SpaceTest {
     }
 
     @Test
-    void getDistanceFromOtherSpace(){
+    void getDistanceFromOtherSpaceTest(){
         for(int i = 0; i < 10; i++){
             for(int j = 0; j < 10; j++){
                 int dist = board.getSpace(0,0).getDistanceFromOtherSpace(board.getSpace(i,j));
@@ -69,7 +69,7 @@ public class SpaceTest {
     }
 
     @Test
-    void getIsWallBetween(){
+    void getIsWallBetweenTest(){
         Space space = board.getSpace(4,4);
         Assertions.assertTrue(space.getIsWallBetween(board.getSpace(4,3)));
         Assertions.assertFalse(space.getIsWallBetween(board.getSpace(4,5)));
@@ -83,7 +83,7 @@ public class SpaceTest {
     }
 
     @Test
-    void getDirectionToOtherSpace(){
+    void getDirectionToOtherSpaceTest(){
         Space space = board.getSpace(4,4);
         Assertions.assertSame(Heading.NORTH, space.getDirectionToOtherSpace(board.getSpace(4,3)));
         Assertions.assertSame(Heading.SOUTH, space.getDirectionToOtherSpace(board.getSpace(4,5)));
@@ -92,7 +92,7 @@ public class SpaceTest {
     }
 
     @Test
-    void getSpaceNextTo(){
+    void getSpaceNextToTest(){
         Space space = board.getSpace(4,4);
         Space[][] spaces = board.getSpaces();
         Assertions.assertSame(board.getSpace(4,3), space.getSpaceNextTo(Heading.NORTH, spaces));
