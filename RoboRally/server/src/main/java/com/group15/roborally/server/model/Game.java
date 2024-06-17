@@ -1,5 +1,7 @@
 package com.group15.roborally.server.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,12 +20,20 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long gameId;
+
     private int turnId;
+
     private long hostId;
+
     private int nrOfPlayers = 0;
+    
     private GamePhase phase;
+
     private String courseName;
 
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    private List<Player> players;
+    
     /**
      * Compares whether the game has had variables changed between "this" and the argument game.
      * @param game The game at another point. Must have same gameId.

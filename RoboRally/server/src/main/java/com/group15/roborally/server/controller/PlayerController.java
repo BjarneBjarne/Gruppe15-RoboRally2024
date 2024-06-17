@@ -80,7 +80,7 @@ public class PlayerController {
         if (!playerRepository.existsById(playerId)) {
             return ResponseEntity.badRequest().build();
         }
-        long gameId = playerRepository.findByPlayerId(playerId).getGameId();
+        long gameId = playerRepository.findByPlayerId(playerId).get().getGameId();
         playerRepository.deleteById(playerId);
 
         //Update the number of players in the game

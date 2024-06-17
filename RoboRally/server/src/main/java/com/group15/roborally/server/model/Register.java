@@ -1,6 +1,6 @@
 package com.group15.roborally.server.model;
 
-import com.example.demo.model.Keys.RegisterId;
+// import com.example.demo.model.Keys.RegisterId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,16 +13,25 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(RegisterId.class)
+// @IdClass(RegisterId.class)
 public class Register {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long registerId;
+
     private long playerId;
-    @Id
-    private int turnId;
+
+    private long gameId;
+
+    private long turnId;
 
     private String m1;
     private String m2;
     private String m3;
     private String m4;
     private String m5;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "players_playerId", insertable = false, updatable = false)
+    private Player player;
 }

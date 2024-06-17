@@ -1,5 +1,7 @@
 package com.group15.roborally.server.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,14 +16,25 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Player {
+public class Player/*  implements Serializable */ {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long playerId;
-    private Long gameId;
+
+    private long gameId;
+
     private String robotName;
+
     private String playerName;
+
     private int isReady;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
+    private Game game;
+
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private List<Register> registers;
 
     /**
      * Compares two player objects.
