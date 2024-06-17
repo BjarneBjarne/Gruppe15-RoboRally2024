@@ -23,7 +23,7 @@ public class Register {
 
     private long gameId;
 
-    private long turnId;
+    private int turn;
 
     private String m1;
     private String m2;

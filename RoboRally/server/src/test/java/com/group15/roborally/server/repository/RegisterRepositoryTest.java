@@ -114,4 +114,18 @@ public class RegisterRepositoryTest {
         assert (Arrays.asList(registers).contains(register2));
         assert (!Arrays.asList(registers).contains(register3));
     }
+
+    /**
+     * Test the findByGameIdAndPlayerId method in RegisterRepository
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void existsByPlayerIdTest() {
+        assert (registerRepository.existsByPlayerId(1L));
+        assert (registerRepository.existsByPlayerId(2L));
+        assert (!registerRepository.existsByPlayerId(3L));
+    }
 }
