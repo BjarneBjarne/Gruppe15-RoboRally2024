@@ -1,5 +1,6 @@
 package com.group15.roborally.server.repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -93,10 +94,10 @@ public class RegisterRepositoryTest {
      */
     @Test
     public void findByPlayerIdTest() {
-        List<Register> registers = registerRepository.findByPlayerId(1L);
-        assert (registers.contains(register1));
-        assert (!registers.contains(register2));
-        assert (!registers.contains(register3));
+        Register[] registers = registerRepository.findByPlayerId(1L);
+        assert (Arrays.asList(registers).contains(register1));
+        assert (!Arrays.asList(registers).contains(register2));
+        assert (!Arrays.asList(registers).contains(register3));
     }
 
     /**
@@ -108,9 +109,9 @@ public class RegisterRepositoryTest {
      */
     @Test
     public void findByGameIdTest() {
-        List<Register> registers = registerRepository.findByGameId(1L);
-        assert (registers.contains(register1));
-        assert (registers.contains(register2));
-        assert (!registers.contains(register3));
+        Register[] registers = registerRepository.findByGameId(1L);
+        assert (Arrays.asList(registers).contains(register1));
+        assert (Arrays.asList(registers).contains(register2));
+        assert (!Arrays.asList(registers).contains(register3));
     }
 }
