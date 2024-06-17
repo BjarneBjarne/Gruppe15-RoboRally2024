@@ -85,6 +85,12 @@ public class ProgControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(register)))
                 .andExpect(status().isNotFound());
+        
+        register.setM3("");
+        mockMvc.perform(MockMvcRequestBuilders.post("/players/1/registers/2")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(gson.toJson(register)))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     /**
@@ -109,5 +115,13 @@ public class ProgControllerTest {
                 .andExpect(status().isOk())
         // .andExpect(content().string("[" + gson.toJson(register) + "]"))
         ;
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/games/2/registers")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound());
+        
+        mockMvc.perform(MockMvcRequestBuilders.get("/games/0/registers")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound());
     }
 }
