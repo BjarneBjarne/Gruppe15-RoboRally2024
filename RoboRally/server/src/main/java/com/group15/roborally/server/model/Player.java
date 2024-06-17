@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "players")
 @Getter
@@ -34,4 +36,17 @@ public class Player/*  implements Serializable */ {
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     private List<Register> registers;
+    
+    /**
+     * Compares two player objects.
+     * @param player The player at another point. Must have same playerId.
+     * @return Whether the player has had any variables changed.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public boolean hasChanged(Player player) {
+        return  this.playerId != player.playerId ||
+                ((this.robotName != null || player.robotName != null) && !Objects.equals(this.robotName, player.robotName)) ||
+                ((this.playerName != null || player.playerName != null) && !Objects.equals(this.playerName, player.playerName)) ||
+                 this.isReady != player.isReady;
+    }
 }

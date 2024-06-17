@@ -5,29 +5,27 @@ import java.util.List;
 import com.group15.roborally.server.repository.PlayerRepository;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.server.model.Market;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.repository.GameRepository;
+import com.group15.roborally.server.repository.MarketRepository;
 
 @RestController
 @RequestMapping("/games")
 
 public class GameController {
-
     PlayerRepository playerRepository;
     GameRepository gameRepository;
+    MarketRepository marketRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository marketRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
+        this.marketRepository = marketRepository;
     }
 
     /**
@@ -40,12 +38,16 @@ public class GameController {
      */
     @GetMapping
     public ResponseEntity<Long> createGame() {
-        
         Game game = new Game();
         game.setNrOfPlayers(0);
         game.setPhase(GamePhase.LOBBY);
 
         gameRepository.save(game);
+
+        Market market = new Market();
+        market.setGameId(game.getGameId());
+        market.setTurn(1);
+        marketRepository.save(market);
 
         return ResponseEntity.ok().body(game.getGameId());
     }
@@ -78,8 +80,11 @@ public class GameController {
         player.setGameId(gameId);
         playerRepository.save(player);
 
-        game.setNrOfPlayers(game.getNrOfPlayers() + 1);
-        gameRepository.save(game);
+        boolean isHost = game.getNrOfPlayers() == 0;
+        if (isHost) {
+            game.setHostId(player.getPlayerId());
+        }
+        gameRepository.findById(gameId).ifPresent(this::updateNoOfPlayersByGame);
 
         return ResponseEntity.ok().body(player);
     }
@@ -125,5 +130,29 @@ public class GameController {
         }
 
         return ResponseEntity.ok(game);
+    }
+
+    @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateGame(@RequestBody Game game, @PathVariable("gameId") Long gameId) {
+        if (!gameRepository.existsById(gameId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        gameRepository.save(game);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Updates the number of players in the game. If there are no players in the game, the game is deleted.
+     * @param game The game to update.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void updateNoOfPlayersByGame(Game game) {
+        int newNoOfPlayers = playerRepository.findAllByGameId(game.getGameId()).get().size();
+        if (newNoOfPlayers == 0) { // Evt. også hvis "game.phase == GamePhase.LOBBY", hvis vi skal gemme spillere under spillet.
+            gameRepository.delete(game);
+        } else {
+            game.setNrOfPlayers(newNoOfPlayers);
+            gameRepository.save(game);
+        }
     }
 }

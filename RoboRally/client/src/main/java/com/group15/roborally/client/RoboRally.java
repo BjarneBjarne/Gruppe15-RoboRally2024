@@ -25,7 +25,6 @@ import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_Controller;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.model.lobby.LobbyData;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.view.MainMenuView;
@@ -68,13 +67,11 @@ public class RoboRally extends Application {
     private StackPane upgradeShopPane;
     private Stage stage;
     private static Scene primaryScene;
-    private BorderPane root;
     private BoardView boardView;
     private AnchorPane mainMenuPane;
     private AnchorPane multiplayerMenuPane;
-    private MultiplayerMenuView multiplayerMenuView;
-    private static CC_Controller courseCreator;
 
+    private static CC_Controller courseCreator;
     private static AppController appController;
 
     public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Can be used to log to a file. Doesn't work currently.
@@ -88,8 +85,10 @@ public class RoboRally extends Application {
     @FXML
     Button finishUpgradingButton;
 
-    StackPane stackPane;
-    StackPane backgroundStackPane;
+    private StackPane scalePane;
+    private StackPane mainPane;
+    private BorderPane root;
+    private StackPane backgroundStackPane;
 
     @Override
     public void init() throws Exception {
@@ -106,12 +105,6 @@ public class RoboRally extends Application {
     public void start(Stage primaryStage) {
         // TODO: Clean up this mess.
         stage = primaryStage;
-        appController = new AppController(this);
-        try {
-            appController.loadCourses();
-        } catch (NoCoursesException e) {
-            logger.info(e.getMessage());
-        }
         root = new BorderPane();
         root.setMaxHeight(Double.MAX_VALUE);
         root.setMaxWidth(Double.MAX_VALUE);
@@ -119,7 +112,15 @@ public class RoboRally extends Application {
         root.setPrefWidth(Region.USE_COMPUTED_SIZE);
         root.setMinHeight(Region.USE_COMPUTED_SIZE);
         root.setMinWidth(Region.USE_COMPUTED_SIZE);
-        stackPane = new StackPane(root);
+        mainPane = new StackPane(root);
+        scalePane = new StackPane(mainPane);
+
+        appController = new AppController(this, mainPane);
+        try {
+            appController.loadCourses();
+        } catch (NoCoursesException e) {
+            logger.info(e.getMessage());
+        }
 
         StackPane.setAlignment(root, Pos.CENTER);
         stage.setTitle("Robo Rally");
@@ -133,7 +134,7 @@ public class RoboRally extends Application {
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
             double initialWidth = initialHeight * (16.0 / 9.0);
-            primaryScene = new Scene(stackPane, initialWidth, initialHeight);
+            primaryScene = new Scene(scalePane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
             URL stylesCSS = getClass().getResource("styles.css");
             if (stylesCSS != null) {
@@ -173,8 +174,8 @@ public class RoboRally extends Application {
     }
 
     private void scaleRoot() {
-        stackPane.setScaleX(APP_SCALE);
-        stackPane.setScaleY(APP_SCALE);
+        scalePane.setScaleX(APP_SCALE);
+        scalePane.setScaleY(APP_SCALE);
         StackPane.setMargin(root, new Insets(0, 0, 0, 0));
         //System.out.println(APP_SCALE);
         APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());
@@ -261,7 +262,7 @@ public class RoboRally extends Application {
                 courseCreator.saveCourseDialog();
             }
         }
-        appController.disconnectFromServer();
+        appController.disconnectFromServer("", 0);
         Platform.exit();
     }
 
@@ -284,7 +285,7 @@ public class RoboRally extends Application {
      * @Author Marcus Rémi Lemser Eychenne, s230985
      */
     public void goToMainMenu() {
-        appController.disconnectFromServer();
+        appController.disconnectFromServer("", 1000);
         resetMultiplayerMenu();
         root.getChildren().clear(); // If present, remove old BoardView
         root.setCenter(mainMenuPane);
@@ -296,19 +297,15 @@ public class RoboRally extends Application {
      * @author Maximillian Bjørn Mortensen
      */
     public void resetMultiplayerMenu() {
-        multiplayerMenuView = null;
+        appController.resetMultiplayerMenuView();
         multiplayerMenuPane = null;
     }
 
-    public void createMultiplayerMenu() {
+    public void createMultiplayerMenu(MultiplayerMenuView multiplayerMenuView) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("MultiplayerMenu.fxml"));
-            multiplayerMenuView = new MultiplayerMenuView();
             loader.setController(multiplayerMenuView);
             multiplayerMenuPane = loader.load();
-            multiplayerMenuView.setupMenuUI(appController);
-            multiplayerMenuView.setupBackButton(this);
-
             goToMultiplayerMenu();
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -406,29 +403,5 @@ public class RoboRally extends Application {
         }
 
         courseCreator.initializeExitButton(this::goToMainMenu);
-    }
-
-
-    // Lobby methods
-    /**
-     * Initializes the lobbyServerReceive with the server data for the local player, either hosting or joining. Is called when the server tells the player they can join/host the lobbyServerReceive.
-     * @param lobbyData The LobbyData object received from the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void connectedToLobby(LobbyData lobbyData) {
-        if (lobbyData != null) {
-            multiplayerMenuView.setupLobby(appController, lobbyData, appController.getCourses());
-            appController.startLobbyUpdateLoop();
-        } else {
-            multiplayerMenuView.failedToConnect();
-        }
-    }
-
-    public void updateLobby(LobbyData lobbyData) {
-        multiplayerMenuView.updateLobby(lobbyData);
-    }
-
-    public LobbyData getCurrentLobbyData() {
-        return multiplayerMenuView.getCurrentLobbyData();
     }
 }
