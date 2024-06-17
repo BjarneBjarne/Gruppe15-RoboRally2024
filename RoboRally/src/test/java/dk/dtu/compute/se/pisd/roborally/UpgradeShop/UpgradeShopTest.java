@@ -33,7 +33,7 @@ public class UpgradeShopTest{
     }
 
     @Test
-    void attemptBuyCardFromShop(){
+    void attemptBuyCardFromShopTest(){
         upgradeShop.refillAvailableCards();
         CardField upgradeCardField = upgradeShop.getAvailableCardsField(1);
         UpgradeCard upgradeCard = (UpgradeCard) upgradeCardField.getCard();
@@ -45,14 +45,14 @@ public class UpgradeShopTest{
     }
 
     @Test
-    void attemptReceiveFreeCardFromShop(){
+    void attemptReceiveFreeCardFromShopTest(){
         upgradeShop.refillAvailableCards();
         UpgradeCard upgradeCard = (UpgradeCard) upgradeShop.getAvailableCardsField(0).getCard();
         Assertions.assertSame(upgradeCard, upgradeShop.attemptReceiveFreeCardFromShop(upgradeCard.getClass(), p1));
     }
 
     @Test
-    void refillAvailableCards(){
+    void refillAvailableCardsTest(){
         CardField[] cardFields = upgradeShop.getAvailableCardsFields();
         Assertions.assertEquals(2, cardFields.length);
         Assertions.assertNull(cardFields[0].getCard());

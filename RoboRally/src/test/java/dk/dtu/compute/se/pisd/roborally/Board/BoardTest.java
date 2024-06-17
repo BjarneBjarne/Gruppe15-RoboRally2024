@@ -52,7 +52,7 @@ public class BoardTest {
     }
 
     @Test
-    void getNeighbour(){
+    void getNeighbourTest(){
         Space space = board.getNeighbour(spaces[0][0], Heading.SOUTH);
         Assertions.assertSame(space, spaces[0][1]);
         space = board.getNeighbour(spaces[1][0], Heading.WEST);
@@ -65,7 +65,7 @@ public class BoardTest {
     }
 
     @Test
-    void updatePriorityList(){
+    void updatePriorityListTest(){
         Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
         Player p2 = new Player(board, Robots.getRobotByName("ZOOM BOT"), "p2");
         board.addPlayer(p1);
@@ -79,7 +79,7 @@ public class BoardTest {
     }
 
     @Test
-    void getPlayerDistance(){
+    void getPlayerDistanceTest(){
         Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
         board.addPlayer(p1);
         p1.setSpace(spaces[1][1]);
@@ -89,13 +89,13 @@ public class BoardTest {
     }
 
     @Test
-    void findAntenna(){
+    void findAntennaTest(){
         Space antenna = board.findAntenna();
         Assertions.assertSame(spaces[9][9], antenna);
     }
 
     @Test
-    void getSubBoardOfSpace(){
+    void getSubBoardOfSpaceTest(){
         Space[][] sub1 = board.getSubBoardOfSpace(spaces[2][3]);
         Space[][] sub2 = board.getSubBoardOfSpace(spaces[6][8]);
         Assertions.assertSame(subSpaces.get(0), sub1);
