@@ -46,11 +46,16 @@ public class ProgController {
         if (playerId <= 0L || turn <= 0 || player.getGameId() != register.getGameId()) {
             return ResponseEntity.status(422).build();
         }
-        if (register.getM1().equals(null) 
+        if (register.getM1().equals(null)
             || register.getM2().equals(null) 
             || register.getM3().equals(null) 
             || register.getM4().equals(null) 
-            || register.getM5().equals(null)) {
+            || register.getM5().equals(null)
+            || register.getM1().equals("")
+            || register.getM2().equals("")
+            || register.getM3().equals("")
+            || register.getM4().equals("")
+            || register.getM5().equals("")) {
             return ResponseEntity.status(422).build();
         }
         registerRepository.save(register);
@@ -70,9 +75,6 @@ public class ProgController {
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.status(404).build();
-        }
-        if (gameId <= 0L) {
-            return ResponseEntity.status(422).build();
         }
         Register[] registers = registerRepository.findByGameId(gameId);
         return ResponseEntity.ok(registers);
