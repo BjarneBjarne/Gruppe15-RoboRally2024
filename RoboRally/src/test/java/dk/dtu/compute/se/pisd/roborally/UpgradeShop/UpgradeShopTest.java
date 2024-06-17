@@ -9,14 +9,31 @@ import org.junit.jupiter.api.Test;
 
 public class UpgradeShopTest{
 
-    @Test
-    void attemptBuyCardFromShop(){
-        Board board = new Board(null, null, "test", 1);
-        Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
-        Player p2 = new Player(board, Robots.getRobotByName("ZOOM BOT"), "p2");
+    private Player p1;
+    private Player p2;
+    private Board board;
+    private UpgradeShop upgradeShop;
+
+    @BeforeEach
+    void setup(){
+        board = new Board(null, new Space[10][10], "test", 1);
+        p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
+        p2 = new Player(board, Robots.getRobotByName("ZOOM BOT"), "p2");
         board.addPlayer(p1);
         board.addPlayer(p2);
-        UpgradeShop upgradeShop = new UpgradeShop(board);
+        upgradeShop = new UpgradeShop(board);
+    }
+
+    @AfterEach
+    void teardown(){
+        p1 = null;
+        p2 = null;
+        board = null;
+        upgradeShop = null;
+    }
+
+    @Test
+    void attemptBuyCardFromShopTest(){
         upgradeShop.refillAvailableCards();
         CardField upgradeCardField = upgradeShop.getAvailableCardsField(1);
         UpgradeCard upgradeCard = (UpgradeCard) upgradeCardField.getCard();
@@ -28,23 +45,20 @@ public class UpgradeShopTest{
     }
 
     @Test
-    void attemptReceiveFreeCardFromShop(){
-        Board board = new Board(null, null, "test", 1);
-        UpgradeShop upgradeShop = new UpgradeShop(board);
-        upgradeShop.attemptReceiveFreeCardFromShop(null, null);
-    }
-
-    @Test
-    void refillAvailableCards(){
-        Board board = new Board(null, null, "test", 1);
-        UpgradeShop upgradeShop = new UpgradeShop(board);
+    void attemptReceiveFreeCardFromShopTest(){
         upgradeShop.refillAvailableCards();
+        UpgradeCard upgradeCard = (UpgradeCard) upgradeShop.getAvailableCardsField(0).getCard();
+        Assertions.assertSame(upgradeCard, upgradeShop.attemptReceiveFreeCardFromShop(upgradeCard.getClass(), p1));
     }
 
     @Test
-    void update(){
-        Board board = new Board(null, null, "test", 1);
-        UpgradeShop upgradeShop = new UpgradeShop(board);
-        upgradeShop.update(null);
+    void refillAvailableCardsTest(){
+        CardField[] cardFields = upgradeShop.getAvailableCardsFields();
+        Assertions.assertEquals(2, cardFields.length);
+        Assertions.assertNull(cardFields[0].getCard());
+        Assertions.assertNull(cardFields[1].getCard());
+        upgradeShop.refillAvailableCards();
+        Assertions.assertNotNull(cardFields[0].getCard());
+        Assertions.assertNotNull(cardFields[1].getCard());
     }
 }
