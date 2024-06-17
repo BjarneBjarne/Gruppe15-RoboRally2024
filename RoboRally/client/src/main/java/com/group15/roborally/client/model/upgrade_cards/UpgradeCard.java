@@ -29,7 +29,7 @@ public abstract class UpgradeCard extends Card {
     protected final List<Phase> activatableOn;
     private boolean enabled = false;
 
-    protected com.group15.roborally.client.model.Player owner;
+    protected Player owner;
     transient protected GameController gameController;
 
     /**

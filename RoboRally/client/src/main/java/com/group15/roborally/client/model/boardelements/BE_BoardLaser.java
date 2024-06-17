@@ -42,7 +42,7 @@ public class BE_BoardLaser extends BoardElement {
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         Space[][] spaces = gameController.board.getSpaces();
-        Laser laser = new Laser(space, direction, null, com.group15.roborally.client.model.Player.class, Space.class);
+        Laser laser = new Laser(space, direction, null, Player.class, Space.class);
         // Start the laser iteration asynchronously
         laser.startLaser(spaces).run();
         // Once the laser iteration is complete, calculate the damage
@@ -57,9 +57,9 @@ public class BE_BoardLaser extends BoardElement {
      */
     private void dealDamage(Laser laser, LinkedList<ActionWithDelay> actionQueue) {
         try {
-            List<com.group15.roborally.client.model.Player> playersHit = calculatePlayersHit(laser);
+            List<Player> playersHit = calculatePlayersHit(laser);
             // Deal damage to each target player
-            for (com.group15.roborally.client.model.Player playerHit : playersHit) {
+            for (Player playerHit : playersHit) {
                 Damage damage = new Damage(0, 0, 0, 0);
                 damage.add(STANDARD_DAMAGE);
                 actionQueue.addFirst(new ActionWithDelay(() -> {
@@ -73,8 +73,8 @@ public class BE_BoardLaser extends BoardElement {
         }
     }
 
-    private static List<com.group15.roborally.client.model.Player> calculatePlayersHit(Laser laser) throws InterruptedException {
-        List<com.group15.roborally.client.model.Player> playersHit = new ArrayList<>();
+    private static List<Player> calculatePlayersHit(Laser laser) throws InterruptedException {
+        List<Player> playersHit = new ArrayList<>();
         // Wait for the laser iteration to complete and get the spaces hit
         for (Space space : laser.getSpacesHit()) {
             Player target = space.getPlayer();

@@ -47,7 +47,7 @@ public class Space extends Subject {
     public final int x;
     public final int y;
 
-    transient private com.group15.roborally.client.model.Player player;
+    transient private Player player;
     transient private BoardElement boardElement;
     transient private Image backgroundImage;
     transient private final List<Heading> walls = new ArrayList<>();
@@ -86,7 +86,7 @@ public class Space extends Subject {
         this.boardElement = boardElement;
     }
 
-    public com.group15.roborally.client.model.Player getPlayer() {
+    public Player getPlayer() {
         if (player != null) {
             return player;
         } else {
@@ -94,7 +94,7 @@ public class Space extends Subject {
         }
     }
 
-    public void setPlayer(com.group15.roborally.client.model.Player player) {
+    public void setPlayer(Player player) {
         Player oldPlayer = this.player;
         if (player != oldPlayer &&
                 (player == null || board == player.board)) {

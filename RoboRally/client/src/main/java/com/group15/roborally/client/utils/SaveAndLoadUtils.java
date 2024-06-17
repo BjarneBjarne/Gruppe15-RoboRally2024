@@ -82,7 +82,7 @@ public class SaveAndLoadUtils {
 
     public static void loadPlayers(BoardTemplate boardTemplate, Board board, GameController gameController) {
         for (int i = 0; i < boardTemplate.getPlayers().length; i++) {
-            com.group15.roborally.client.model.Player player = loadPlayer(boardTemplate.getPlayers()[i], board, gameController);
+            Player player = loadPlayer(boardTemplate.getPlayers()[i], board, gameController);
             board.getPlayers().add(player);
         }
     }
@@ -95,8 +95,8 @@ public class SaveAndLoadUtils {
      * @param board the board on which the player is to be loaded
      * @return the player object loaded from the PlayerTemplate object
      */
-    private static com.group15.roborally.client.model.Player loadPlayer(PlayerTemplate playerTemplate, Board board, GameController gameController) {
-        com.group15.roborally.client.model.Player player = new com.group15.roborally.client.model.Player(board, playerTemplate.robot, playerTemplate.name);
+    private static Player loadPlayer(PlayerTemplate playerTemplate, Board board, GameController gameController) {
+        Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
 
         // SpawnPoint
         int spawnX = playerTemplate.spawnPoint.x;

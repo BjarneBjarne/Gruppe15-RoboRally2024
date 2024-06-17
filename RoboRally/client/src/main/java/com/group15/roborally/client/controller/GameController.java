@@ -24,7 +24,7 @@ package com.group15.roborally.client.controller;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
-import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
+import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.model.Player;
@@ -114,7 +114,7 @@ GameController {
         board.updatePriorityList();
         board.setCurrentPlayer(board.getPriorityList().peek());
 
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             com.group15.roborally.client.model.Player player = board.getPlayer(i);
             if (player != null) {
                 if (KEEP_HAND) {
@@ -157,7 +157,7 @@ GameController {
      */
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < com.group15.roborally.client.model.Player.NO_OF_REGISTERS) {
-            for (int i = 0; i < board.getNoOfPlayers(); i++) {
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
                 com.group15.roborally.client.model.Player player = board.getPlayer(i);
                 CardField field = player.getProgramField(register);
                 field.setVisible(true);
@@ -169,7 +169,7 @@ GameController {
      * Makes all players program fields invisible.
      */
     private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             com.group15.roborally.client.model.Player player = board.getPlayer(i);
             for (int j = 0; j < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; j++) {
                 CardField field = player.getProgramField(j);
@@ -575,7 +575,7 @@ GameController {
             }
             player.setHeading(direction);
 
-            int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % board.getNoOfPlayers();
+            int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % NO_OF_PLAYERS;
             com.group15.roborally.client.model.Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
             if (nextPlayer.getSpawnPoint() != null) {

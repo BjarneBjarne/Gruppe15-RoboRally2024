@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
+
 /**
  * The UpgradeShop handles transactions of UpgradeCards for EnergyCubes.
    ---
@@ -20,7 +22,7 @@ import java.util.*;
    ---
  * The number of cards available for purchase will always try to maintain being equal to the number of players.
  * If no cards were bought the previous round, all previous available cards will first be discarded, before offering new ones.
- * When the Phase.UPGRADE starts, the shop will offer a number of new cards corresponding to (the noOfPlayers on the board) minus (the-
+ * When the Phase.UPGRADE starts, the shop will offer a number of new cards corresponding to (the NO_OF_PLAYERS on the board) minus (the-
        number of "available cards missing").
  * If the main deck "upgradeCardsDeck" runs out of cards, the discarded cards in "upgradeCardsDiscardDeck" are shuffled and added back-
        into "upgradeCardsDeck".
@@ -30,16 +32,14 @@ public class UpgradeShop implements Observer {
     private final LinkedList<UpgradeCard> upgradeCardsDiscardDeck = new LinkedList<>();
     transient private final CardField[] availableCardsFields;
     private final Board board;
-    private int noOfPlayers;
     private int energyLevel = 0; // Variable just for the fun of it. Maybe it could be used for something, like an event at a certain energy level.
 
     public UpgradeShop(Board board) {
         this.board = board;
-        this.noOfPlayers = board.getNoOfPlayers();
-        this.availableCardsFields = new CardField[noOfPlayers];
+        this.availableCardsFields = new CardField[NO_OF_PLAYERS];
         addAllUpgradeCardsShuffled();
 
-        for (int i = 0; i < noOfPlayers; i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             availableCardsFields[i] = new CardField(this);
         }
 
@@ -65,7 +65,7 @@ public class UpgradeShop implements Observer {
      * @param player The player buying the card. Used for checking and setting EnergyCubes.
      * @return Returns the purchased UpgradeCard. Return NULL if the CardField isn't in the shop or if the player doesn't have enough energy cubes.
      */
-    public UpgradeCard attemptBuyCardFromShop(CardField shopField, com.group15.roborally.client.model.Player player) {
+    public UpgradeCard attemptBuyCardFromShop(CardField shopField, Player player) {
         // Purchase criteria checks.
         if (!Arrays.stream(availableCardsFields).toList().contains(shopField)) return null; // FAILED PURCHASE - The CardField isn't in the shop.
         UpgradeCard cardToSell = (UpgradeCard) shopField.getCard();
@@ -120,13 +120,13 @@ public class UpgradeShop implements Observer {
         // If no cards were bought, discard all cards
         if (getNoOfMissingCards() == 0) {
             System.out.println("No cards bought. Refreshing whole shop.");
-            for (int i = 0; i < noOfPlayers; i++) {
+            for (int i = 0; i < NO_OF_PLAYERS; i++) {
                 upgradeCardsDiscardDeck.offerLast((UpgradeCard) availableCardsFields[i].getCard());
                 availableCardsFields[i].setCard(null);
             }
         }
         // Add noOfMissing cards to availableUpgradeCards
-        for (int i = 0; i < noOfPlayers; i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (availableCardsFields[i].getCard() == null) {
                 availableCardsFields[i].setCard(drawCard());
             }
@@ -138,7 +138,7 @@ public class UpgradeShop implements Observer {
      */
     private int getNoOfMissingCards() {
         int noOfMissingCards = 0;
-        for (int i = 0; i < noOfPlayers; i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (availableCardsFields[i].getCard() == null) {
                 noOfMissingCards++;
             }
@@ -200,13 +200,8 @@ public class UpgradeShop implements Observer {
         Collections.shuffle(upgradeCardsDeck);
     }
 
-
-
-    // Listener method for ensuring variables are up-to-date.
     @Override
     public void update(Subject subject) {
-        if (subject == board) {
-            this.noOfPlayers = board.getNoOfPlayers();
-        }
+
     }
 }

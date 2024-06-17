@@ -45,6 +45,7 @@ import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
+import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 import static com.group15.roborally.client.model.Phase.INITIALIZATION;
 
 import java.util.ArrayList;
@@ -228,9 +229,9 @@ public class BoardView extends VBox implements ViewObserver {
     public void updateUpgradeShop() {
         upgradeShopCardsHBox.getChildren().clear();
         UpgradeShop upgradeShop = board.getUpgradeShop();
-        CardFieldView[] upgradeShopCardViews = new CardFieldView[board.getNoOfPlayers()];
+        CardFieldView[] upgradeShopCardViews = new CardFieldView[NO_OF_PLAYERS];
 
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
             upgradeShopCardViews[i] = cardFieldView;
