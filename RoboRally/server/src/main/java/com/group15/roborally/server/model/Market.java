@@ -16,10 +16,14 @@
 // public class Market {
 
 //     @Id
-//     // @JoinColumn(name = "gameId", referencedColumnName = "gameId", insertable = false, updatable = false)
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//     private Long marketId;
+
 //     private Long gameId;
 
 //     private String[] cards;
+
 //     private int turn;
     
+//     @ManyToOne(fetch = FetchType.LAZY)
 // }
