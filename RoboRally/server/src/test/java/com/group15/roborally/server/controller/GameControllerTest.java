@@ -3,9 +3,6 @@ package com.group15.roborally.server.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.google.gson.Gson;
-import com.group15.roborally.server.model.Player;
-
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +19,6 @@ public class GameControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private final Gson gson;
-
-    public GameControllerTest() {
-        this.gson = new Gson();
-    }
 
     /**
      * Test the createGame endpoint in the GameController
