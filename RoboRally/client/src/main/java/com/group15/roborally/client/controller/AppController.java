@@ -228,7 +228,6 @@ public class AppController implements Observer {
     public void startUpdateGameLoop() {
         Runnable lobbyUpdate = () -> {
             Game currentGameData = multiplayerMenuView.getCurrentGameData();
-
             if (serverCommunication.getIsConnectedToServer()) {
                 if (currentGameData == null) return;
 

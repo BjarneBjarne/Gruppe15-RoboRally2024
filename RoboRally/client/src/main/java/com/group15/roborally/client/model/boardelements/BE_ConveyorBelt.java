@@ -97,7 +97,7 @@ public class BE_ConveyorBelt extends BoardElement {
     @Override
     public boolean doAction(@NotNull Space space, @NotNull GameController gameController, LinkedList<ActionWithDelay> actionQueue) {
         // Getting the player:
-        com.group15.roborally.client.model.Player player = space.getPlayer();
+        Player player = space.getPlayer();
 
         if (player == null) {
             return false;
@@ -116,7 +116,7 @@ public class BE_ConveyorBelt extends BoardElement {
                     simulatedSpace.isSameType = true;
                     simulatedSpace.heading = belt.getDirection();
                 }
-                com.group15.roborally.client.model.Player playerOnSpace = originalSpace.getPlayer();
+                Player playerOnSpace = originalSpace.getPlayer();
                 if (playerOnSpace != null) {
                     simulatedSpace.player = playerOnSpace;
                 }

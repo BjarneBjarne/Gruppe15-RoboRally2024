@@ -41,7 +41,7 @@ public class CardField extends Subject {
         TEMPORARY_UPGRADE_CARD_FIELD
     }
     final public CardFieldTypes cardFieldType;
-    final public com.group15.roborally.client.model.Player player;
+    final public Player player;
     final public UpgradeShop upgradeShop;
     final public int index;
     private Card card;
@@ -64,7 +64,7 @@ public class CardField extends Subject {
      * @param player The player owning the CardField.
      * @param cardFieldType The type of cards that can go here.
      */
-    public CardField(com.group15.roborally.client.model.Player player, CardFieldTypes cardFieldType) {
+    public CardField(Player player, CardFieldTypes cardFieldType) {
         index = 0;
         this.player = player;
         this.upgradeShop = null;

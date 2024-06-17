@@ -26,6 +26,8 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.Board;
 import javafx.scene.control.TabPane;
 
+import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
+
 /**
  * ...
  *
@@ -42,8 +44,8 @@ public class PlayersView extends TabPane implements ViewObserver {
     public PlayersView(GameController gameController) {
         board = gameController.board;
 
-        playerViews = new PlayerView[board.getNoOfPlayers()];
-        for (int i = 0; i < board.getNoOfPlayers(); i++) {
+        playerViews = new PlayerView[NO_OF_PLAYERS];
+        for (int i = 0; i < NO_OF_PLAYERS; i++) {
             playerViews[i] = new PlayerView(gameController, board.getPlayer(i));
             this.getTabs().add(playerViews[i]);
         }

@@ -32,14 +32,14 @@ public class EventHandler {
     /**
      * Generic hashmap for EventListeners/Cards.
      */
-    private static final Map<EventListener, com.group15.roborally.client.model.Player> listeners = new HashMap<>();
+    private static final Map<EventListener, Player> listeners = new HashMap<>();
 
     /**
      * Subscription method for EventListeners/Cards.
      * @param listener
      * @param owner
      */
-    public static EventListener subscribe(EventListener listener, com.group15.roborally.client.model.Player owner) {
+    public static EventListener subscribe(EventListener listener, Player owner) {
         listeners.put(listener, owner);
         return listener;
     }
@@ -48,7 +48,7 @@ public class EventHandler {
      * @param listener
      * @param owner
      */
-    public static void unsubscribe(EventListener listener, com.group15.roborally.client.model.Player owner) {
+    public static void unsubscribe(EventListener listener, Player owner) {
         listeners.entrySet().removeIf(entry -> entry.getKey().equals(listener) && entry.getValue().equals(owner));
     }
 
@@ -60,12 +60,12 @@ public class EventHandler {
      * @param eventListenerType The type of event that is listened to by cards.
      * @return Returns the EventListeners of a type in the cards owned by the player.
      */
-    private static <T extends EventListener> List<T> getPlayerCardEventListeners(com.group15.roborally.client.model.Player player, Class<T> eventListenerType) {
+    private static <T extends EventListener> List<T> getPlayerCardEventListeners(Player player, Class<T> eventListenerType) {
         List<T> playerEventListeners = new ArrayList<>();
         // Iterate through all cards/listeners
-        for (Map.Entry<EventListener, com.group15.roborally.client.model.Player> entry : listeners.entrySet()) {
+        for (Map.Entry<EventListener, Player> entry : listeners.entrySet()) {
             EventListener listener = entry.getKey();
-            com.group15.roborally.client.model.Player owner = entry.getValue();
+            Player owner = entry.getValue();
             // Check if the player is the owner of the card and the listener is of the specified type
             if (owner == player && eventListenerType.isInstance(listener)) {
                 playerEventListeners.add(eventListenerType.cast(listener));
@@ -83,13 +83,13 @@ public class EventHandler {
      * This should ONLY be called from within player.queueLaser().
      * @param playerShooting The player to begin shooting a laser.
      */
-    public static void event_PlayerShootStart(com.group15.roborally.client.model.Player playerShooting) {
+    public static void event_PlayerShootStart(Player playerShooting) {
         if (playerShooting.getIsRebooting()) {
             return;
         }
 
         // Making new laser
-        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting, com.group15.roborally.client.model.Player.class, Space.class);
+        Laser laser = new Laser(playerShooting.getSpace(), playerShooting.getHeading(), playerShooting, Player.class, Space.class);
         // Modify laser
         List<PlayerShootListener> playerShootListeners = getPlayerCardEventListeners(playerShooting, PlayerShootListener.class);
         for (PlayerShootListener listener : playerShootListeners) {
@@ -104,7 +104,7 @@ public class EventHandler {
      * @param playerShooting The player who is currently shooting.
      * @param laser The laser that playerShooting fired.
      */
-    public static void event_PlayerShootHandle(com.group15.roborally.client.model.Player playerShooting, Laser laser) {
+    public static void event_PlayerShootHandle(Player playerShooting, Laser laser) {
         if (laser == null) return;
 
         Board board = playerShooting.board;
@@ -113,9 +113,9 @@ public class EventHandler {
         laser.startLaser(board.getSpaces()).run();
 
         try {
-            List<com.group15.roborally.client.model.Player> playersHit = calculatePlayersHit(laser);
+            List<Player> playersHit = calculatePlayersHit(laser);
             // Deal damage to each target player
-            for (com.group15.roborally.client.model.Player target : playersHit) {
+            for (Player target : playersHit) {
                 if (target == playerShooting) {
                     continue;
                 }
@@ -136,11 +136,11 @@ public class EventHandler {
             System.out.println("Player laser interrupted: " + e.getMessage());
         }
     }
-    private static List<com.group15.roborally.client.model.Player> calculatePlayersHit(Laser laser) throws InterruptedException {
-        List<com.group15.roborally.client.model.Player> playersHit = new ArrayList<>();
+    private static List<Player> calculatePlayersHit(Laser laser) throws InterruptedException {
+        List<Player> playersHit = new ArrayList<>();
         // Wait for the laser iteration to complete and get the spaces hit
         for (Space space : laser.getSpacesHit()) {
-            com.group15.roborally.client.model.Player target = space.getPlayer();
+            Player target = space.getPlayer();
             if (target != null) {
                 playersHit.add(target);
             }
@@ -158,7 +158,7 @@ public class EventHandler {
      * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
      * @param damage The damage to deal to the playerTakingDamage.
      */
-    public static void event_PlayerDamage(@NotNull com.group15.roborally.client.model.Player playerTakingDamage, com.group15.roborally.client.model.Player playerInflictingTheDamage, Damage damage) {
+    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, com.group15.roborally.client.model.Player playerInflictingTheDamage, Damage damage) {
         LinkedList<ActionWithDelay> actionQueue = playerInflictingTheDamage.board.getBoardActionQueue();
         List<PlayerLaserHitListener> playerLaserHitListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerLaserHitListener.class);
         for (PlayerLaserHitListener listener : playerLaserHitListeners) {

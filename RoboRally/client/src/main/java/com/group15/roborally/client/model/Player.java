@@ -660,7 +660,7 @@ public class Player extends Subject {
                 break;
             case VIRUS:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                    for (com.group15.roborally.client.model.Player foundPlayer : board.getPlayers()) {
+                    for (Player foundPlayer : board.getPlayers()) {
                         if (space.getDistanceFromOtherSpace(foundPlayer.space) <= 6) {
                             foundPlayer.discard(new CommandCard(Command.VIRUS));
                             foundPlayer.discard(new CommandCard(Command.SPAM));
@@ -768,7 +768,7 @@ public class Player extends Subject {
      * @param direction The direction the laser should fire.
      */
     public void shootLaser(Heading direction) {
-        Laser laser = new Laser(space, direction, this, com.group15.roborally.client.model.Player.class, Space.class);
+        Laser laser = new Laser(space, direction, this, Player.class, Space.class);
 
         EventHandler.event_PlayerShootHandle(this, laser);
     }
