@@ -27,6 +27,10 @@ public class Player/*  implements Serializable */ {
 
     private String playerName;
 
+    private int[] spawnpoint;
+
+    private String spawndirection;
+
     private int isReady;
 
     @ManyToOne(fetch = FetchType.LAZY)
