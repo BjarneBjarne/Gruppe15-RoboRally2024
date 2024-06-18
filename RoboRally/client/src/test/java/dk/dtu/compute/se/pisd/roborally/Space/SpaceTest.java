@@ -32,8 +32,8 @@ public class SpaceTest {
             }
         }
         board = new Board(null, spaces, "test", 1);
-        p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
-        p2 = new Player(board, Robots.getRobotByName("ZOOM BOT"), "p2");
+        p1 = new Player(0, "p1", board, Robots.getRobotByName("SPIN BOT"));
+        p2 = new Player(1, "p2", board, Robots.getRobotByName("ZOOM BOT"));
         board.addPlayer(p1);
         board.addPlayer(p2);
     }
