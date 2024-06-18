@@ -21,8 +21,8 @@
  */
 package com.group15.roborally.client.view;
 
-import com.group15.roborally.client.observer.Observer;
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Observer;
+import com.group15.observer.Subject;
 import javafx.application.Platform;
 
 /**

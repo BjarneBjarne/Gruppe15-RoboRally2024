@@ -29,10 +29,10 @@ import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.*;
 
 import com.group15.roborally.client.model.*;
-import com.group15.roborally.client.observer.Observer;
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Observer;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.RoboRally;
-import com.group15.roborally.client.communication.ServerCommunication;
+import com.group15.roborally.server.utils.ServerCommunication;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 import com.group15.roborally.client.exceptions.EmptyCourseException;

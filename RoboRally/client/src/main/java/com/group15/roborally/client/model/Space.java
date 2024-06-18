@@ -21,12 +21,11 @@
  */
 package com.group15.roborally.client.model;
 
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.model.boardelements.BE_Antenna;
 import com.group15.roborally.client.model.boardelements.BE_Checkpoint;
 import com.group15.roborally.client.model.boardelements.BE_PushPanel;
 import com.group15.roborally.client.model.boardelements.BoardElement;
-import com.group15.roborally.client.model.Player;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
