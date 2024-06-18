@@ -77,7 +77,7 @@ public class ServerRequest {
         
         Long gameId = sendRequest(
             baseUrl + "/games", 
-            HttpMethod.POST, 
+            HttpMethod.GET, 
             null, 
             new ParameterizedTypeReference<Long>() {}
         );

@@ -1,0 +1,21 @@
+@startuml
+
+start
+
+repeat:GET "/market/{gameId}/turn";
+repeat while (turn == playerPriority) is (false)
+-> true;
+
+:GET "/market/{gameId}";
+:Update view with market data;
+:Buy cards;
+:PUT "/market/{gameId}";
+
+repeat:GET "/gameId/{gameId}/phase";
+repeat while (gamePhase == upgrade) is (true)
+-> false;
+
+:Enter programming phase;
+
+stop
+@enduml
