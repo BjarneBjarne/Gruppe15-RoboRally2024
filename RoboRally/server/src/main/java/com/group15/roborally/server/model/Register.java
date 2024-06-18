@@ -21,8 +21,6 @@ public class Register {
 
     @Id
     private long playerId;
-    @Id
-    private long gameId;
 
     private int turn;
 
