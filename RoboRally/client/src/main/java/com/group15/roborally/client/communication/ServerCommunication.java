@@ -42,7 +42,7 @@ public class ServerCommunication extends Subject {
         try {
             gameId = sendRequest(
                     "/games",
-                    HttpMethod.POST,
+                    HttpMethod.GET,
                     new ParameterizedTypeReference<>() {}, null
             );
         } catch (HttpClientErrorException e) {
