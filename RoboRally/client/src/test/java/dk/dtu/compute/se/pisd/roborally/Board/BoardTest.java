@@ -1,10 +1,10 @@
 package dk.dtu.compute.se.pisd.roborally.Board;
 
-import gruppe15.roborally.BoardOptions;
-import gruppe15.roborally.model.*;
-import gruppe15.roborally.model.boardelements.BE_Antenna;
-import gruppe15.roborally.model.boardelements.BE_Checkpoint;
-import gruppe15.roborally.model.boardelements.BE_Hole;
+import com.group15.roborally.client.BoardOptions;
+import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.model.boardelements.BE_Antenna;
+import com.group15.roborally.client.model.boardelements.BE_Checkpoint;
+import com.group15.roborally.client.model.boardelements.BE_Hole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

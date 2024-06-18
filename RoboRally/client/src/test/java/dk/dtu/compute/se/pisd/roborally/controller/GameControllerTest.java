@@ -1,14 +1,14 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
-import gruppe15.roborally.controller.GameController;
-import gruppe15.roborally.model.*;
+import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static gruppe15.roborally.model.Phase.*;
+import static com.group15.roborally.client.model.Phase.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

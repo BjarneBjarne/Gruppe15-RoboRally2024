@@ -1,6 +1,6 @@
 package dk.dtu.compute.se.pisd.roborally.Space;
 
-import gruppe15.roborally.model.*;
+import com.group15.roborally.client.model.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
