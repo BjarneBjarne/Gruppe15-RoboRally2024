@@ -66,8 +66,8 @@ public class BoardTest {
 
     @Test
     void updatePriorityListTest(){
-        Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
-        Player p2 = new Player(board, Robots.getRobotByName("ZOOM BOT"), "p2");
+        Player p1 = new Player(0, "p1", board, Robots.getRobotByName("SPIN BOT"));
+        Player p2 = new Player(1, "p2", board, Robots.getRobotByName("ZOOM BOT"));
         board.addPlayer(p1);
         board.addPlayer(p2);
         p1.setSpace(spaces[7][5]);
@@ -80,7 +80,7 @@ public class BoardTest {
 
     @Test
     void getPlayerDistanceTest(){
-        Player p1 = new Player(board, Robots.getRobotByName("SPIN BOT"), "p1");
+        Player p1 = new Player(0, "p1", board, Robots.getRobotByName("SPIN BOT"));
         board.addPlayer(p1);
         p1.setSpace(spaces[1][1]);
         BoardOptions.NO_OF_PLAYERS = 1;

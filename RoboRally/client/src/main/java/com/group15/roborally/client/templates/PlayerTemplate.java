@@ -13,6 +13,7 @@ import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 
 public class PlayerTemplate {
+    public long playerId;
     public String name;
     public Robots robot;
     public Space space;

@@ -79,17 +79,15 @@ import static com.group15.roborally.client.BoardOptions.*;
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class AppController implements Observer {
+public class AppController {
     private final RoboRally roboRally;
     public boolean isCourseCreatorOpen = false;
     private GameController gameController;
     private List<CC_CourseData> courses = new ArrayList<>();
 
-    private MultiplayerMenuView multiplayerMenuView;
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Remote server: 129.151.221.13
-    private ScheduledExecutorService lobbyUpdateScheduler;
-    private final Random random = new Random();
+    private final NetworkingController networkingController = new NetworkingController(this);
 
+    private MultiplayerMenuView multiplayerMenuView;
     private final StackPane infoPane = new StackPane();
     private final Text infoText = new Text();
 
@@ -125,184 +123,18 @@ public class AppController implements Observer {
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView();
             roboRally.createMultiplayerMenu(multiplayerMenuView);
-            multiplayerMenuView.setupMenuUI(this);
+            multiplayerMenuView.setupMenuUI(networkingController);
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
-            serverCommunication.attach(this);
             setInfoText("");
         });
     }
 
-    /**
-     * Calls the server and requests to create a new game.
-     * Adds delay in between messages to be able to read them.
-     * Adds a random delay after creating the game.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void tryCreateAndJoinGame(String playerName) {
-        setInfoText("Creating new game...");
-        AtomicLong gameId = new AtomicLong();
-        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame()), random.nextInt(125, 500)), () -> {
-            if (gameId.get() != -1) {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    setInfoText("Successfully created new game!");
-                }, 500), () -> {
-                    tryJoinGameWithGameID(gameId.get(), playerName);
-                });
-            } else {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    setInfoText("Failed to create new game.");
-                }, 1500), () -> {
-                    setInfoText("");
-                });
-            }
-        });
+    public void showLobby(boolean showLobby) {
+        multiplayerMenuView.showLobby(showLobby);
     }
 
-    /**
-     * Calls the server and requests to join a game.
-     * Adds delay in between messages to be able to read them.
-     * Adds a random delay after joining the game.
-     * @param gameId The ID of the game.
-     * @param playerName The name that the player wants.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void tryJoinGameWithGameID(long gameId, String playerName) {
-        setInfoText("Joining game...");
-        AtomicReference<Player> player = new AtomicReference<>();
-        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(gameId, playerName)), random.nextInt(125, 500)), () -> {
-            if (player.get() != null) {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    setInfoText("Successfully joined game!");
-                    connectedToGame(gameId, player.get());
-                    multiplayerMenuView.showLobby(true);
-                }, 500), () -> {
-                    setInfoText("");
-                });
-            } else {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    setInfoText("Failed to join game.");
-                }, 1500), () -> {
-                    setInfoText("");
-                });
-            }
-        });
-    }
-
-    // Lobby methods
-    /**
-     * Initializes the multiplayer menu with the server data for the local player. Is called when the server tells the player they can join the game.
-     * @param gameId The game's gameId received from the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void connectedToGame(long gameId, Player player) {
-        Game game = serverCommunication.getGame(gameId);
-        List<Player> players = serverCommunication.getPlayers(gameId);
-        multiplayerMenuView.setupLobby(this, game, player, players, courses);
-        startUpdateGameLoop();
-    }
-
-    public void changeRobot(Player player, String robotName) {
-        player.setRobotName(robotName);
-        String serverResponse = serverCommunication.updatePlayer(player);
-        if (serverResponse != null) System.out.println(serverResponse);
-    }
-
-    public void setIsReady(Player player, int isReady) {
-        player.setIsReady(isReady);
-        String serverResponse = serverCommunication.updatePlayer(player);
-        if (serverResponse != null) System.out.println(serverResponse);
-    }
-
-    public void changeCourse(Game game, CC_CourseData chosenCourse) {
-        game.setCourseName(chosenCourse.getCourseName());
-        String serverResponse = serverCommunication.updateGame(game);
-        if (serverResponse != null) System.out.println(serverResponse);
-    }
-
-    public void setGameStart(Game game) {
-        game.setPhase(GamePhase.PROGRAMMING);
-        String serverResponse = serverCommunication.updateGame(game);
-        if (serverResponse != null) System.out.println(serverResponse);
-    }
-
-    public void startUpdateGameLoop() {
-        Runnable lobbyUpdate = () -> {
-            Game currentGameData = multiplayerMenuView.getCurrentGameData();
-            if (serverCommunication.getIsConnectedToServer()) {
-                if (currentGameData == null) return;
-
-                long gameId = currentGameData.getGameId();
-                Game updatedGameData = serverCommunication.getGame(gameId);
-                List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
-
-                if (updatedGameData != null && updatedPlayers != null) {
-                    Platform.runLater(() -> updateGame(updatedGameData, updatedPlayers));
-                }
-            }
-        };
-        lobbyUpdateScheduler = Executors.newScheduledThreadPool(1);
-        lobbyUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
-    }
-
-    public void stopLobbyUpdateLoop() {
-        if (lobbyUpdateScheduler != null) {
-            lobbyUpdateScheduler.shutdownNow();
-        }
-        lobbyUpdateScheduler = null;
-    }
-
-    public void updateGame(Game updatedGameData, List<Player> updatedPlayers) {
-        if (serverCommunication.getIsConnectedToServer()) {
-            boolean hostIsConnected = updatedPlayers.stream().anyMatch(player -> updatedGameData.getHostId() == player.getPlayerId());
-            if (hostIsConnected) {
-                multiplayerMenuView.updateLobby(this, updatedGameData, updatedPlayers, false);
-            } else {
-                disconnectFromServer("The host left the game.", 3000);
-            }
-        }
-    }
-
-    /**
-     * Method for manually leaving the server and game.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
-        if (serverCommunication.getIsConnectedToServer()) {
-            if (infoMessage == null || infoMessage.isEmpty()) {
-                infoMessage = "Disconnected from server.";
-            }
-            String finalInfoMessage = infoMessage;
-            runActionAndCallback(new ActionWithDelay(() -> {
-                setInfoText(finalInfoMessage);
-                serverCommunication.deletePlayer(multiplayerMenuView.getCurrentLocalPlayer());
-                multiplayerMenuView.showLobby(false);
-                stopLobbyUpdateLoop();
-            }, showMessageTimeInMillis), () -> {
-                setInfoText("");
-            });
-        }
-    }
-
-    /**
-     * Method for when the connection to the server was lost, and the reconnection timed out.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void connectionToServerTimedOut() {
-        runActionAndCallback(new ActionWithDelay(() -> {
-            setInfoText("Connection to server timed out.");
-            multiplayerMenuView.showLobby(false);
-            stopLobbyUpdateLoop();
-        }, 2000), () -> {
-            setInfoText("");
-        });
-    }
-
-    @Override
-    public void update(Subject subject) {
-        // If the player was disconnected from the server.
-        if (!serverCommunication.getIsConnectedToServer()) {
-            connectionToServerTimedOut();
-        }
+    public void leftGame() {
+        roboRally.goToMainMenu();
     }
 
     /**
@@ -318,10 +150,10 @@ public class AppController implements Observer {
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             com.group15.roborally.client.model.Player player =
-                    new com.group15.roborally.client.model.Player(
+                    new com.group15.roborally.client.model.Player(players.get(i).getPlayerId(),
+                            players.get(i).getPlayerName(),
                             board,
-                            Objects.requireNonNull(Robots.getRobotByName(players.get(i).getRobotName())),
-                            players.get(i).getPlayerName());
+                            Objects.requireNonNull(Robots.getRobotByName(players.get(i).getRobotName())));
             player.setHeading(Heading.EAST);
             board.addPlayer(player);
         }
@@ -492,15 +324,12 @@ public class AppController implements Observer {
         }
     }
 
-    public void resetMultiplayerMenuView() {
-        multiplayerMenuView = null;
+    public List<CC_CourseData> getCourses() {
+        return courses;
     }
 
-    private void runActionAndCallback(ActionWithDelay actionWithDelay, Runnable callback) {
-        actionWithDelay.getAction(false).run();
-        PauseTransition pause = new PauseTransition(Duration.millis(actionWithDelay.getDelayInMillis()));
-        pause.setOnFinished(event -> callback.run());
-        pause.play();
+    public void resetMultiplayerMenuView() {
+        multiplayerMenuView = null;
     }
 
     /**
@@ -522,5 +351,9 @@ public class AppController implements Observer {
     }
     public void setInfoText(String connectionInfo) {
         setInfoText(connectionInfo, true);
+    }
+
+    public void disconnectFromServer(String s, int i) {
+        networkingController.disconnectFromServer(s, i);
     }
 }
