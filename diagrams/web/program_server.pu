@@ -1,0 +1,24 @@
+@startuml
+
+start
+
+repeat:Wait for POST or GET;
+
+fork
+    :Receive POST;
+    :Update 'Register' table;
+    :Send OK response;
+fork again
+    :Receive GET;
+    if(all players ready?) then (yes)
+        note right
+            Queries DB if 
+            amountOfRegister == nrOfPlayers
+        end note
+        :Send other player register;
+    else (no)
+        :Send 'Wait' response;
+    endif
+end fork
+repeat while (In programming phase)
+@enduml
