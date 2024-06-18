@@ -145,7 +145,7 @@ public class AppController {
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
         // GameController
-        gameController = new GameController(board, this::gameOver);
+        gameController = new GameController(board, this::gameOver, networkingController);
 
         // Adding players
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
@@ -204,7 +204,7 @@ public class AppController {
         }
 
         // GameController
-        gameController = new GameController(newBoard, this::gameOver);
+        gameController = new GameController(newBoard, this::gameOver, networkingController);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
         newBoard.setCurrentPhase(Phase.PROGRAMMING);
 

@@ -307,7 +307,13 @@ public class Player extends Subject {
     public CardField[] getProgramFields() {
         return programFields;
     }
-
+    public String[] getProgramFieldNames() {
+        String[] names = new String[programFields.length];
+        for (int i = 0; i < programFields.length; i++) {
+            names[i] = programFields[i].getCard().getName();
+        }
+        return names;
+    }
     public CardField getCardField(int i) {
         return cardHandFields[i];
     }
