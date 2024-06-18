@@ -15,12 +15,13 @@ import lombok.Setter;
 @AllArgsConstructor
 // @IdClass(RegisterId.class)
 public class Register {
+    // @Id
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // private long registerId;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long registerId;
-
     private long playerId;
-
+    @Id
     private long gameId;
 
     private int turn;
