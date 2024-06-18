@@ -53,9 +53,11 @@ public class Board extends Subject {
     private final List<Player> players = new ArrayList<>();
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private Player currentPlayer;
-
+    private Player self;
+    
     private Phase currentPhase = INITIALIZATION;
     private int currentRegister = 0;
+    private int turnCounter = 0;
 
     final public int NO_OF_CHECKPOINTS;
 
@@ -100,6 +102,14 @@ public class Board extends Subject {
 
     public Integer getGameId() {
         return gameId;
+    }
+
+    public int getTurnCounter() {
+        return turnCounter;
+    }
+
+    public Player getSelf() {
+        return self;
     }
 
     public void setGameId(int gameId) {

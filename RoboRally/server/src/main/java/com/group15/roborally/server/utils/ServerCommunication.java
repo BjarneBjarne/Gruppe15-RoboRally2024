@@ -197,7 +197,16 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/players/" + playerId + "/registers/" + turn,
                 HttpMethod.POST,
-                new ParameterizedTypeReference<>() {}, register
+                new ParameterizedTypeReference<String>() {}, 
+                registerMoves
+        );
+    }
+
+    public List<Register> getRegisters(long gameId) {
+        return sendRequest(
+                "/games/" + gameId + "/registers",
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {}, null
         );
     }
 

@@ -35,6 +35,7 @@ public class NetworkingController implements Observer {
 
     private Game game;
     private List<Player> players;
+    private List<Register> registers;
     private Player localPlayer;
     private boolean isHost = false;
     private CC_CourseData selectedCourse = null;
@@ -279,10 +280,12 @@ public class NetworkingController implements Observer {
         }
     }
 
-    public void updateRegister(String playerName, String password) {
-        Register register = 
-        serverCommunication.updateRegister(playerName, password);
+    public void updateRegister(String playerName, String[] regiserMoves, int turn) {
+        Player player = getPlayer(playerName);
+        serverCommunication.updateRegister(regiserMoves, player.getPlayerId(), turn);
     }
+
+
 
     public Player getPlayer(String playerName) {
         return players.stream().filter(player -> player.getPlayerName().equals(playerName)).findFirst().orElse(null);
@@ -294,5 +297,26 @@ public class NetworkingController implements Observer {
 
     public CC_CourseData getCurrentSelectedCourse() {
         return selectedCourse;
+    }
+
+    public void updateRegisters(long gameId) {
+        registers = null;
+        startPoll(() -> {
+            registers = serverCommunication.getRegisters(gameId);
+            }, registers != null
+        );
+    }
+
+    public String[] getRegisters(String playerName) {
+        if (registers != null) {
+            Player player = getPlayer(playerName);
+            if (player != null) {
+                Register register = registers.stream().filter(r -> r.getPlayerId() == player.getPlayerId()).findFirst().orElse(null);
+                if (register != null) {
+                    return register.getRegisters();
+                }
+            }
+        }
+        return null;
     }
 }
