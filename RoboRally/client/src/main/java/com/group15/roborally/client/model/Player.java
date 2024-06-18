@@ -330,6 +330,7 @@ public class Player extends Subject {
 
     public void addEnergyCube() {
         energyCubes++;
+        board.updateBoard();
     }
 
     public boolean attemptUpgradeCardPurchase(CardField shopField, GameController gameController) {
@@ -570,6 +571,7 @@ public class Player extends Subject {
 
     public void setEnergyCubes(int energyCubes) {
         this.energyCubes = energyCubes;
+        board.updateBoard();
     }
 
     public void fillRestOfRegisters() {
