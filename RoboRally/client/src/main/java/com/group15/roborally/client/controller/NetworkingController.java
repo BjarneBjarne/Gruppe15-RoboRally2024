@@ -4,10 +4,12 @@ import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
+import com.group15.roborally.client.model.Phase;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
+import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.utils.ServerCommunication;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -145,6 +147,17 @@ public class NetworkingController implements Observer {
         if (serverResponse != null) System.out.println(serverResponse);
     }
 
+    public void startPoll(Runnable e, boolean pollExitCondition){
+        ScheduledExecutorService serverPoller = Executors.newScheduledThreadPool(1);
+        Runnable poll = () -> {
+            e.run();
+            if(pollExitCondition){
+                serverPoller.shutdownNow();
+            }
+        };
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+    }
+
     public void startUpdateGameLoop(MultiplayerMenuView multiplayerMenuView) {
         Runnable lobbyUpdate = () -> {
             Game currentGameData = game;
@@ -264,6 +277,15 @@ public class NetworkingController implements Observer {
         if (!serverCommunication.getIsConnectedToServer()) {
             connectionToServerTimedOut();
         }
+    }
+
+    public void updateRegister(String playerName, String password) {
+        Register register = 
+        serverCommunication.updateRegister(playerName, password);
+    }
+
+    public Player getPlayer(String playerName) {
+        return players.stream().filter(player -> player.getPlayerName().equals(playerName)).findFirst().orElse(null);
     }
 
     public List<Player> getCurrentPlayers() {

@@ -52,6 +52,7 @@ public class
 GameController {
     public final Board board;
     private final Runnable gameOverMethod;
+    private final NetworkingController networkingController;
 
     private Space directionOptionsSpace;
     private String winnerName;
@@ -75,9 +76,10 @@ GameController {
      * @param board The current board
      * @param gameOverMethod The method for calling game over.
      */
-    public GameController(@NotNull Board board, Runnable gameOverMethod) {
+    public GameController(@NotNull Board board, Runnable gameOverMethod, NetworkingController networkController) {
         this.board = board;
         this.gameOverMethod = gameOverMethod;
+        this.networkingController = networkController;
     }
 
     /**
@@ -138,17 +140,26 @@ GameController {
     /**
      * Method for when the programming phase ends.
      */
-    public void finishProgrammingPhase() {
-        board.setCurrentPhase(PLAYER_ACTIVATION);
+    // public void finishProgrammingPhase() {
+    //     board.setCurrentPhase(PLAYER_ACTIVATION);
 
-        makeProgramFieldsInvisible();
-        makeProgramFieldsVisible(0);
+    //     makeProgramFieldsInvisible();
+    //     makeProgramFieldsVisible(0);
 
-        if (DRAW_ON_EMPTY_REGISTER) {
-            for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
-                player.fillRestOfRegisters();
-            }
-        }
+    //     if (DRAW_ON_EMPTY_REGISTER) {
+    //         for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
+    //             player.fillRestOfRegisters();
+    //         }
+    //     }
+    // }
+
+    public void finishProgramming() {
+        Player self =  board.getSelf();
+        long playerId = networkingController.getPlayer(self.getName()).getPlayerId();
+        networkingController.updateRegister(self.getProgramFieldNames(), playerId);
+        List<Player> players = board.getPlayers();
+        networkingController.updatePlayers(players);
+        
     }
 
     /**
