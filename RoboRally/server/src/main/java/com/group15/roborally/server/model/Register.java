@@ -15,13 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 // @IdClass(RegisterId.class)
 public class Register {
+    // @Id
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // private long registerId;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long registerId;
-
     private long playerId;
-
-    private long gameId;
 
     private int turn;
 
@@ -34,4 +33,16 @@ public class Register {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "players_playerId", insertable = false, updatable = false)
     private Player player;
+
+    @Override
+    public boolean equals(Object o) {
+        Register other = (Register) o;
+        return playerId == other.playerId
+                && turn == other.turn
+                && m1.equals(other.m1)
+                && m2.equals(other.m2)
+                && m3.equals(other.m3)
+                && m4.equals(other.m4)
+                && m5.equals(other.m5);
+    }
 }
