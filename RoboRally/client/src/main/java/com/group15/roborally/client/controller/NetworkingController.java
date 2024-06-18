@@ -13,7 +13,6 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
 
-import java.net.Inet4Address;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -115,20 +114,20 @@ public class NetworkingController implements Observer {
         if (localPlayer.getPlayerId() == game.getHostId()) {
             this.isHost = true;
         }
-        multiplayerMenuView.setupLobby(this, game, localPlayer, players, appController.getCourses(), isHost);
+        multiplayerMenuView.setupLobby(this, game, players, localPlayer, appController.getCourses(), isHost);
         updateGame(multiplayerMenuView, game, players, true);
         startUpdateGameLoop(multiplayerMenuView);
     }
 
-    public void changeRobot(Player player, String robotName) {
-        player.setRobotName(robotName);
-        String serverResponse = serverCommunication.updatePlayer(player);
+    public void changeRobot(String robotName) {
+        this.localPlayer.setRobotName(robotName);
+        String serverResponse = serverCommunication.updatePlayer(this.localPlayer);
         if (serverResponse != null) System.out.println(serverResponse);
     }
 
-    public void setIsReady(Player player, int isReady) {
-        player.setIsReady(isReady);
-        String serverResponse = serverCommunication.updatePlayer(player);
+    public void setIsReady(int isReady) {
+        this.localPlayer.setIsReady(isReady);
+        String serverResponse = serverCommunication.updatePlayer(this.localPlayer);
         if (serverResponse != null) System.out.println(serverResponse);
     }
 
@@ -155,7 +154,7 @@ public class NetworkingController implements Observer {
                 Game updatedGameData = serverCommunication.getGame(gameId);
                 List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
 
-                if (updatedGameData != null && updatedPlayers != null) {
+                if (updatedGameData != null) {
                     Platform.runLater(() -> updateGame(multiplayerMenuView, updatedGameData, updatedPlayers, false));
                 }
             }
@@ -190,11 +189,18 @@ public class NetworkingController implements Observer {
                         this.players == null ||
                         this.game.hasChanged(updatedGameData) ||
                         this.players.size() != updatedPlayers.size() ||
-                        IntStream.range(0, updatedPlayers.size()).anyMatch(i -> this.players.get(i) == null || updatedPlayers.get(i) == null || this.players.get(i).hasChanged(updatedPlayers.get(i)));
+
+                        IntStream.range(0, updatedPlayers.size()).anyMatch(i ->
+                                this.players.get(i) == null ||
+                                updatedPlayers.get(i) == null ||
+                                this.players.get(i).hasChanged(updatedPlayers.get(i)));
 
                 if (hasChanges) {
-                    if (this.game != null && this.game.hasChanged(updatedGameData)) {
-                        setIsReady(localPlayer, 0);
+                    // If the game had changes, the player gets set to not ready.
+                    if (this.game != null) {
+                        if (this.game.hasChanged(updatedGameData)) {
+                            setIsReady(0);
+                        }
                     }
                     // Variables
                     this.game = updatedGameData;
@@ -203,11 +209,11 @@ public class NetworkingController implements Observer {
                     // Course
                     for (CC_CourseData course : appController.getCourses()) {
                         if (course.getCourseName().equals(game.getCourseName())) {
-                            selectedCourse = course;
+                            this.selectedCourse = course;
                             break;
                         }
                     }
-                    multiplayerMenuView.updateLobby(this, this.game, this.players, selectedCourse);
+                    multiplayerMenuView.updateLobby(this, this.game, this.players, this.localPlayer, this.selectedCourse);
                 }
             } else {
                 disconnectFromServer("The host left the game.", 3000);
