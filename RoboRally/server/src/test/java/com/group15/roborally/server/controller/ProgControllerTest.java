@@ -38,6 +38,9 @@ public class ProgControllerTest {
      * @throws Exception
      */
     private Register createGameAndPlayerWithRegister() throws Exception {
+        /*
+         * TO FIX: See outcommented lines
+         */
         long expectedGameId = 1L;
         mockMvc.perform(MockMvcRequestBuilders.get("/games")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -50,9 +53,9 @@ public class ProgControllerTest {
                 .andExpect(status().isOk());
 
         Register register = new Register();
-        register.setGameId(expectedGameId);
+        // register.setGameId(expectedGameId);
         register.setPlayerId(expectedPlayerId);
-        register.setRegisterId(1L);
+        // register.setRegisterId(1L);
         register.setTurn(0);
         register.setM1("card53");
         register.setM2("card2");
