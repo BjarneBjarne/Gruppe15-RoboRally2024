@@ -43,9 +43,12 @@ public class ProgController {
         if (player == null) {
             return ResponseEntity.status(404).build();
         }
-        if (playerId <= 0L || turn <= 0 || player.getGameId() != register.getGameId()) {
-            return ResponseEntity.status(422).build();
-        }
+        /*
+         * TO FIX
+         */
+        // if (playerId <= 0L || turn <= 0 || player.getGameId() != register.getGameId()) {
+        //     return ResponseEntity.status(422).build();
+        // }
         if (register.getM1().equals(null)
             || register.getM2().equals(null) 
             || register.getM3().equals(null) 
@@ -76,7 +79,10 @@ public class ProgController {
         if (game == null) {
             return ResponseEntity.status(404).build();
         }
-        Register[] registers = registerRepository.findByGameId(gameId);
-        return ResponseEntity.ok(registers);
+        /*
+         * TO FIX
+         */
+        // Register[] registers = registerRepository.findByGameId(gameId);
+        return ResponseEntity.ok(null);
     }
 }

@@ -19,7 +19,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.roborally.client.observer;
+package com.group15.observer;
 
 /**
  * This is the observer of the observer design pattern roughly following

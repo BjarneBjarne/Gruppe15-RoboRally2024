@@ -1,4 +1,4 @@
-package com.group15.roborally.client.communication;
+package com.group15.roborally.server.utils;
 
 import java.net.URI;
 import java.time.Duration;
@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Subject;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.Player;
 import org.springframework.core.ParameterizedTypeReference;
