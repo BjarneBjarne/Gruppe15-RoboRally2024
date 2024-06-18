@@ -52,9 +52,9 @@ public class Player extends Subject {
     final public static int NO_OF_ENERGY_CUBES = 10;
     private int maxNoOfCardsInHand = 9;
 
-    transient final public Board board;
-
+    private final long playerId;
     private String name;
+    transient final public Board board;
     private Robots robot;
 
     private Space space;
@@ -86,9 +86,10 @@ public class Player extends Subject {
     transient private final Damage permanentBonusDamage = new Damage(0, 0, 0, 0);
 
 
-    public Player(@NotNull Board board, @NotNull Robots robot, @NotNull String name) {
-        this.board = board;
+    public Player(@NotNull long playerId, @NotNull String name, @NotNull Board board, @NotNull Robots robot) {
+        this.playerId = playerId;
         this.name = name;
+        this.board = board;
         this.robot = robot;
         this.space = null;
         this.image = ImageUtils.getImageFromName(robot.getBoardImageName());
