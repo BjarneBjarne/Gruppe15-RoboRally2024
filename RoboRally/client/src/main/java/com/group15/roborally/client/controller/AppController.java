@@ -26,13 +26,9 @@ import com.google.gson.GsonBuilder;
 
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.MultiplayerMenuView;
-import com.group15.roborally.server.model.*;
 
 import com.group15.roborally.client.model.*;
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
 import com.group15.roborally.client.RoboRally;
-import com.group15.roborally.server.utils.ServerCommunication;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
@@ -44,7 +40,6 @@ import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
 import com.group15.roborally.server.model.Player;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -59,18 +54,12 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.util.Duration;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
 import java.io.File;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.group15.roborally.client.BoardOptions.*;
 
