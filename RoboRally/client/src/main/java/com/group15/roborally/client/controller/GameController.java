@@ -153,13 +153,28 @@ GameController {
     //     }
     // }
 
-    public void finishProgramming() {
+    public void finishProgrammingPhase() {
         Player self =  board.getSelf();
-        long playerId = networkingController.getPlayer(self.getName()).getPlayerId();
-        networkingController.updateRegister(self.getProgramFieldNames(), playerId);
-        List<Player> players = board.getPlayers();
-        networkingController.updatePlayers(players);
-        
+        networkingController.updateRegister(self.getName(), self.getProgramFieldNames(), board.getTurnCounter());
+        networkingController.updateRegisters(board.getGameId());
+        String[] registers;
+        // Wait for server to update registers
+        while(networkingController.getRegisters(self.getName()) == null)
+            System.out.println("Waiting for server to update registers");
+        // Update all players registers
+        for(Player player : board.getPlayers()){
+            if(player.getName().equals(self.getName())){
+                continue;
+            }
+            registers = networkingController.getRegisters(player.getName());
+            player.setRegisters(registers); // Convert String to CardField
+        }
+        startActivationPhase();
+    }
+
+    public void startActivationPhase(){
+        board.setCurrentPhase(PLAYER_ACTIVATION);
+        handlePlayerRegister();
     }
 
     /**
