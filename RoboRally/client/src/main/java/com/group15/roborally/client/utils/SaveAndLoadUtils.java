@@ -96,7 +96,7 @@ public class SaveAndLoadUtils {
      * @return the player object loaded from the PlayerTemplate object
      */
     private static Player loadPlayer(PlayerTemplate playerTemplate, Board board, GameController gameController) {
-        Player player = new Player(board, playerTemplate.robot, playerTemplate.name);
+        Player player = new Player(playerTemplate.playerId, playerTemplate.name, board, playerTemplate.robot);
 
         // SpawnPoint
         int spawnX = playerTemplate.spawnPoint.x;
