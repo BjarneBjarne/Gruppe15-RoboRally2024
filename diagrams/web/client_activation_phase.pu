@@ -1,0 +1,20 @@
+@startuml
+
+start
+
+' fork
+    repeat:Execute move based on priority
+        if(Choice must be made by other) then (true)
+            repeat:GET "/players/{playerId}";
+            repeat while (Choice not made by other) is (true)
+            -> false;
+            :Insert other player's choice into game;
+        endif
+    :GET "/games/{gameId}/choices";
+    repeat while (Game not over) is (true)
+    else (false)
+
+stop
+    
+
+@enduml
