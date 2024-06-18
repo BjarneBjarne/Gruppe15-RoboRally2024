@@ -21,12 +21,11 @@
  */
 package com.group15.roborally.client.model;
 
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.damage.DamageType;
 import com.group15.roborally.client.model.events.PhaseChangeListener;
-import com.group15.roborally.client.model.Player;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 

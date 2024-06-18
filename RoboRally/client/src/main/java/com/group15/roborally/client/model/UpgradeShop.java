@@ -1,10 +1,9 @@
 package com.group15.roborally.client.model;
 
-import com.group15.roborally.client.observer.Observer;
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Observer;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
-import com.group15.roborally.client.model.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

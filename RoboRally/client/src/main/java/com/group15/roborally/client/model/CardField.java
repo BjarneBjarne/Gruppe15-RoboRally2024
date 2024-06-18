@@ -21,9 +21,8 @@
  */
 package com.group15.roborally.client.model;
 
-import com.group15.roborally.client.observer.Subject;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
-import com.group15.roborally.client.model.Player;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
 
