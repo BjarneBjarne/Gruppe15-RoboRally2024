@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "players")
 @Getter
@@ -32,8 +34,9 @@ public class Player/*  implements Serializable */ {
     @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
     private Game game;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<Register> registers;
+    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Register registers;
 
     /**
      * Compares two player objects.

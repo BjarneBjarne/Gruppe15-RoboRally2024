@@ -1,5 +1,7 @@
 package com.group15.roborally.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 // import com.example.demo.model.Keys.RegisterId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,7 @@ public class Register {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playerId", insertable = false, updatable = false)
+    @JsonIgnore
     private Player player;
 
     @Override

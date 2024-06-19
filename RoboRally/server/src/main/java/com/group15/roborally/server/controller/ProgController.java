@@ -41,22 +41,30 @@ public class ProgController {
      * @return ResponseEntity<String> 
      */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postRegister(@RequestBody Register register, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
-        Player player = playerRepository.findById(playerId).orElse(null);
-        if (player == null) {
-            return ResponseEntity.status(404).build();
+    public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
+        Register register = registerRepository.findById(playerId).orElse(null);
+        if (!(register == null)) {
+            register.setMoves(moves);
+            register.setTurn(turn);
+            if (!register.hasNull()) {
+                registerRepository.save(register);
+                Game game = gameRepository.findById(playerRepository.findById(playerId).orElse(null).getGameId()).orElse(null);
+                if(game.getTurnId() < turn) {
+                    game.setTurnId(turn);
+                    gameRepository.save(game);
+                }
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(422).build();
+            }
         }
+        return ResponseEntity.status(404).build();
         /*
          * TO FIX
          */
         // if (playerId <= 0L || turn <= 0 || player.getGameId() != register.getGameId()) {
         //     return ResponseEntity.status(422).build();
         // }
-        if (register.hasNull()) {
-            return ResponseEntity.status(422).build();
-        }
-        registerRepository.save(register);
-        return ResponseEntity.ok().build();
     }
 
     /**
@@ -73,8 +81,14 @@ public class ProgController {
             return ResponseEntity.status(404).build();
         }
         int currentTurn = gameRepository.findById(gameId).orElse(null).getTurnId();
+        System.out.println("Searching registers \n\n\n\n");
         List<Register> registers = registerRepository.findAllByGameId(gameId);
+        System.out.println("Found registers \n\n\n\n");
         for (Register register : registers) {
+            System.out.println("Register [" + register.getPlayerId() + "] moves: ");
+            for (String move : register.getMoves()) {
+                System.out.println(move);
+            }
             if (register.getTurn() != currentTurn) {
                 return ResponseEntity.ok(null);
             }
