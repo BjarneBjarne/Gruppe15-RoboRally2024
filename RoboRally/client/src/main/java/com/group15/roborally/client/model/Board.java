@@ -42,7 +42,7 @@ import static com.group15.roborally.client.model.Phase.INITIALIZATION;
  *
  */
 public class Board extends Subject {
-    private Integer gameId;
+    private Long gameId;
     private final String courseName;
 
     public final int width;
@@ -100,7 +100,7 @@ public class Board extends Subject {
         return upgradeShop;
     }
 
-    public Integer getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
@@ -112,7 +112,7 @@ public class Board extends Subject {
         return self;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(Long gameId) {
         if (this.gameId == null) {
             this.gameId = gameId;
         } else {

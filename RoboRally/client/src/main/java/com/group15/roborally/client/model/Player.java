@@ -804,4 +804,10 @@ public class Player extends Subject {
         this.temporaryBonusDamage.clear();
         return usedTemporaryBonusDamage;
     }
+
+    public void setRegisters(String[] registers) {
+        for (int i = 0; i < programFields.length; i++) {
+            programFields[i].setCard(new CommandCard(Command.valueOf(registers[i])));
+        }
+    }
 }

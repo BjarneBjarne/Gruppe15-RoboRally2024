@@ -156,14 +156,13 @@ GameController {
     public void finishProgrammingPhase() {
         Player self =  board.getSelf();
         networkingController.updateRegister(self.getName(), self.getProgramFieldNames(), board.getTurnCounter());
-        networkingController.updateRegisters(board.getGameId());
+        networkingController.updateRegisters(board.getGameId(), () -> enterActivationPhase());
+    }
+
+    public void enterActivationPhase() {
         String[] registers;
-        // Wait for server to update registers
-        while(networkingController.getRegisters(self.getName()) == null)
-            System.out.println("Waiting for server to update registers");
-        // Update all players registers
         for(Player player : board.getPlayers()){
-            if(player.getName().equals(self.getName())){
+            if(player.getName().equals(board.getSelf().getName())){
                 continue;
             }
             registers = networkingController.getRegisters(player.getName());
@@ -173,6 +172,9 @@ GameController {
     }
 
     public void startActivationPhase(){
+        /*
+         * TODO: Next step is activation phase - implement with server logic
+         */
         board.setCurrentPhase(PLAYER_ACTIVATION);
         handlePlayerRegister();
     }
