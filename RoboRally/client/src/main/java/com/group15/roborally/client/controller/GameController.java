@@ -395,7 +395,10 @@ GameController {
         } else if (board.getCurrentPhase() == BOARD_ACTIVATION) {
             currentPlayerInteraction = null;
             handleBoardElementActions();
-        } else {
+        }else if (board.getCurrentPhase() == PROGRAMMING) {
+            currentPlayerInteraction = null;
+            board.getCurrentPlayer().stopRebooting();
+        }else {
             throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
         }
     }

@@ -1,6 +1,5 @@
-package dk.dtu.compute.se.pisd.roborally.UpgradeShop;
+package com.group15.roborally.client.model;
 
-import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
