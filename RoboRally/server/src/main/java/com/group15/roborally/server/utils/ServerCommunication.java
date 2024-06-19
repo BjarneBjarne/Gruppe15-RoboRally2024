@@ -232,6 +232,9 @@ public class ServerCommunication extends Subject {
         } catch (ResourceAccessException e) {
             evaluateTimeout(false);
             return null;
+        } catch (HttpClientErrorException e) {
+            evaluateTimeout(false);
+            return null;
         }
     }
 
