@@ -26,13 +26,8 @@ import com.google.gson.GsonBuilder;
 
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.MultiplayerMenuView;
-import com.group15.roborally.server.model.*;
-
 import com.group15.roborally.client.model.*;
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
 import com.group15.roborally.client.RoboRally;
-import com.group15.roborally.server.utils.ServerCommunication;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
@@ -44,7 +39,7 @@ import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
 import com.group15.roborally.server.model.Player;
-import javafx.animation.PauseTransition;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,25 +47,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.util.Duration;
 import javafx.util.Pair;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
 import java.io.File;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.group15.roborally.client.BoardOptions.*;
 
@@ -140,26 +129,29 @@ public class AppController {
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void beginCourse(CC_CourseData courseData, List<Player> players) {
+    public void startGame(CC_CourseData courseData, List<Player> players, Player localPlayer) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
-        // GameController
-        gameController = new GameController(board, this::gameOver);
-
         // Adding players
-        for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            com.group15.roborally.client.model.Player player =
-                    new com.group15.roborally.client.model.Player(players.get(i).getPlayerId(),
-                            players.get(i).getPlayerName(),
-                            board,
-                            Objects.requireNonNull(Robots.getRobotByName(players.get(i).getRobotName())));
-            player.setHeading(Heading.EAST);
-            board.addPlayer(player);
+        com.group15.roborally.client.model.Player localClient = null;
+        for (Player player : players) {
+            com.group15.roborally.client.model.Player newClient = new com.group15.roborally.client.model.Player(player.getPlayerId(),
+                    player.getPlayerName(),
+                    board,
+                    Objects.requireNonNull(Robots.getRobotByName(player.getRobotName())));
+
+            if (player.getPlayerId() == localPlayer.getPlayerId()) {
+                localClient = newClient;
+            }
+
+            newClient.setHeading(Heading.EAST);
+            board.addPlayer(newClient);
         }
 
-        board.setCurrentPlayer(board.getPlayer(0));
-
+        // GameController
+        gameController = new GameController(board, localClient, this::gameOver);
+        //board.setCurrentPlayer(board.getPlayer(0));
         roboRally.createBoardView(gameController);
     }
 
@@ -204,7 +196,7 @@ public class AppController {
         }
 
         // GameController
-        gameController = new GameController(newBoard, this::gameOver);
+        gameController = new GameController(newBoard, null, this::gameOver);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
         newBoard.setCurrentPhase(Phase.PROGRAMMING);
 

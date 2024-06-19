@@ -15,6 +15,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @author Michael Sylvest Bendtsen, s214954@dtu.dk
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+ */
 public class ServerCommunication extends Subject {
     private final String baseUrl;
     private final HttpHeaders headers;

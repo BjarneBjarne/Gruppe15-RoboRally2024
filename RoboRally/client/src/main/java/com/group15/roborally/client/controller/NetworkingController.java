@@ -24,6 +24,9 @@ import java.util.stream.IntStream;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 
+/**
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+ */
 public class NetworkingController implements Observer {
     private final AppController appController;
     private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Remote server: 129.151.221.13
@@ -178,7 +181,7 @@ public class NetworkingController implements Observer {
                 if (updatedGameData.getPhase() != GamePhase.LOBBY) {
                     if (!hasStartedGameLocally) {
                         hasStartedGameLocally = true;
-                        appController.beginCourse(selectedCourse, updatedPlayers);
+                        appController.startGame(selectedCourse, updatedPlayers, localPlayer);
                     }
                 }
 
