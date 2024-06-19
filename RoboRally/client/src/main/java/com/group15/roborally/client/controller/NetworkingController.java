@@ -201,7 +201,7 @@ public class NetworkingController extends Subject implements Observer {
             }
         };
         gameUpdateScheduler = Executors.newScheduledThreadPool(1);
-        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
+        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 500, TimeUnit.MILLISECONDS);
     }
 
     /**
