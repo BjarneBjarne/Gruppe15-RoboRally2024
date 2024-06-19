@@ -637,7 +637,7 @@ public class GameController implements Observer {
     }
 
 
-    // Updates to server
+    // Updates to the server
     /**
      * Called from view when a space was clicked.
      * @param space The space that was clicked.
@@ -647,7 +647,7 @@ public class GameController implements Observer {
         if (board.getCurrentPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
                 if (space.getPlayer() == null) {
-                    networkingController.setPlayerSpawn(space);
+                    networkingController.setPlayerSpawn(space, null);
                 }
             }
         }
@@ -667,6 +667,7 @@ public class GameController implements Observer {
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == INITIALIZATION) {
             localPlayer.setHeading(direction);
+            networkingController.setPlayerSpawn(localPlayer.getSpace(), direction.name());
         } else {
             currentPlayerInteraction.player.setHeading(direction);
             currentPlayerInteraction.interactionFinished();
@@ -697,6 +698,7 @@ public class GameController implements Observer {
     }
 
     private void updateInitialization(HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers) {
+        System.out.println("update spawns");
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
             if (updatedPlayer == null) {
@@ -708,19 +710,25 @@ public class GameController implements Observer {
             int[] clientSpawnPoint = updatedPlayer.getSpawnPoint();
             if (clientSpawnPoint != null) {
                 Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
-                // Heading
-                Heading clientHeading = client.getHeading();
-                if (clientHeading != null) {
-                    // Setting spawnPoint
-                    client.setSpawn(clientSpawnPosition);
-                    if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
-                        spawnPoint.setColor(client);
-                        board.updateBoard();
-                    }
-                } else {
-                    if (client.equals(localPlayer)) {
-                        // Local player direction option
-                        setDirectionOptionsPane(clientSpawnPosition);
+                if (clientSpawnPosition != null) {
+                    client.setSpace(clientSpawnPosition);
+                    // Heading
+                    String playerSpawnDirection = updatedPlayer.getSpawnDirection();
+                    if (playerSpawnDirection != null && !playerSpawnDirection.isBlank()) {
+                        // Setting spawnPoint
+                        Heading clientHeading = Heading.valueOf(playerSpawnDirection);
+                        client.setHeading(clientHeading);
+                        client.setSpawn(clientSpawnPosition);
+                        System.out.println("Setting spawn");
+                        if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                            spawnPoint.setColor(client);
+                            board.updateBoard();
+                        }
+                    } else {
+                        if (updatedPlayer.getSpawnDirection() == null || client.equals(localPlayer)) {
+                            // Local player direction option
+                            setDirectionOptionsPane(clientSpawnPosition);
+                        }
                     }
                 }
             }

@@ -86,7 +86,7 @@
                         </Button>
                      </children>
                   </HBox>
-                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Create a new lobbyData as host:" textAlignment="CENTER" wrappingWidth="750.0">
+                  <Text fill="WHITE" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Create a new lobby as host:" textAlignment="CENTER" wrappingWidth="750.0">
                      <font>
                         <Font name="OCR A Extended" size="36.0" />
                      </font>

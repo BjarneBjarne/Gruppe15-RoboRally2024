@@ -4,6 +4,7 @@ import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
+import com.group15.roborally.client.model.Heading;
 import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
@@ -125,7 +126,7 @@ public class NetworkingController extends Subject implements Observer {
         serverCommunication.updateGame(game);
     }
     public void setGameStart() {
-        this.game.setPhase(GamePhase.PROGRAMMING);
+        this.game.setPhase(GamePhase.INITIALIZATION);
         serverCommunication.updateGame(game);
     }
 
@@ -134,8 +135,9 @@ public class NetworkingController extends Subject implements Observer {
         Player player = playerMap.get(playerId);
         serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
     }
-    public void setPlayerSpawn(Space space) {
+    public void setPlayerSpawn(Space space, String directionName) {
         this.localPlayer.setSpawnPoint(new int[]{space.x, space.y});
+        this.localPlayer.setSpawnDirection(directionName);
         serverCommunication.updatePlayer(this.localPlayer);
     }
 
@@ -232,30 +234,20 @@ public class NetworkingController extends Subject implements Observer {
      * Updates the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void updateFromServer(MultiplayerMenuView multiplayerMenuView, Game updatedGameData, List<Player> updatedPlayers, boolean isFirstUpdate) {
-        // Check if any change has happened
-        boolean hasChanges =
-                isFirstUpdate ||
-                this.game.hasChanged(updatedGameData) ||
-                this.players.size() != updatedPlayers.size() ||
-                IntStream.range(0, updatedPlayers.size()).anyMatch(i ->
-                        this.players.get(i) == null ||
-                        updatedPlayers.get(i) == null ||
-                        this.players.get(i).hasChanged(updatedPlayers.get(i)));
-        if (!hasChanges) return; // If no change in data since last update, we don't want to do any further processing.
-
+    private void updateFromServer(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers, boolean isFirstUpdate) {
         // Check for game start
-        if (!game.getPhase().equals(GamePhase.LOBBY)) {
+        if (!updatedGame.getPhase().equals(GamePhase.LOBBY)) {
             if (!hasStartedGameLocally) {
                 hasStartedGameLocally = true;
+                updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, true);
                 appController.startGame(selectedCourse, updatedPlayers, localPlayer);
             }
         }
 
         // Update for corresponding gamePhase.
-        switch (game.getPhase()) {
-            case LOBBY -> updateLobby(multiplayerMenuView, updatedGameData, updatedPlayers);
-            case INITIALIZATION -> updateInitialization(updatedGameData, updatedPlayers);
+        switch (updatedGame.getPhase()) {
+            case LOBBY -> updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, isFirstUpdate);
+            case INITIALIZATION -> updateInitialization(updatedGame, updatedPlayers);
         }
     }
 
@@ -263,8 +255,19 @@ public class NetworkingController extends Subject implements Observer {
      * Updates the lobby with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers) {
+    private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers, boolean isFirstUpdate) {
         if (serverCommunication.getIsConnectedToServer()) {
+            // Check if any change has happened
+            boolean hasChanges =
+                    isFirstUpdate ||
+                            this.game.hasChanged(updatedGame) ||
+                            this.players.size() != updatedPlayers.size() ||
+                            IntStream.range(0, updatedPlayers.size()).anyMatch(i ->
+                                    this.players.get(i) == null ||
+                                            updatedPlayers.get(i) == null ||
+                                            this.players.get(i).hasChanged(updatedPlayers.get(i)));
+            if (!hasChanges) return; // If no change in data since last update, we don't want to do any further processing.
+
             boolean hostIsConnected = updatedPlayers.stream().anyMatch(player -> updatedGame.getHostId() == player.getPlayerId());
             if (hostIsConnected) {
                 // If the game had changes, the player gets set to not ready.
@@ -308,6 +311,7 @@ public class NetworkingController extends Subject implements Observer {
                 .collect(Collectors.toMap(Player::getPlayerId, player -> player));
         this.playerMap.clear();
         this.playerMap.putAll(updatedPlayerMap);
+        this.localPlayer = this.playerMap.get(this.localPlayer.getPlayerId());
     }
 
     /**
