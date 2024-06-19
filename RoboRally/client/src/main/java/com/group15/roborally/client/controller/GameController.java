@@ -58,6 +58,9 @@ public class GameController implements Observer {
     private Image winnerIMG;
     private boolean isRegisterPlaying = false;
 
+    // ACTION PHASE VARIABLES
+    public int moveStep = 0;
+
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
     private PlayerInteraction currentPlayerInteraction = null;
@@ -96,6 +99,189 @@ public class GameController implements Observer {
 
         startProgrammingPhase();
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    /*
+     * 
+     * ACTIVATION PHASE
+     * 
+     */
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public void startActivationPhase() {
+        /*
+         * TODO: Next step is activation phase - implement with server logic
+         */
+        board.setCurrentPhase(PLAYER_ACTIVATION);
+        board.setCurrentRegister(0);
+        moveStep = 0;
+        executeRegisters();
+        exitActivationPhase();
+    }
+
+    public void exceuteRegisterRound(){
+        board.updatePriorityList();
+        executeMoves();
+    }
+
+    public void executeRegisters(){
+        if(board.getCurrentRegister() <= Player.NO_OF_REGISTERS){
+            board.updatePriorityList();
+            // Recursive excution of moves in same register index
+            executeMoves();
+            setIsRegisterPlaying(false);
+            board.setCurrentRegister(board.getCurrentRegister() + 1);
+            endOfRegister();
+            executeRegisters();
+        } 
+    }
+
+    public void executeMoves(){
+        if(!board.getPriorityList().isEmpty()){
+            board.setCurrentPhase(PLAYER_ACTIVATION);
+            board.setCurrentPlayer(board.getPriorityList().poll());
+            Player currentPlayer = board.getCurrentPlayer();
+            if (!currentPlayer.getIsRebooting()) {
+                // Handle the players command on the current register. This will queue any command on the register.
+                queuePlayerCommandFromCommandCard(currentPlayer);
+            }
+            runActions(board.getBoardActionQueue());
+            moveStep++;
+            executeMoves();
+        }
+    }
+
+    /**
+     * Handles the end of a register.
+     * Here we queue board elements and player lasers, then execute them.
+     * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void endOfRegister() {
+        board.setCurrentPhase(BOARD_ACTIVATION);
+        // Queue board elements and player lasers.
+        queueBoardElementsAndRobotLasers();
+        runActions(board.getBoardActionQueue());
+    }
+
+    public void runActions(LinkedList<ActionWithDelay> actionQueue){
+        if(!actionQueue.isEmpty()){
+            ActionWithDelay nextAction = actionQueue.removeFirst();
+            nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
+            int delayInMillis = nextAction.getDelayInMillis();
+            PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
+            pause.setOnFinished(event -> {
+                EventHandler.event_EndOfAction(this);
+                runActions(actionQueue);
+            });
+            if (WITH_ACTION_DELAY) {
+                pause.play();
+            }
+        }
+    }
+
+    /**
+     * Handles what happens when a round is done.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void exitActivationPhase() {
+        // If all registers are done
+        PauseTransition pause = new PauseTransition(Duration.millis(NEXT_REGISTER_DELAY));
+        pause.setOnFinished(event -> {
+            for (Player player : board.getPlayers()) {
+                player.stopRebooting();
+                player.getSpace().updateSpace();
+            }
+            startUpgradingPhase();
+            setIsRegisterPlaying(false);
+        });  // Small delay before ending activation phase for dramatic effect ;-).
+        pause.play();
+    }
+
+    
+    /**
+     * Method for making a new player interaction. This stops the action queue execution loop and begins the interaction.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void addPlayerInteraction(PlayerInteraction interaction) {
+        playerInteractionQueue.offer(interaction);
+        board.updateBoard();
+    }
+
+    /**
+     * @return whether there is an ongoing player interaction or not.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public boolean getIsPlayerInteracting() {
+        return currentPlayerInteraction != null || !playerInteractionQueue.isEmpty();
+    }
+
+    /**
+     * @return the current PlayerInteraction.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public PlayerInteraction getCurrentPlayerInteraction() {
+        return currentPlayerInteraction;
+    }
+
+    /**
+     * Handles the player command for a command with multiple options
+     *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
+     *  @param option the option the player have chosen, and sets the activation phase active again
+     */
+    public void executeCommandOptionAndContinue(Command option) {
+        currentPlayerInteraction.player.queueCommand(option, false, this);
+        currentPlayerInteraction.interactionFinished();
+    }
+
+    /**
+     * Gets the command card in the players program at the current register.
+     * @param currentPlayer The player, whose command card should be queued.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void queuePlayerCommandFromCommandCard(Player currentPlayer) {
+        Command commandToQueue = null;
+        try {
+            int currentRegister = board.getCurrentRegister();
+            CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
+            if (card == null) return;
+            commandToQueue = card.command;
+            currentPlayer.queueCommand(commandToQueue, this);
+        } catch (Exception e) {
+            System.out.println("ERROR - Something went wrong when trying to get command: \"" + commandToQueue + "\" from CommandCard.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        assert false;
+    }
+
+    /**
+     * Queues all the board elements in the board.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void queueBoardElementsAndRobotLasers() {
+        board.queueBoardElementsWithIndex(this, 0, "Blue conveyor belts");
+        board.queueBoardElementsWithIndex(this, 1, "Green conveyor belts");
+        board.queueBoardElementsWithIndex(this, 2, "Push panels");
+        board.queueBoardElementsWithIndex(this, 3, "Gears");
+        board.queueBoardElementsWithIndex(this, 4, "Board lasers");
+        board.queueClearLasers();
+        board.queuePlayerLasers();
+        board.queueClearLasers();
+        board.queueBoardElementsWithIndex(this, 5, "Energy spaces");
+        board.queueBoardElementsWithIndex(this, 6, "Checkpoints");
+    }
+
+    
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    /*
+     * 
+     * PROGRAMMING PHASE
+     * 
+     */
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Method for starting the upgrade phase.
@@ -170,322 +356,6 @@ public class GameController implements Observer {
             player.setRegisters(registers); // Convert String to CardField
         }
         startActivationPhase();
-    }
-
-    public void startActivationPhase() {
-        /*
-         * TODO: Next step is activation phase - implement with server logic
-         */
-        board.setCurrentPhase(PLAYER_ACTIVATION);
-        handlePlayerRegister();
-    }
-
-    /**
-     * Makes all players program fields, up to a certain register, visible.
-     * @param register The register to set players program fields visible up to.
-     */
-    private void makeProgramFieldsVisible(int register) {
-        if (register >= 0 && register < Player.NO_OF_REGISTERS) {
-            for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                Player player = board.getPlayer(i);
-                CardField field = player.getProgramField(register);
-                field.setVisible(true);
-            }
-        }
-    }
-
-    /**
-     * Makes all players program fields invisible.
-     */
-    private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            Player player = board.getPlayer(i);
-            for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
-                CardField field = player.getProgramField(j);
-                field.setVisible(false);
-            }
-        }
-    }
-
-    /**
-     * Starts the flow of the activation phase.
-     */
-    public void executePrograms() {
-        board.setStepMode(false);
-        handlePlayerRegister();
-    }
-
-    /**
-     * Executes a single register in the activation phase.
-     */
-    public void executeRegister() {
-        board.setStepMode(true);
-        handlePlayerRegister();
-    }
-
-    /*
-     *    ### These methods are the main flow of a register. ###
-     */
-
-    /**
-     * Gets the next player in the priority queue, queues that player's command card and executes it.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handlePlayerRegister() {
-        board.setCurrentPhase(PLAYER_ACTIVATION);
-        System.out.println();
-        setIsRegisterPlaying(true);
-        board.setCurrentPlayer(board.getPriorityList().poll());
-        makeProgramFieldsVisible(board.getCurrentRegister());
-        Player currentPlayer = board.getCurrentPlayer();
-        if (!currentPlayer.getIsRebooting()) {
-            // Handle the players command on the current register. This will queue any command on the register.
-            queuePlayerCommandFromCommandCard(currentPlayer);
-        }
-        // Begin handling the actions.
-        handlePlayerActions();
-    }
-    /**
-     * This method splits up handlePlayerRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handlePlayerActions() {
-        // Run through the queue and execute the player command.
-        runActionsAndCallback(this::handleEndOfPlayerTurn, board.getBoardActionQueue());
-    }
-
-    /**
-     * Handles the end of the current player's register execution.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handleEndOfPlayerTurn() {
-        if (getIsPlayerInteracting()) { // Return and wait for player interaction.
-            return;
-        }
-        // When player command is executed, check if there are more player turns this register.
-        if (!board.getPriorityList().isEmpty()) {
-            handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
-        } else {
-            handleEndOfRegister(); // PriorityList is empty, therefore we end the register.
-        }
-    }
-
-    /**
-     * Handles the end of a register.
-     * Here we queue board elements and player lasers, then execute them.
-     * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handleEndOfRegister() {
-        board.setCurrentPhase(BOARD_ACTIVATION);
-        // Queue board elements and player lasers.
-        queueBoardElementsAndRobotLasers();
-        handleBoardElementActions();
-    }
-
-    /**
-     * This method splits up handleEndOfRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handleBoardElementActions() {
-        // Execute board elements and player lasers. When actions have taken place, we go to the next register.
-        runActionsAndCallback(this::nextRegister, board.getBoardActionQueue());
-    }
-
-    /**
-     * Continues to next register, or ends the round if it was the last register.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void nextRegister() {
-        if (getIsPlayerInteracting()) {
-            // Return and wait for player interaction.
-            return;
-        }
-        int currentRegister = board.getCurrentRegister();
-        if (currentRegister < Player.NO_OF_REGISTERS - 1) {
-            // Set next register
-            currentRegister++;
-            // If there are more registers, set the currentRegister and continue to the next player.
-            board.setCurrentRegister(currentRegister);
-            board.updatePriorityList();
-            setIsRegisterPlaying(false);
-            board.updateBoard();
-            if (!board.isStepMode()) {
-                handlePlayerRegister();
-            }
-        } else {
-            handleEndOfRound();
-        }
-    }
-
-    /**
-     * Handles what happens when a round is done.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handleEndOfRound() {
-        // If all registers are done
-        PauseTransition pause = new PauseTransition(Duration.millis(NEXT_REGISTER_DELAY));
-        pause.setOnFinished(event -> {
-            for (Player player : board.getPlayers()) {
-                player.stopRebooting();
-                player.getSpace().updateSpace();
-            }
-            startUpgradingPhase();
-            setIsRegisterPlaying(false);
-        });  // Small delay before ending activation phase for dramatic effect ;-).
-        pause.play();
-    }
-
-    /**
-     * This method exhausts the action queue by removing the first action, executing it, waits for the action delay, then calls itself again.
-     * Is interrupted if the action queue is empty or if there is a player action.
-     * @param callback The method to call back to, when the action queue is exhausted.
-     * @param actionQueue The action queue to execute.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void runActionsAndCallback(Runnable callback, LinkedList<ActionWithDelay> actionQueue) {
-        if (playerInteractionQueue.isEmpty()) {
-            if (board.getCurrentPhase() == PLAYER_ACTIVATION || board.getCurrentPhase() == BOARD_ACTIVATION) {
-                if (!actionQueue.isEmpty()) { // As long as there are more actions.
-                    // Handle the next action
-                    ActionWithDelay nextAction = actionQueue.removeFirst();
-                    nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
-                    int delayInMillis = nextAction.getDelayInMillis();
-                    PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
-                    pause.setOnFinished(event -> {
-                        EventHandler.event_EndOfAction(this);
-                        runActionsAndCallback(callback, actionQueue);
-                    }); // Continue actions
-                    if (WITH_ACTION_DELAY) {
-                        pause.play();
-                    }
-                } else { // When we have exhausted the actions, call the callback method.
-                    callback.run();
-                }
-            } else {
-                System.out.println("Possible error? Phase is: \"" + board.getCurrentPhase() + "\", but currently running actions.");
-            }
-        } else {
-            handleNextInteraction();
-        }
-    }
-    /*
-            ### This concludes the "main flow" of the activation phase. ###
-     */
-
-
-    /**
-     * Method for making a new player interaction. This stops the action queue execution loop and begins the interaction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void addPlayerInteraction(PlayerInteraction interaction) {
-        playerInteractionQueue.offer(interaction);
-        board.updateBoard();
-    }
-
-    /**
-     * @return whether there is an ongoing player interaction or not.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public boolean getIsPlayerInteracting() {
-        return currentPlayerInteraction != null || !playerInteractionQueue.isEmpty();
-    }
-
-    /**
-     * Polls the first player interaction in the queue and initializes it.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void handleNextInteraction() {
-        // Check if there are more interactions.
-        if (playerInteractionQueue.isEmpty()) {
-            // If not, continue
-            try {
-                continueActions();
-            } catch (UnhandledPhaseInteractionException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            currentPlayerInteraction = playerInteractionQueue.poll();
-            currentPlayerInteraction.initializeInteraction();
-            board.updateBoard();
-        }
-    }
-
-    /**
-     * Handles what method to go to, after the player interaction queue is empty.
-     * @throws UnhandledPhaseInteractionException If it is not specified what method to go to after player interactions at the current phase.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void continueActions() throws UnhandledPhaseInteractionException {
-        if (board.getCurrentPhase() == PLAYER_ACTIVATION) {
-            currentPlayerInteraction = null;
-            handlePlayerActions();
-        } else if (board.getCurrentPhase() == BOARD_ACTIVATION) {
-            currentPlayerInteraction = null;
-            handleBoardElementActions();
-        }else if (board.getCurrentPhase() == PROGRAMMING) {
-            currentPlayerInteraction = null;
-            board.getCurrentPlayer().stopRebooting();
-        }else {
-            throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
-        }
-    }
-
-    /**
-     * @return the current PlayerInteraction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public PlayerInteraction getCurrentPlayerInteraction() {
-        return currentPlayerInteraction;
-    }
-
-    /**
-     * Handles the player command for a command with multiple options
-     *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
-     *  @param option the option the player have chosen, and sets the activation phase active again
-     */
-    public void executeCommandOptionAndContinue(Command option) {
-        currentPlayerInteraction.player.queueCommand(option, false, this);
-        currentPlayerInteraction.interactionFinished();
-    }
-
-    /**
-     * Gets the command card in the players program at the current register.
-     * @param currentPlayer The player, whose command card should be queued.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void queuePlayerCommandFromCommandCard(Player currentPlayer) {
-        Command commandToQueue = null;
-        try {
-            int currentRegister = board.getCurrentRegister();
-            CommandCard card = (CommandCard) currentPlayer.getProgramField(currentRegister).getCard();
-            if (card == null) return;
-            commandToQueue = card.command;
-            currentPlayer.queueCommand(commandToQueue, this);
-        } catch (Exception e) {
-            System.out.println("ERROR - Something went wrong when trying to get command: \"" + commandToQueue + "\" from CommandCard.");
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        assert false;
-    }
-
-    /**
-     * Queues all the board elements in the board.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void queueBoardElementsAndRobotLasers() {
-        board.queueBoardElementsWithIndex(this, 0, "Blue conveyor belts");
-        board.queueBoardElementsWithIndex(this, 1, "Green conveyor belts");
-        board.queueBoardElementsWithIndex(this, 2, "Push panels");
-        board.queueBoardElementsWithIndex(this, 3, "Gears");
-        board.queueBoardElementsWithIndex(this, 4, "Board lasers");
-        board.queueClearLasers();
-        board.queuePlayerLasers();
-        board.queueClearLasers();
-        board.queueBoardElementsWithIndex(this, 5, "Energy spaces");
-        board.queueBoardElementsWithIndex(this, 6, "Checkpoints");
     }
 
     /**

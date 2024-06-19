@@ -72,8 +72,6 @@ public class PlayerView extends Tab implements ViewObserver {
     private final HBox playerOptionsPanel;
 
     private final Button finishButton;
-    private final Button executeButton;
-    private final Button stepButton;
 
     private final GameController gameController;
     private final HBox hBox = new HBox();
@@ -206,11 +204,7 @@ public class PlayerView extends Tab implements ViewObserver {
         // TODO: finishButton, executeButton & stepButton should be converted to a "Ready" button, when networking is implemented.
         finishButton = new Button("Finish Programming");
         finishButton.setOnAction( e -> gameController.finishProgrammingPhase());
-        executeButton = new Button("Execute Program");
-        executeButton.setOnAction( e-> gameController.executePrograms());
-        stepButton = new Button("Execute Current Register");
-        stepButton.setOnAction( e-> gameController.executeRegister());
-        executePanel = new HBox(finishButton, executeButton, stepButton);
+        executePanel = new HBox(finishButton);
         executePanel.setAlignment(Pos.CENTER);
         executePanel.setSpacing(3.0);
         playerOptionsPanel = new HBox();
@@ -317,18 +311,12 @@ public class PlayerView extends Tab implements ViewObserver {
                 switch (board.getCurrentPhase()) {
                     case PROGRAMMING:
                         finishButton.setDisable(false);
-                        executeButton.setDisable(true);
-                        stepButton.setDisable(true);
                         break;
                     case PLAYER_ACTIVATION, BOARD_ACTIVATION:
                         finishButton.setDisable(true);
-                        executeButton.setDisable(gameController.getIsRegisterPlaying());
-                        stepButton.setDisable(gameController.getIsRegisterPlaying());
                         break;
                     default:
                         finishButton.setDisable(true);
-                        executeButton.setDisable(true);
-                        stepButton.setDisable(true);
                 }
             } else if (gameController.getCurrentPlayerInteraction() instanceof CommandOptionsInteraction commandOptionsInteraction) {
                 interactionPane.getChildren().remove(executePanel);

@@ -6,18 +6,18 @@ import com.group15.roborally.client.model.Player;
 public abstract class PlayerInteraction {
     protected final GameController gameController;
     public final Player player;
-    private final Runnable callback;
+    // private final Runnable callback;
 
     public PlayerInteraction(GameController gameController, Player player) {
         this.gameController = gameController;
-        this.callback = gameController::handleNextInteraction;
+        // this.callback = gameController::handleNextInteraction;
         this.player = player;
     }
 
     public abstract void initializeInteraction();
-    public void interactionFinished() {
-        callback.run();
-    }
+    // public void interactionFinished() {
+    //     callback.run();
+    // }
 
     @Override
     public String toString() {
