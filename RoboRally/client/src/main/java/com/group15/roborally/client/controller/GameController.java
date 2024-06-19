@@ -21,6 +21,8 @@
  */
 package com.group15.roborally.client.controller;
 
+import com.group15.observer.Observer;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
@@ -28,10 +30,9 @@ import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.Game;
 import javafx.animation.PauseTransition;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,15 +44,13 @@ import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.*;
 
 /**
- * ...
- *
  * @author Ekkart Kindler, ekki@dtu.dk
- *
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class
-GameController {
+public class GameController implements Observer {
     public final Board board;
     private final Runnable gameOverMethod;
+    private final Player localPlayer;
     private final NetworkingController networkingController;
 
     private Space directionOptionsSpace;
@@ -76,10 +75,12 @@ GameController {
      * @param board The current board
      * @param gameOverMethod The method for calling game over.
      */
-    public GameController(@NotNull Board board, Runnable gameOverMethod, NetworkingController networkController) {
+    public GameController(@NotNull Board board, Player localPlayer, NetworkingController networkController, Runnable gameOverMethod) {
         this.board = board;
         this.gameOverMethod = gameOverMethod;
+        this.localPlayer = localPlayer;
         this.networkingController = networkController;
+        this.networkingController.attach(this);
     }
 
     /**
@@ -155,24 +156,23 @@ GameController {
     // }
 
     public void finishProgrammingPhase() {
-        Player self =  board.getSelf();
-        networkingController.updateRegister(self.getName(), self.getProgramFieldNames(), board.getTurnCounter());
-        networkingController.updateRegisters(board.getGameId(), () -> enterActivationPhase());
+        networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), board.getTurnCounter());
+        networkingController.updateRegisters(this::enterActivationPhase);
     }
 
     public void enterActivationPhase() {
         String[] registers;
-        for(Player player : board.getPlayers()){
-            if(player.getName().equals(board.getSelf().getName())){
+        for (Player player : board.getPlayers()){
+            if (player.equals(localPlayer)){
                 continue;
             }
-            registers = networkingController.getRegisters(player.getName());
+            registers = networkingController.getRegistersFromPlayer(player.getPlayerId());
             player.setRegisters(registers); // Convert String to CardField
         }
         startActivationPhase();
     }
 
-    public void startActivationPhase(){
+    public void startActivationPhase() {
         /*
          * TODO: Next step is activation phase - implement with server logic
          */
@@ -529,97 +529,6 @@ GameController {
         }
     }
 
-
-    /**
-     * Method for setting the direction pane position at a space.
-     * @param space The space that the direction pane should appear at.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void setDirectionOptionsPane(Space space) {
-        space.updateSpace();
-
-        directionOptionsSpace = space;
-        board.updateBoard();
-    }
-
-    /**
-     * Called from view when a space was clicked.
-     * @param event The mouse event.
-     * @param space The space that was clicked.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void spacePressed(MouseEvent event, Space space) {
-        if (board.getCurrentPhase() == INITIALIZATION) {
-            if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                Player currentPlayer = board.getCurrentPlayer();
-                if (space.getPlayer() == null) {
-                    space.setPlayer(currentPlayer);
-                    setDirectionOptionsPane(space);
-                }
-            }
-        }
-    }
-
-    /**
-     * Sets the onMouseClicked up the arrow buttons on the direction panel, to call chooseDirection().
-     * @param button The arrow button.
-     * @param boardView The boardView
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void initializeDirectionButton(Button button, BoardView boardView) {
-        Heading direction = Heading.valueOf(button.getId());
-        button.setOnMouseClicked(event -> {
-            chooseDirection(direction, boardView);
-        });
-    }
-
-    /**
-     * Method for the BoardView to get the new direction pane space.
-     * @return The space to put the direction pane at.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public Space getDirectionOptionsSpace() {
-        return directionOptionsSpace;
-    }
-
-    /**
-     * This method is called when the player has chosen a direction for the robot.
-     * The direction is set for the current player and the next player is set as the current player.
-     * If the next player has a spawn point, the programming phase is started.
-     * 
-     * @param direction the direction chosen by the player
-     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void chooseDirection(Heading direction, BoardView boardView) {
-        boardView.handleDirectionButtonClicked();
-        directionOptionsSpace = null;
-        if (board.getCurrentPhase() == INITIALIZATION) {
-            Player player = board.getCurrentPlayer();
-
-            Space spawnSpace = player.getSpace();
-            player.setSpawn(spawnSpace);
-            player.setSpace(spawnSpace);
-
-            if (spawnSpace.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
-                spawnPoint.setColor(player);
-                boardView.initializePlayerSpawnSpaceView(spawnSpace);
-            }
-            player.setHeading(direction);
-
-            int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % NO_OF_PLAYERS;
-            Player nextPlayer = board.getPlayer(nextPlayerIndex);
-            board.setCurrentPlayer(nextPlayer);
-            if (nextPlayer.getSpawnPoint() != null) {
-                //startUpgradingPhase();
-                beginGame();
-            }
-        } else {
-            currentPlayerInteraction.player.setHeading(direction);
-            currentPlayerInteraction.interactionFinished();
-        }
-    }
-
     /**
      * Method for checking if a card is allowed to be dragged.
      * @param sourceField The CardField to drag.
@@ -725,5 +634,116 @@ GameController {
         }
 
         return couldMove;
+    }
+
+
+    // Updates to server
+    /**
+     * Called from view when a space was clicked.
+     * @param space The space that was clicked.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void spacePressed(Space space) {
+        if (board.getCurrentPhase() == INITIALIZATION) {
+            if (space.getBoardElement() instanceof BE_SpawnPoint) {
+                if (space.getPlayer() == null) {
+                    networkingController.setPlayerSpawn(space);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method is called when the player has chosen a direction for the robot.
+     * The direction is set for the current player and the next player is set as the current player.
+     * If the next player has a spawn point, the programming phase is started.
+     *
+     * @param direction the direction chosen by the player
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void chooseDirection(Heading direction, BoardView boardView) {
+        boardView.handleDirectionButtonClicked();
+        directionOptionsSpace = null;
+        if (board.getCurrentPhase() == INITIALIZATION) {
+            localPlayer.setHeading(direction);
+        } else {
+            currentPlayerInteraction.player.setHeading(direction);
+            currentPlayerInteraction.interactionFinished();
+        }
+    }
+
+
+    // Updates from server
+    @Override
+    public void update(Subject subject) {
+        if (subject.equals(networkingController)) {
+            Game updatedGame = networkingController.getUpdatedGame();
+            HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers = networkingController.getUpdatedPlayerMap();
+
+            for (Player client : board.getPlayers()) {
+                com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
+                if (updatedPlayer == null) {
+                    // Player disconnected.
+                    System.out.println("Player: \"" + client.getName() + "\" disconnected from the game.");
+                    // TODO: Handle player disconnect.
+                }
+            }
+
+            switch (updatedGame.getPhase()) {
+                case INITIALIZATION -> updateInitialization(updatedPlayers);
+            }
+        }
+    }
+
+    private void updateInitialization(HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers) {
+        for (Player client : board.getPlayers()) {
+            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
+            if (updatedPlayer == null) {
+                // Player disconnected.
+                continue;
+            }
+
+            // Position
+            int[] clientSpawnPoint = updatedPlayer.getSpawnPoint();
+            if (clientSpawnPoint != null) {
+                Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
+                // Heading
+                Heading clientHeading = client.getHeading();
+                if (clientHeading != null) {
+                    // Setting spawnPoint
+                    client.setSpawn(clientSpawnPosition);
+                    if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                        spawnPoint.setColor(client);
+                        board.updateBoard();
+                    }
+                } else {
+                    if (client.equals(localPlayer)) {
+                        // Local player direction option
+                        setDirectionOptionsPane(clientSpawnPosition);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Method for setting the direction pane position at a space.
+     * @param space The space that the direction pane should appear at.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void setDirectionOptionsPane(Space space) {
+        space.updateSpace();
+        directionOptionsSpace = space;
+        board.updateBoard();
+    }
+
+    /**
+     * Method for the BoardView to get the new direction pane space.
+     * @return The space to put the direction pane at.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public Space getDirectionOptionsSpace() {
+        return directionOptionsSpace;
     }
 }
