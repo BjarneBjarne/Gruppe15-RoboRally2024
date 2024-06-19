@@ -1,4 +1,4 @@
-package dk.dtu.compute.se.pisd.roborally.controller;
+package com.group15.roborally.client.controller;
 
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;

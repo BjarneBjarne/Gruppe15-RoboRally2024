@@ -19,7 +19,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
     }
 
     @Override
-    public void initialize(com.group15.roborally.client.model.Player owner, GameController gameController) {
+    public void initialize(Player owner, GameController gameController) {
         super.initialize(owner, gameController);
 
         // Defining effects on events
