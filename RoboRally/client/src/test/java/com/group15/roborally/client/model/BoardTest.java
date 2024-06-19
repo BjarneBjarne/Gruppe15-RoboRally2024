@@ -1,7 +1,6 @@
-package dk.dtu.compute.se.pisd.roborally.Board;
+package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.BoardOptions;
-import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.BE_Antenna;
 import com.group15.roborally.client.model.boardelements.BE_Checkpoint;
 import com.group15.roborally.client.model.boardelements.BE_Hole;
