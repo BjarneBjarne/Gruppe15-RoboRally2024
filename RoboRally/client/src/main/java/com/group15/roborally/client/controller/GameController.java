@@ -181,7 +181,9 @@ public class GameController implements Observer {
                 }
             }
         } else {
-            handleNextInteraction();
+            currentPlayerInteraction = playerInteractionQueue.poll();
+            currentPlayerInteraction.initializeInteraction();
+            board.updateBoard();
         }
     }
 
@@ -210,37 +212,14 @@ public class GameController implements Observer {
     public void handleNextInteraction() {
         // Check if there are more interactions.
         if (playerInteractionQueue.isEmpty()) {
-            // If not, continue
-            try {
-                continueActions();
-            } catch (UnhandledPhaseInteractionException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
+            currentPlayerInteraction = null;
+            if(board.getCurrentPhase() == PROGRAMMING) {
+                board.getCurrentPlayer().stopRebooting();
             }
         } else {
             currentPlayerInteraction = playerInteractionQueue.poll();
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
-        }
-    }
-
-    /**
-     * Handles what method to go to, after the player interaction queue is empty.
-     * @throws UnhandledPhaseInteractionException If it is not specified what method to go to after player interactions at the current phase.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void continueActions() throws UnhandledPhaseInteractionException {
-        if (board.getCurrentPhase() == PLAYER_ACTIVATION) {
-            currentPlayerInteraction = null;
-            handlePlayerActions();
-        } else if (board.getCurrentPhase() == BOARD_ACTIVATION) {
-            currentPlayerInteraction = null;
-            handleBoardElementActions();
-        }else if (board.getCurrentPhase() == PROGRAMMING) {
-            currentPlayerInteraction = null;
-            board.getCurrentPlayer().stopRebooting();
-        }else {
-            throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
         }
     }
 
