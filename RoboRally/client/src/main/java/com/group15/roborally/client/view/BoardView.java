@@ -341,6 +341,15 @@ public class BoardView extends VBox implements ViewObserver {
                 setDirectionOptionsPane(spaceViews[directionOptionsSpace.x][directionOptionsSpace.y]);
             }
 
+            if (board.getCurrentPhase() == INITIALIZATION) {
+                for (Player player : board.getPlayers()) {
+                    Space playerSpace = player.getSpace();
+                    if (playerSpace != null) {
+                        initializePlayerSpawnSpaceView(playerSpace);
+                    }
+                }
+            }
+
             Platform.runLater(() -> {
                 if (board.getCurrentPhase() == Phase.UPGRADE) {
                     updateUpgradeShop();

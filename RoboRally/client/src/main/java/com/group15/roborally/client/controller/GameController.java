@@ -666,25 +666,7 @@ public class GameController implements Observer {
         boardView.handleDirectionButtonClicked();
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == INITIALIZATION) {
-            Player player = board.getCurrentPlayer();
-
-            Space spawnSpace = player.getSpace();
-            player.setSpawn(spawnSpace);
-            player.setSpace(spawnSpace);
-
-            if (spawnSpace.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
-                spawnPoint.setColor(player);
-                boardView.initializePlayerSpawnSpaceView(spawnSpace);
-            }
-            player.setHeading(direction);
-
-            int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % NO_OF_PLAYERS;
-            Player nextPlayer = board.getPlayer(nextPlayerIndex);
-            board.setCurrentPlayer(nextPlayer);
-            if (nextPlayer.getSpawnPoint() != null) {
-                //startUpgradingPhase();
-                beginGame();
-            }
+            localPlayer.setHeading(direction);
         } else {
             currentPlayerInteraction.player.setHeading(direction);
             currentPlayerInteraction.interactionFinished();
@@ -722,12 +704,25 @@ public class GameController implements Observer {
                 continue;
             }
 
+            // Position
             int[] clientSpawnPoint = updatedPlayer.getSpawnPoint();
-            Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
-            client.setSpawn(clientSpawnPosition);
-
-            if (client.equals(localPlayer)) {
-                setDirectionOptionsPane(clientSpawnPosition);
+            if (clientSpawnPoint != null) {
+                Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
+                // Heading
+                Heading clientHeading = client.getHeading();
+                if (clientHeading != null) {
+                    // Setting spawnPoint
+                    client.setSpawn(clientSpawnPosition);
+                    if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                        spawnPoint.setColor(client);
+                        board.updateBoard();
+                    }
+                } else {
+                    if (client.equals(localPlayer)) {
+                        // Local player direction option
+                        setDirectionOptionsPane(clientSpawnPosition);
+                    }
+                }
             }
         }
     }
