@@ -12,6 +12,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
+/**
+ * InfoPaneView, a view for displaying information to the user.
+ * 
+ * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+ */
 public class InfoPaneView extends StackPane implements ViewObserver {
 
     private final Text infoText;
