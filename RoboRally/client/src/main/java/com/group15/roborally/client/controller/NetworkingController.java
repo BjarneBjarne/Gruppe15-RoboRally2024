@@ -313,7 +313,7 @@ public class NetworkingController implements Observer {
             if (player != null) {
                 Register register = registers.stream().filter(r -> r.getPlayerId() == player.getPlayerId()).findFirst().orElse(null);
                 if (register != null) {
-                    return register.getRegisters();
+                    return register.getMoves();
                 }
             }
         }
