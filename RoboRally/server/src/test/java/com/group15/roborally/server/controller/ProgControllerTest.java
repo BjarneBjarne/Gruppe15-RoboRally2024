@@ -57,11 +57,11 @@ public class ProgControllerTest {
         register.setPlayerId(expectedPlayerId);
         // register.setRegisterId(1L);
         register.setTurn(0);
-        register.setM1("card53");
-        register.setM2("card2");
-        register.setM3("card32");
-        register.setM4("card21");
-        register.setM5("card75");
+        // register.setM1("card53");
+        // register.setM2("card2");
+        // register.setM3("card32");
+        // register.setM4("card21");
+        // register.setM5("card75");
         register.setPlayer(null);
 
         return register;
@@ -89,7 +89,7 @@ public class ProgControllerTest {
                 .content(gson.toJson(register)))
                 .andExpect(status().isNotFound());
         
-        register.setM3("");
+        // register.setM3("");
         mockMvc.perform(MockMvcRequestBuilders.post("/players/1/registers/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(register)))

@@ -3,6 +3,8 @@ package com.group15.roborally.server.controller;
 import java.util.List;
 
 import com.group15.roborally.server.repository.PlayerRepository;
+import com.group15.roborally.server.repository.RegisterRepository;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Market;
 import com.group15.roborally.server.model.Player;
+import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.MarketRepository;
 
@@ -21,11 +24,13 @@ public class GameController {
     PlayerRepository playerRepository;
     GameRepository gameRepository;
     MarketRepository marketRepository;
+    RegisterRepository registerRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository marketRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository marketRepository, RegisterRepository registerRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.marketRepository = marketRepository;
+        this.registerRepository = registerRepository;
     }
 
     /**
@@ -85,6 +90,11 @@ public class GameController {
             game.setHostId(player.getPlayerId());
         }
         gameRepository.findById(gameId).ifPresent(this::updateNoOfPlayersByGame);
+        
+        Register register = new Register();
+        register.setPlayerId(player.getPlayerId());
+        register.setTurn(0);
+        registerRepository.save(register);
 
         return ResponseEntity.ok().body(player);
     }
