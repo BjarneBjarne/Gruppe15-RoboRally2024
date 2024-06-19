@@ -52,6 +52,7 @@ public class
 GameController {
     public final Board board;
     private final Runnable gameOverMethod;
+    private final NetworkingController networkingController;
 
     private Space directionOptionsSpace;
     private String winnerName;
@@ -75,9 +76,10 @@ GameController {
      * @param board The current board
      * @param gameOverMethod The method for calling game over.
      */
-    public GameController(@NotNull Board board, Runnable gameOverMethod) {
+    public GameController(@NotNull Board board, Runnable gameOverMethod, NetworkingController networkController) {
         this.board = board;
         this.gameOverMethod = gameOverMethod;
+        this.networkingController = networkController;
     }
 
     /**
@@ -138,17 +140,44 @@ GameController {
     /**
      * Method for when the programming phase ends.
      */
+    // public void finishProgrammingPhase() {
+    //     board.setCurrentPhase(PLAYER_ACTIVATION);
+
+    //     makeProgramFieldsInvisible();
+    //     makeProgramFieldsVisible(0);
+
+
+    //     if (DRAW_ON_EMPTY_REGISTER) {
+    //         for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
+    //             player.fillRestOfRegisters();
+    //         }
+    //     }
+    // }
+
     public void finishProgrammingPhase() {
-        board.setCurrentPhase(PLAYER_ACTIVATION);
+        Player self =  board.getSelf();
+        networkingController.updateRegister(self.getName(), self.getProgramFieldNames(), board.getTurnCounter());
+        networkingController.updateRegisters(board.getGameId(), () -> enterActivationPhase());
+    }
 
-        makeProgramFieldsInvisible();
-        makeProgramFieldsVisible(0);
-
-        if (DRAW_ON_EMPTY_REGISTER) {
-            for (Player player : board.getPlayers()) {
-                player.fillRestOfRegisters();
+    public void enterActivationPhase() {
+        String[] registers;
+        for(Player player : board.getPlayers()){
+            if(player.getName().equals(board.getSelf().getName())){
+                continue;
             }
+            registers = networkingController.getRegisters(player.getName());
+            player.setRegisters(registers); // Convert String to CardField
         }
+        startActivationPhase();
+    }
+
+    public void startActivationPhase(){
+        /*
+         * TODO: Next step is activation phase - implement with server logic
+         */
+        board.setCurrentPhase(PLAYER_ACTIVATION);
+        handlePlayerRegister();
     }
 
     /**
