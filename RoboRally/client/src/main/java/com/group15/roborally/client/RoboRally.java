@@ -27,6 +27,7 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.BoardView;
+import com.group15.roborally.client.view.InfoPaneView;
 import com.group15.roborally.client.view.MainMenuView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.view.WinScreenView;
@@ -113,9 +114,11 @@ public class RoboRally extends Application {
         root.setMinHeight(Region.USE_COMPUTED_SIZE);
         root.setMinWidth(Region.USE_COMPUTED_SIZE);
         mainPane = new StackPane(root);
+        InfoPaneView infoPane = new InfoPaneView();
+        mainPane.getChildren().add(infoPane);
         scalePane = new StackPane(mainPane);
 
-        appController = new AppController(this, mainPane);
+        appController = new AppController(this, infoPane);
         try {
             appController.loadCourses();
         } catch (NoCoursesException e) {

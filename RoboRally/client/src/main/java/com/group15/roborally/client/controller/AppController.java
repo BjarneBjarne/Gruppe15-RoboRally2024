@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import com.group15.roborally.client.utils.TextUtils;
+import com.group15.roborally.client.view.InfoPaneView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 
 import com.group15.roborally.client.model.*;
@@ -41,19 +42,11 @@ import com.group15.roborally.client.model.boardelements.BoardElement;
 
 import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,30 +70,17 @@ public class AppController {
     private final NetworkingController networkingController = new NetworkingController(this);
 
     private MultiplayerMenuView multiplayerMenuView;
-    private final StackPane infoPane = new StackPane();
-    private final Text infoText = new Text();
+    // private final StackPane infoPane = new StackPane();
+    // private final Text infoText = new Text();
+    private final InfoPaneView infoPane;
 
-    public AppController(@NotNull RoboRally roboRally, StackPane mainPane) {
+    public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
         this.roboRally = roboRally;
-        initializeInfoPane(mainPane);
+        this.infoPane = infoPane;
     }
 
-    public void initializeInfoPane(StackPane mainPane) {
-        infoPane.getChildren().add(infoText);
-        mainPane.getChildren().add(infoPane);
-        StackPane.setAlignment(infoPane, Pos.CENTER);
-        infoPane.setAlignment(Pos.CENTER);
-        infoPane.setStyle("-fx-background-color: #000000A5");
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 90);
-        infoText.setFont(textFont);
-        infoText.setFill(Color.WHITE);
-        infoText.setStroke(Color.BLACK);
-        infoText.setStrokeWidth(3);
-        infoText.setStrokeType(StrokeType.OUTSIDE);
-        infoText.setWrappingWidth(2560);
-        infoText.setTextAlignment(TextAlignment.CENTER);
-        StackPane.setMargin(infoText, new Insets(0, 0, 75, 0));
-        setInfoText("");
+    public void setInfoText(String text) {
+        infoPane.setInfoText(text);
     }
 
     /**
@@ -108,13 +88,13 @@ public class AppController {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void initializeMultiplayerMenu() {
-        setInfoText("Setting up multiplayer...", false);
+        infoPane.setInfoText("Setting up multiplayer...");
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView();
             roboRally.createMultiplayerMenu(multiplayerMenuView);
             multiplayerMenuView.setupMenuUI(networkingController);
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
-            setInfoText("");
+            infoPane.setInfoText("");
         });
     }
 
@@ -319,27 +299,6 @@ public class AppController {
 
     public void resetMultiplayerMenuView() {
         multiplayerMenuView = null;
-    }
-
-    /**
-     * Method for showing the connection status to the player.
-     * @param connectionInfo If blank, hides the connection info pane. If not, shows the pane and sets the connection info text to connectionInfo.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void setInfoText(String connectionInfo, boolean printMessage) {
-        if (connectionInfo != null && !connectionInfo.isBlank()) {
-            infoText.setText(connectionInfo);
-            if (printMessage) System.out.println(connectionInfo);
-
-            infoPane.setVisible(true);
-            infoPane.setDisable(false);
-        } else {
-            infoPane.setVisible(false);
-            infoPane.setDisable(true);
-        }
-    }
-    public void setInfoText(String connectionInfo) {
-        setInfoText(connectionInfo, true);
     }
 
     public void disconnectFromServer(String s, int i) {
