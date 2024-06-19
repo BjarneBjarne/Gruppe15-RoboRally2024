@@ -21,6 +21,8 @@
  */
 package com.group15.roborally.client.controller;
 
+import com.group15.observer.Observer;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
@@ -28,6 +30,7 @@ import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.Game;
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -46,9 +49,10 @@ import static com.group15.roborally.client.BoardOptions.*;
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class GameController {
+public class GameController implements Observer {
     public final Board board;
     private final Runnable gameOverMethod;
+    private final Player localPlayer;
     private final NetworkingController networkingController;
 
     private Space directionOptionsSpace;
@@ -76,7 +80,9 @@ public class GameController {
     public GameController(@NotNull Board board, Player localPlayer, NetworkingController networkController, Runnable gameOverMethod) {
         this.board = board;
         this.gameOverMethod = gameOverMethod;
+        this.localPlayer = localPlayer;
         this.networkingController = networkController;
+        this.networkingController.attach(this);
     }
 
     /**
@@ -548,7 +554,6 @@ public class GameController {
     public void spacePressed(MouseEvent event, Space space) {
         if (board.getCurrentPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                Player currentPlayer = board.getCurrentPlayer();
                 if (space.getPlayer() == null) {
                     space.setPlayer(currentPlayer);
                     setDirectionOptionsPane(space);
@@ -722,5 +727,22 @@ public class GameController {
         }
 
         return couldMove;
+    }
+
+
+    // Updates from server
+    @Override
+    public void update(Subject subject) {
+        if (subject.equals(networkingController)) {
+            Game updatedGame = networkingController.getUpdatedGame();
+
+            switch (updatedGame.getPhase()) {
+                case INITIALIZATION -> updateInitialization(updatedGame);
+            }
+        }
+    }
+
+    private void updateInitialization(Game updatedGame) {
+
     }
 }
