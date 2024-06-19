@@ -115,6 +115,10 @@ public class Player extends Subject {
         setProgrammingDeckToDefault();
     }
 
+    public long getPlayerId() {
+        return playerId;
+    }
+
     public Image getImage() {
         return this.image;
     }

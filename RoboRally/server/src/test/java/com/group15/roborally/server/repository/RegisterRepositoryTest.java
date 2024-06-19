@@ -59,33 +59,21 @@ public class RegisterRepositoryTest {
         register1.setPlayerId(1L);
         // register1.setGameId(1L);
         register1.setTurn(0);
-        // register1.setM1("card53");
-        // register1.setM2("card2");
-        // register1.setM3("card32");
-        // register1.setM4("card21");
-        // register1.setM5("card75");
+        register1.setMoves(new String[]{"card53", "card2", "card32", "card21", "card75"});
         registerRepository.save(register1);
 
         register2 = new Register();
         register2.setPlayerId(2L);
         // register2.setGameId(1L);
         register2.setTurn(1);
-        // register2.setM1("card85");
-        // register2.setM2("card17");
-        // register2.setM3("card36");
-        // register2.setM4("car21");
-        // register2.setM5("card23");
+        register2.setMoves(new String[]{"card85", "card17", "card36", "card21", "card23"});
         registerRepository.save(register2);
 
         register3 = new Register();
         register3.setPlayerId(2L);
         // register3.setGameId(2L);
         register3.setTurn(1);
-        // register3.setM1("card53");
-        // register3.setM2("card2");
-        // register3.setM3("card32");
-        // register3.setM4("card21");
-        // register3.setM5("card75");
+        register2.setMoves(new String[]{"card53", "card2", "card32", "card21", "card75"});
         registerRepository.save(register3);
     }
 

@@ -87,7 +87,7 @@ public class BoardView extends VBox implements ViewObserver {
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
-                gameController.initializeDirectionButton(button, this);
+                initializeDirectionButton(button, this);
                 ImageView buttonImage = new ImageView();
                 buttonImage.setFitWidth(ApplicationSettings.SPACE_SIZE);
                 buttonImage.setFitHeight(SPACE_SIZE);
@@ -168,6 +168,19 @@ public class BoardView extends VBox implements ViewObserver {
 
         board.attach(this);
         update(board);
+    }
+
+    /**
+     * Sets the onMouseClicked up the arrow buttons on the direction panel, to call chooseDirection().
+     * @param button The arrow button.
+     * @param boardView The boardView
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void initializeDirectionButton(Button button, BoardView boardView) {
+        Heading direction = Heading.valueOf(button.getId());
+        button.setOnMouseClicked(event -> {
+            gameController.chooseDirection(direction, boardView);
+        });
     }
 
     /**
@@ -328,6 +341,15 @@ public class BoardView extends VBox implements ViewObserver {
                 setDirectionOptionsPane(spaceViews[directionOptionsSpace.x][directionOptionsSpace.y]);
             }
 
+            if (board.getCurrentPhase() == INITIALIZATION) {
+                for (Player player : board.getPlayers()) {
+                    Space playerSpace = player.getSpace();
+                    if (playerSpace != null) {
+                        initializePlayerSpawnSpaceView(playerSpace);
+                    }
+                }
+            }
+
             Platform.runLater(() -> {
                 if (board.getCurrentPhase() == Phase.UPGRADE) {
                     updateUpgradeShop();
@@ -385,7 +407,7 @@ public class BoardView extends VBox implements ViewObserver {
                             }
                         } else {
                             // Game input
-                            gameController.spacePressed(event, space);
+                            gameController.spacePressed(space);
                         }
 
                         event.consume();

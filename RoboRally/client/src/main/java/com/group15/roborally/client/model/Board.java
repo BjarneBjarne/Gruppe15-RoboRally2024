@@ -42,7 +42,6 @@ import static com.group15.roborally.client.model.Phase.INITIALIZATION;
  *
  */
 public class Board extends Subject {
-    private Long gameId;
     private final String courseName;
 
     public final int width;
@@ -53,8 +52,7 @@ public class Board extends Subject {
     private final List<Player> players = new ArrayList<>();
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private Player currentPlayer;
-    private Player self;
-    
+
     private Phase currentPhase = INITIALIZATION;
     private int currentRegister = 0;
     private int turnCounter = 0;
@@ -100,26 +98,8 @@ public class Board extends Subject {
         return upgradeShop;
     }
 
-    public long getGameId() {
-        return gameId;
-    }
-
     public int getTurnCounter() {
         return turnCounter;
-    }
-
-    public Player getSelf() {
-        return self;
-    }
-
-    public void setGameId(Long gameId) {
-        if (this.gameId == null) {
-            this.gameId = gameId;
-        } else {
-            if (!this.gameId.equals(gameId)) {
-                throw new IllegalStateException("A game with a set id may not be assigned a new id!");
-            }
-        }
     }
 
     public Space getSpace(int x, int y) {
