@@ -22,15 +22,10 @@ public class Player/*  implements Serializable */ {
     private long playerId;
 
     private long gameId;
-
     private String robotName;
-
     private String playerName;
-
-    private int[] spawnpoint;
-
-    private String spawndirection;
-
+    private int[] spawnPoint;
+    private String spawnDirection;
     private int isReady;
 
     @ManyToOne(fetch = FetchType.LAZY)

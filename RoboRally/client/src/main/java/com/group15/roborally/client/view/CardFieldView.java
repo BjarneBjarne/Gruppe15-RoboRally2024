@@ -121,7 +121,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
 
     public String cardFieldRepresentation(CardField cardField) {
         if (cardField.player != null) {
-            for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; i++) {
+            for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardField other = cardField.player.getProgramField(i);
                 if (other == cardField) {
                     return "P," + i;    // Program cards
@@ -133,13 +133,13 @@ public class CardFieldView extends StackPane implements ViewObserver {
                     return "C," + i;    // Cards in hand
                 }
             }
-            for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
+            for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
                 CardField other = cardField.player.getPermanentUpgradeCardField(i);
                 if (other == cardField) {
                     return "U," + i;    // Permanent player upgrade cardField
                 }
             }
-            for (int i = 0; i < com.group15.roborally.client.model.Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
+            for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
                 CardField other = cardField.player.getTemporaryUpgradeCardField(i);
                 if (other == cardField) {
                     return "T," + i;    // Temporary player upgrade cardField
@@ -170,7 +170,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 if (field.player != null) {
                     switch (strings[0]) {
                         case "P" -> {
-                            if (i < com.group15.roborally.client.model.Player.NO_OF_REGISTERS) {
+                            if (i < Player.NO_OF_REGISTERS) {
                                 return field.player.getProgramField(i);
                             }
                         }
@@ -180,7 +180,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                             }
                         }
                         case "U" -> {
-                            if (i < com.group15.roborally.client.model.Player.NO_OF_PERMANENT_UPGRADE_CARDS) {
+                            if (i < Player.NO_OF_PERMANENT_UPGRADE_CARDS) {
                                 return field.player.getPermanentUpgradeCardField(i);
                             }
                         }
