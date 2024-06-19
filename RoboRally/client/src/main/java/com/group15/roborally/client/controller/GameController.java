@@ -555,7 +555,7 @@ public class GameController implements Observer {
         if (board.getCurrentPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
                 if (space.getPlayer() == null) {
-                    space.setPlayer(currentPlayer);
+                    space.setPlayer(localPlayer);
                     setDirectionOptionsPane(space);
                 }
             }
