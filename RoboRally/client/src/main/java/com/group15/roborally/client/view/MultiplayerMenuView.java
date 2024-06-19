@@ -93,7 +93,7 @@ public class MultiplayerMenuView {
      * @param loadedCourses The courses loaded from the courses folder.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setupLobby(NetworkingController networkingController, Game game, Player localPlayer, List<Player> players, List<CC_CourseData> loadedCourses, boolean isHost) {
+    public void setupLobby(NetworkingController networkingController, Game game, List<Player> players, Player localPlayer, List<CC_CourseData> loadedCourses, boolean isHost) {
         this.isHost = isHost;
         this.localPlayer = localPlayer;
 
@@ -102,12 +102,14 @@ public class MultiplayerMenuView {
         lobbyTextGameID.setText("Game ID: " + game.getGameId());
         playerSlots[0].setName(localPlayer.getPlayerName());
 
-        updateLobby(networkingController, game, players, null);
+        updateLobby(networkingController, game, players, localPlayer, null);
 
         updateUI(networkingController);
     }
 
-    public void updateLobby(NetworkingController networkingController, Game game, List<Player> players, CC_CourseData selectedCourse) {
+    public void updateLobby(NetworkingController networkingController, Game game, List<Player> players, Player localPlayer, CC_CourseData selectedCourse) {
+        this.localPlayer = localPlayer;
+
         // Course
         if (selectedCourse != null) {
             lobbySelectedCourseImageView.setImage(selectedCourse.getImage());
@@ -160,7 +162,7 @@ public class MultiplayerMenuView {
         localPlayerRobotComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
             String localRobotName = localPlayerRobotComboBox.getSelectionModel().getSelectedItem();
             playerSlots[0].setRobotByRobotName(localRobotName);
-            networkingController.changeRobot(localPlayer, localRobotName);
+            networkingController.changeRobot(localRobotName);
             updateUI(networkingController);
         });
         if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
@@ -338,7 +340,7 @@ public class MultiplayerMenuView {
                     // Toggling whether the player is ready.
                     int isReady = localPlayer.getIsReady() == 0 ? 1 : 0;
                     localPlayer.setIsReady(isReady);
-                    networkingController.setIsReady(localPlayer, isReady);
+                    networkingController.setIsReady(isReady);
                 }
             }
         });

@@ -158,7 +158,7 @@ public class EventHandler {
      * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
      * @param damage The damage to deal to the playerTakingDamage.
      */
-    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, com.group15.roborally.client.model.Player playerInflictingTheDamage, Damage damage) {
+    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage) {
         LinkedList<ActionWithDelay> actionQueue = playerInflictingTheDamage.board.getBoardActionQueue();
         List<PlayerLaserHitListener> playerLaserHitListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerLaserHitListener.class);
         for (PlayerLaserHitListener listener : playerLaserHitListeners) {
@@ -191,7 +191,7 @@ public class EventHandler {
      * @param command
      * @return
      */
-    public static Command event_RegisterActivate(@NotNull com.group15.roborally.client.model.Player playerActivatingRegister, Command command) {
+    public static Command event_RegisterActivate(@NotNull Player playerActivatingRegister, Command command) {
         List<PlayerCommandListener> playerCommandListeners = getPlayerCardEventListeners(playerActivatingRegister, PlayerCommandListener.class);
         for (PlayerCommandListener listener : playerCommandListeners) {
             command = listener.onPlayerCommand(command);
@@ -210,9 +210,9 @@ public class EventHandler {
      * @param playersToPush
      * @param pushDirection
      */
-    private static final Map<com.group15.roborally.client.model.Player, com.group15.roborally.client.model.Player> pushPairs = new HashMap<>();
-    public static void event_PlayerPush(Space[][] spaces, com.group15.roborally.client.model.Player playerPushing, List<com.group15.roborally.client.model.Player> playersToPush, Heading pushDirection) {
-        for (com.group15.roborally.client.model.Player playerToPush : playersToPush) {
+    private static final Map<Player, Player> pushPairs = new HashMap<>();
+    public static void event_PlayerPush(Space[][] spaces, Player playerPushing, List<Player> playersToPush, Heading pushDirection) {
+        for (Player playerToPush : playersToPush) {
             if (playerToPush == playerPushing) continue; // Player can't push themselves.
             if (!playerToPush.equals(pushPairs.get(playerPushing)) && !playerPushing.getIsRebooting()) {
                 // playerToPush haven't been pushed this movement.
@@ -258,7 +258,7 @@ public class EventHandler {
     /**
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
-    public static void event_PlayerMove(com.group15.roborally.client.model.Player playerMoving, Space space, GameController gc) {
+    public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
         playerMoving.setSpace(space);
         /*List<PlayerEndOfActionListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerEndOfActionListener.class);
         boolean shouldReboot = (space == null || space.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
@@ -284,7 +284,7 @@ public class EventHandler {
     /**
      * Method for when a player is rebooted.
      */
-    public static void event_PlayerReboot(com.group15.roborally.client.model.Player player, boolean takeDamage, GameController gameController) {
+    public static void event_PlayerReboot(Player player, boolean takeDamage, GameController gameController) {
         Space oldSpace = player.getSpace();
         if (oldSpace == null) {
             //System.out.println("old space null for " + player.getName());
@@ -308,9 +308,9 @@ public class EventHandler {
         if (rebootSpaceFinder != null) {
             rebootSpace = rebootSpaceFinder.getKey();
             // If player reboots on reboot element, check if player push is needed
-            com.group15.roborally.client.model.Player playerOnRebootSpace = rebootSpace.getPlayer();
+            Player playerOnRebootSpace = rebootSpace.getPlayer();
             if (playerOnRebootSpace != null && playerOnRebootSpace != player) {
-                List<com.group15.roborally.client.model.Player> playersToPush = new ArrayList<>();
+                List<Player> playersToPush = new ArrayList<>();
                 boolean couldPush = player.board.tryMovePlayerInDirection(rebootSpace, rebootSpace.getBoardElement().getDirection(), playersToPush);
                 if (couldPush) {
                     EventHandler.event_PlayerPush(player.board.getSpaces(), player, playersToPush, rebootSpace.getBoardElement().getDirection());
@@ -325,7 +325,7 @@ public class EventHandler {
             rebootSpace = player.getSpawnPoint();
         }
 
-        com.group15.roborally.client.model.Player otherPlayerOnSpawnpoint = null;
+        Player otherPlayerOnSpawnpoint = null;
         if (rebootSpace == player.getSpawnPoint()) {
             if (rebootSpace.getPlayer() != null && rebootSpace.getPlayer() != player) {
                 otherPlayerOnSpawnpoint = rebootSpace.getPlayer();

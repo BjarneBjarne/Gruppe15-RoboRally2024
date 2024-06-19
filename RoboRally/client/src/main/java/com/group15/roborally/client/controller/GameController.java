@@ -87,7 +87,7 @@ GameController {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void beginGame() {
-        for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
+        for (Player player : board.getPlayers()) {
             for (UpgradeCard card : STARTING_UPGRADE_CARDS) {
                 player.tryAddFreeUpgradeCard(card, this);
             }
@@ -117,14 +117,14 @@ GameController {
         board.setCurrentPlayer(board.getPriorityList().peek());
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            com.group15.roborally.client.model.Player player = board.getPlayer(i);
+            Player player = board.getPlayer(i);
             if (player != null) {
                 if (KEEP_HAND) {
                     player.discardProgram();
                 } else {
                     player.discardAll();
                 }
-                for (int j = 0; j < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; j++) {
+                for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                     CardField field = player.getProgramField(j);
                     field.setVisible(true);
                 }
@@ -145,6 +145,7 @@ GameController {
 
     //     makeProgramFieldsInvisible();
     //     makeProgramFieldsVisible(0);
+
 
     //     if (DRAW_ON_EMPTY_REGISTER) {
     //         for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
@@ -184,9 +185,9 @@ GameController {
      * @param register The register to set players program fields visible up to.
      */
     private void makeProgramFieldsVisible(int register) {
-        if (register >= 0 && register < com.group15.roborally.client.model.Player.NO_OF_REGISTERS) {
+        if (register >= 0 && register < Player.NO_OF_REGISTERS) {
             for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                com.group15.roborally.client.model.Player player = board.getPlayer(i);
+                Player player = board.getPlayer(i);
                 CardField field = player.getProgramField(register);
                 field.setVisible(true);
             }
@@ -198,8 +199,8 @@ GameController {
      */
     private void makeProgramFieldsInvisible() {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            com.group15.roborally.client.model.Player player = board.getPlayer(i);
-            for (int j = 0; j < com.group15.roborally.client.model.Player.NO_OF_REGISTERS; j++) {
+            Player player = board.getPlayer(i);
+            for (int j = 0; j < Player.NO_OF_REGISTERS; j++) {
                 CardField field = player.getProgramField(j);
                 field.setVisible(false);
             }
@@ -236,7 +237,7 @@ GameController {
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
         makeProgramFieldsVisible(board.getCurrentRegister());
-        com.group15.roborally.client.model.Player currentPlayer = board.getCurrentPlayer();
+        Player currentPlayer = board.getCurrentPlayer();
         if (!currentPlayer.getIsRebooting()) {
             // Handle the players command on the current register. This will queue any command on the register.
             queuePlayerCommandFromCommandCard(currentPlayer);
@@ -301,7 +302,7 @@ GameController {
             return;
         }
         int currentRegister = board.getCurrentRegister();
-        if (currentRegister < com.group15.roborally.client.model.Player.NO_OF_REGISTERS - 1) {
+        if (currentRegister < Player.NO_OF_REGISTERS - 1) {
             // Set next register
             currentRegister++;
             // If there are more registers, set the currentRegister and continue to the next player.
@@ -325,7 +326,7 @@ GameController {
         // If all registers are done
         PauseTransition pause = new PauseTransition(Duration.millis(NEXT_REGISTER_DELAY));
         pause.setOnFinished(event -> {
-            for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
+            for (Player player : board.getPlayers()) {
                 player.stopRebooting();
                 player.getSpace().updateSpace();
             }
@@ -454,7 +455,7 @@ GameController {
      * @param currentPlayer The player, whose command card should be queued.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void queuePlayerCommandFromCommandCard(com.group15.roborally.client.model.Player currentPlayer) {
+    private void queuePlayerCommandFromCommandCard(Player currentPlayer) {
         Command commandToQueue = null;
         try {
             int currentRegister = board.getCurrentRegister();
@@ -522,7 +523,7 @@ GameController {
      * @param player The player who reached a checkpoint.
      * @param number The checkpoint number.
      */
-    public void checkpointReached(com.group15.roborally.client.model.Player player, int number) {
+    public void checkpointReached(Player player, int number) {
         if(number >= board.getNumberOfCheckpoints()){
             setWinner(player.getName(), player.getCharImage());
         }
@@ -550,7 +551,7 @@ GameController {
     public void spacePressed(MouseEvent event, Space space) {
         if (board.getCurrentPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
-                com.group15.roborally.client.model.Player currentPlayer = board.getCurrentPlayer();
+                Player currentPlayer = board.getCurrentPlayer();
                 if (space.getPlayer() == null) {
                     space.setPlayer(currentPlayer);
                     setDirectionOptionsPane(space);
@@ -594,7 +595,7 @@ GameController {
         boardView.handleDirectionButtonClicked();
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == INITIALIZATION) {
-            com.group15.roborally.client.model.Player player = board.getCurrentPlayer();
+            Player player = board.getCurrentPlayer();
 
             Space spawnSpace = player.getSpace();
             player.setSpawn(spawnSpace);
@@ -607,7 +608,7 @@ GameController {
             player.setHeading(direction);
 
             int nextPlayerIndex = (board.getPlayerNumber(player) + 1) % NO_OF_PLAYERS;
-            com.group15.roborally.client.model.Player nextPlayer = board.getPlayer(nextPlayerIndex);
+            Player nextPlayer = board.getPlayer(nextPlayerIndex);
             board.setCurrentPlayer(nextPlayer);
             if (nextPlayer.getSpawnPoint() != null) {
                 //startUpgradingPhase();
