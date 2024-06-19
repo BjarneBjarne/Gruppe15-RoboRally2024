@@ -11,14 +11,7 @@ public abstract class PlayerInteraction {
 
     public PlayerInteraction(GameController gameController, Player player) {
         this.gameController = gameController;
-        this.callback = () -> {
-            try {
-                gameController.continueActions();
-            } catch (UnhandledPhaseInteractionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        };
+        this.callback = gameController::handleNextInteraction;
         this.player = player;
     }
 

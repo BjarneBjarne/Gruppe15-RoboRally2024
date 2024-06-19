@@ -166,18 +166,22 @@ public class GameController implements Observer {
     }
 
     public void runActions(LinkedList<ActionWithDelay> actionQueue){
-        if(!actionQueue.isEmpty()){
-            ActionWithDelay nextAction = actionQueue.removeFirst();
-            nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
-            int delayInMillis = nextAction.getDelayInMillis();
-            PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
-            pause.setOnFinished(event -> {
-                EventHandler.event_EndOfAction(this);
-                runActions(actionQueue);
-            });
-            if (WITH_ACTION_DELAY) {
-                pause.play();
+        if(playerInteractionQueue.isEmpty()){
+            if(!actionQueue.isEmpty()){
+                ActionWithDelay nextAction = actionQueue.removeFirst();
+                nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
+                int delayInMillis = nextAction.getDelayInMillis();
+                PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
+                pause.setOnFinished(event -> {
+                    EventHandler.event_EndOfAction(this);
+                    runActions(actionQueue);
+                });
+                if (WITH_ACTION_DELAY) {
+                    pause.play();
+                }
             }
+        } else {
+            handleNextInteraction();
         }
     }
 
@@ -197,6 +201,27 @@ public class GameController implements Observer {
             setIsRegisterPlaying(false);
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
+    }
+
+    /**
+     * Polls the first player interaction in the queue and initializes it.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void handleNextInteraction() {
+        // Check if there are more interactions.
+        if (playerInteractionQueue.isEmpty()) {
+            // If not, continue
+            try {
+                continueActions();
+            } catch (UnhandledPhaseInteractionException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            currentPlayerInteraction = playerInteractionQueue.poll();
+            currentPlayerInteraction.initializeInteraction();
+            board.updateBoard();
+        }
     }
 
     /**
