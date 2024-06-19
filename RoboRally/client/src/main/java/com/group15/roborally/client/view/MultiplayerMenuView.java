@@ -1,6 +1,5 @@
 package com.group15.roborally.client.view;
 
-import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.controller.NetworkingController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.Robots;
@@ -8,7 +7,6 @@ import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -385,8 +383,8 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean canReadyOrStart(NetworkingController networkingController) {
-        List<Player> players = networkingController.getCurrentPlayers();
-        CC_CourseData selectedCourse = networkingController.getCurrentSelectedCourse();
+        List<Player> players = networkingController.getUpdatedPlayers();
+        CC_CourseData selectedCourse = networkingController.getUpdatedSelectedCourse();
         if (localPlayer.getPlayerName() == null || localPlayer.getRobotName() == null || localPlayer.getPlayerName().isBlank() || localPlayer.getRobotName().isBlank() || Robots.getRobotByName(localPlayer.getRobotName()) == null) return false;
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (players.get(i).getPlayerId() != localPlayer.getPlayerId()) {
