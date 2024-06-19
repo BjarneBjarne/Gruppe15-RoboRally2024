@@ -4,10 +4,12 @@ import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
+import com.group15.roborally.client.model.Phase;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
+import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.utils.ServerCommunication;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -32,6 +34,7 @@ public class NetworkingController implements Observer {
 
     private Game game;
     private List<Player> players;
+    private List<Register> registers;
     private Player localPlayer;
     private boolean isHost = false;
     private CC_CourseData selectedCourse = null;
@@ -142,6 +145,18 @@ public class NetworkingController implements Observer {
         game.setPhase(GamePhase.PROGRAMMING);
         String serverResponse = serverCommunication.updateGame(game);
         if (serverResponse != null) System.out.println(serverResponse);
+    }
+
+    public void startPoll(Runnable e, boolean pollExitCondition, Runnable exitAction){
+        ScheduledExecutorService serverPoller = Executors.newScheduledThreadPool(1);
+        Runnable poll = () -> {
+            e.run();
+            if(pollExitCondition){
+                serverPoller.shutdownNow();
+                Platform.runLater(exitAction);
+            }
+        };
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 
     public void startUpdateGameLoop(MultiplayerMenuView multiplayerMenuView) {
@@ -272,11 +287,48 @@ public class NetworkingController implements Observer {
         }
     }
 
+    public void updateRegister(String playerName, String[] regiserMoves, int turn) {
+        Player player = getPlayer(playerName);
+        serverCommunication.updateRegister(regiserMoves, player.getPlayerId(), turn);
+    }
+
+
+
+    public Player getPlayer(String playerName) {
+        return players.stream().filter(player -> player.getPlayerName().equals(playerName)).findFirst().orElse(null);
+    }
+
     public List<Player> getCurrentPlayers() {
         return players;
     }
 
     public CC_CourseData getCurrentSelectedCourse() {
         return selectedCourse;
+    }
+
+    public void updateRegisters(long gameId, Runnable callback) {
+        registers = null;
+        ScheduledExecutorService serverPoller = Executors.newScheduledThreadPool(1);
+        Runnable poll = () -> {
+            registers = serverCommunication.getRegisters(gameId);
+            if (registers != null) {
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
+            }
+        };
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+    }
+
+    public String[] getRegisters(String playerName) {
+        if (registers != null) {
+            Player player = getPlayer(playerName);
+            if (player != null) {
+                Register register = registers.stream().filter(r -> r.getPlayerId() == player.getPlayerId()).findFirst().orElse(null);
+                if (register != null) {
+                    return register.getMoves();
+                }
+            }
+        }
+        return null;
     }
 }

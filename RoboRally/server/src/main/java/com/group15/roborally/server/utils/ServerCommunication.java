@@ -9,6 +9,8 @@ import java.util.List;
 import com.group15.observer.Subject;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.Player;
+import com.group15.roborally.server.model.Register;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -188,6 +190,23 @@ public class ServerCommunication extends Subject {
                 "/upgradeShop/" + gameId,
                 HttpMethod.PUT,
                 new ParameterizedTypeReference<>() {}, upgradeShopCards
+        );
+    }
+
+    public String updateRegister(String[] registerMoves, long playerId, int turn) {
+        return sendRequest(
+                "/players/" + playerId + "/registers/" + turn,
+                HttpMethod.POST,
+                new ParameterizedTypeReference<String>() {}, 
+                registerMoves
+        );
+    }
+
+    public List<Register> getRegisters(long gameId) {
+        return sendRequest(
+                "/games/" + gameId + "/registers",
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {}, null
         );
     }
 
