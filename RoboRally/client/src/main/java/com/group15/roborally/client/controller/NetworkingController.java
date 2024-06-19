@@ -148,12 +148,13 @@ public class NetworkingController implements Observer {
         if (serverResponse != null) System.out.println(serverResponse);
     }
 
-    public void startPoll(Runnable e, boolean pollExitCondition){
+    public void startPoll(Runnable e, boolean pollExitCondition, Runnable exitAction){
         ScheduledExecutorService serverPoller = Executors.newScheduledThreadPool(1);
         Runnable poll = () -> {
             e.run();
             if(pollExitCondition){
                 serverPoller.shutdownNow();
+                Platform.runLater(exitAction);
             }
         };
         serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
@@ -299,12 +300,17 @@ public class NetworkingController implements Observer {
         return selectedCourse;
     }
 
-    public void updateRegisters(long gameId) {
+    public void updateRegisters(long gameId, Runnable callback) {
         registers = null;
-        startPoll(() -> {
+        ScheduledExecutorService serverPoller = Executors.newScheduledThreadPool(1);
+        Runnable poll = () -> {
             registers = serverCommunication.getRegisters(gameId);
-            }, registers != null
-        );
+            if (registers != null) {
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
+            }
+        };
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 
     public String[] getRegisters(String playerName) {
