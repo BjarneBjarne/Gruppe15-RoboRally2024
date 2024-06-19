@@ -42,7 +42,7 @@ import static com.group15.roborally.client.model.Phase.INITIALIZATION;
  *
  */
 public class Board extends Subject {
-    private Integer gameId;
+    private Long gameId;
     private final String courseName;
 
     public final int width;
@@ -53,9 +53,11 @@ public class Board extends Subject {
     private final List<Player> players = new ArrayList<>();
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private Player currentPlayer;
-
+    private Player self;
+    
     private Phase currentPhase = INITIALIZATION;
     private int currentRegister = 0;
+    private int turnCounter = 0;
 
     final public int NO_OF_CHECKPOINTS;
 
@@ -98,11 +100,19 @@ public class Board extends Subject {
         return upgradeShop;
     }
 
-    public Integer getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
-    public void setGameId(int gameId) {
+    public int getTurnCounter() {
+        return turnCounter;
+    }
+
+    public Player getSelf() {
+        return self;
+    }
+
+    public void setGameId(Long gameId) {
         if (this.gameId == null) {
             this.gameId = gameId;
         } else {

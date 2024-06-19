@@ -307,7 +307,13 @@ public class Player extends Subject {
     public CardField[] getProgramFields() {
         return programFields;
     }
-
+    public String[] getProgramFieldNames() {
+        String[] names = new String[programFields.length];
+        for (int i = 0; i < programFields.length; i++) {
+            names[i] = programFields[i].getCard().getName();
+        }
+        return names;
+    }
     public CardField getCardField(int i) {
         return cardHandFields[i];
     }
@@ -797,5 +803,11 @@ public class Player extends Subject {
         usedTemporaryBonusDamage.add(this.temporaryBonusDamage);
         this.temporaryBonusDamage.clear();
         return usedTemporaryBonusDamage;
+    }
+
+    public void setRegisters(String[] registers) {
+        for (int i = 0; i < programFields.length; i++) {
+            programFields[i].setCard(new CommandCard(Command.valueOf(registers[i])));
+        }
     }
 }

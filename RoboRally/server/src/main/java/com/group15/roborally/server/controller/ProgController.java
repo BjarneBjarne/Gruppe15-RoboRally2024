@@ -6,6 +6,9 @@ import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.PlayerRepository;
 import com.group15.roborally.server.repository.RegisterRepository;
+
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,16 +52,7 @@ public class ProgController {
         // if (playerId <= 0L || turn <= 0 || player.getGameId() != register.getGameId()) {
         //     return ResponseEntity.status(422).build();
         // }
-        if (register.getM1().equals(null)
-            || register.getM2().equals(null) 
-            || register.getM3().equals(null) 
-            || register.getM4().equals(null) 
-            || register.getM5().equals(null)
-            || register.getM1().equals("")
-            || register.getM2().equals("")
-            || register.getM3().equals("")
-            || register.getM4().equals("")
-            || register.getM5().equals("")) {
+        if (register.hasNull()) {
             return ResponseEntity.status(422).build();
         }
         registerRepository.save(register);
@@ -74,15 +68,34 @@ public class ProgController {
      * @return ResponseEntity<Register[]> 
      */
     @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Register[]> getRegisters(@PathVariable("gameId") long gameId) {
-        Game game = gameRepository.findById(gameId).orElse(null);
-        if (game == null) {
+    public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") long gameId) {
+        if (!gameRepository.existsById(gameId)) {
             return ResponseEntity.status(404).build();
         }
+        int currentTurn = gameRepository.findById(gameId).orElse(null).getTurnId();
+        List<Register> registers = registerRepository.findAllByGameId(gameId);
+        for (Register register : registers) {
+            if (register.getTurn() != currentTurn) {
+                return ResponseEntity.ok(null);
+            }
+        }
+        return ResponseEntity.ok(registers);
+        // List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
+        // if (players == null) {
+        //     return ResponseEntity.status(404).build();
+        // }
+        // Register[] registers = new Register[players.size()];
+        // for (int i = 0; i < players.size(); i++) {
+        //     Player player = players.get(i);
+        //     Register register = registerRepository.findById(player.getPlayerId()).orElse(null);
+        //     if (register.getTurn() != currentTurn) {
+        //         return ResponseEntity.ok(null);
+        //     }
+        //     registers[i] = register;
+        // }
         /*
          * TO FIX
          */
         // Register[] registers = registerRepository.findByGameId(gameId);
-        return ResponseEntity.ok(null);
     }
 }
