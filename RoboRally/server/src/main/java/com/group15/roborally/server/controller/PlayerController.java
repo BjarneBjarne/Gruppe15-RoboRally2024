@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.group15.roborally.server.model.Game;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/players")
 public class PlayerController {
@@ -61,7 +65,39 @@ public class PlayerController {
         if (!playerRepository.existsById(playerId)) {
             return ResponseEntity.badRequest().build();
         }
-        playerRepository.save(player);
+
+        boolean savePlayer = true;
+
+        Player oldPlayer = playerRepository.findByPlayerId(player.getPlayerId()).orElse(null);
+        if (oldPlayer != null) {
+            // SpawnPoint
+            if (oldPlayer.getSpawnDirection() == null) {
+                if (player.getSpawnPoint() != null) {
+                    Optional<List<Player>> players = playerRepository.findAllByGameId(player.getGameId());
+                    if (players.isPresent()) {
+                        for (Player p : players.get()) {
+                            boolean playerAtPosition = Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint());
+                            if (playerAtPosition) {
+                                if (p.getPlayerId() == playerId) {
+                                    if (p.getSpawnDirection() != null) {
+                                        savePlayer = false;
+                                    }
+                                } else {
+                                    savePlayer = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (savePlayer) {
+            if (player.getSpawnPoint() != null) {
+                System.out.println("setting player spawn");
+            }
+            playerRepository.save(player);
+        }
         return ResponseEntity.ok().build();
     }
 

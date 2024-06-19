@@ -1,5 +1,6 @@
 package com.group15.roborally.server.model;
 
+import java.util.Arrays;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -48,6 +49,7 @@ public class Player/*  implements Serializable */ {
         return  this.playerId != player.playerId ||
                 ((this.robotName != null || player.robotName != null) && !Objects.equals(this.robotName, player.robotName)) ||
                 ((this.playerName != null || player.playerName != null) && !Objects.equals(this.playerName, player.playerName)) ||
-                 this.isReady != player.isReady;
+                 this.isReady != player.isReady ||
+                 !Arrays.equals(this.spawnPoint, player.spawnPoint);
     }
 }
