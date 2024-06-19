@@ -68,8 +68,6 @@ public class AppController {
     private final NetworkingController networkingController = new NetworkingController(this);
 
     private MultiplayerMenuView multiplayerMenuView;
-    // private final StackPane infoPane = new StackPane();
-    // private final Text infoText = new Text();
     private final InfoPaneView infoPane;
 
     public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
@@ -128,7 +126,7 @@ public class AppController {
         }
 
         // GameController
-        gameController = new GameController(board, localClient, this::gameOver);
+        gameController = new GameController(board, localClient, networkingController, this::gameOver);
         //board.setCurrentPlayer(board.getPlayer(0));
         roboRally.createBoardView(gameController);
     }
@@ -174,7 +172,7 @@ public class AppController {
         }
 
         // GameController
-        gameController = new GameController(newBoard, null, this::gameOver);
+        gameController = new GameController(newBoard, null, networkingController, this::gameOver);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
         newBoard.setCurrentPhase(Phase.PROGRAMMING);
 
