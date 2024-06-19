@@ -15,7 +15,7 @@ public class Card_AdminPrivilege extends UpgradeCardPermanent {
     }
 
     @Override
-    public void initialize(com.group15.roborally.client.model.Player owner, GameController gameController) {
+    public void initialize(Player owner, GameController gameController) {
         super.initialize(owner, gameController);
     }
 
@@ -32,8 +32,8 @@ public class Card_AdminPrivilege extends UpgradeCardPermanent {
     @Override
     protected void onActivated() {
         printUsage();
-        Queue<com.group15.roborally.client.model.Player> oldPriorityList = owner.board.getPriorityList();
-        List<com.group15.roborally.client.model.Player> newPriorityList = new ArrayList<>();
+        Queue<Player> oldPriorityList = owner.board.getPriorityList();
+        List<Player> newPriorityList = new ArrayList<>();
 
         for (Player p : oldPriorityList) {
             if (p == owner) {
