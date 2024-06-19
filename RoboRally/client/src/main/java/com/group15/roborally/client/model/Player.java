@@ -261,6 +261,8 @@ public class Player extends Subject {
 
     public void setVelocity(Velocity velocity) {
         this.velocity = velocity;
+
+
     }
     public Velocity getVelocity() {
         return velocity;
@@ -600,16 +602,19 @@ public class Player extends Subject {
      */
     public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {
         if (command == null) return;
-
+        System.out.println("Command queued: "+ command);
         // Call the event handler, and let it modify the command
         if (notifyUpgradeCards) {
             command = EventHandler.event_RegisterActivate(this, command);
         }
 
         switch (command) {
+            case MOVE_0:
+                break;
             case MOVE_1:
                 setVelocity(new Velocity(1, 0));
                 startMovement(gameController);
+
                 break;
             case MOVE_2:
                 setVelocity(new Velocity(2, 0));
@@ -695,6 +700,25 @@ public class Player extends Subject {
             case REPEAT_ROUTINE:
                 queueCommand(getLastCmd(), gameController);
                 break;
+            case CRAB_MOVE:
+                setVelocity(new Velocity(1, 0));
+                startMovement(gameController);
+                queueCommand(Command.CRAB_DIRECTION,gameController);
+                break;
+            case CRAB_STAY:
+                queueCommand(Command.CRAB_DIRECTION,gameController);
+                break;
+            case CRAB_MOVE_LEFT:
+                setVelocity(new Velocity(0, -1));
+                startMovement(gameController);
+                queueCommand(Command.MOVE_1,false,gameController);
+
+                break;
+            case CRAB_MOVE_RIGHT:
+                setVelocity(new Velocity(0, 1));
+                startMovement(gameController);
+                queueCommand(Command.MOVE_1,false,gameController);
+                break;
 
             // Commands with options
             default:
@@ -719,15 +743,29 @@ public class Player extends Subject {
      * Moves the player based on heading and velocity
      * @author Maximillian Bjørn Mortensen
      */
-    public void startMovement(GameController gameController) {
+    public void startMovement(GameController gameController,int forward,int right, Heading heading) {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
 
         // For each forward movement
-        for (int i = 0; i < Math.abs(velocity.forward); i++) {
-            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                Heading direction = (velocity.forward > 0) ? heading : heading.opposite();
+        for (int i = 0; i < Math.abs(forward); i++) {
+            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
+                int forwardv = forward;
+                if (forward>0)
+                Heading direction = heading;
+                        else
+                            heading direction = heading.opposite();
+                System.out.println("forward Velocity check");
+                System.out.println("Forward: " + velocity.forward);
+                System.out.println("Right Velocity: " +velocity.right);
+                System.out.println("Heading: "+ direction);
+                System.out.println();
                 // Decrement
-                velocity.forward -= (velocity.forward > 0) ? 1 : -1;
+                if( forward>0){
+                    forwardv--;
+                }
+                else{
+                    forwardv++;
+                }
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
                 }
@@ -736,8 +774,13 @@ public class Player extends Subject {
 
         // For each sideways movement
         for (int i = 0; i < Math.abs(velocity.right); i++) {
-            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
                 Heading direction = (velocity.right > 0) ? heading.next() : heading.prev();
+                System.out.println("RightVelocity check");
+                System.out.println("Forward: " + velocity.forward);
+                System.out.println("Right Velocity: " +velocity.right);
+                System.out.println("Heading: "+ heading);
+                System.out.println();
                 // Decrement
                 velocity.right -= (velocity.right > 0) ? 1 : -1;
                 if (!getIsRebooting()) {

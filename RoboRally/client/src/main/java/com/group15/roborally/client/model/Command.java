@@ -60,13 +60,20 @@ public enum Command {
 
     // UpgradeCards commands
     BRAKES("Brakes", MOVE_0, MOVE_1),
-    CRAB_LEGS("Brakes", MOVE_LEFT, MOVE_RIGHT),
+
 
     // Damage commands
     SPAM(DamageType.SPAM.displayName),
     TROJAN_HORSE(DamageType.TROJAN_HORSE.displayName),
     WORM(DamageType.WORM.displayName),
-    VIRUS(DamageType.VIRUS.displayName);
+    VIRUS(DamageType.VIRUS.displayName),
+    CRAB_MOVE_RIGHT("Crab Move Right"),
+    CRAB_MOVE_LEFT("Crab Move Left"),
+
+    CRAB_DIRECTION("Crab Direction",CRAB_MOVE_LEFT,CRAB_MOVE_RIGHT),
+    CRAB_STAY("Crab Stay"),
+    CRAB_MOVE("Crab Move"),
+    CRAB_LEGS("Crab Legs", CRAB_STAY, CRAB_MOVE);
 
     public final String displayName;
     public final boolean repeatable;
