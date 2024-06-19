@@ -43,10 +43,8 @@ import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.*;
 
 /**
- * ...
- *
  * @author Ekkart Kindler, ekki@dtu.dk
- *
+ * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class
 GameController {
@@ -75,7 +73,7 @@ GameController {
      * @param board The current board
      * @param gameOverMethod The method for calling game over.
      */
-    public GameController(@NotNull Board board, Runnable gameOverMethod) {
+    public GameController(@NotNull Board board, Player localPlayer, Runnable gameOverMethod) {
         this.board = board;
         this.gameOverMethod = gameOverMethod;
     }
