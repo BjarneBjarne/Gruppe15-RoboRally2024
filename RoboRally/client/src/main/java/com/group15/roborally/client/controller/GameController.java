@@ -199,7 +199,26 @@ public class GameController implements Observer {
         pause.play();
     }
 
-    
+    /**
+     * Handles what method to go to, after the player interaction queue is empty.
+     * @throws UnhandledPhaseInteractionException If it is not specified what method to go to after player interactions at the current phase.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void continueActions() throws UnhandledPhaseInteractionException {
+        if (board.getCurrentPhase() == PLAYER_ACTIVATION) {
+            currentPlayerInteraction = null;
+            handlePlayerActions();
+        } else if (board.getCurrentPhase() == BOARD_ACTIVATION) {
+            currentPlayerInteraction = null;
+            handleBoardElementActions();
+        }else if (board.getCurrentPhase() == PROGRAMMING) {
+            currentPlayerInteraction = null;
+            board.getCurrentPlayer().stopRebooting();
+        }else {
+            throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
+        }
+    }
+
     /**
      * Method for making a new player interaction. This stops the action queue execution loop and begins the interaction.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk

@@ -1,6 +1,7 @@
 package com.group15.roborally.client.model.player_interaction;
 
 import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.Player;
 
 public abstract class PlayerInteraction {
@@ -10,7 +11,14 @@ public abstract class PlayerInteraction {
 
     public PlayerInteraction(GameController gameController, Player player) {
         this.gameController = gameController;
-        this.callback = gameController::handleNextInteraction;
+        this.callback = () -> {
+            try {
+                gameController.continueActions();
+            } catch (UnhandledPhaseInteractionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        };
         this.player = player;
     }
 
