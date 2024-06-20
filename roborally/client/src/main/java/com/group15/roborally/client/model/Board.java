@@ -33,7 +33,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
-import static com.group15.roborally.client.model.Phase.INITIALIZATION;
+import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 
 /**
  * ...
@@ -53,7 +54,7 @@ public class Board extends Subject {
     private final Queue<Player> priorityList = new ArrayDeque<>();
     private Player currentPlayer;
 
-    private Phase currentPhase = INITIALIZATION;
+    private GamePhase currentPhase = INITIALIZATION;
     private int currentRegister = 0;
     private int turnCounter = 0;
 
@@ -166,11 +167,16 @@ public class Board extends Subject {
     public void setOnPhaseChange(PhaseChangeListener listener) {
         phaseChangeListeners.add(listener);
     }
-    public Phase getCurrentPhase() {
+    public GamePhase getCurrentPhase() {
         return currentPhase;
     }
 
-    public void setCurrentPhase(Phase currentPhase) {
+    /**
+     * Sets the current game phase locally.
+     * Should *only* be called from the GameController, in order to sync with the server.
+     * @param currentPhase
+     */
+    public void setCurrentPhase(GamePhase currentPhase) {
         if (currentPhase != this.currentPhase) {
             this.currentPhase = currentPhase;
             phaseChangeListeners.forEach(listener -> listener.onPhaseChange(currentPhase));
@@ -277,7 +283,7 @@ public class Board extends Subject {
             }
         }
 
-        return "Phase: " + getCurrentPhase().name() +
+        return "GamePhase: " + getCurrentPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
                 ", Player damage cards = " + noOfDamageCards +
                 ", Register: " + getCurrentRegister() + ", MoveCount: " + getMoveCounter();// +

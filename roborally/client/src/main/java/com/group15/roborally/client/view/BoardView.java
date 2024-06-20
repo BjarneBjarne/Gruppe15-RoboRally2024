@@ -46,7 +46,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
-import static com.group15.roborally.client.model.Phase.INITIALIZATION;
+import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,7 +208,7 @@ public class BoardView extends VBox implements ViewObserver {
         }
 
         finishUpgradingButton.setOnMouseClicked(event -> {
-            gameController.startProgrammingPhase();
+            gameController.finishedUpgrading();
             upgradeShopPane.setVisible(false);
             upgradeShopPane.setMouseTransparent(true);
         });
@@ -351,7 +352,7 @@ public class BoardView extends VBox implements ViewObserver {
             }
 
             Platform.runLater(() -> {
-                if (board.getCurrentPhase() == Phase.UPGRADE) {
+                if (board.getCurrentPhase() == GamePhase.UPGRADE) {
                     updateUpgradeShop();
                     upgradeShopPane.setVisible(true);
                     upgradeShopPane.setMouseTransparent(false);

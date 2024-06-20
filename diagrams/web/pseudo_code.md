@@ -4,7 +4,7 @@
 ```
 ResponseEntity<NewGame> newGame(NewGame newGame){
     Generate Gid;
-    Insert values (Gid, 1, 'lobby', 'default') into Games(Gid, NrOfPlayers, Phase, Map);
+    Insert values (Gid, 1, 'lobby', 'default') into Games(Gid, NrOfPlayers, GamePhase, Map);
 
     Generate Pid;
     Insert values (Pid, Gid, newGame.pName, 1, false) into Players(Pid, Gid, PName, SlotNr, isReady);

@@ -3,6 +3,7 @@ package com.group15.roborally.client.model;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 
+import com.group15.roborally.server.model.GamePhase;
 import javafx.util.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -42,7 +43,7 @@ public class PlayerTest {
     void rebootPlayerTest(){
         Space space = new Space(board,0,0,null);
         player.setSpace(space);
-        board.setCurrentPhase(Phase.INITIALIZATION);
+        board.setCurrentPhase(GamePhase.INITIALIZATION);
         player.setProgrammingDeckToDefault();
         player.startRebooting(null, true);
         Queue<CommandCard> deck = player.getProgrammingDeck();

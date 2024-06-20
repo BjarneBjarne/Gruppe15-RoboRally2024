@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/market")
 
 public class UpgradeController {
-
     PlayerRepository playerRepository;
     GameRepository gameRepository;
     MarketRepository markRepository;
@@ -27,7 +26,6 @@ public class UpgradeController {
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
     }
-    
 
     /**
      * Endpoint to get the priority of who will upgrade next, in a game

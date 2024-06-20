@@ -46,7 +46,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
-import static com.group15.roborally.client.model.Phase.*;
+import static com.group15.roborally.server.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
 
 /**
@@ -68,12 +68,12 @@ public class PlayerView extends Tab implements ViewObserver {
     private final CardFieldView[] programCardViews;
     
     private final HBox interactionPane = new HBox();
-    private final HBox executePanel;
+    private final HBox readyPanel;
     private final HBox playerOptionsPanel;
 
-    private final Button finishButton;
-    private final Button executeButton;
-    private final Button stepButton;
+    private final Button readyButton;
+    /*private final Button executeButton;
+    private final Button stepButton;*/
 
     private final GameController gameController;
     private final HBox hBox = new HBox();
@@ -204,15 +204,18 @@ public class PlayerView extends Tab implements ViewObserver {
 
         // Buttons
         // TODO: finishButton, executeButton & stepButton should be converted to a "Ready" button, when networking is implemented.
-        finishButton = new Button("Finish Programming");
-        finishButton.setOnAction( e -> gameController.finishProgrammingPhase());
+        /*finishButton = new Button("Finish Programming");
+        finishButton.setOnAction( e -> gameController.finishedProgramming());
         executeButton = new Button("Execute Program");
         executeButton.setOnAction( e-> gameController.executePrograms());
         stepButton = new Button("Execute Current Register");
         stepButton.setOnAction( e-> gameController.executeRegister());
-        executePanel = new HBox(finishButton, executeButton, stepButton);
-        executePanel.setAlignment(Pos.CENTER);
-        executePanel.setSpacing(3.0);
+        executePanel = new HBox(finishButton, executeButton, stepButton);*/
+        readyButton = new Button("Ready");
+        readyButton.setOnAction( e -> gameController.finishedProgramming());
+        readyPanel = new HBox(readyButton);
+        readyPanel.setAlignment(Pos.CENTER);
+        readyPanel.setSpacing(3.0);
         playerOptionsPanel = new HBox();
         playerOptionsPanel.setAlignment(Pos.CENTER);
         playerOptionsPanel.setSpacing(3.0);
@@ -311,27 +314,21 @@ public class PlayerView extends Tab implements ViewObserver {
 
             if (!gameController.getIsPlayerInteracting()) {
                 interactionPane.getChildren().remove(playerOptionsPanel);
-                if (!interactionPane.getChildren().contains(executePanel)) {
-                    interactionPane.getChildren().add(executePanel);
+                if (!interactionPane.getChildren().contains(readyPanel)) {
+                    interactionPane.getChildren().add(readyPanel);
                 }
                 switch (board.getCurrentPhase()) {
                     case PROGRAMMING:
-                        finishButton.setDisable(false);
-                        executeButton.setDisable(true);
-                        stepButton.setDisable(true);
+                        readyButton.setDisable(gameController.getIsLocalPlayerReady());
                         break;
                     case PLAYER_ACTIVATION, BOARD_ACTIVATION:
-                        finishButton.setDisable(true);
-                        executeButton.setDisable(gameController.getIsRegisterPlaying());
-                        stepButton.setDisable(gameController.getIsRegisterPlaying());
+                        readyButton.setDisable(true);
                         break;
                     default:
-                        finishButton.setDisable(true);
-                        executeButton.setDisable(true);
-                        stepButton.setDisable(true);
+                        readyButton.setDisable(true);
                 }
             } else if (gameController.getCurrentPlayerInteraction() instanceof CommandOptionsInteraction commandOptionsInteraction) {
-                interactionPane.getChildren().remove(executePanel);
+                interactionPane.getChildren().remove(readyPanel);
                 if (!interactionPane.getChildren().contains(playerOptionsPanel)) {
                     interactionPane.getChildren().add(playerOptionsPanel);
                 }

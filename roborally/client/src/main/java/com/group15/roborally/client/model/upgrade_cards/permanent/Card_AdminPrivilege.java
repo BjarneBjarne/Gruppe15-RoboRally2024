@@ -4,6 +4,7 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.GamePhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Queue;
 
 public class Card_AdminPrivilege extends UpgradeCardPermanent {
     public Card_AdminPrivilege() {
-        super("Admin Privilege", 3, 0, 1, Phase.PROGRAMMING, Phase.PLAYER_ACTIVATION);
+        super("Admin Privilege", 3, 0, 1, GamePhase.PROGRAMMING, GamePhase.PLAYER_ACTIVATION);
     }
 
     @Override

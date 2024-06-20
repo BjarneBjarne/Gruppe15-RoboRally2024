@@ -27,6 +27,7 @@ import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.GamePhase;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -146,7 +147,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 }
             }
         } else {
-            if (gameController.board.getCurrentPhase().equals(Phase.UPGRADE)) {
+            if (gameController.board.getCurrentPhase().equals(GamePhase.UPGRADE)) {
                 if (cardField.cardFieldType == CardField.CardFieldTypes.UPGRADE_CARD_SHOP_FIELD) {
                     UpgradeShop upgradeShop = gameController.board.getUpgradeShop();
                     for (int i = 0; i < upgradeShop.getAvailableCardsFields().length; i++) {
