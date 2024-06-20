@@ -8,7 +8,7 @@ public enum UpgradeCards {
 //    ADMIN_PRIVILEGE(Card_AdminPrivilege.class),
 //    BLUE_SCREEN_OF_DEATH(Card_BlueScreenOfDeath.class),
 //    BRAKES(Card_Brakes.class),
-    CRAB_LEGS(Card_CrabLegs.class);
+//    CRAB_LEGS(Card_CrabLegs.class),
 //    DEFLECTOR_SHIELD(Card_DeflectorShield.class),
 //    DOUBLE_BARREL_LASER(Card_DoubleBarrelLaser.class),
 //    FIREWALL(Card_Firewall.class),
@@ -16,9 +16,9 @@ public enum UpgradeCards {
 //    MEMORY_STICK(Card_MemoryStick.class),
 //    MINI_HOWITZER(Card_MiniHowitzer.class),
 //    PRESSOR_BEAM(Card_PressorBeam.class),
-//    RAIL_GUN(Card_RailGun.class),
+    RAIL_GUN(Card_RailGun.class),
 //    RAMMING_GEAR(Card_RammingGear.class),
-//    REAR_LASER(Card_RearLaser.class),
+    REAR_LASER(Card_RearLaser.class);
 //    SCRAMBLER(Card_Scrambler.class),
 //    TRACTOR_BEAM(Card_TractorBeam.class),
 //    TROJAN_NEEDLER(Card_TrojanNeedler.class),
