@@ -29,6 +29,17 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.group15.roborally</groupId>
+        <artifactId>server</artifactId>
+        <version>0.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
