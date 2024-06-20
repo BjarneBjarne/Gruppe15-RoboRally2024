@@ -15,13 +15,13 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
    ---
  * UpgradeCards cycle between 4 lists/places:
  * 1: They are created and placed into UpgradeShop.upgradeCardsDeck.
- * 2: When the Phase.UPGRADE starts, a number of UpgradeCards are placed in UpgradeShop.availableCardsFields.card.
+ * 2: When the GamePhase.UPGRADE starts, a number of UpgradeCards are placed in UpgradeShop.availableCardsFields.card.
  * 3: When bought, they are moved to Player.permanentUpgradeCardFields or Player.temporaryUpgradeCardFields.
  * 4: When players discard an UpgradeCard or no cards were bought the previous round, card are placed in upgradeCardsDiscardDeck.
    ---
  * The number of cards available for purchase will always try to maintain being equal to the number of players.
  * If no cards were bought the previous round, all previous available cards will first be discarded, before offering new ones.
- * When the Phase.UPGRADE starts, the shop will offer a number of new cards corresponding to (the NO_OF_PLAYERS on the board) minus (the-
+ * When the GamePhase.UPGRADE starts, the shop will offer a number of new cards corresponding to (the NO_OF_PLAYERS on the board) minus (the-
        number of "available cards missing").
  * If the main deck "upgradeCardsDeck" runs out of cards, the discarded cards in "upgradeCardsDiscardDeck" are shuffled and added back-
        into "upgradeCardsDeck".

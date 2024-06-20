@@ -7,6 +7,7 @@ import com.group15.roborally.client.model.damage.Damage;
 import com.group15.roborally.client.model.events.PlayerLaserHitListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.GamePhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
     private boolean activated = true;
 
     public Card_MiniHowitzer() {
-        super("Mini Howitzer", 2, 1, 1, Phase.PLAYER_ACTIVATION, Phase.BOARD_ACTIVATION);
+        super("Mini Howitzer", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, GamePhase.BOARD_ACTIVATION);
     }
 
     @Override

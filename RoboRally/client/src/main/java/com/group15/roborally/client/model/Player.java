@@ -33,6 +33,7 @@ import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.observer.Subject;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
+import com.group15.roborally.server.model.GamePhase;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -292,7 +293,7 @@ public class Player extends Subject {
                 discard(new CommandCard(Command.SPAM));
             }
         }
-        if (board.getCurrentPhase() != Phase.INITIALIZATION) {
+        if (board.getCurrentPhase() != GamePhase.INITIALIZATION) {
             gameController.addPlayerInteraction(new RebootInteraction(gameController, this));
         }
         this.rebooting = true;

@@ -8,6 +8,7 @@ import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

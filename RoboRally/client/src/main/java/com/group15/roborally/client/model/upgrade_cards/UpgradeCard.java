@@ -4,6 +4,7 @@ import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.GamePhase;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -23,10 +24,10 @@ public abstract class UpgradeCard extends Card {
     protected final int useCost;
     protected final int maxUses;
     protected int currentUses;
-    protected final Phase refreshedOn;
+    protected final GamePhase refreshedOn;
 
     // Activating
-    protected final List<Phase> activatableOn;
+    protected final List<GamePhase> activatableOn;
     private boolean enabled = false;
 
     protected Player owner;
@@ -38,10 +39,10 @@ public abstract class UpgradeCard extends Card {
      * @param purchaseCost The amount of energy cubes it costs to purchase the card.
      * @param useCost The amount of energy cubes it costs to use the card.
      * @param maxUses The uses the upgrade card has, before it needs to be refreshed. Temporary cards don't refresh.
-     * @param refreshedOn The Phase that the card is refreshed.
+     * @param refreshedOn The GamePhase that the card is refreshed.
      * @param activatableOn Leave as NULL if the card can't be activated. If it can, it will have a "Use"-button that can be clicked to activate the card on the activatableOn phase(s).
      */
-    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, Phase... activatableOn) {
+    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, GamePhase... activatableOn) {
         this.title = title;
         this.purchaseCost = purchaseCost;
         this.useCost = useCost;

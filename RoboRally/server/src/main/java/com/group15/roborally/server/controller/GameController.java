@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.Market;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;

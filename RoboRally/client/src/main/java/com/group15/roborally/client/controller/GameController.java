@@ -31,7 +31,6 @@ import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.GamePhase;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
@@ -40,7 +39,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
-import static com.group15.roborally.client.model.Phase.*;
+import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.*;
 
@@ -105,7 +105,7 @@ public class GameController implements Observer {
      */
     public void startUpgradingPhase() {
         board.getUpgradeShop().refillAvailableCards();
-        board.setCurrentPhase(UPGRADE);
+        setCurrentPhase(UPGRADE);
         board.updateBoard();
     }
 
@@ -113,7 +113,7 @@ public class GameController implements Observer {
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
-        board.setCurrentPhase(PROGRAMMING);
+        setCurrentPhase(PROGRAMMING);
 
         board.setCurrentRegister(0);
         board.updatePriorityList();
@@ -168,7 +168,7 @@ public class GameController implements Observer {
         /*
          * TODO: Next step is activation phase - implement with server logic
          */
-        board.setCurrentPhase(PLAYER_ACTIVATION);
+        setCurrentPhase(PLAYER_ACTIVATION);
         handlePlayerRegister();
     }
 
@@ -224,7 +224,7 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void handlePlayerRegister() {
-        board.setCurrentPhase(PLAYER_ACTIVATION);
+        setCurrentPhase(PLAYER_ACTIVATION);
         System.out.println();
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
@@ -269,7 +269,7 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void handleEndOfRegister() {
-        board.setCurrentPhase(BOARD_ACTIVATION);
+        setCurrentPhase(BOARD_ACTIVATION);
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
         handleBoardElementActions();
@@ -359,7 +359,7 @@ public class GameController implements Observer {
                     callback.run();
                 }
             } else {
-                System.out.println("Possible error? Phase is: \"" + board.getCurrentPhase() + "\", but currently running actions.");
+                System.out.println("Possible error? GamePhase is: \"" + board.getCurrentPhase() + "\", but currently running actions.");
             }
         } else {
             handleNextInteraction();
@@ -715,7 +715,6 @@ public class GameController implements Observer {
                         Heading clientHeading = Heading.valueOf(playerSpawnDirection);
                         client.setHeading(clientHeading);
                         client.setSpawn(clientSpawnPosition);
-                        System.out.println("Setting spawn");
                         if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
                             spawnPoint.setColor(client);
                             board.updateBoard();
@@ -756,5 +755,10 @@ public class GameController implements Observer {
      */
     public Space getDirectionOptionsSpace() {
         return directionOptionsSpace;
+    }
+
+    public void setCurrentPhase(GamePhase phase) {
+        networkingController.updatePhase(phase);
+        board.setCurrentPhase(phase);
     }
 }
