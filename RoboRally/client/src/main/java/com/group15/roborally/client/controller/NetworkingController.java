@@ -4,7 +4,6 @@ import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
-import com.group15.roborally.client.model.Heading;
 import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
@@ -125,9 +124,11 @@ public class NetworkingController extends Subject implements Observer {
         this.game.setCourseName(selectedCourse.getCourseName());
         serverCommunication.updateGame(game);
     }
-    public void setGameStart() {
-        this.game.setPhase(GamePhase.INITIALIZATION);
-        serverCommunication.updateGame(game);
+    public void setGamePhase(GamePhase gamePhase) {
+        if (isHost) {
+            this.game.setPhase(gamePhase);
+            serverCommunication.updateGame(game);
+        }
     }
 
     // In game
@@ -136,9 +137,11 @@ public class NetworkingController extends Subject implements Observer {
         serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
     }
     public void setPlayerSpawn(Space space, String directionName) {
-        this.localPlayer.setSpawnPoint(new int[]{space.x, space.y});
-        this.localPlayer.setSpawnDirection(directionName);
-        serverCommunication.updatePlayer(this.localPlayer);
+        if (this.localPlayer.getSpawnDirection() != null && !this.localPlayer.getSpawnDirection().isBlank()) {
+            this.localPlayer.setSpawnPoint(new int[]{space.x, space.y});
+            this.localPlayer.setSpawnDirection(directionName);
+            serverCommunication.updatePlayer(this.localPlayer);
+        }
     }
 
     /**
@@ -297,6 +300,12 @@ public class NetworkingController extends Subject implements Observer {
     private void updateInitialization(Game updatedGameData, List<Player> updatedPlayers) {
         updateGameData(updatedGameData, updatedPlayers);
         notifyChange();
+        if (isHost) {
+            boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
+            if (allHaveSetSpawnPoint) {
+                setGamePhase(GamePhase.PROGRAMMING);
+            }
+        }
     }
 
     /**
