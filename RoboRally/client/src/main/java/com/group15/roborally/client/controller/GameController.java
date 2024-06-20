@@ -693,13 +693,12 @@ public class GameController implements Observer {
 
             switch (updatedGame.getPhase()) {
                 case INITIALIZATION -> updateInitialization(updatedPlayers);
+                case PROGRAMMING -> updateProgramming();
             }
         }
     }
 
     private void updateInitialization(HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers) {
-        boolean allHaveSetSpawnPoint = true;
-
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
             if (updatedPlayer == null) {
@@ -733,14 +732,12 @@ public class GameController implements Observer {
                     }
                 }
             }
-
-            if (clientSpawnPoint == null || updatedPlayer.getSpawnDirection() == null) {
-                allHaveSetSpawnPoint = false;
-            }
         }
+    }
 
+    private void updateProgramming() {
         // Check if all players have set their spawn point
-        if (allHaveSetSpawnPoint) {
+        if (board.getCurrentPhase() != PROGRAMMING) {
             startProgrammingPhase();
         }
     }
