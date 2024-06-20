@@ -8,7 +8,6 @@ import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
-import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.utils.ServerCommunication;
@@ -26,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 
@@ -161,7 +159,7 @@ public class NetworkingController extends Subject implements Observer {
                 serverCommunication.deletePlayer(this.localPlayer);
                 appController.leftGame();
                 //appController.showLobby(false);
-                stopLobbyUpdateLoop();
+                stopGameUpdateLoop();
             }, showMessageTimeInMillis), () -> {
                 appController.setInfoText("");
             });
@@ -215,7 +213,7 @@ public class NetworkingController extends Subject implements Observer {
      * Stops the loop of updating the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void stopLobbyUpdateLoop() {
+    private void stopGameUpdateLoop() {
         if (gameUpdateScheduler != null) {
             gameUpdateScheduler.shutdownNow();
         }
@@ -244,6 +242,13 @@ public class NetworkingController extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateFromServer(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers, boolean isFirstUpdate) {
+        // Check if host has disconnected
+        boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
+        if (hostHasDisconnected) {
+            disconnectFromServer("The host left the game.", 3000);
+            return;
+        }
+
         // Check for game start
         if (!updatedGame.getPhase().equals(GamePhase.LOBBY)) {
             if (!hasStartedGameLocally) {
@@ -253,13 +258,12 @@ public class NetworkingController extends Subject implements Observer {
             }
         }
 
+        // Update for corresponding gamePhase.
         if (updatedGame.getPhase().equals(GamePhase.LOBBY)) {
             updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, isFirstUpdate);
         } else {
             updateGame(updatedGame, updatedPlayers);
         }
-
-        // Update for corresponding gamePhase.
     }
 
     /**
@@ -269,7 +273,7 @@ public class NetworkingController extends Subject implements Observer {
     private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers, boolean isFirstUpdate) {
         if (serverCommunication.getIsConnectedToServer()) {
             // Check if any change has happened
-            boolean hasChanges =
+            /*boolean hasChanges =
                     isFirstUpdate ||
                             this.game.hasChanged(updatedGame) ||
                             this.players.size() != updatedPlayers.size() ||
@@ -277,27 +281,22 @@ public class NetworkingController extends Subject implements Observer {
                                     this.players.get(i) == null ||
                                             updatedPlayers.get(i) == null ||
                                             this.players.get(i).hasChanged(updatedPlayers.get(i)));
-            if (!hasChanges) return; // If no change in data since last update, we don't want to do any further processing.
+            if (!hasChanges) return; // If no change in data since last update, we don't want to do any further processing.*/
 
-            boolean hostIsConnected = updatedPlayers.stream().anyMatch(player -> updatedGame.getHostId() == player.getPlayerId());
-            if (hostIsConnected) {
-                // If the game had changes, the player gets set to not ready.
-                if (this.game != null) {
-                    if (this.game.hasChanged(updatedGame)) {
-                        setIsReady(0);
-                    }
+            // If the game had changes, the player gets set to not ready.
+            if (this.game != null) {
+                if (this.game.hasChanged(updatedGame)) {
+                    setIsReady(0);
                 }
-                // Variables
-                updateGameData(updatedGame, updatedPlayers);
-                // Course
-                this.selectedCourse = appController.getCourses().stream()
-                        .filter(course -> course.getCourseName().equals(game.getCourseName()))
-                        .findFirst()
-                        .orElse(null);
-                multiplayerMenuView.updateLobby(this, this.game, this.players, this.localPlayer, this.selectedCourse);
-            } else {
-                disconnectFromServer("The host left the game.", 3000);
             }
+            // Variables
+            updateGameData(updatedGame, updatedPlayers);
+            // Course
+            this.selectedCourse = appController.getCourses().stream()
+                    .filter(course -> course.getCourseName().equals(game.getCourseName()))
+                    .findFirst()
+                    .orElse(null);
+            multiplayerMenuView.updateLobby(this, this.game, this.players, this.localPlayer, this.selectedCourse);
         }
     }
 
@@ -344,9 +343,10 @@ public class NetworkingController extends Subject implements Observer {
         runActionAndCallback(new ActionWithDelay(() -> {
             appController.setInfoText("Connection to server timed out.");
             appController.showLobby(false);
-            stopLobbyUpdateLoop();
+            stopGameUpdateLoop();
         }, 2000), () -> {
             appController.setInfoText("");
+            appController.leftGame();
         });
     }
 
