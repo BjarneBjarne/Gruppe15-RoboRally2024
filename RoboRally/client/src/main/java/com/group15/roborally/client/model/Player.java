@@ -314,7 +314,7 @@ public class Player extends Subject {
     public String[] getProgramFieldNames() {
         String[] names = new String[programFields.length];
         for (int i = 0; i < programFields.length; i++) {
-            names[i] = programFields[i].getCard().getName();
+            names[i] = ((CommandCard) programFields[i].getCard()).getCommand().name();
         }
         return names;
     }
