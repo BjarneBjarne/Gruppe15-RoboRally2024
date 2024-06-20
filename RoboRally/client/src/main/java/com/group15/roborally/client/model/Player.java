@@ -264,6 +264,19 @@ public class Player extends Subject {
 
 
     }
+
+    public void setForwardVelocity(int velocity) {
+        this.velocity.forward = velocity;
+
+
+    }
+
+    public void setRightVelocity(int velocity) {
+        this.velocity.right = velocity;
+
+
+    }
+
     public Velocity getVelocity() {
         return velocity;
     }
@@ -613,6 +626,7 @@ public class Player extends Subject {
                 break;
             case MOVE_1:
                 setVelocity(new Velocity(1, 0));
+                System.out.println(velocity.toString());
                 startMovement(gameController);
 
                 break;
@@ -701,7 +715,7 @@ public class Player extends Subject {
                 queueCommand(getLastCmd(), gameController);
                 break;
             case CRAB_MOVE:
-                setVelocity(new Velocity(1, 0));
+                setForwardVelocity(1);
                 startMovement(gameController);
                 queueCommand(Command.CRAB_DIRECTION,gameController);
                 break;
@@ -743,49 +757,32 @@ public class Player extends Subject {
      * Moves the player based on heading and velocity
      * @author Maximillian Bjørn Mortensen
      */
-    public void startMovement(GameController gameController,int forward,int right, Heading heading) {
+    public void startMovement(GameController gameController) {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
-
+        Velocity temp = new Velocity(velocity.forward,velocity.right);
         // For each forward movement
-        for (int i = 0; i < Math.abs(forward); i++) {
+        for (int i = 0; i < Math.abs(temp.forward); i++) {
             board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
-                int forwardv = forward;
-                if (forward>0)
-                Heading direction = heading;
-                        else
-                            heading direction = heading.opposite();
-                System.out.println("forward Velocity check");
-                System.out.println("Forward: " + velocity.forward);
-                System.out.println("Right Velocity: " +velocity.right);
-                System.out.println("Heading: "+ direction);
-                System.out.println();
+                if (temp.forward!=0){
+                Heading direction = (temp.forward > 0) ? heading : heading.opposite();
                 // Decrement
-                if( forward>0){
-                    forwardv--;
-                }
-                else{
-                    forwardv++;
-                }
+                //velocity.forward -= (velocity.forward > 0) ? 1 : -1;
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
-                }
+                }}
             }, 150, "Player movement: " + getName()));
         }
 
         // For each sideways movement
-        for (int i = 0; i < Math.abs(velocity.right); i++) {
+        for (int i = 0; i < Math.abs(temp.right); i++) {
             board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
-                Heading direction = (velocity.right > 0) ? heading.next() : heading.prev();
-                System.out.println("RightVelocity check");
-                System.out.println("Forward: " + velocity.forward);
-                System.out.println("Right Velocity: " +velocity.right);
-                System.out.println("Heading: "+ heading);
-                System.out.println();
-                // Decrement
-                velocity.right -= (velocity.right > 0) ? 1 : -1;
+                if (temp.right!=0){
+                Heading direction = (temp.right > 0) ? heading.next() : heading.prev();
+                             // Decrement
+                //velocity.right -= (velocity.right > 0) ? 1 : -1;
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
-                }
+                }}
             }, 150, "Player movement: " + getName()));
         }
     }
