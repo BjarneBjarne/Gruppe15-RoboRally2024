@@ -208,7 +208,7 @@ public class BoardView extends VBox implements ViewObserver {
         }
 
         finishUpgradingButton.setOnMouseClicked(event -> {
-            gameController.startProgrammingPhase();
+            gameController.finishedUpgrading();
             upgradeShopPane.setVisible(false);
             upgradeShopPane.setMouseTransparent(true);
         });
