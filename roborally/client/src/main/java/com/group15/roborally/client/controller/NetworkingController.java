@@ -33,8 +33,8 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
  */
 public class NetworkingController extends Subject implements Observer {
     private final AppController appController;
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Local host
-    //private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080/"); // Remote server
+    //private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Local host
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080/"); // Remote server
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
     private final Random random = new Random();

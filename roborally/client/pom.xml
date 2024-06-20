@@ -5,11 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-          <groupId>com.group15</groupId>
-          <artifactId>roborally</artifactId>
-          <version>0.1</version>
+        <groupId>com.group15</groupId>
+        <artifactId>roborally</artifactId>
+        <version>0.1</version>
     </parent>
 
+    <groupId>com.group15.roborally</groupId>
     <artifactId>client</artifactId>
     <version>0.1</version>
 
@@ -45,7 +46,7 @@
         <scope>test</scope>
     </dependency>
         <dependency>
-            <groupId>com.group15</groupId>
+            <groupId>com.group15.roborally</groupId>
             <artifactId>server</artifactId>
             <version>0.1</version>
         </dependency>
