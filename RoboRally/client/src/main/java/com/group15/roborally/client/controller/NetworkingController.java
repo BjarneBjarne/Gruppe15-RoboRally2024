@@ -253,12 +253,13 @@ public class NetworkingController extends Subject implements Observer {
             }
         }
 
-        // Update for corresponding gamePhase.
-        switch (updatedGame.getPhase()) {
-            case LOBBY -> updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, isFirstUpdate);
-            case INITIALIZATION -> updateInitialization(updatedGame, updatedPlayers);
-            case PROGRAMMING -> updateProgramming(updatedGame, updatedPlayers);
+        if (updatedGame.getPhase().equals(GamePhase.LOBBY)) {
+            updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, isFirstUpdate);
+        } else {
+            updateGame(updatedGame, updatedPlayers);
         }
+
+        // Update for corresponding gamePhase.
     }
 
     /**
@@ -301,21 +302,10 @@ public class NetworkingController extends Subject implements Observer {
     }
 
     /**
-     * Updates the GameController with data from the server during the initialization phase.
+     * Updates the GameController with data from the server after the game has started.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void updateInitialization(Game updatedGameData, List<Player> updatedPlayers) {
-        updateGameData(updatedGameData, updatedPlayers);
-        notifyChange();
-        boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
-        if (allHaveSetSpawnPoint) {
-            if (isHost) {
-                setGamePhase(GamePhase.PROGRAMMING);
-            }
-        }
-    }
-
-    private void updateProgramming(Game updatedGameData, List<Player> updatedPlayers) {
+    private void updateGame(Game updatedGameData, List<Player> updatedPlayers) {
         updateGameData(updatedGameData, updatedPlayers);
         notifyChange();
     }
