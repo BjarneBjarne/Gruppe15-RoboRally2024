@@ -83,9 +83,6 @@ public class ProgController {
         int currentTurn = gameRepository.findById(gameId).orElse(null).getTurnId();
         List<Register> registers = registerRepository.findAllByGameId(gameId);
         for (Register register : registers) {
-            for (String move : register.getMoves()) {
-                System.out.println(move);
-            }
             if (register.getTurn() != currentTurn) {
                 return ResponseEntity.ok(null);
             }

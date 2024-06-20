@@ -35,7 +35,7 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 public class NetworkingController extends Subject implements Observer {
     private final AppController appController;
     //private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Local host
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080"); // Remote server
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080/"); // Remote server
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
     private final Random random = new Random();
@@ -224,10 +224,14 @@ public class NetworkingController extends Subject implements Observer {
     public void updateRegisters(Runnable callback) {
         this.registers = null;
         Runnable poll = () -> {
+            // System.out.println("Polling server for registers.");
             this.registers = serverCommunication.getRegisters(game.getGameId());
             if (this.registers != null) {
+                // System.out.println("Registers received");
                 serverPoller.shutdownNow();
                 Platform.runLater(callback);
+            } else {
+                // System.out.println("Register null");
             }
         };
         serverPoller = Executors.newScheduledThreadPool(1);
