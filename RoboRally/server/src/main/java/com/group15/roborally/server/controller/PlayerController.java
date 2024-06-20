@@ -67,6 +67,7 @@ public class PlayerController {
         }
 
         List<Player> players = Arrays.asList(playerRepository.findById(playerId).get());
+        //List<Player> players = Arrays.asList(playerRepository.findById(playerId).get());
         for(Player p : players){
             if(p.getPlayerId() != player.getPlayerId() && Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint())){
                 return ResponseEntity.ok().build();
