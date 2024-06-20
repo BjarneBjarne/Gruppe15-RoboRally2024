@@ -6,6 +6,10 @@ import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.events.PlayerShootListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 
+import java.util.List;
+
+import static com.group15.roborally.client.model.EventHandler.getPlayerCardEventListeners;
+
 public class Card_RearLaser extends UpgradeCardPermanent {
 
     public Card_RearLaser() {
@@ -18,11 +22,15 @@ public class Card_RearLaser extends UpgradeCardPermanent {
 
         // Defining effects on events
 
-        eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser) -> {
-            if (playerShooting == owner) {
-                printUsage();
-                // Adding another laser
-                owner.shootLaser(owner.getHeading().opposite());
+        eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser,rear) -> {
+            if(!rear) {
+                if (playerShooting == owner) {
+                    printUsage();
+                    // Adding another laser
+                    owner.shootLaser(owner.getHeading().opposite());
+
+
+                }
             }
             return laser;
         }, owner));

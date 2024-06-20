@@ -24,7 +24,7 @@ public enum UpgradeCards {
     TROJAN_NEEDLER(Card_TrojanNeedler.class),
     VIRUS_MODULE(Card_VirusModule.class),
 
-    // Temporary upgrade cards
+//     Temporary upgrade cards
     ENERGY_ROUTINE(Card_EnergyRoutine.class),
     HACK(Card_Hack.class),
     MANUAL_SORT(Card_ManualSort.class),

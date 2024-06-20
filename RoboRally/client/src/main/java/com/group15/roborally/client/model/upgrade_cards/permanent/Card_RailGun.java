@@ -19,10 +19,11 @@ public class Card_RailGun extends UpgradeCardPermanent {
 
         // Defining effects on events
 
-        eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser) -> {
+        eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser,rear) -> {
             if (playerShooting == owner) {
                 printUsage();
                 // Modifying laser
+
                 laser = new Laser(laser.origin, laser.direction, laser.owner); // No collision
             }
             return laser;

@@ -16,6 +16,7 @@ public class PlayerTest {
     private Player player;
     private Board board;
 
+
     @BeforeEach
     void setUp(){
         Robots robot = Robots.getRobotByName("SPIN BOT");
