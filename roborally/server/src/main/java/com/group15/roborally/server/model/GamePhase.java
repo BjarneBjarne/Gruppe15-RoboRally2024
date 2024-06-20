@@ -3,7 +3,8 @@ package com.group15.roborally.server.model;
 public enum GamePhase {
     LOBBY,
     INITIALIZATION,
-    UPGRADE, 
-    PROGRAMMING, 
-    EXECUTION
+    PROGRAMMING,
+    PLAYER_ACTIVATION,
+    BOARD_ACTIVATION,
+    UPGRADE
 }

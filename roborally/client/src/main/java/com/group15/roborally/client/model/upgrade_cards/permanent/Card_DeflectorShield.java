@@ -6,12 +6,13 @@ import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.events.PlayerLaserHitListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.GamePhase;
 
 public class Card_DeflectorShield extends UpgradeCardPermanent {
     private boolean activated = true;
 
     public Card_DeflectorShield() {
-        super("Deflector Shield", 2, 1, 1, Phase.PLAYER_ACTIVATION, Phase.PLAYER_ACTIVATION);
+        super("Deflector Shield", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, GamePhase.PLAYER_ACTIVATION);
     }
 
     @Override

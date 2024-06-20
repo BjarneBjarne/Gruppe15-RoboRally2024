@@ -43,12 +43,9 @@ public class PlayersView extends TabPane implements ViewObserver {
 
     public PlayersView(GameController gameController) {
         board = gameController.board;
-
-        playerViews = new PlayerView[NO_OF_PLAYERS];
-        for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            playerViews[i] = new PlayerView(gameController, board.getPlayer(i));
-            this.getTabs().add(playerViews[i]);
-        }
+        playerViews = new PlayerView[1];
+        playerViews[0] = new PlayerView(gameController, gameController.getLocalPlayer());
+        this.getTabs().add(playerViews[0]);
 
         this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         this.setTabMaxHeight(Double.MAX_VALUE);

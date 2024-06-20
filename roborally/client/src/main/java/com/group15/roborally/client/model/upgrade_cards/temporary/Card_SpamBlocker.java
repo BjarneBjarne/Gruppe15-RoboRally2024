@@ -4,11 +4,12 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.server.model.GamePhase;
 
 public class Card_SpamBlocker extends UpgradeCardTemporary {
 
     public Card_SpamBlocker() {
-        super("Spam Blocker", 3, 0, 1, null, Phase.PROGRAMMING);
+        super("Spam Blocker", 3, 0, 1, null, GamePhase.PROGRAMMING);
     }
 
     @Override
