@@ -137,7 +137,7 @@ public class NetworkingController extends Subject implements Observer {
         serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
     }
     public void setPlayerSpawn(Space space, String directionName) {
-        if (this.localPlayer.getSpawnDirection() != null && !this.localPlayer.getSpawnDirection().isBlank()) {
+        if (this.localPlayer.getSpawnDirection() == null || this.localPlayer.getSpawnDirection().isBlank()) {
             this.localPlayer.setSpawnPoint(new int[]{space.x, space.y});
             this.localPlayer.setSpawnDirection(directionName);
             serverCommunication.updatePlayer(this.localPlayer);
@@ -251,6 +251,7 @@ public class NetworkingController extends Subject implements Observer {
         switch (updatedGame.getPhase()) {
             case LOBBY -> updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, isFirstUpdate);
             case INITIALIZATION -> updateInitialization(updatedGame, updatedPlayers);
+            case PROGRAMMING -> updateProgramming(updatedGame, updatedPlayers);
         }
     }
 
@@ -306,6 +307,11 @@ public class NetworkingController extends Subject implements Observer {
                 setGamePhase(GamePhase.PROGRAMMING);
             }
         }
+    }
+
+    private void updateProgramming(Game updatedGameData, List<Player> updatedPlayers) {
+        updateGameData(updatedGameData, updatedPlayers);
+        notifyChange();
     }
 
     /**
