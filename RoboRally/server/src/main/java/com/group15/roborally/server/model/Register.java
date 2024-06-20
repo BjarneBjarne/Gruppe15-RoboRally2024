@@ -34,7 +34,16 @@ public class Register {
         Register other = (Register) o;
         return playerId == other.playerId
                 && turn == other.turn
-                && moves.equals(other.moves);
+                && movesEqual(other.moves);
+    }
+
+    private boolean movesEqual(String[] otherMoves) {
+        if (moves.length != otherMoves.length)
+            return false;
+        for (int i = 0; i < moves.length; i++)
+            if (!moves[i].equals(otherMoves[i]))
+                return false;
+        return true;
     }
 
     public boolean hasNull() {
