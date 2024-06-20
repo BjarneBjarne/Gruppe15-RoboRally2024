@@ -300,9 +300,9 @@ public class NetworkingController extends Subject implements Observer {
     private void updateInitialization(Game updatedGameData, List<Player> updatedPlayers) {
         updateGameData(updatedGameData, updatedPlayers);
         notifyChange();
-        if (isHost) {
-            boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
-            if (allHaveSetSpawnPoint) {
+        boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
+        if (allHaveSetSpawnPoint) {
+            if (isHost) {
                 setGamePhase(GamePhase.PROGRAMMING);
             }
         }
