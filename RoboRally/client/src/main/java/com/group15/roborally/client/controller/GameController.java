@@ -62,6 +62,7 @@ public class GameController implements Observer {
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
     private PlayerInteraction currentPlayerInteraction = null;
+    private int turnCounter;
 
     public boolean getIsRegisterPlaying() {
         return isRegisterPlaying;
@@ -139,24 +140,14 @@ public class GameController implements Observer {
         }
     }
 
-    /**
-     * Method for when the programming phase ends.
-     */
-    // public void finishProgrammingPhase() {
-    //     board.setCurrentPhase(PLAYER_ACTIVATION);
-
-    //     makeProgramFieldsInvisible();
-    //     makeProgramFieldsVisible(0);
-
-
-    //
-    // }
-
     public void finishProgrammingPhase() {
         if (DRAW_ON_EMPTY_REGISTER) {
             localPlayer.fillRestOfRegisters();
         }
-        networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), board.getTurnCounter());
+        turnCounter++;
+        // System.out.println("\nSending registers to server");
+        networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
+        // System.out.println("\nRegisters sent to server\nGetting registers from other players");
         networkingController.updateRegisters(this::enterActivationPhase);
     }
 
@@ -168,6 +159,7 @@ public class GameController implements Observer {
             }
             registers = networkingController.getRegistersFromPlayer(player.getPlayerId());
             player.setRegisters(registers); // Convert String to CardField
+            // System.out.println("Registers from player " + player.getName() + " updated");
         }
         startActivationPhase();
     }
@@ -334,6 +326,10 @@ public class GameController implements Observer {
             setIsRegisterPlaying(false);
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
+    }
+
+    public Player getLocalPlayer() {
+        return localPlayer;
     }
 
     /**
