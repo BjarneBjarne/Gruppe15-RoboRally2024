@@ -8,6 +8,7 @@ import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.utils.ServerCommunication;
@@ -34,8 +35,8 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
  */
 public class NetworkingController extends Subject implements Observer {
     private final AppController appController;
-    //private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Local host
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080/"); // Remote server
+    private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Local host
+    //private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080/"); // Remote server
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
     private final Random random = new Random();
@@ -393,6 +394,12 @@ public class NetworkingController extends Subject implements Observer {
         // If the player was disconnected from the server.
         if (!serverCommunication.getIsConnectedToServer()) {
             connectionToServerTimedOut();
+        }
+    }
+
+    public void updatePhase(GamePhase phase) {
+        if (isHost) {
+            setGamePhase(phase);
         }
     }
 }

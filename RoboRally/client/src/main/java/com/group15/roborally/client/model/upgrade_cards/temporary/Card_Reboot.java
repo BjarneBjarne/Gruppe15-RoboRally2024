@@ -2,14 +2,14 @@ package com.group15.roborally.client.model.upgrade_cards.temporary;
 
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.EventHandler;
-import com.group15.roborally.client.model.Phase;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
+import com.group15.roborally.server.model.GamePhase;
 
 public class Card_Reboot extends UpgradeCardTemporary {
 
     public Card_Reboot() {
-        super("Reboot", 1, 0, 1, null, Phase.PLAYER_ACTIVATION, Phase.BOARD_ACTIVATION, Phase.PROGRAMMING);
+        super("Reboot", 1, 0, 1, null, GamePhase.PLAYER_ACTIVATION, GamePhase.BOARD_ACTIVATION, GamePhase.PROGRAMMING);
     }
 
     @Override

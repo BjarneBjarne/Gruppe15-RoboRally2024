@@ -39,6 +39,8 @@ import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
 import com.group15.roborally.server.model.Player;
+import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -133,7 +135,7 @@ public class AppController {
 
     /**
      * Load a game from a file. A new game controller is created, with the board loaded
-     * from the file. The Phase of the game is manually set to Programming.
+     * from the file. The GamePhase of the game is manually set to Programming.
      * @param loadedFile the .json to be deserialized into a board
      *
      * @author Marcus Rémi Lemser Eychenne, s230985
@@ -174,7 +176,7 @@ public class AppController {
         // GameController
         gameController = new GameController(newBoard, null, networkingController, this::gameOver);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
-        newBoard.setCurrentPhase(Phase.PROGRAMMING);
+        //newBoard.setCurrentPhase(GamePhase.PROGRAMMING);
 
         // Players
         for (int i = 0; i < newBoard.getNoOfPlayers(); i++) {
@@ -206,7 +208,7 @@ public class AppController {
      * @return true if the game was saved, false otherwise
      */
     public boolean saveGame(File file) {
-        if (gameController.board.getCurrentPhase() != Phase.PROGRAMMING) {
+        if (gameController.board.getCurrentPhase() != GamePhase.PROGRAMMING) {
             return false;
         }
         SaveAndLoadUtils.saveBoard(gameController.board, file);

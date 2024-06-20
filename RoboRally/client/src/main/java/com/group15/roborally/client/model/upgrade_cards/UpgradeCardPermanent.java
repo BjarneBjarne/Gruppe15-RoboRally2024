@@ -2,8 +2,8 @@ package com.group15.roborally.client.model.upgrade_cards;
 
 import com.group15.roborally.client.model.CardField;
 import com.group15.roborally.client.model.EventHandler;
-import com.group15.roborally.client.model.Phase;
 import com.group15.roborally.client.model.events.EventListener;
+import com.group15.roborally.server.model.GamePhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.List;
 public abstract class UpgradeCardPermanent extends UpgradeCard {
     protected final List<EventListener> eventListeners = new ArrayList<>();
 
-    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn, Phase... activatableOn) {
+    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, GamePhase... activatableOn) {
         super(title, purchaseCost, useCost, maxUses, refreshedOn, activatableOn);
     }
-    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, Phase refreshedOn) {
+    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn) {
         super(title, purchaseCost, useCost, maxUses, refreshedOn);
     }
     public UpgradeCardPermanent(String title, int purchaseCost, int useCost) {

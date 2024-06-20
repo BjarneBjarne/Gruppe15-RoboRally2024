@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.group15.roborally.client.model.Phase.*;
+import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -33,11 +34,11 @@ class GameControllerTest {
     @Test
     public void startProgrammingPhaseTest() {
 
-        // AtomicReference<Phase> currentPhase = new AtomicReference<>();
+        // AtomicReference<GamePhase> currentPhase = new AtomicReference<>();
         // doAnswer(invocation -> {
         //     currentPhase.set(invocation.getArgument(0));
         //     return null;
-        // }).when(board).setCurrentPhase(any(Phase.class));
+        // }).when(board).setCurrentPhase(any(GamePhase.class));
         // when(board.getCurrentPhase()).thenAnswer(invocation -> currentPhase.get());
 
         // when(mockPriorityList.peek()).thenReturn(player1);

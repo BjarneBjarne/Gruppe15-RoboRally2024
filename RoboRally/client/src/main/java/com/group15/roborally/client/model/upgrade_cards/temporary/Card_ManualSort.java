@@ -1,9 +1,9 @@
 package com.group15.roborally.client.model.upgrade_cards.temporary;
 
 import com.group15.roborally.client.controller.GameController;
-import com.group15.roborally.client.model.Phase;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
+import com.group15.roborally.server.model.GamePhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Queue;
 public class Card_ManualSort extends UpgradeCardTemporary {
 
     public Card_ManualSort() {
-        super("Manual Sort", 1, 0, 1, null, Phase.PLAYER_ACTIVATION);
+        super("Manual Sort", 1, 0, 1, null, GamePhase.PLAYER_ACTIVATION);
     }
 
     @Override

@@ -46,7 +46,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
-import static com.group15.roborally.client.model.Phase.*;
+import com.group15.roborally.server.model.GamePhase;
+import static com.group15.roborally.server.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
 
 /**
