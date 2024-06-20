@@ -81,11 +81,8 @@ public class ProgController {
             return ResponseEntity.status(404).build();
         }
         int currentTurn = gameRepository.findById(gameId).orElse(null).getTurnId();
-        System.out.println("Searching registers \n\n\n\n");
         List<Register> registers = registerRepository.findAllByGameId(gameId);
-        System.out.println("Found registers \n\n\n\n");
         for (Register register : registers) {
-            System.out.println("Register [" + register.getPlayerId() + "] moves: ");
             for (String move : register.getMoves()) {
                 System.out.println(move);
             }

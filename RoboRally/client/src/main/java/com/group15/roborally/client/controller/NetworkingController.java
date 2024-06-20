@@ -321,7 +321,7 @@ public class NetworkingController extends Subject implements Observer {
     private void runActionAndCallback(ActionWithDelay actionWithDelay, Runnable callback) {
         actionWithDelay.getAction(false).run();
         PauseTransition pause = new PauseTransition(Duration.millis(actionWithDelay.getDelayInMillis()));
-        pause.setOnFinished(_ -> callback.run());
+        pause.setOnFinished(event -> callback.run());
         pause.play();
     }
 
