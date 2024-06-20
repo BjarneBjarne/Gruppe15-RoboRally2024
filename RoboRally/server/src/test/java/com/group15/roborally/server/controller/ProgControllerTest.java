@@ -77,12 +77,12 @@ public class ProgControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/players/1/registers/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(gson.toJson(register)))
+                .content(gson.toJson(register.getMoves()).getBytes()))
                 .andExpect(status().isOk());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/players/2/registers/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(gson.toJson(register)))
+                .content(gson.toJson(register.getMoves()).getBytes()))
                 .andExpect(status().isNotFound());
 
         String[] playerMoves = register.getMoves();
@@ -90,7 +90,7 @@ public class ProgControllerTest {
         register.setMoves(playerMoves);
         mockMvc.perform(MockMvcRequestBuilders.post("/players/1/registers/2")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(gson.toJson(register)))
+                .content(gson.toJson(register.getMoves()).getBytes()))
                 .andExpect(status().isUnprocessableEntity());
     }
 
@@ -108,7 +108,7 @@ public class ProgControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/players/1/registers/1")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(gson.toJson(register)))
+                .content(gson.toJson(register.getMoves()).getBytes()))
                 .andExpect(status().isOk());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/games/1/registers")
