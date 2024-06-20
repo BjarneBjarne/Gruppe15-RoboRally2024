@@ -57,7 +57,6 @@ public class GameController implements Observer {
     private Space directionOptionsSpace;
     private String winnerName;
     private Image winnerIMG;
-    private boolean isRegisterPlaying = false;
 
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
@@ -79,53 +78,18 @@ public class GameController implements Observer {
         this.networkingController.attach(this);
     }
 
-    public boolean getIsRegisterPlaying() {
-        return isRegisterPlaying;
-    }
-
-    private void setIsRegisterPlaying(boolean isRegisterPlaying) {
-        this.isRegisterPlaying = isRegisterPlaying;
-        board.updateBoard();
-    }
-
-    /**
-     * Method for starting the game. Called when players have chosen a start space and direction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    /*private void beginGame() {
-        for (Player player : board.getPlayers()) {
-            for (UpgradeCard card : STARTING_UPGRADE_CARDS) {
-                player.tryAddFreeUpgradeCard(card, this);
-            }
-        }
-
-        startProgrammingPhase();
-    }*/
-
-    /**
-     * Starts the flow of the activation phase.
-     */
-    public void executePrograms() {
-        board.setStepMode(false);
-        handlePlayerRegister();
-    }
-
-    /**
-     * Executes a single register in the activation phase.
-     */
-    public void executeRegister() {
-        board.setStepMode(true);
-        handlePlayerRegister();
-    }
-
     /**
      * Method for starting the upgrade phase.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void startUpgradingPhase() {
-        board.getUpgradeShop().refillAvailableCards();
         updateCurrentPhase(UPGRADE);
+        board.getUpgradeShop().refillAvailableCards();
         board.updateBoard();
+    }
+
+    public void finishedUpgrading() {
+        startProgrammingPhase();
     }
 
     /**
@@ -220,16 +184,14 @@ public class GameController implements Observer {
 
 
     /*
-     *    ### These methods are the main flow of a register. ###
+     *    ### These methods are the main flow of the activation phases. ###
      */
-
     /**
      * Gets the next player in the priority queue, queues that player's command card and executes it.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void handlePlayerRegister() {
         System.out.println();
-        setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
         makeProgramFieldsVisible(board.getCurrentRegister());
         Player currentPlayer = board.getCurrentPlayer();
@@ -240,6 +202,7 @@ public class GameController implements Observer {
         // Begin handling the actions.
         handlePlayerActions();
     }
+
     /**
      * This method splits up handlePlayerRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
@@ -303,7 +266,6 @@ public class GameController implements Observer {
             // If there are more registers, set the currentRegister and continue to the next player.
             board.setCurrentRegister(currentRegister);
             board.updatePriorityList();
-            setIsRegisterPlaying(false);
             board.updateBoard();
             if (!board.isStepMode()) {
                 handlePlayerRegister();
@@ -326,7 +288,6 @@ public class GameController implements Observer {
                 player.getSpace().updateSpace();
             }
             startUpgradingPhase();
-            setIsRegisterPlaying(false);
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
     }
@@ -686,7 +647,6 @@ public class GameController implements Observer {
         board.setCurrentPhase(phase);
     }
 
-
     // Updates from server
     @Override
     public void update(Subject subject) {
@@ -768,6 +728,9 @@ public class GameController implements Observer {
 
     }
 
+    private void updateUpgrading() {
+
+    }
 
     /**
      * Method for setting the direction pane position at a space.
