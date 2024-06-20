@@ -100,20 +100,40 @@ public class GameController implements Observer {
     }*/
 
     /**
+     * Starts the flow of the activation phase.
+     */
+    public void executePrograms() {
+        board.setStepMode(false);
+        handlePlayerRegister();
+    }
+
+    /**
+     * Executes a single register in the activation phase.
+     */
+    public void executeRegister() {
+        board.setStepMode(true);
+        handlePlayerRegister();
+    }
+
+    /**
      * Method for starting the upgrade phase.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void startUpgradingPhase() {
         board.getUpgradeShop().refillAvailableCards();
-        setCurrentPhase(UPGRADE);
+        updateCurrentPhase(UPGRADE);
         board.updateBoard();
+    }
+
+    private void enterProgrammingPhase() {
+        updateForGamePhase(GamePhase.PROGRAMMING);
     }
 
     /**
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
-        setCurrentPhase(PROGRAMMING);
+        updateCurrentPhase(PROGRAMMING);
 
         board.setCurrentRegister(0);
         board.updatePriorityList();
@@ -145,30 +165,29 @@ public class GameController implements Observer {
             localPlayer.fillRestOfRegisters();
         }
         turnCounter++;
-        // System.out.println("\nSending registers to server");
         networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
-        // System.out.println("\nRegisters sent to server\nGetting registers from other players");
-        networkingController.updateRegisters(this::enterActivationPhase);
+        networkingController.updateRegisters(this::enterPlayerActivationPhase);
     }
 
-    public void enterActivationPhase() {
+    public void enterPlayerActivationPhase() {
         String[] registers;
-        for (Player player : board.getPlayers()){
-            if (player.equals(localPlayer)){
+        for (Player player : board.getPlayers()) {
+            if (player.equals(localPlayer)) {
                 continue;
             }
             registers = networkingController.getRegistersFromPlayer(player.getPlayerId());
             player.setRegisters(registers); // Convert String to CardField
             // System.out.println("Registers from player " + player.getName() + " updated");
         }
-        startActivationPhase();
+        updateCurrentPhase(PLAYER_ACTIVATION);
     }
 
-    public void startActivationPhase() {
+    public void startPlayerActivationPhase() {
         /*
          * TODO: Next step is activation phase - implement with server logic
          */
-        setCurrentPhase(PLAYER_ACTIVATION);
+
+        board.setStepMode(false);
         handlePlayerRegister();
     }
 
@@ -199,21 +218,7 @@ public class GameController implements Observer {
         }
     }
 
-    /**
-     * Starts the flow of the activation phase.
-     */
-    public void executePrograms() {
-        board.setStepMode(false);
-        handlePlayerRegister();
-    }
 
-    /**
-     * Executes a single register in the activation phase.
-     */
-    public void executeRegister() {
-        board.setStepMode(true);
-        handlePlayerRegister();
-    }
 
     /*
      *    ### These methods are the main flow of a register. ###
@@ -224,7 +229,7 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void handlePlayerRegister() {
-        setCurrentPhase(PLAYER_ACTIVATION);
+        updateCurrentPhase(PLAYER_ACTIVATION);
         System.out.println();
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
@@ -258,7 +263,7 @@ public class GameController implements Observer {
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
         } else {
-            handleEndOfRegister(); // PriorityList is empty, therefore we end the register.
+            enterBoardActivationPhase(); // PriorityList is empty, therefore we end the register.
         }
     }
 
@@ -268,8 +273,11 @@ public class GameController implements Observer {
      * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void handleEndOfRegister() {
-        setCurrentPhase(BOARD_ACTIVATION);
+    private void enterBoardActivationPhase() {
+        updateCurrentPhase(BOARD_ACTIVATION);
+    }
+
+    private void startBoardActivationPhase() {
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
         handleBoardElementActions();
@@ -670,6 +678,14 @@ public class GameController implements Observer {
         }
     }
 
+    /**
+     * Tells the server to change GamePhase. Only does something if the client is the host.
+     * @param phase The GamePhase to switch to.
+     */
+    public void updateCurrentPhase(GamePhase phase) {
+        networkingController.updatePhase(phase);
+    }
+
 
     // Updates from server
     @Override
@@ -687,16 +703,35 @@ public class GameController implements Observer {
                 }
             }
 
-            switch (updatedGame.getPhase()) {
-                case INITIALIZATION -> updateInitialization(updatedPlayers);
-                case PROGRAMMING -> updateProgramming();
+            if (board.getCurrentPhase() != updatedGame.getPhase()) {
+                // Start new GamePhase
+                startGamePhase(updatedGame.getPhase());
+            } else {
+                // Update current GamePhase
+                updateForGamePhase(board.getCurrentPhase());
             }
         }
     }
 
-    private void updateInitialization(HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers) {
+    public void updateForGamePhase(GamePhase phase) {
+        switch (phase) {
+            case INITIALIZATION -> updateInitialization();
+            case PROGRAMMING -> updateProgramming();
+            //case PLAYER_ACTIVATION ->
+            //case BOARD_ACTIVATION ->
+        }
+    }
+
+    private void updateInitialization() {
+        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
+        List<com.group15.roborally.server.model.Player> updatedPlayers = networkingController.getUpdatedPlayers();
+        boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
+        if (allHaveSetSpawnPoint) {
+            enterProgrammingPhase();
+        }
+
         for (Player client : board.getPlayers()) {
-            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
+            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
             if (updatedPlayer == null) {
                 // Player disconnected.
                 continue;
@@ -737,6 +772,7 @@ public class GameController implements Observer {
         }
     }
 
+
     /**
      * Method for setting the direction pane position at a space.
      * @param space The space that the direction pane should appear at.
@@ -757,8 +793,16 @@ public class GameController implements Observer {
         return directionOptionsSpace;
     }
 
-    public void setCurrentPhase(GamePhase phase) {
-        networkingController.updatePhase(phase);
+    /**
+     * Sets the GamePhase locally from the data received from the server.
+     * @param phase The GamePhase to switch to, locally.
+     */
+    public void startGamePhase(GamePhase phase) {
         board.setCurrentPhase(phase);
+        switch (phase) {
+            case PROGRAMMING -> startProgrammingPhase();
+            case PLAYER_ACTIVATION -> startPlayerActivationPhase();
+            case BOARD_ACTIVATION -> startBoardActivationPhase();
+        }
     }
 }
