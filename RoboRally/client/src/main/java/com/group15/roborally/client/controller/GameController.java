@@ -725,7 +725,7 @@ public class GameController implements Observer {
                             board.updateBoard();
                         }
                     } else {
-                        if (updatedPlayer.getSpawnDirection() == null || client.equals(localPlayer)) {
+                        if (updatedPlayer.getSpawnDirection() == null && client.equals(localPlayer)) {
                             // Local player direction option
                             setDirectionOptionsPane(clientSpawnPosition);
                         }
