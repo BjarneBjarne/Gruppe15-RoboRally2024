@@ -60,7 +60,7 @@ public class EventHandler {
      * @param eventListenerType The type of event that is listened to by cards.
      * @return Returns the EventListeners of a type in the cards owned by the player.
      */
-    private static <T extends EventListener> List<T> getPlayerCardEventListeners(Player player, Class<T> eventListenerType) {
+    public static <T extends EventListener> List<T> getPlayerCardEventListeners(Player player, Class<T> eventListenerType) {
         List<T> playerEventListeners = new ArrayList<>();
         // Iterate through all cards/listeners
         for (Map.Entry<EventListener, Player> entry : listeners.entrySet()) {
@@ -93,7 +93,7 @@ public class EventHandler {
         // Modify laser
         List<PlayerShootListener> playerShootListeners = getPlayerCardEventListeners(playerShooting, PlayerShootListener.class);
         for (PlayerShootListener listener : playerShootListeners) {
-            laser = listener.onPlayerShoot(playerShooting, laser);
+            laser = listener.onPlayerShoot(playerShooting, laser,false);
         }
 
         event_PlayerShootHandle(playerShooting, laser);
