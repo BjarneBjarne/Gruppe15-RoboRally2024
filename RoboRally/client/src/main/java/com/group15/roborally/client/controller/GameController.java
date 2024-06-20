@@ -31,6 +31,7 @@ import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.GamePhase;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
@@ -87,7 +88,7 @@ public class GameController implements Observer {
      * Method for starting the game. Called when players have chosen a start space and direction.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void beginGame() {
+    /*private void beginGame() {
         for (Player player : board.getPlayers()) {
             for (UpgradeCard card : STARTING_UPGRADE_CARDS) {
                 player.tryAddFreeUpgradeCard(card, this);
@@ -95,7 +96,7 @@ public class GameController implements Observer {
         }
 
         startProgrammingPhase();
-    }
+    }*/
 
     /**
      * Method for starting the upgrade phase.
@@ -697,6 +698,8 @@ public class GameController implements Observer {
     }
 
     private void updateInitialization(HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers) {
+        boolean allHaveSetSpawnPoint = true;
+
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
             if (updatedPlayer == null) {
@@ -730,10 +733,16 @@ public class GameController implements Observer {
                     }
                 }
             }
+
+            if (clientSpawnPoint == null || updatedPlayer.getSpawnDirection() == null) {
+                allHaveSetSpawnPoint = false;
+            }
         }
 
-        // Check for end of initialization
-
+        // Check if all players have set their spawn point
+        if (allHaveSetSpawnPoint) {
+            startProgrammingPhase();
+        }
     }
 
     /**
