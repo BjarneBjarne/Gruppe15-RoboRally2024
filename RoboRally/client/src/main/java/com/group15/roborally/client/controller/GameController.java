@@ -148,14 +148,13 @@ public class GameController implements Observer {
     //     makeProgramFieldsVisible(0);
 
 
-    //     if (DRAW_ON_EMPTY_REGISTER) {
-    //         for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
-    //             player.fillRestOfRegisters();
-    //         }
-    //     }
+    //
     // }
 
     public void finishProgrammingPhase() {
+        if (DRAW_ON_EMPTY_REGISTER) {
+            localPlayer.fillRestOfRegisters();
+        }
         networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), board.getTurnCounter());
         networkingController.updateRegisters(this::enterActivationPhase);
     }
@@ -698,7 +697,6 @@ public class GameController implements Observer {
     }
 
     private void updateInitialization(HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers) {
-        System.out.println("update spawns");
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
             if (updatedPlayer == null) {
@@ -733,6 +731,9 @@ public class GameController implements Observer {
                 }
             }
         }
+
+        // Check for end of initialization
+
     }
 
     /**

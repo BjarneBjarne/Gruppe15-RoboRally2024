@@ -7,6 +7,7 @@ import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -333,7 +334,7 @@ public class MultiplayerMenuView {
         lobbyButtonStart.setOnMouseClicked(e -> {
             if (canReadyOrStart(networkingController)) {
                 if (isHost) {
-                    networkingController.setGameStart();
+                    networkingController.setGamePhase(GamePhase.INITIALIZATION);
                 } else {
                     // Toggling whether the player is ready.
                     int isReady = localPlayer.getIsReady() == 0 ? 1 : 0;
