@@ -24,6 +24,7 @@ package com.group15.roborally.client.model;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.IllegalPlayerPropertyAccess;
 import com.group15.roborally.client.model.damage.Damage;
+import com.group15.roborally.client.model.events.PlayerShootListener;
 import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
 import com.group15.roborally.client.model.player_interaction.RebootInteraction;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.group15.roborally.client.model.EventHandler.getPlayerCardEventListeners;
 import static com.group15.roborally.client.model.Heading.SOUTH;
 
 /**
@@ -811,6 +813,11 @@ public class Player extends Subject {
      */
     public void shootLaser(Heading direction) {
         Laser laser = new Laser(space, direction, this, Player.class, Space.class);
+
+        List<PlayerShootListener> playerShootListeners = getPlayerCardEventListeners(this, PlayerShootListener.class);
+        for (PlayerShootListener listener : playerShootListeners) {
+            laser = listener.onPlayerShoot(this, laser,true);
+        }
 
         EventHandler.event_PlayerShootHandle(this, laser);
     }
