@@ -5,11 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.group15.roborally</groupId>
+		<groupId>com.group15</groupId>
 		<artifactId>roborally</artifactId>
 		<version>0.1</version>
 	</parent>
 
+	<groupId>com.group15.roborally</groupId>
 	<artifactId>server</artifactId>
 	<version>0.1</version>
 
