@@ -64,13 +64,7 @@ public class GameController implements Observer {
     private PlayerInteraction currentPlayerInteraction = null;
     private int turnCounter;
 
-    public boolean getIsRegisterPlaying() {
-        return isRegisterPlaying;
-    }
-    private void setIsRegisterPlaying(boolean isRegisterPlaying) {
-        this.isRegisterPlaying = isRegisterPlaying;
-        board.updateBoard();
-    }
+    private boolean isLocalPlayerReady = false;
 
     /**
      * Constructor method for GameController.
@@ -83,6 +77,15 @@ public class GameController implements Observer {
         this.localPlayer = localPlayer;
         this.networkingController = networkController;
         this.networkingController.attach(this);
+    }
+
+    public boolean getIsRegisterPlaying() {
+        return isRegisterPlaying;
+    }
+
+    private void setIsRegisterPlaying(boolean isRegisterPlaying) {
+        this.isRegisterPlaying = isRegisterPlaying;
+        board.updateBoard();
     }
 
     /**
@@ -125,10 +128,6 @@ public class GameController implements Observer {
         board.updateBoard();
     }
 
-    private void enterProgrammingPhase() {
-        updateForGamePhase(GamePhase.PROGRAMMING);
-    }
-
     /**
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
@@ -160,32 +159,32 @@ public class GameController implements Observer {
         }
     }
 
-    public void finishProgrammingPhase() {
-        if (DRAW_ON_EMPTY_REGISTER) {
-            localPlayer.fillRestOfRegisters();
+    /**
+     * Method for when the local player is done choosing their program and has pressed "ready".
+     */
+    public void finishedProgramming() {
+        if (!isLocalPlayerReady) {
+            isLocalPlayerReady = true;
+            if (DRAW_ON_EMPTY_REGISTER) {
+                localPlayer.fillRestOfRegisters();
+            }
+            turnCounter++;
+            networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
+            board.updateBoard();
+            networkingController.updateRegisters(this::startPlayerActivationPhase);
         }
-        turnCounter++;
-        networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
-        networkingController.updateRegisters(this::enterPlayerActivationPhase);
     }
 
-    public void enterPlayerActivationPhase() {
-        String[] registers;
+    private void startPlayerActivationPhase() {
+        updateCurrentPhase(PLAYER_ACTIVATION);
+
         for (Player player : board.getPlayers()) {
             if (player.equals(localPlayer)) {
                 continue;
             }
-            registers = networkingController.getRegistersFromPlayer(player.getPlayerId());
+            String[] registers = networkingController.getRegistersFromPlayer(player.getPlayerId());
             player.setRegisters(registers); // Convert String to CardField
-            // System.out.println("Registers from player " + player.getName() + " updated");
         }
-        updateCurrentPhase(PLAYER_ACTIVATION);
-    }
-
-    public void startPlayerActivationPhase() {
-        /*
-         * TODO: Next step is activation phase - implement with server logic
-         */
 
         board.setStepMode(false);
         handlePlayerRegister();
@@ -229,7 +228,6 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void handlePlayerRegister() {
-        updateCurrentPhase(PLAYER_ACTIVATION);
         System.out.println();
         setIsRegisterPlaying(true);
         board.setCurrentPlayer(board.getPriorityList().poll());
@@ -263,7 +261,7 @@ public class GameController implements Observer {
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
         } else {
-            enterBoardActivationPhase(); // PriorityList is empty, therefore we end the register.
+            startBoardActivationPhase(); // PriorityList is empty, therefore we end the register.
         }
     }
 
@@ -273,11 +271,8 @@ public class GameController implements Observer {
      * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void enterBoardActivationPhase() {
-        updateCurrentPhase(BOARD_ACTIVATION);
-    }
-
     private void startBoardActivationPhase() {
+        updateCurrentPhase(BOARD_ACTIVATION);
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
         handleBoardElementActions();
@@ -533,6 +528,10 @@ public class GameController implements Observer {
         }
     }
 
+    public boolean getIsLocalPlayerReady() {
+        return isLocalPlayerReady;
+    }
+
     /**
      * Method for checking if a card is allowed to be dragged.
      * @param sourceField The CardField to drag.
@@ -684,6 +683,7 @@ public class GameController implements Observer {
      */
     public void updateCurrentPhase(GamePhase phase) {
         networkingController.updatePhase(phase);
+        board.setCurrentPhase(phase);
     }
 
 
@@ -703,31 +703,30 @@ public class GameController implements Observer {
                 }
             }
 
-            if (board.getCurrentPhase() != updatedGame.getPhase()) {
-                // Start new GamePhase
-                startGamePhase(updatedGame.getPhase());
-            } else {
-                // Update current GamePhase
-                updateForGamePhase(board.getCurrentPhase());
-            }
+            // Update current GamePhase
+            updateForGamePhase();
         }
     }
 
-    public void updateForGamePhase(GamePhase phase) {
-        switch (phase) {
+    /**
+     * Updates logic for the GamePhase locally from the data received from the server.
+     */
+    public void updateForGamePhase() {
+        switch (board.getCurrentPhase()) {
             case INITIALIZATION -> updateInitialization();
             case PROGRAMMING -> updateProgramming();
             //case PLAYER_ACTIVATION ->
-            //case BOARD_ACTIVATION ->
         }
     }
 
     private void updateInitialization() {
         HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
         List<com.group15.roborally.server.model.Player> updatedPlayers = networkingController.getUpdatedPlayers();
+
+        // Check if all players have set their spawn point
         boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
         if (allHaveSetSpawnPoint) {
-            enterProgrammingPhase();
+            startProgrammingPhase();
         }
 
         for (Player client : board.getPlayers()) {
@@ -766,10 +765,7 @@ public class GameController implements Observer {
     }
 
     private void updateProgramming() {
-        // Check if all players have set their spawn point
-        if (board.getCurrentPhase() != PROGRAMMING) {
-            startProgrammingPhase();
-        }
+
     }
 
 
@@ -791,18 +787,5 @@ public class GameController implements Observer {
      */
     public Space getDirectionOptionsSpace() {
         return directionOptionsSpace;
-    }
-
-    /**
-     * Sets the GamePhase locally from the data received from the server.
-     * @param phase The GamePhase to switch to, locally.
-     */
-    public void startGamePhase(GamePhase phase) {
-        board.setCurrentPhase(phase);
-        switch (phase) {
-            case PROGRAMMING -> startProgrammingPhase();
-            case PLAYER_ACTIVATION -> startPlayerActivationPhase();
-            case BOARD_ACTIVATION -> startBoardActivationPhase();
-        }
     }
 }
