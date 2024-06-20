@@ -199,8 +199,8 @@ public class GameController implements Observer {
                 player.stopRebooting();
                 player.getSpace().updateSpace();
             }
-            startUpgradingPhase();
             setIsRegisterPlaying(false);
+            startUpgradingPhase();
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
     }
