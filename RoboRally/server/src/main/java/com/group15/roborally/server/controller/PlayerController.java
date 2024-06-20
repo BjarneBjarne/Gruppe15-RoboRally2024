@@ -66,38 +66,15 @@ public class PlayerController {
             return ResponseEntity.badRequest().build();
         }
 
-        boolean savePlayer = true;
-
-        Player oldPlayer = playerRepository.findByPlayerId(player.getPlayerId()).orElse(null);
-        if (oldPlayer != null) {
-            // SpawnPoint
-            if (oldPlayer.getSpawnDirection() == null) {
-                if (player.getSpawnPoint() != null) {
-                    Optional<List<Player>> players = playerRepository.findAllByGameId(player.getGameId());
-                    if (players.isPresent()) {
-                        for (Player p : players.get()) {
-                            boolean playerAtPosition = Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint());
-                            if (playerAtPosition) {
-                                if (p.getPlayerId() == playerId) {
-                                    if (p.getSpawnDirection() != null) {
-                                        savePlayer = false;
-                                    }
-                                } else {
-                                    savePlayer = false;
-                                }
-                            }
-                        }
-                    }
-                }
+        List<Player> players = Arrays.asList(playerRepository.findById(playerId).get());
+        for(Player p : players){
+            if(p.getPlayerId() != player.getPlayerId() && Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint())){
+                return ResponseEntity.ok().build();
             }
         }
 
-        if (savePlayer) {
-            if (player.getSpawnPoint() != null) {
-                System.out.println("setting player spawn");
-            }
-            playerRepository.save(player);
-        }
+        playerRepository.save(player);
+
         return ResponseEntity.ok().build();
     }
 
