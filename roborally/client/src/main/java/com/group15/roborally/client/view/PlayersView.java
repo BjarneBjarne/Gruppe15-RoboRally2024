@@ -26,8 +26,6 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.Board;
 import javafx.scene.control.TabPane;
 
-import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
-
 /**
  * ...
  *
