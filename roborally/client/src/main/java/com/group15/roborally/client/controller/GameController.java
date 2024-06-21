@@ -29,7 +29,6 @@ import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
-import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.Game;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
@@ -574,7 +573,7 @@ public class GameController implements Observer {
             targetField.setCard(sourceCard);
 
             if (targetField.cardFieldType == PERMANENT_UPGRADE_CARD_FIELD || targetField.cardFieldType == TEMPORARY_UPGRADE_CARD_FIELD) {
-                //
+                updatePlayerCards();
             }
         }
 
@@ -637,6 +636,30 @@ public class GameController implements Observer {
     public void updateCurrentPhase(GamePhase phase) {
         networkingController.updatePhase(phase);
         board.setCurrentPhase(phase);
+    }
+
+    /**
+     * Tells the server to update the player cards.
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     *
+     */
+    public void updatePlayerCards() {
+        String[] permCards = new String[Player.NO_OF_PERMANENT_UPGRADE_CARDS];
+        String[] tempCards = new String[Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
+
+        for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
+            Card card = localPlayer.getPermanentUpgradeCardField(i).getCard();
+            if (card != null)
+                permCards[i] = card.getName();
+        }
+        for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
+            Card card = localPlayer.getTemporaryUpgradeCardField(i).getCard();
+            if (card != null)
+            tempCards[i] = card.getName();
+        }
+
+        networkingController.updatePlayerCards(permCards, tempCards);
     }
 
     // Updates from server
@@ -720,6 +743,6 @@ public class GameController implements Observer {
     }
 
     private void updateUpgrading() {
-
+        
     }
 }
