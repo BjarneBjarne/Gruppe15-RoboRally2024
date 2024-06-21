@@ -64,19 +64,22 @@ public class UpgradeShop implements Observer {
     // Methods for access of transactions with shop.
     /**
      * Method for players so buy an UpgradeCard.
-     * @param shopField The CardField in the shop, containing the wanted UpgradeCard.
+     * @param card The CardField in the shop, containing the wanted UpgradeCard.
      * @param player The player buying the card. Used for checking and setting EnergyCubes.
      * @return Returns the purchased UpgradeCard. Return NULL if the CardField isn't in the shop or if the player doesn't have enough energy cubes.
      */
-    public UpgradeCard attemptBuyCardFromShop(CardField shopField, Player player) {
+    public UpgradeCard attemptBuyCardFromShop(Card card, Player player) {
         // Purchase criteria checks.
-        if (!Arrays.stream(availableCardsFields).toList().contains(shopField)) return null; // FAILED PURCHASE - The CardField isn't in the shop.
-        UpgradeCard cardToSell = (UpgradeCard) shopField.getCard();
+        UpgradeCard cardToSell = (UpgradeCard) card;
         if (player.getEnergyCubes() < cardToSell.getPurchaseCost()) return null; // FAILED PURCHASE - The player doesn't have enough energy cubes.
         // Completing transaction
         player.setEnergyCubes(player.getEnergyCubes() - cardToSell.getPurchaseCost());
         energyLevel += cardToSell.getPurchaseCost();
-        shopField.setCard(null);
+        for (CardField cardfield: availableCardsFields) {
+            if (cardfield.getCard().getClass() == cardToSell.getClass()) {
+                cardfield.setCard(null);
+            }
+        }
         return cardToSell; // SUCCESSFUL PURCHASE - Transaction complete. Sending UpgradeCard to buyer method.
     }
 
