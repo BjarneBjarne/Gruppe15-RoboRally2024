@@ -187,15 +187,13 @@ public class Board extends Subject {
     }
 
     public int getPlayerNumber(@NotNull Player player) {
-        if (player == null)
-            return -1; 
         if (player.board == this) {
             return players.indexOf(player);
         } else {
             return -1;
         }
     }
-    //A function to change the value of the movecounter, it also calls an update so the changes will be displayed
+    //A function to change the value of the move counter, it also calls an update so the changes will be displayed
     public void setMoveCounter(int newMoveCounter){
 
         if (moveCounter != newMoveCounter) {

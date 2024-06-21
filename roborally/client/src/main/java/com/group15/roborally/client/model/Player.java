@@ -32,6 +32,8 @@ import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.observer.Subject;
 import javafx.scene.image.Image;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import com.group15.roborally.server.model.GamePhase;
 
@@ -51,20 +53,29 @@ public class Player extends Subject {
     final public static int NO_OF_PERMANENT_UPGRADE_CARDS = 3;
     final public static int NO_OF_TEMPORARY_UPGRADE_CARDS = 3;
     final public static int NO_OF_ENERGY_CUBES = 10;
+    @Setter
+    @Getter
     private int maxNoOfCardsInHand = 9;
 
+    @Getter
     private final long playerId;
+    @Getter
     private String name;
     transient final public Board board;
+    @Getter
     private Robots robot;
 
+    @Getter
     private Space space;
     private Space temporarySpace = null;
     private Heading heading = SOUTH;
 
+    @Getter
     private Space spawnPoint;
 
+    @Getter
     private int energyCubes = 5;
+    @Getter
     private int checkpoints = 0;
 
     transient private final CardField[] programFields;
@@ -72,14 +83,35 @@ public class Player extends Subject {
     transient private final CardField[] permanentUpgradeCardFields;
     transient private final CardField[] temporaryUpgradeCardFields;
 
+    /**
+     * -- SETTER --
+     *  sets the paramater as the last command
+     *
+     * @param lastCmd
+     *
+     * -- GETTER --
+     *  returns the field lastCmd
+     *
+     * @return Command
+     *
+
+     */
+    @Getter
+    @Setter
     transient private Command lastCmd;
 
+    @Setter
+    @Getter
     transient private int priority = 0;
     private Velocity velocity = new Velocity(0, 0);
     private boolean rebooting = false;
+    @Setter
+    @Getter
     transient private Image image;
     transient private Image charIMG;
 
+    @Setter
+    @Getter
     transient private Queue<CommandCard> programmingDeck = new LinkedList<>();
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
@@ -87,7 +119,7 @@ public class Player extends Subject {
     transient private final Damage permanentBonusDamage = new Damage(0, 0, 0, 0);
 
 
-    public Player(@NotNull long playerId, @NotNull String name, @NotNull Board board, @NotNull Robots robot) {
+    public Player(long playerId, @NotNull String name, @NotNull Board board, @NotNull Robots robot) {
         this.playerId = playerId;
         this.name = name;
         this.board = board;
@@ -116,14 +148,6 @@ public class Player extends Subject {
         setProgrammingDeckToDefault();
     }
 
-    public long getPlayerId() {
-        return playerId;
-    }
-
-    public Image getImage() {
-        return this.image;
-    }
-
     /**
      * returns the frontal image of the players robot
      * @return Image
@@ -133,54 +157,12 @@ public class Player extends Subject {
         return this.charIMG;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    public Queue<CommandCard> getProgrammingDeck() {
-        return programmingDeck;
-    }
-
-    public void setProgrammingDeck(Queue<CommandCard> programmingDeck) {
-        this.programmingDeck = programmingDeck;
-    }
-
     public void setCharImage(Image image) {
         this.charIMG = image;
     }
 
-    public int getEnergyCubes() {
-        return energyCubes;
-    }
-
-    public int getCheckpoints() {
-        return checkpoints;
-    }
-
     public void setCheckpoint(int checkpoints) {
         this.checkpoints = checkpoints;
-    }
-
-    /**
-     * sets the paramater as the last command
-     * @param lastCmd
-     * @author Maximillian Bjørn Mortensen
-     */
-    public void setLastCmd(Command lastCmd) {
-        this.lastCmd = lastCmd;
-    }
-
-    /**
-     * returns the field lastCmd
-     * @return Command
-     * @author Maximillian Bjørn Mortensen
-     */
-    public Command getLastCmd(){
-        return lastCmd;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
@@ -193,20 +175,6 @@ public class Player extends Subject {
         }
     }
 
-    public int getMaxNoOfCardsInHand() {
-        return maxNoOfCardsInHand;
-    }
-    public void setMaxNoOfCardsInHand(int maxNoOfCardsInHand) {
-        this.maxNoOfCardsInHand = maxNoOfCardsInHand;
-    }
-
-    public int getPriority() {return priority;}
-    public void setPriority(int priority) {this.priority=priority;}
-
-
-    public Robots getRobot() {
-        return robot;
-    }
 
     public void setRobot(Robots robot) {
         this.robot = robot;
@@ -220,14 +188,7 @@ public class Player extends Subject {
         setSpace(space);
         this.spawnPoint = space;
     }
-    public Space getSpawnPoint() {
-        return this.spawnPoint;
-    }
 
-
-    public Space getSpace() {
-        return space;
-    }
 
     public void setSpace(Space space) {
         Space oldSpace = this.space;
