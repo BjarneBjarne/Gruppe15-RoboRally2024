@@ -348,6 +348,11 @@ public class NetworkingController extends Subject implements Observer {
         });
     }
 
+    void updatePlayerCards(String[] permCards, String[] tempCards) {
+        this.localPlayer.setPermCards(permCards);
+        this.localPlayer.setTempCards(tempCards);
+        serverCommunication.updatePlayer(this.localPlayer);
+    }
 
     // Getters
     public Game getUpdatedGame() {
