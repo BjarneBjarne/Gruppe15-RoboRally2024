@@ -758,16 +758,20 @@ public class GameController implements Observer {
             String[] permCardsStr = updatedPlayer.getPermCards();
             String[] tempCardsStr = updatedPlayer.getTempCards();
 
-            for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
-                if (permCardsStr[i] != null) {
-                    client.getPermanentUpgradeCardField(i).setCard(UpgradeCard
-                            .getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass));
+            if (permCardsStr != null) {
+                for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
+                    if (permCardsStr[i] != null) {
+                        client.getPermanentUpgradeCardField(i).setCard(UpgradeCard
+                                .getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass));
+                    }
                 }
             }
-            for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
-                if (tempCardsStr[i] != null) {
-                    client.getTemporaryUpgradeCardField(i).setCard(UpgradeCard
-                            .getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass));
+            if (tempCardsStr != null) {
+                for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
+                    if (tempCardsStr[i] != null) {
+                        client.getTemporaryUpgradeCardField(i).setCard(UpgradeCard
+                                .getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass));
+                    }
                 }
             }
         }
