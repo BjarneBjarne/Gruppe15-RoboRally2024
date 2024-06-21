@@ -1,12 +1,12 @@
-package com.group15.roborally.server;
+package com.group15.roborally.client.model;
 
 import java.util.List;
 
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
-import com.group15.roborally.server.utils.ServerCommunication;
+import com.group15.roborally.client.utils.ServerCommunication;
 
-public class test {
+public class ServerTest {
     
     public static void main(String[] args) {
         Player p1 = new Player();
