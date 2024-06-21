@@ -214,14 +214,7 @@ public class BoardView extends VBox implements ViewObserver {
 
             // Button text
             Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
-            Text buttonText = new Text();
-            buttonText.setFont(textFont);
-            buttonText.setFill(Color.WHITE);
-            buttonText.setStroke(Color.BLACK);
-            buttonText.setStrokeWidth(2);
-            buttonText.setStrokeType(StrokeType.OUTSIDE);
-            buttonText.setText("Finish Upgrading");
-            buttonText.setTextAlignment(TextAlignment.CENTER);
+            Text buttonText = getOtherPlayerTurnText(textFont, "Finish Upgrading");
             finishUpgradingButton.setGraphic(buttonText);
         }
 
@@ -247,7 +240,8 @@ public class BoardView extends VBox implements ViewObserver {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
-            cardFieldView.setDisable(!gameController.getPlayerUpgrading().equals(gameController.getLocalPlayer()));
+            boolean localPlayersTurn = gameController.getPlayerUpgrading().equals(gameController.getLocalPlayer());
+            cardFieldView.setDisable(!localPlayersTurn);
             upgradeShopCardsHBox.getChildren().add(cardFieldView);
             cardFieldView.setAlignment(Pos.CENTER);
             switch (cardField.getCard()) {
@@ -264,10 +258,27 @@ public class BoardView extends VBox implements ViewObserver {
                             "-fx-border-width: 2px 2px 2px 2px;" +
                             "-fx-border-radius: 5"
             );
+            if (!localPlayersTurn) {
+                Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
+                Text otherPlayerTurnText = getOtherPlayerTurnText(textFont, gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
+                this.upgradeShopPane.getChildren().add(otherPlayerTurnText);
+            }
             //cardFieldView.setStyle("-fx-background-color: transparent; -fx-border-color: black; -fx-border-width: 2px;");
             GridPane.setHalignment(cardFieldView, HPos.CENTER);
             GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
         }
+    }
+
+    private @NotNull Text getOtherPlayerTurnText(Font textFont, String text) {
+        Text otherPlayerTurnText = new Text();
+        otherPlayerTurnText.setFont(textFont);
+        otherPlayerTurnText.setFill(Color.WHITE);
+        otherPlayerTurnText.setStroke(Color.BLACK);
+        otherPlayerTurnText.setStrokeWidth(2);
+        otherPlayerTurnText.setStrokeType(StrokeType.OUTSIDE);
+        otherPlayerTurnText.setText(text);
+        otherPlayerTurnText.setTextAlignment(TextAlignment.CENTER);
+        return otherPlayerTurnText;
     }
 
     /**

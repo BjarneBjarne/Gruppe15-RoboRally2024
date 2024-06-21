@@ -5,6 +5,7 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.GamePhase;
+import lombok.Getter;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import java.util.List;
  */
 public abstract class UpgradeCard extends Card {
     protected final String title;
+    @Getter
     protected final int purchaseCost;
 
     // Uses handling
@@ -93,10 +95,6 @@ public abstract class UpgradeCard extends Card {
             this.onDisabled();
     }
 
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
     public boolean isOnCooldown() {
         return currentUses == 0;
     }
@@ -118,10 +116,6 @@ public abstract class UpgradeCard extends Card {
 
     public boolean canBeActivated() {
         return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost;
-    }
-
-    public int getPurchaseCost() {
-        return purchaseCost;
     }
 
     public boolean getHasActivateButton() {
@@ -147,7 +141,6 @@ public abstract class UpgradeCard extends Card {
             newUpgradeCard = constructor.newInstance();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
         }
         return newUpgradeCard;
     }
