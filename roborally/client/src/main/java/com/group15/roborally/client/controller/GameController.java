@@ -68,6 +68,7 @@ public class GameController implements Observer {
     private int turnCounter;
 
     private boolean isLocalPlayerReady = false;
+    private boolean localPlayerHasSetSpawnDirection = false;
 
     /**
      * Constructor method for GameController.
@@ -620,6 +621,7 @@ public class GameController implements Observer {
         boardView.handleDirectionButtonClicked();
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == INITIALIZATION) {
+            localPlayerHasSetSpawnDirection = true;
             localPlayer.setHeading(direction);
             networkingController.setPlayerSpawn(localPlayer.getSpace(), direction.name());
         } else {
@@ -671,8 +673,8 @@ public class GameController implements Observer {
                 com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
                 if (updatedPlayer == null) {
                     // Player disconnected.
-                    System.out.println("Player: \"" + client.getName() + "\" disconnected from the game.");
-                    // TODO: Handle player disconnect.
+                    // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
+                    networkingController.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
                 }
             }
 
@@ -727,7 +729,7 @@ public class GameController implements Observer {
                             board.updateBoard();
                         }
                     } else {
-                        if (updatedPlayer.getSpawnDirection() == null && client.equals(localPlayer)) {
+                        if (client.equals(localPlayer) && !localPlayerHasSetSpawnDirection) {
                             // Local player direction option
                             setDirectionOptionsPane(clientSpawnPosition);
                         }
