@@ -2,14 +2,14 @@
 
 start
 
-repeat:GET "/market/{gameId}/turn";
+repeat:GET "/upgradeShop/{gameId}/turn";
 repeat while (turn == playerPriority) is (false)
 -> true;
 
-:GET "/market/{gameId}";
-:Update view with market data;
+:GET "/upgradeShop/{gameId}";
+:Update view with upgradeShop data;
 :Buy cards;
-:PUT "/market/{gameId}";
+:PUT "/upgradeShop/{gameId}";
 
 repeat:GET "/gameId/{gameId}/phase";
 repeat while (gamePhase == upgrade) is (true)

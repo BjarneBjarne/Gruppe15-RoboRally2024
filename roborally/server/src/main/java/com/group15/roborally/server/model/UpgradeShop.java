@@ -7,17 +7,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "markets")
+@Table(name = "upgradeShops")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Market {
+public class UpgradeShop {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long marketId;
+    private long upgradeShopId;
 
     private long gameId;
 

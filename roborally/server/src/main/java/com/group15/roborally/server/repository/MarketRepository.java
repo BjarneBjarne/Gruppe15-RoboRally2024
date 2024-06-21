@@ -2,8 +2,8 @@ package com.group15.roborally.server.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.group15.roborally.server.model.Market;
+import com.group15.roborally.server.model.UpgradeShop;
 
-public interface MarketRepository extends JpaRepository<Market, Long>{
+public interface UpgradeShopRepository extends JpaRepository<UpgradeShop, Long>{
     
 }

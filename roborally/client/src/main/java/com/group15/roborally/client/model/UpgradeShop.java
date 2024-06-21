@@ -4,6 +4,7 @@ import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -29,12 +30,11 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 public class UpgradeShop implements Observer {
     private final LinkedList<UpgradeCard> upgradeCardsDeck = new LinkedList<>();
     private final LinkedList<UpgradeCard> upgradeCardsDiscardDeck = new LinkedList<>();
+    @Getter
     transient private final CardField[] availableCardsFields;
-    private final Board board;
     private int energyLevel = 0; // Variable just for the fun of it. Maybe it could be used for something, like an event at a certain energy level.
 
     public UpgradeShop(Board board) {
-        this.board = board;
         this.availableCardsFields = new CardField[NO_OF_PLAYERS];
         addAllUpgradeCardsShuffled();
 
@@ -52,9 +52,6 @@ public class UpgradeShop implements Observer {
      */
     public CardField getAvailableCardsField(int index) {
         return availableCardsFields[index];
-    }
-    public CardField[] getAvailableCardsFields() {
-        return availableCardsFields;
     }
 
     // Methods for access of transactions with shop.

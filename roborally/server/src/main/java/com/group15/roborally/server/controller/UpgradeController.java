@@ -1,8 +1,8 @@
 package com.group15.roborally.server.controller;
 
-import com.group15.roborally.server.model.Market;
+import com.group15.roborally.server.model.UpgradeShop;
 import com.group15.roborally.server.repository.GameRepository;
-import com.group15.roborally.server.repository.MarketRepository;
+import com.group15.roborally.server.repository.UpgradeShopRepository;
 import com.group15.roborally.server.repository.PlayerRepository;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/market")
+@RequestMapping("/upgradeShop")
 
 public class UpgradeController {
     PlayerRepository playerRepository;
     GameRepository gameRepository;
-    MarketRepository markRepository;
+    UpgradeShopRepository markRepository;
 
-    public UpgradeController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository markRepository) {
+    public UpgradeController(PlayerRepository playerRepository, GameRepository gameRepository, UpgradeShopRepository markRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.markRepository = markRepository;
@@ -42,35 +42,35 @@ public class UpgradeController {
     }
 
     /**
-     * Endpoint to get the market of a game
+     * Endpoint to get the upgradeShop of a game
      * 
      * @author  Marcus Rémi Lemser Eychenne, s230985
      * 
      * @param gameId - the id of the game
      * 
-     * @return ResponseEntity<Market> - the market of the game
+     * @return ResponseEntity<UpgradeShop> - the upgradeShop of the game
      */
     @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String[]> getMarket(@PathVariable("gameId") long gameId) {
-        Market market = markRepository.findById(gameId).orElse(null);
-        String[] marketCards = market.getCards();
-        return ResponseEntity.ok().body(marketCards);
+    public ResponseEntity<String[]> getUpgradeShop(@PathVariable("gameId") long gameId) {
+        UpgradeShop upgradeShop = markRepository.findById(gameId).orElse(null);
+        String[] upgradeShopCards = upgradeShop.getCards();
+        return ResponseEntity.ok().body(upgradeShopCards);
     }
 
     /**
-     * Endpoint to update the market of a game
+     * Endpoint to update the upgradeShop of a game
      * 
-     * @param marketCards - the cards to be updated in the market
+     * @param upgradeShopCards - the cards to be updated in the upgradeShop
      * 
      * @param gameId - the id of the game
      * 
      * @return ResponseEntity<String> - a message indicating the success of the operation
      */
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postMarket(@RequestBody String[] marketCards, @PathVariable("gameId") long gameId) {
-        Market market = markRepository.findById(gameId).orElse(null);
-        market.setCards(marketCards); 
-        markRepository.save(market);
+    public ResponseEntity<String> postUpgradeShop(@RequestBody String[] upgradeShopCards, @PathVariable("gameId") long gameId) {
+        UpgradeShop upgradeShop = markRepository.findById(gameId).orElse(null);
+        upgradeShop.setCards(upgradeShopCards); 
+        markRepository.save(upgradeShop);
         return ResponseEntity.ok().build();
     }
 }

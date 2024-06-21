@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import static com.group15.roborally.server.model.GamePhase.*;
-import com.group15.roborally.server.model.Market;
+import com.group15.roborally.server.model.UpgradeShop;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 import com.group15.roborally.server.repository.GameRepository;
-import com.group15.roborally.server.repository.MarketRepository;
+import com.group15.roborally.server.repository.UpgradeShopRepository;
 
 @RestController
 @RequestMapping("/games")
@@ -24,13 +24,13 @@ import com.group15.roborally.server.repository.MarketRepository;
 public class GameController {
     PlayerRepository playerRepository;
     GameRepository gameRepository;
-    MarketRepository marketRepository;
+    UpgradeShopRepository upgradeShopRepository;
     RegisterRepository registerRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, MarketRepository marketRepository, RegisterRepository registerRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
-        this.marketRepository = marketRepository;
+        this.upgradeShopRepository = upgradeShopRepository;
         this.registerRepository = registerRepository;
     }
 
@@ -50,10 +50,10 @@ public class GameController {
 
         gameRepository.save(game);
 
-        Market market = new Market();
-        market.setGameId(game.getGameId());
-        market.setTurn(1);
-        marketRepository.save(market);
+        UpgradeShop upgradeShop = new UpgradeShop();
+        upgradeShop.setGameId(game.getGameId());
+        upgradeShop.setTurn(1);
+        upgradeShopRepository.save(upgradeShop);
 
         return ResponseEntity.ok().body(game.getGameId());
     }
