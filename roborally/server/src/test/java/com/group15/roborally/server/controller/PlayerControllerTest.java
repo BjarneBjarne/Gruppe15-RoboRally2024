@@ -76,7 +76,7 @@ public class PlayerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/players/2").contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(player)))
                 .andExpect(status().isBadRequest());
-        
+
         player.setPlayerName("player2");
         mockMvc.perform(MockMvcRequestBuilders.put("/players/1").contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(player)))
@@ -107,5 +107,24 @@ public class PlayerControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/players/2"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DirtiesContext
+    public void orphanRemovalTest() throws Exception {
+        // mockMvc.perform(MockMvcRequestBuilders.post("/players")
+        //         .contentType(MediaType.APPLICATION_JSON_VALUE)
+        //         .content("player1"));
+
+        // mockMvc.perform(MockMvcRequestBuilders.post("/players/1/registers/1")
+        //         .contentType(MediaType.APPLICATION_JSON_VALUE)
+        //         .content("[]"))
+        //         .andExpect(status().isOk());
+
+        // mockMvc.perform(MockMvcRequestBuilders.delete("/players/1"))
+        //         .andExpect(status().isOk());
+
+        // mockMvc.perform(MockMvcRequestBuilders.get("/players/1/registers/1"))
+        //         .andExpect(status().isNotFound());
     }
 }
