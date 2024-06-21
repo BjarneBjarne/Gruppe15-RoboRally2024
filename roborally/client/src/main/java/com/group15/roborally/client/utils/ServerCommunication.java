@@ -1,4 +1,4 @@
-package com.group15.roborally.server.utils;
+package com.group15.roborally.client.utils;
 
 import java.net.URI;
 import java.time.Duration;
@@ -11,6 +11,7 @@ import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 
+import lombok.Getter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -26,10 +27,11 @@ public class ServerCommunication extends Subject {
     private final HttpHeaders headers;
 
     // Connection tracking
-    private boolean isConnectedToServer = false;
     private Instant startTimeOfConnectionLost = null;
+    @Getter
+    private boolean isConnectedToServer = false;
+    @Getter
     private long timeSinceConnectionLost;
-    private final long timeBeforeTimeOutInSeconds = 1;
 
     public ServerCommunication(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -96,15 +98,16 @@ public class ServerCommunication extends Subject {
 
     /**
      * Update a player in the database.
-     * @author Marcus Rémi Lemser Eychenne, s230985
+     *
      * @param player - player object to update
-     * @return message - message from the server
+     * @author Marcus Rémi Lemser Eychenne, s230985
      */
-    public String updatePlayer(Player player) {
-        return sendRequest(
+    public void updatePlayer(Player player) {
+        sendRequest(
                 "/players/" + player.getPlayerId(),
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {}, player
+                new ParameterizedTypeReference<>() {
+                }, player
         );
     }
 
@@ -140,15 +143,16 @@ public class ServerCommunication extends Subject {
 
     /**
      * Updates the game on the server.
+     *
      * @param game The object of the game to be set on the server.
-     * @return message from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public String updateGame(Game game) {
-        return sendRequest(
+    public void updateGame(Game game) {
+        sendRequest(
                 "/games/" + game.getGameId(),
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {}, game
+                new ParameterizedTypeReference<>() {
+                }, game
         );
     }
 
@@ -187,21 +191,21 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @param upgradeShopCards - array of upgradeShop cards
      * @param gameId - id of the game
-     * @return message - message from the server
      */
-    public String updateUpgradeShop(String[] upgradeShopCards, long gameId) {
-        return sendRequest(
+    public void updateUpgradeShop(String[] upgradeShopCards, long gameId) {
+        sendRequest(
                 "/upgradeShop/" + gameId,
                 HttpMethod.PUT,
                 new ParameterizedTypeReference<>() {}, upgradeShopCards
         );
     }
 
-    public String updateRegister(String[] registerMoves, long playerId, int turn) {
-        return sendRequest(
+    public void updateRegister(String[] registerMoves, long playerId, int turn) {
+        sendRequest(
                 "/players/" + playerId + "/registers/" + turn,
                 HttpMethod.POST,
-                new ParameterizedTypeReference<String>() {}, 
+                new ParameterizedTypeReference<String>() {
+                },
                 registerMoves
         );
     }
@@ -233,10 +237,7 @@ public class ServerCommunication extends Subject {
             ResponseEntity<R> response = new RestTemplate().exchange(request, responseType);
             evaluateTimeout(true);
             return response.getBody();
-        } catch (ResourceAccessException e) {
-            evaluateTimeout(false);
-            return null;
-        } catch (HttpClientErrorException e) {
+        } catch (ResourceAccessException | HttpClientErrorException e) {
             evaluateTimeout(false);
             return null;
         }
@@ -245,6 +246,9 @@ public class ServerCommunication extends Subject {
     private void evaluateTimeout(boolean couldConnect) {
         if (couldConnect) {
             // Reset timeout.
+            if (startTimeOfConnectionLost != null) {
+                System.out.println("Reestablished connection to server.");
+            }
             startTimeOfConnectionLost = null;
         } else if (startTimeOfConnectionLost == null) {
             // Start timeout "timer".
@@ -253,18 +257,11 @@ public class ServerCommunication extends Subject {
         } else {
             // Evaluate timeout
             timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now()).getSeconds();
+            long timeBeforeTimeOutInSeconds = 10;
             if (timeSinceConnectionLost >= timeBeforeTimeOutInSeconds) {
                 isConnectedToServer = false;
                 notifyChange();
             }
         }
-    }
-
-    public boolean getIsConnectedToServer() {
-        return isConnectedToServer;
-    }
-
-    public long getTimeSinceConnectionLost() {
-        return timeSinceConnectionLost;
     }
 }

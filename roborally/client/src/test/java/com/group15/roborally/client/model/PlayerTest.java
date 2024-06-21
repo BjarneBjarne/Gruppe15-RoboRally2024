@@ -21,7 +21,7 @@ public class PlayerTest {
     void setUp(){
         Robots robot = Robots.getRobotByName("SPIN BOT");
         board = new Board(null, new Space[10][10], null, 4);
-        player = new Player(0, "test", board, robot);
+        player = new Player(0, "ServerTest", board, robot);
     }
     @AfterEach
     void tearDown(){

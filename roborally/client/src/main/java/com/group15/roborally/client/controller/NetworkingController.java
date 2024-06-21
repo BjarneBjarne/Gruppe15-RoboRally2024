@@ -10,7 +10,7 @@ import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
-import com.group15.roborally.server.utils.ServerCommunication;
+import com.group15.roborally.client.utils.ServerCommunication;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
@@ -149,7 +149,7 @@ public class NetworkingController extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
-        if (serverCommunication.getIsConnectedToServer()) {
+        if (serverCommunication.isConnectedToServer()) {
             if (infoMessage == null || infoMessage.isEmpty()) {
                 infoMessage = "Disconnected from server.";
             }
@@ -182,7 +182,7 @@ public class NetworkingController extends Subject implements Observer {
         }
         updateGameData(game, players);
         multiplayerMenuView.setupLobby(this, game, players, localPlayer, appController.getCourses(), isHost);
-        updateFromServer(multiplayerMenuView, game, players, true);
+        updateFromServer(multiplayerMenuView, game, players);
         startUpdateGameLoop(multiplayerMenuView);
     }
 
@@ -193,7 +193,7 @@ public class NetworkingController extends Subject implements Observer {
     private void startUpdateGameLoop(MultiplayerMenuView multiplayerMenuView) {
         Runnable lobbyUpdate = () -> {
             Game currentGameData = game;
-            if (serverCommunication.getIsConnectedToServer()) {
+            if (serverCommunication.isConnectedToServer()) {
                 if (currentGameData == null) return;
 
                 long gameId = currentGameData.getGameId();
@@ -201,7 +201,7 @@ public class NetworkingController extends Subject implements Observer {
                 List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
 
                 if (updatedGameData != null && updatedPlayers != null) {
-                    Platform.runLater(() -> updateFromServer(multiplayerMenuView, updatedGameData, updatedPlayers, false));
+                    Platform.runLater(() -> updateFromServer(multiplayerMenuView, updatedGameData, updatedPlayers));
                 }
             }
         };
@@ -229,8 +229,6 @@ public class NetworkingController extends Subject implements Observer {
                 // System.out.println("Registers received");
                 serverPoller.shutdownNow();
                 Platform.runLater(callback);
-            } else {
-                // System.out.println("Register null");
             }
         };
         serverPoller = Executors.newScheduledThreadPool(1);
@@ -241,7 +239,7 @@ public class NetworkingController extends Subject implements Observer {
      * Updates the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void updateFromServer(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers, boolean isFirstUpdate) {
+    private void updateFromServer(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers) {
         // Check if host has disconnected
         boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
         if (hostHasDisconnected) {
@@ -253,14 +251,14 @@ public class NetworkingController extends Subject implements Observer {
         if (!updatedGame.getPhase().equals(GamePhase.LOBBY)) {
             if (!hasStartedGameLocally) {
                 hasStartedGameLocally = true;
-                updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, true);
+                updateLobby(multiplayerMenuView, updatedGame, updatedPlayers);
                 appController.startGame(selectedCourse, updatedPlayers, localPlayer);
             }
         }
 
         // Update for corresponding gamePhase.
         if (updatedGame.getPhase().equals(GamePhase.LOBBY)) {
-            updateLobby(multiplayerMenuView, updatedGame, updatedPlayers, isFirstUpdate);
+            updateLobby(multiplayerMenuView, updatedGame, updatedPlayers);
         } else {
             updateGame(updatedGame, updatedPlayers);
         }
@@ -270,8 +268,8 @@ public class NetworkingController extends Subject implements Observer {
      * Updates the lobby with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers, boolean isFirstUpdate) {
-        if (serverCommunication.getIsConnectedToServer()) {
+    private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers) {
+        if (serverCommunication.isConnectedToServer()) {
             // Check if any change has happened
             /*boolean hasChanges =
                     isFirstUpdate ||
@@ -382,7 +380,7 @@ public class NetworkingController extends Subject implements Observer {
     @Override
     public void update(Subject subject) {
         // If the player was disconnected from the server.
-        if (!serverCommunication.getIsConnectedToServer()) {
+        if (!serverCommunication.isConnectedToServer()) {
             connectionToServerTimedOut();
         }
     }
