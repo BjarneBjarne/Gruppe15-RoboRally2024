@@ -4,7 +4,9 @@ import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
+import com.group15.roborally.client.model.CardField;
 import com.group15.roborally.client.model.Space;
+import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
@@ -14,6 +16,7 @@ import com.group15.roborally.client.utils.ServerCommunication;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,19 +37,30 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 public class NetworkingController extends Subject implements Observer {
     private final AppController appController;
     private final ServerCommunication serverCommunication = new ServerCommunication();
-
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
-    private final Random random = new Random();
 
-    private final HashMap<Long, Player> playerMap = new HashMap<>();
-    private Game game;
-    private List<Player> players;
-    private List<Register> registers;
-    private Player localPlayer;
-    private boolean isHost = false;
-    private CC_CourseData selectedCourse = null;
+    private final Random random = new Random();
     private boolean hasStartedGameLocally = false; // Condition to keep the application from starting the game more than once per lobby.
+
+    @Getter
+    private boolean isHost = false;
+    @Getter
+    private CC_CourseData selectedCourse = null;
+
+    // Updated Game data
+    @Getter
+    private Player localPlayer;
+    @Getter
+    private final HashMap<Long, Player> playerMap = new HashMap<>();
+    @Getter
+    private List<Player> players;
+    @Getter
+    private String[] upgradeShop;
+    @Getter
+    private int upgradeTurn = 0;
+    private Game game;
+    private List<Register> registers;
 
     public NetworkingController(AppController appController) {
         this.appController = appController;
@@ -65,17 +79,13 @@ public class NetworkingController extends Subject implements Observer {
         AtomicLong gameId = new AtomicLong();
         runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(multiplayerMenuView.getServerURLInput())), random.nextInt(125, 500)), () -> {
             if (gameId.get() != -1) {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    appController.setInfoText("Successfully created new game!");
-                }, 500), () -> {
-                    tryJoinGameWithGameID(multiplayerMenuView, gameId.get(), playerName);
-                });
+                runActionAndCallback(new ActionWithDelay(
+                        () -> appController.setInfoText("Successfully created new game!"), 500),
+                        () -> tryJoinGameWithGameID(multiplayerMenuView, gameId.get(), playerName));
             } else {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    appController.setInfoText("Failed to create new game.");
-                }, 1500), () -> {
-                    appController.setInfoText("");
-                });
+                runActionAndCallback(new ActionWithDelay(
+                        () -> appController.setInfoText("Failed to create new game."),1500),
+                        () -> appController.setInfoText(""));
             }
         });
     }
@@ -97,51 +107,48 @@ public class NetworkingController extends Subject implements Observer {
                     appController.setInfoText("Successfully joined game!");
                     connectedToGame(multiplayerMenuView, gameId, player.get());
                     appController.showLobby(true);
-                }, 500), () -> {
-                    appController.setInfoText("");
-                });
+                }, 500), () -> appController.setInfoText(""));
             } else {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    appController.setInfoText("Failed to join game.");
-                }, 1500), () -> {
-                    appController.setInfoText("");
-                });
+                runActionAndCallback(new ActionWithDelay(
+                        () -> appController.setInfoText("Failed to join game."), 1500),
+                        () -> appController.setInfoText(""));
             }
         });
     }
 
-    // Lobby
-    public void changeRobot(String robotName) {
-        this.localPlayer.setRobotName(robotName);
-        serverCommunication.updatePlayer(this.localPlayer);
-    }
-    public void setIsReady(int isReady) {
-        this.localPlayer.setIsReady(isReady);
-        serverCommunication.updatePlayer(this.localPlayer);
-    }
-    public void changeCourse(CC_CourseData course) {
-        this.selectedCourse = course;
-        this.game.setCourseName(selectedCourse.getCourseName());
-        serverCommunication.updateGame(game);
-    }
-    public void setGamePhase(GamePhase gamePhase) {
-        if (isHost) {
-            this.game.setPhase(gamePhase);
-            serverCommunication.updateGame(game);
-        }
+
+    /**
+     * Initializes the multiplayer menu with the server data for the local player. Is called when the server tells the player they can join the game.
+     * @param gameId The game's gameId received from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void connectedToGame(MultiplayerMenuView multiplayerMenuView, long gameId, Player localPlayer) {
+        Game game = serverCommunication.getGame(gameId);
+        List<Player> players = serverCommunication.getPlayers(gameId);
+        hasStartedGameLocally = false;
+        this.localPlayer = localPlayer;
+        this.isHost = localPlayer.getPlayerId() == game.getHostId();
+        updateGameData(game, players, null, 0);
+        multiplayerMenuView.setupLobby(this, game, players, localPlayer, appController.getCourses(), this.isHost);
+        updateGameDataFromServer(multiplayerMenuView);
+        startUpdateGameLoop(multiplayerMenuView);
     }
 
-    // In game
-    public void updateRegister(long playerId, String[] registerMoves, int turn) {
-        Player player = playerMap.get(playerId);
-        serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
-    }
-    public void setPlayerSpawn(Space space, String directionName) {
-        if (this.localPlayer.getSpawnDirection() == null || this.localPlayer.getSpawnDirection().isBlank()) {
-            this.localPlayer.setSpawnPoint(new int[]{space.x, space.y});
-            this.localPlayer.setSpawnDirection(directionName);
-            serverCommunication.updatePlayer(this.localPlayer);
-        }
+    /**
+     * Starts a loop of fetching game data from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void startUpdateGameLoop(MultiplayerMenuView multiplayerMenuView) {
+        Runnable lobbyUpdate = () -> {
+            Game currentGameData = this.game;
+            if (serverCommunication.isConnectedToServer()) {
+                if (currentGameData == null) return;
+
+                updateGameDataFromServer(multiplayerMenuView);
+            }
+        };
+        gameUpdateScheduler = Executors.newScheduledThreadPool(1);
+        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 500, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -158,53 +165,9 @@ public class NetworkingController extends Subject implements Observer {
                 appController.setInfoText(finalInfoMessage);
                 serverCommunication.deletePlayer(this.localPlayer);
                 appController.leftGame();
-                //appController.showLobby(false);
                 stopGameUpdateLoop();
-            }, showMessageTimeInMillis), () -> {
-                appController.setInfoText("");
-            });
+            }, showMessageTimeInMillis), () -> appController.setInfoText(""));
         }
-    }
-
-
-    /**
-     * Initializes the multiplayer menu with the server data for the local player. Is called when the server tells the player they can join the game.
-     * @param gameId The game's gameId received from the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void connectedToGame(MultiplayerMenuView multiplayerMenuView, long gameId, Player localPlayer) {
-        Game game = serverCommunication.getGame(gameId);
-        List<Player> players = serverCommunication.getPlayers(gameId);
-        hasStartedGameLocally = false;
-        this.localPlayer = localPlayer;
-        this.isHost = localPlayer.getPlayerId() == game.getHostId();
-        updateGameData(game, players);
-        multiplayerMenuView.setupLobby(this, game, players, localPlayer, appController.getCourses(), this.isHost);
-        updateFromServer(multiplayerMenuView, game, players);
-        startUpdateGameLoop(multiplayerMenuView);
-    }
-
-    /**
-     * Starts a loop of fetching game data from the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void startUpdateGameLoop(MultiplayerMenuView multiplayerMenuView) {
-        Runnable lobbyUpdate = () -> {
-            Game currentGameData = game;
-            if (serverCommunication.isConnectedToServer()) {
-                if (currentGameData == null) return;
-
-                long gameId = currentGameData.getGameId();
-                Game updatedGameData = serverCommunication.getGame(gameId);
-                List<Player> updatedPlayers = serverCommunication.getPlayers(gameId);
-
-                if (updatedGameData != null && updatedPlayers != null) {
-                    Platform.runLater(() -> updateFromServer(multiplayerMenuView, updatedGameData, updatedPlayers));
-                }
-            }
-        };
-        gameUpdateScheduler = Executors.newScheduledThreadPool(1);
-        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 500, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -237,29 +200,70 @@ public class NetworkingController extends Subject implements Observer {
      * Updates the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void updateFromServer(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers) {
-        // Check if host has disconnected
-        boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
-        if (hostHasDisconnected) {
-            disconnectFromServer("The host left the game.", 3000);
-            return;
-        }
+    private void updateGameDataFromServer(MultiplayerMenuView multiplayerMenuView) {
+        Game updatedGame = serverCommunication.getGame(this.game.getGameId());
+        List<Player> updatedPlayers = serverCommunication.getPlayers(this.game.getGameId());
 
-        // Check for game start
-        if (!updatedGame.getPhase().equals(GamePhase.LOBBY)) {
-            if (!hasStartedGameLocally) {
-                hasStartedGameLocally = true;
-                updateLobby(multiplayerMenuView, updatedGame, updatedPlayers);
-                appController.startGame(selectedCourse, updatedPlayers, localPlayer);
-            }
-        }
-
-        // Update for corresponding gamePhase.
-        if (updatedGame.getPhase().equals(GamePhase.LOBBY)) {
-            updateLobby(multiplayerMenuView, updatedGame, updatedPlayers);
+        String[] updatedUpgradeShop;
+        int updatedUpgradeTurn;
+        if (updatedGame.getPhase() == GamePhase.UPGRADE) {
+            updatedUpgradeShop = serverCommunication.getUpgradeShop(this.game.getGameId());
+            updatedUpgradeTurn = serverCommunication.getUpgradeTurn(this.game.getGameId());
         } else {
-            updateGame(updatedGame, updatedPlayers);
+            updatedUpgradeShop = null;
+            updatedUpgradeTurn = 0;
         }
+
+        if (updatedPlayers != null) {
+            Platform.runLater(() -> {
+                // Check if host has disconnected
+                boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
+                if (hostHasDisconnected) {
+                    disconnectFromServer("The host left the game.", 3000);
+                    return;
+                }
+
+                // Check for game start
+                if (!updatedGame.getPhase().equals(GamePhase.LOBBY)) {
+                    if (!hasStartedGameLocally) {
+                        hasStartedGameLocally = true;
+                        updateLobby(multiplayerMenuView, updatedGame, updatedPlayers);
+                        appController.startGame(selectedCourse, updatedPlayers, localPlayer);
+                    }
+                }
+
+                // Update for corresponding gamePhase.
+                if (updatedGame.getPhase().equals(GamePhase.LOBBY)) {
+                    updateLobby(multiplayerMenuView, updatedGame, updatedPlayers);
+                } else {
+                    updateGameData(updatedGame, updatedPlayers, updatedUpgradeShop, updatedUpgradeTurn);
+                }
+            });
+        }
+    }
+
+    /**
+     * Updates the GameController with data from the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void updateGameData(Game updatedGame, List<Player> updatedPlayers, String[] updatedUpgradeShop, int updatedUpgradeTurn) {
+        if (updatedGame != null) {
+            this.game = updatedGame;
+        }
+        if (updatedPlayers != null) {
+            this.players = updatedPlayers;
+            NO_OF_PLAYERS = this.game.getNrOfPlayers();
+            Map<Long, Player> updatedPlayerMap = updatedPlayers.stream()
+                    .collect(Collectors.toMap(Player::getPlayerId, player -> player));
+            this.playerMap.clear();
+            this.playerMap.putAll(updatedPlayerMap);
+            this.localPlayer = this.playerMap.get(this.localPlayer.getPlayerId());
+        }
+        if (updatedUpgradeShop != null) {
+            this.upgradeShop = updatedUpgradeShop;
+            this.upgradeTurn = updatedUpgradeTurn;
+        }
+        notifyChange();
     }
 
     /**
@@ -268,17 +272,6 @@ public class NetworkingController extends Subject implements Observer {
      */
     private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers) {
         if (serverCommunication.isConnectedToServer()) {
-            // Check if any change has happened
-            /*boolean hasChanges =
-                    isFirstUpdate ||
-                            this.game.hasChanged(updatedGame) ||
-                            this.players.size() != updatedPlayers.size() ||
-                            IntStream.range(0, updatedPlayers.size()).anyMatch(i ->
-                                    this.players.get(i) == null ||
-                                            updatedPlayers.get(i) == null ||
-                                            this.players.get(i).hasChanged(updatedPlayers.get(i)));
-            if (!hasChanges) return; // If no change in data since last update, we don't want to do any further processing.*/
-
             // If the game had changes, the player gets set to not ready.
             if (this.game != null) {
                 if (this.game.hasChanged(updatedGame)) {
@@ -286,7 +279,7 @@ public class NetworkingController extends Subject implements Observer {
                 }
             }
             // Variables
-            updateGameData(updatedGame, updatedPlayers);
+            updateGameData(updatedGame, updatedPlayers, null, 0);
             // Course
             this.selectedCourse = appController.getCourses().stream()
                     .filter(course -> course.getCourseName().equals(game.getCourseName()))
@@ -297,37 +290,13 @@ public class NetworkingController extends Subject implements Observer {
     }
 
     /**
-     * Updates the GameController with data from the server after the game has started.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void updateGame(Game updatedGameData, List<Player> updatedPlayers) {
-        updateGameData(updatedGameData, updatedPlayers);
-        notifyChange();
-    }
-
-    /**
-     * Updates the GameController with data from the server during the initialization phase.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void updateGameData(Game updatedGame, List<Player> updatedPlayers) {
-        this.game = updatedGame;
-        this.players = updatedPlayers;
-        NO_OF_PLAYERS = this.game.getNrOfPlayers();
-        Map<Long, Player> updatedPlayerMap = updatedPlayers.stream()
-                .collect(Collectors.toMap(Player::getPlayerId, player -> player));
-        this.playerMap.clear();
-        this.playerMap.putAll(updatedPlayerMap);
-        this.localPlayer = this.playerMap.get(this.localPlayer.getPlayerId());
-    }
-
-    /**
      * Runs the ActionWithDelay runnable, followed by the delay pause, then calls the callback runnable.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void runActionAndCallback(ActionWithDelay actionWithDelay, Runnable callback) {
         actionWithDelay.getAction(false).run();
         PauseTransition pause = new PauseTransition(Duration.millis(actionWithDelay.getDelayInMillis()));
-        pause.setOnFinished(event -> callback.run());
+        pause.setOnFinished(_ -> callback.run());
         pause.play();
     }
 
@@ -346,29 +315,56 @@ public class NetworkingController extends Subject implements Observer {
         });
     }
 
-    void updatePlayerCards(String[] permCards, String[] tempCards) {
+
+
+    // Update data and send to server
+    // Lobby
+    public void changeRobot(String robotName) {
+        this.localPlayer.setRobotName(robotName);
+        serverCommunication.updatePlayer(this.localPlayer);
+    }
+    public void setIsReady(int isReady) {
+        this.localPlayer.setIsReady(isReady);
+        serverCommunication.updatePlayer(this.localPlayer);
+    }
+    public void changeCourse(CC_CourseData course) {
+        this.selectedCourse = course;
+        this.game.setCourseName(selectedCourse.getCourseName());
+        serverCommunication.updateGame(game);
+    }
+    public void setGamePhase(GamePhase gamePhase) {
+        if (isHost) {
+            this.game.setPhase(gamePhase);
+            serverCommunication.updateGame(game);
+        }
+    }
+    // In game
+    public void updateRegister(long playerId, String[] registerMoves, int turn) {
+        Player player = playerMap.get(playerId);
+        serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
+    }
+    public void setPlayerSpawn(Space space, String directionName) {
+        if (this.localPlayer.getSpawnDirection() == null || this.localPlayer.getSpawnDirection().isBlank()) {
+            this.localPlayer.setSpawnPoint(new int[]{space.x, space.y});
+            this.localPlayer.setSpawnDirection(directionName);
+            serverCommunication.updatePlayer(this.localPlayer);
+        }
+    }
+    public void updateUpgradeShop(CardField[] availableCardsFields) {
+        String[] availableCards = new String[availableCardsFields.length];
+        for (int i = 0; i < availableCards.length; i++) {
+            availableCards[i] = ((UpgradeCard)availableCardsFields[i].getCard()).getEnum().name();
+        }
+        serverCommunication.updateUpgradeShop(availableCards, this.game.getGameId());
+    }
+    void updatePlayerUpgradeCards(String[] permCards, String[] tempCards) {
         this.localPlayer.setPermCards(permCards);
         this.localPlayer.setTempCards(tempCards);
         serverCommunication.updatePlayer(this.localPlayer);
     }
 
-    // Getters
-    public Game getUpdatedGame() {
-        return game;
-    }
 
-    public List<Player> getUpdatedPlayers() {
-        return players;
-    }
-
-    public HashMap<Long, Player> getUpdatedPlayerMap() {
-        return playerMap;
-    }
-
-    public CC_CourseData getUpdatedSelectedCourse() {
-        return selectedCourse;
-    }
-
+    // Getters. Game data variables are updated continually.
     public String[] getRegistersFromPlayer(long playerId) {
         if (this.registers != null) {
             Register register = this.registers.stream().filter(r -> (r.getPlayerId() == playerId)).findFirst().orElse(null);
@@ -379,6 +375,9 @@ public class NetworkingController extends Subject implements Observer {
         }
         return null;
     }
+
+
+
 
     @Override
     public void update(Subject subject) {

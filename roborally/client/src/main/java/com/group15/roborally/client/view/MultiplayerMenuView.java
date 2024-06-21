@@ -382,8 +382,8 @@ public class MultiplayerMenuView {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean canReadyOrStart(NetworkingController networkingController) {
-        List<Player> players = networkingController.getUpdatedPlayers();
-        CC_CourseData selectedCourse = networkingController.getUpdatedSelectedCourse();
+        List<Player> players = networkingController.getPlayers();
+        CC_CourseData selectedCourse = networkingController.getSelectedCourse();
         if (localPlayer.getPlayerName() == null || localPlayer.getRobotName() == null || localPlayer.getPlayerName().isBlank() || localPlayer.getRobotName().isBlank() || Robots.getRobotByName(localPlayer.getRobotName()) == null) return false;
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (players.get(i).getPlayerId() != localPlayer.getPlayerId()) {
