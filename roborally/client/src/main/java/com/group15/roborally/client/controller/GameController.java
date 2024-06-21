@@ -140,6 +140,7 @@ public class GameController implements Observer {
     }
 
     private void startPlayerActivationPhase() {
+        isLocalPlayerReady = false;
         updateCurrentPhase(PLAYER_ACTIVATION);
 
         for (Player player : board.getPlayers()) {
