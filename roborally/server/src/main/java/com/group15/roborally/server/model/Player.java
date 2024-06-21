@@ -31,6 +31,9 @@ public class Player/*  implements Serializable */ {
     private String spawnDirection;
     private int isReady;
 
+    private String[] permCards;
+    private String[] tempCards;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
     private Game game;
