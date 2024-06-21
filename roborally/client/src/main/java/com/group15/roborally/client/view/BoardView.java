@@ -73,7 +73,7 @@ public class BoardView extends VBox implements ViewObserver {
 
     /**
      * Constructor of BoardView.
-     * @param gameController
+     * @param gameController The GameController.
      * @param directionOptionsPane The loaded directionOptionsPane from the DirectionArrows.fxml file.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -179,7 +179,7 @@ public class BoardView extends VBox implements ViewObserver {
      */
     public void initializeDirectionButton(Button button, BoardView boardView) {
         Heading direction = Heading.valueOf(button.getId());
-        button.setOnMouseClicked(event -> {
+        button.setOnMouseClicked(_ -> {
             gameController.chooseDirection(direction, boardView);
         });
     }
@@ -205,26 +205,25 @@ public class BoardView extends VBox implements ViewObserver {
         }
         if (finishUpgradingButton == null) {
             System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
+        } else {
+            finishUpgradingButton.setOnMouseClicked(_ -> {
+                gameController.finishedUpgrading();
+                upgradeShopPane.setVisible(false);
+                upgradeShopPane.setMouseTransparent(true);
+            });
+
+            // Button text
+            Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
+            Text buttonText = new Text();
+            buttonText.setFont(textFont);
+            buttonText.setFill(Color.WHITE);
+            buttonText.setStroke(Color.BLACK);
+            buttonText.setStrokeWidth(2);
+            buttonText.setStrokeType(StrokeType.OUTSIDE);
+            buttonText.setText("Finish Upgrading");
+            buttonText.setTextAlignment(TextAlignment.CENTER);
+            finishUpgradingButton.setGraphic(buttonText);
         }
-
-        finishUpgradingButton.setOnMouseClicked(event -> {
-            gameController.finishedUpgrading();
-            upgradeShopPane.setVisible(false);
-            upgradeShopPane.setMouseTransparent(true);
-        });
-
-        // Button text
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
-        Text buttonText = new Text();
-        buttonText.setFont(textFont);
-        buttonText.setFill(Color.WHITE);
-        buttonText.setStroke(Color.BLACK);
-        buttonText.setStrokeWidth(2);
-        buttonText.setStrokeType(StrokeType.OUTSIDE);
-        buttonText.setText("Finish Upgrading");
-        buttonText.setTextAlignment(TextAlignment.CENTER);
-
-        finishUpgradingButton.setGraphic(buttonText);
 
         upgradeShopTitelPane.setStyle(
                 "-fx-background-color: rgba(0,0,0,.5); " +
@@ -243,23 +242,19 @@ public class BoardView extends VBox implements ViewObserver {
     public void updateUpgradeShop() {
         upgradeShopCardsHBox.getChildren().clear();
         UpgradeShop upgradeShop = board.getUpgradeShop();
-        CardFieldView[] upgradeShopCardViews = new CardFieldView[NO_OF_PLAYERS];
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
-            upgradeShopCardViews[i] = cardFieldView;
             upgradeShopCardsHBox.getChildren().add(cardFieldView);
             cardFieldView.setAlignment(Pos.CENTER);
-            //String boarderColorString = "-fx-border-color: black; ";
-            if (cardField.getCard() instanceof UpgradeCardPermanent) {
-                //boarderColorString = "-fx-border-color: #dfcb45; ";
-            } else if (cardField.getCard() instanceof UpgradeCardTemporary) {
-                //boarderColorString = "-fx-border-color: #a62a24; ";
-            } else if (cardField.getCard() == null) {
-                //boarderColorString = "-fx-border-color: transparent; ";
-            } else {
-                System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getName() + ". Check card and BoardView.setUpgradeShop().");
+            switch (cardField.getCard()) {
+                case UpgradeCardPermanent _, UpgradeCardTemporary _ -> {
+                }
+                case null -> {
+                }
+                default ->
+                        System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getName() + ". Check card and BoardView.setUpgradeShop().");
             }
             cardFieldView.setStyle(
                     "-fx-background-color: transparent; " +
@@ -291,15 +286,14 @@ public class BoardView extends VBox implements ViewObserver {
      */
     private List<SpaceView> getSpaceViewsAtPosition(Point2D position) {
         List<SpaceView> spacesAtMouse = new ArrayList<>();
-        for (int x = 0; x < spaceViews.length; x++) {
-            for (int y = 0; y < spaceViews[x].length; y++) {
-                SpaceView space = spaceViews[x][y];
-                if (space == null) continue;
-                Bounds localBounds = space.getBoundsInLocal();
-                Bounds sceneBounds = space.localToScene(localBounds);
+        for (SpaceView[] spaceViewColumn : spaceViews) {
+            for (SpaceView spaceView : spaceViewColumn) {
+                if (spaceView == null) continue;
+                Bounds localBounds = spaceView.getBoundsInLocal();
+                Bounds sceneBounds = spaceView.localToScene(localBounds);
                 if (sceneBounds.contains(position)) {
                     // If mouse is within bounds of a node
-                    spacesAtMouse.add(space);
+                    spacesAtMouse.add(spaceView);
                 }
             }
         }
