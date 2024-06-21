@@ -27,6 +27,7 @@ import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.damage.DamageType;
 import com.group15.roborally.client.model.events.PhaseChangeListener;
 import javafx.util.Pair;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -43,29 +44,47 @@ import static com.group15.roborally.server.model.GamePhase.*;
  *
  */
 public class Board extends Subject {
+    @Getter
     private final String courseName;
 
     public final int width;
     public final int height;
+    @Getter
     private final Space[][] spaces;
-    private List<Space[][]> subBoards;
+    @Getter
+    private final List<Space[][]> subBoards;
 
+    @Getter
     private final List<Player> players = new ArrayList<>();
+    @Getter
     private final Queue<Player> priorityList = new ArrayDeque<>();
+    @Getter
     private Player currentPlayer;
 
+    @Getter
     private GamePhase currentPhase = INITIALIZATION;
+    @Getter
     private int currentRegister = 0;
+    @Getter
     private int turnCounter = 0;
 
     final public int NO_OF_CHECKPOINTS;
 
+    @Getter
     private final LinkedList<ActionWithDelay> boardActionQueue = new LinkedList<>();
 
+    @Getter
     private UpgradeShop upgradeShop;
 
+    //A public function to get the movecounter
+    @Getter
     private int moveCounter = 0; // The counter for how many moves have been made
+    @Getter
     private boolean stepMode = false;
+
+    private Space antennaSpace;
+    private List<Space>[] boardElementsSpaces;
+
 
     public Board(List<Space[][]> subBoards, Space[][] spaces, String courseName, int noOfCheckpoints) {
         this.subBoards = subBoards;
@@ -87,20 +106,8 @@ public class Board extends Subject {
         updateBoardElementSpaces();
     }
 
-    public String getCourseName() {
-        return courseName;
-    }
-
     public void initializeUpgradeShop() {
         this.upgradeShop = new UpgradeShop(this);
-    }
-
-    public UpgradeShop getUpgradeShop() {
-        return upgradeShop;
-    }
-
-    public int getTurnCounter() {
-        return turnCounter;
     }
 
     public Space getSpace(int x, int y) {
@@ -110,10 +117,6 @@ public class Board extends Subject {
         } else {
             return null;
         }
-    }
-
-    public Space[][] getSpaces() {
-        return spaces;
     }
 
     public int getNoOfPlayers() {
@@ -139,17 +142,9 @@ public class Board extends Subject {
         }
     }
 
-    public Queue<Player> getPriorityList() {
-       return priorityList;
-    }
-
     public void setPriorityList(List<Player> newPriorityList) {
         priorityList.clear();
         priorityList.addAll(newPriorityList);
-    }
-
-    public Player getCurrentPlayer() {
-        return currentPlayer;
     }
 
     public void setCurrentPlayer(Player player) {
@@ -159,33 +154,22 @@ public class Board extends Subject {
         notifyChange();
     }
 
-    public List<Player> getPlayers() {
-        return players;
-    }
-
     List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
     public void setOnPhaseChange(PhaseChangeListener listener) {
         phaseChangeListeners.add(listener);
-    }
-    public GamePhase getCurrentPhase() {
-        return currentPhase;
     }
 
     /**
      * Sets the current game phase locally.
      * Should *only* be called from the GameController, in order to sync with the server.
-     * @param currentPhase
+     * @param phase The phase to switch to.
      */
-    public void setCurrentPhase(GamePhase currentPhase) {
-        if (currentPhase != this.currentPhase) {
-            this.currentPhase = currentPhase;
-            phaseChangeListeners.forEach(listener -> listener.onPhaseChange(currentPhase));
+    public void setCurrentPhase(GamePhase phase) {
+        if (phase != this.currentPhase) {
+            this.currentPhase = phase;
+            phaseChangeListeners.forEach(listener -> listener.onPhaseChange(phase));
             notifyChange();
         }
-    }
-
-    public int getCurrentRegister() {
-        return currentRegister;
     }
 
     public void setCurrentRegister(int currentRegister) {
@@ -193,10 +177,6 @@ public class Board extends Subject {
             this.currentRegister = currentRegister;
             notifyChange();
         }
-    }
-
-    public boolean isStepMode() {
-        return stepMode;
     }
 
     public void setStepMode(boolean stepMode) {
@@ -223,11 +203,6 @@ public class Board extends Subject {
             notifyChange();
         }
 
-    }
-
-    //A public function to get the movecounter
-    public int getMoveCounter(){
-        return moveCounter;
     }
 
     /**
@@ -296,7 +271,6 @@ public class Board extends Subject {
      *     for when we need to execute board elements actions.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private List<Space>[] boardElementsSpaces;
     private void updateBoardElementSpaces() {
         boardElementsSpaces = new ArrayList[7];
         for (int i = 0; i < boardElementsSpaces.length; i++) {
@@ -329,7 +303,6 @@ public class Board extends Subject {
 
     /**
      * Adds the board element actions of all board elements of a board element type to the action queue.
-     * @param gameController
      * @param boardElementsIndex The index in boardElementsSpaces that corresponds to a board element type.
      * @param debugBoardElementName The action message.
      */
@@ -369,7 +342,6 @@ public class Board extends Subject {
      * @author Michael Sylvest Bendtsen, s214954@dtu.dk
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private Space antennaSpace;
     public void updatePriorityList() {
         priorityList.clear();
         if (antennaSpace == null) {
@@ -382,7 +354,7 @@ public class Board extends Subject {
         Map<Integer, List<Player>> distanceMap = new HashMap<>();
         for (Player player : players) {
             int playerDistance = getPlayerDistance(player, antennaSpace);
-            distanceMap.computeIfAbsent(playerDistance, k -> new ArrayList<>()).add(player);
+            distanceMap.computeIfAbsent(playerDistance, _ -> new ArrayList<>()).add(player);
         }
 
         // Determining distance tie-breakers
@@ -427,8 +399,6 @@ public class Board extends Subject {
 
     /**
      * Method for getting the angle from the antenna direction to the player in a clockwise rotation.
-     * @param player
-     * @param antenna
      * @return Returns the angle in radians between (0 and 2 * Pi).
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -485,10 +455,6 @@ public class Board extends Subject {
         return null;
     }
 
-    public List<Space[][]> getSubBoards() {
-        return this.subBoards;
-    }
-
     public Space[][] getSubBoardOfSpace(Space space) throws RuntimeException {
         for (Space[][] subBoard : subBoards) {
             for (Space[] subBoardColumn : subBoard) {
@@ -541,27 +507,14 @@ public class Board extends Subject {
         }
     }
 
-    public LinkedList<ActionWithDelay> getBoardActionQueue() {
-        return boardActionQueue;
-    }
-
     /**
      * Takes the current player of the board and sets the players position to the given space
      * if the space is free. The current player is then set to the player following the current player.
-     *
-     * @param player
+     * @param player The player to move.
      * @param nextSpace the space to which the current player should move
-     * @return void
-     * @autor Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
     public void movePlayerToSpace(Player player, Space nextSpace, GameController gameController) {
-        // TODO Task1: method should be implemented by the students:
-        //   - the current player should be moved to the given space
-        //     (if it is free())
-        //   - and the current player should be set to the player
-        //     following the current player
-        //   - the counter of moves in the game should be increased by one
-        //     if the player is moved
         Space currentSpace = player.getSpace();
         if (currentSpace == null) {
             System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
@@ -622,9 +575,8 @@ public class Board extends Subject {
                 // If all other players have moved, we also move.
                 playersToPush.add(playerOnSpace);
                 return true;
-            } return false;  // If push chain was stopped by wall
-        } else {                                                // In case of wall
-            return false;
+            }
         }
+        return false;  // If push chain was stopped by wall
     }
 }

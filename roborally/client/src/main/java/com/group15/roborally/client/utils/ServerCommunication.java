@@ -12,6 +12,7 @@ import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
