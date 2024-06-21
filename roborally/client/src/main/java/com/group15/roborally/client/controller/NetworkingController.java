@@ -257,7 +257,7 @@ public class NetworkingController extends Subject implements Observer {
                     .collect(Collectors.toMap(Player::getPlayerId, player -> player));
             this.playerMap.clear();
             this.playerMap.putAll(updatedPlayerMap);
-            this.localPlayer = this.playerMap.get(this.localPlayer.getPlayerId());
+            //this.localPlayer = this.playerMap.get(this.localPlayer.getPlayerId());
         }
         if (updatedUpgradeShop != null) {
             this.upgradeShop = updatedUpgradeShop;
