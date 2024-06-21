@@ -774,7 +774,8 @@ public class GameController implements Observer {
             }
         }
 
-        // TODO: Add upgrade cards to upgrade shop with: "networkingController.getUpgradeShop()".
+        String[] availableCards = networkingController.getUpgradeShop();
+        board.getUpgradeShop().setAvailableCards(availableCards);
 
         // Finish check
         if (upgradeTurn >= NO_OF_PLAYERS) {

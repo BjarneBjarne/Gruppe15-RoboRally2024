@@ -54,6 +54,13 @@ public class UpgradeShop implements Observer {
         return availableCardsFields[index];
     }
 
+    public void setAvailableCards(String[] upgradeCards) {
+        for (int i = 0; i < availableCardsFields.length; i++) {
+            UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(upgradeCards[i]).upgradeCardClass);
+            availableCardsFields[i].setCard(upgradeCard);
+        }
+    }
+
     // Methods for access of transactions with shop.
     /**
      * Method for players so buy an UpgradeCard.

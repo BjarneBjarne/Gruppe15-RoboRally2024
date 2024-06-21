@@ -23,6 +23,7 @@ package com.group15.roborally.client.model;
 
 import com.group15.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
+import lombok.Getter;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
 
@@ -43,7 +44,9 @@ public class CardField extends Subject {
     final public Player player;
     final public UpgradeShop upgradeShop;
     final public int index;
+    @Getter
     private Card card;
+    @Getter
     private boolean visible;
 
     /**
@@ -86,19 +89,11 @@ public class CardField extends Subject {
         this.cardFieldType = COMMAND_CARD_FIELD;
     }
 
-    public Card getCard() {
-        return card;
-    }
-
     public void setCard(Card card) {
         if (card != this.card) {
             this.card = card;
             notifyChange();
         }
-    }
-
-    public boolean isVisible() {
-        return visible;
     }
 
     public void setVisible(boolean visible) {
