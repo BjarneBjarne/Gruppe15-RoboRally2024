@@ -15,7 +15,7 @@ public class UpgradeShopTest{
 
     @BeforeEach
     void setup(){
-        board = new Board(null, new Space[10][10], "test", 1);
+        board = new Board(null, new Space[10][10], "ServerTest", 1);
         p1 = new Player(0, "p1", board, Robots.getRobotByName("SPIN BOT"));
         p2 = new Player(1, "p2", board, Robots.getRobotByName("ZOOM BOT"));
         board.addPlayer(p1);

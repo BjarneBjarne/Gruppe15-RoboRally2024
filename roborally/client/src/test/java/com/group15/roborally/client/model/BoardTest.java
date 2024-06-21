@@ -42,7 +42,7 @@ public class BoardTest {
         }
         subSpaces.add(sub1);
         subSpaces.add(sub2);
-        board = new Board(subSpaces, spaces, "test", 1);
+        board = new Board(subSpaces, spaces, "ServerTest", 1);
     }
     @AfterEach
     void tearDown(){
