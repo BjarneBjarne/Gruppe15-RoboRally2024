@@ -67,7 +67,10 @@ public class Player extends Subject {
 
     @Getter
     private Space space;
+    @Setter
+    @Getter
     private Space temporarySpace = null;
+    @Getter
     private Heading heading = SOUTH;
 
     @Getter
@@ -78,24 +81,15 @@ public class Player extends Subject {
     @Getter
     private int checkpoints = 0;
 
+    @Getter
     transient private final CardField[] programFields;
+    @Getter
     transient private final CardField[] cardHandFields;
+    @Getter
     transient private final CardField[] permanentUpgradeCardFields;
+    @Getter
     transient private final CardField[] temporaryUpgradeCardFields;
 
-    /**
-     * -- SETTER --
-     *  sets the paramater as the last command
-     *
-     * @param lastCmd
-     *
-     * -- GETTER --
-     *  returns the field lastCmd
-     *
-     * @return Command
-     *
-
-     */
     @Getter
     @Setter
     transient private Command lastCmd;
@@ -103,12 +97,14 @@ public class Player extends Subject {
     @Setter
     @Getter
     transient private int priority = 0;
+    @Getter
+    @Setter
     private Velocity velocity = new Velocity(0, 0);
     private boolean rebooting = false;
     @Setter
     @Getter
     transient private Image image;
-    transient private Image charIMG;
+    final transient private Image charIMG;
 
     @Setter
     @Getter
@@ -116,6 +112,7 @@ public class Player extends Subject {
     transient private final List<UpgradeCard> upgradeCards = new ArrayList<>(); // Not for card function, but could be used for showing the players upgrade cards.
 
     transient private final Damage temporaryBonusDamage = new Damage(0, 0, 0, 0);
+    @Getter
     transient private final Damage permanentBonusDamage = new Damage(0, 0, 0, 0);
 
 
@@ -155,10 +152,6 @@ public class Player extends Subject {
      */
     public Image getCharImage() {
         return this.charIMG;
-    }
-
-    public void setCharImage(Image image) {
-        this.charIMG = image;
     }
 
     public void setCheckpoint(int checkpoints) {
@@ -204,12 +197,6 @@ public class Player extends Subject {
         }
     }
 
-    public Space getTemporarySpace() {
-        return this.temporarySpace;
-    }
-    public void setTemporarySpace(Space space) {
-        this.temporarySpace = space;
-    }
     public void goToTemporarySpace() {
         if (temporarySpace == null) return;
         // Surpass the setSpace() checks
@@ -224,17 +211,6 @@ public class Player extends Subject {
             this.space.setPlayer(this);
         }
         this.temporarySpace = null;
-    }
-
-    public void setVelocity(Velocity velocity) {
-        this.velocity = velocity;
-    }
-    public Velocity getVelocity() {
-        return velocity;
-    }
-
-    public Heading getHeading() {
-        return heading;
     }
 
     public void setHeading(@NotNull Heading heading) {
@@ -270,9 +246,7 @@ public class Player extends Subject {
     public CardField getProgramField(int i) {
         return programFields[i];
     }
-    public CardField[] getProgramFields() {
-        return programFields;
-    }
+
     public String[] getProgramFieldNames() {
         String[] names = new String[programFields.length];
         for (int i = 0; i < programFields.length; i++) {
@@ -283,22 +257,13 @@ public class Player extends Subject {
     public CardField getCardField(int i) {
         return cardHandFields[i];
     }
-    public CardField[] getCardHandFields() {
-        return cardHandFields;
-    }
 
     public CardField getPermanentUpgradeCardField(int i) {
         return permanentUpgradeCardFields[i];
     }
-    public CardField[] getPermanentUpgradeCardFields() {
-        return permanentUpgradeCardFields;
-    }
 
     public CardField getTemporaryUpgradeCardField(int i) {
         return temporaryUpgradeCardFields[i];
-    }
-    public CardField[] getTemporaryUpgradeCardFields() {
-        return temporaryUpgradeCardFields;
     }
 
     public void addEnergyCube() {
@@ -321,7 +286,6 @@ public class Player extends Subject {
         } catch (Exception e) {
             System.out.println("ERROR - Attempt to buy upgrade card from shopField failed.");
             System.out.println(e.getMessage());
-            e.printStackTrace();
         }
 
         return boughtCard != null;
@@ -362,8 +326,6 @@ public class Player extends Subject {
 
     /**
      * Method for initializing an UpgradeCard and setting the player as owner. Should be called from Player.attemptUpgradeCardPurchase() or Player.tryAddFreeUpgradeCard()
-     * @param upgradeCard
-     * @param gameController
      */
     private void addUpgradeCard(UpgradeCard upgradeCard, GameController gameController) {
         try {
@@ -412,7 +374,7 @@ public class Player extends Subject {
     }
 
     /**
-     * sets the fiels programmingDeck to its defoult settings
+     * sets the fields programmingDeck to its default settings.
      * @author Maximillian Bjørn Mortensen
      */
     public void setProgrammingDeckToEven() {
@@ -477,8 +439,7 @@ public class Player extends Subject {
     }
 
     /**
-     * adds the paramater card into the discarded end of programmingDeck
-     * @param card
+     * adds the parameter card into the discarded end of programmingDeck.
      * @author Maximillian Bjørn Mortensen
      */
     public void discard(CommandCard card) {
@@ -557,8 +518,6 @@ public class Player extends Subject {
 
     /**
      * Method for queuing a player command, that upgrade cards should listen to. (That means commands that are not a command option.)
-     * @param command
-     * @param gameController
      */
     public void queueCommand(Command command, GameController gameController) {
         queueCommand(command, true, gameController);
@@ -566,9 +525,7 @@ public class Player extends Subject {
 
     /**
      * * sets the players action from the command
-     * @param command
      * @param notifyUpgradeCards Set to true, is the player is executing a programming card. If the player is executing an interaction option, we don't want to notify the UpgradeCards (again).
-     * @param gameController
      * @author Maximillian Bjørn Mortensen
      */
     public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {
@@ -588,7 +545,7 @@ public class Player extends Subject {
                 setVelocity(new Velocity(2, 0));
                 startMovement(gameController);
                 break;
-            case MOVE_3:
+            case MOVE_3, SPEED_ROUTINE:
                 setVelocity(new Velocity(3, 0));
                 startMovement(gameController);
                 break;
@@ -605,7 +562,7 @@ public class Player extends Subject {
                 setVelocity(new Velocity(-1, 0));
                 startMovement(gameController);
                 break;
-            case AGAIN:
+            case AGAIN, REPEAT_ROUTINE:
                 queueCommand(getLastCmd(), gameController);
                 break;
             case POWER_UP:
@@ -650,10 +607,6 @@ public class Player extends Subject {
             case ENERGY_ROUTINE:
                 addEnergyCube();
                 break;
-            case SPEED_ROUTINE:
-                setVelocity(new Velocity(3, 0));
-                startMovement(gameController);
-                break;
             case SPAM_FOLDER:
                 boolean inDiscardDeck = false;
                 for (CommandCard card : programmingDeck) {
@@ -664,9 +617,6 @@ public class Player extends Subject {
                     }
                     if (card == null) inDiscardDeck = true;
                 }
-                break;
-            case REPEAT_ROUTINE:
-                queueCommand(getLastCmd(), gameController);
                 break;
 
             // Commands with options
@@ -722,7 +672,6 @@ public class Player extends Subject {
 
     /**
      * sets heading for player based on paramater
-     * @param quarterRotationClockwise
      * @author Maximillian Bjørn Mortensen
      */
     public void turn(int quarterRotationClockwise) {
@@ -756,9 +705,6 @@ public class Player extends Subject {
     }
     public void clearPermanentBonusDamage() {
         this.permanentBonusDamage.clear();
-    }
-    public Damage getPermanentBonusDamage() {
-        return this.permanentBonusDamage;
     }
 
     public void addTemporaryBonusDamage(Damage bonusDamage) {
