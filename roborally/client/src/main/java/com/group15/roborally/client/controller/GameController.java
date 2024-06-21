@@ -537,7 +537,7 @@ public class GameController implements Observer {
         if (sourceField.cardFieldType == UPGRADE_CARD_SHOP_FIELD) {
             assert targetField.player != null;
             Player player = targetField.player;
-            boolean canBuyUpgradeCard = player.attemptUpgradeCardPurchase(sourceField, this);
+            boolean canBuyUpgradeCard = player.attemptUpgradeCardPurchase(sourceField.getCard(), this);
             if (canBuyUpgradeCard) {
                 if (targetCard != null) {
                     player.removeUpgradeCard((UpgradeCard) targetCard);
@@ -744,20 +744,21 @@ public class GameController implements Observer {
             String[] permCardsStr = updatedPlayer.getPermCards();
             String[] tempCardsStr = updatedPlayer.getTempCards();
 
-            // TODO: Add upgrade card to player with: "client.attemptUpgradeCardPurchase() or client.tryAddFreeUpgradeCard()". Remember to check if player already owns the card. Is maybe already checked in Player method.
             if (permCardsStr != null) {
                 for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
                     if (permCardsStr[i] != null) {
-                        client.getPermanentUpgradeCardField(i).setCard(UpgradeCard
-                                .getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass));
+                        UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass);
+                        client.attemptUpgradeCardPurchase(upgradeCard, this);
+                        client.getPermanentUpgradeCardField(i).setCard(upgradeCard);
                     }
                 }
             }
             if (tempCardsStr != null) {
                 for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
                     if (tempCardsStr[i] != null) {
-                        client.getTemporaryUpgradeCardField(i).setCard(UpgradeCard
-                                .getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass));
+                        UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass);
+                        client.attemptUpgradeCardPurchase(upgradeCard, this);
+                        client.getTemporaryUpgradeCardField(i).setCard(upgradeCard);
                     }
                 }
             }
