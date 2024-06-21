@@ -40,7 +40,6 @@ import com.group15.roborally.client.model.boardelements.BoardElement;
 
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.GamePhase;
-import static com.group15.roborally.server.model.GamePhase.*;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -48,6 +47,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -64,7 +65,9 @@ import static com.group15.roborally.client.BoardOptions.*;
 public class AppController {
     private final RoboRally roboRally;
     public boolean isCourseCreatorOpen = false;
+    @Setter
     private GameController gameController;
+    @Getter
     private List<CC_CourseData> courses = new ArrayList<>();
 
     private final NetworkingController networkingController = new NetworkingController(this);
@@ -93,6 +96,7 @@ public class AppController {
             multiplayerMenuView.setupMenuUI(networkingController);
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
             infoPane.setInfoText("");
+            multiplayerMenuView.setServerURLInput("http://localhost:8080");
         });
     }
 
@@ -241,15 +245,6 @@ public class AppController {
         return false;
     }
 
-    /**
-     * sets game controller to null
-     * @param gameController The gameController.
-     * @author Maximillian Bjørn Mortensen
-     */
-    public void setGameController(GameController gameController){
-        this.gameController = gameController;
-    }
-
     public void quit() {
         if (gameController != null) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -292,10 +287,6 @@ public class AppController {
         if (courses.isEmpty()) {
             throw new NoCoursesException();
         }
-    }
-
-    public List<CC_CourseData> getCourses() {
-        return courses;
     }
 
     public void resetMultiplayerMenuView() {
