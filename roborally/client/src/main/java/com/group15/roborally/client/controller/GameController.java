@@ -648,14 +648,14 @@ public class GameController implements Observer {
         String[] tempCards = new String[Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
 
         for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
-            UpgradeCardPermanent card = (UpgradeCardPermanent)localPlayer.getPermanentUpgradeCardField(i).getCard();
-            //if (card != null)
-                //permCards[i] = card.getCommand().name();
+            UpgradeCard card = (UpgradeCard) localPlayer.getPermanentUpgradeCardField(i).getCard();
+            if (card != null)
+                permCards[i] = card.getEnum().name();
         }
         for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
-            Card card = localPlayer.getTemporaryUpgradeCardField(i).getCard();
+            UpgradeCard card = (UpgradeCard) localPlayer.getTemporaryUpgradeCardField(i).getCard();
             if (card != null)
-                tempCards[i] = card.getDisplayName();
+                tempCards[i] = card.getEnum().name();
         }
 
         networkingController.updatePlayerCards(permCards, tempCards);
@@ -742,6 +742,26 @@ public class GameController implements Observer {
     }
 
     private void updateUpgrading() {
-        
+        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
+        for (Player client : board.getPlayers()) {
+            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
+            if (updatedPlayer == null)
+                continue;
+
+            String[] permCardsStr = updatedPlayer.getPermCards();
+            String[] tempCardsStr = updatedPlayer.getTempCards();
+
+            for (int i = 0; i < permCardsStr.length; i++) {
+                if (!permCardsStr[i].equals(null)) {
+                    client.getPermanentUpgradeCardField(i).setCard(UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass));
+                }
+            }
+            for (int i = 0; i < tempCardsStr.length; i++) {
+                if (!tempCardsStr[i].equals(null)) {
+                    client.getTemporaryUpgradeCardField(i).setCard(UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass));
+                }
+            }
+
+        }
     }
 }
