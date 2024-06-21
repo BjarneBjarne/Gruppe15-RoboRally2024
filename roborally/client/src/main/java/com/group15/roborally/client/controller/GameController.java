@@ -29,7 +29,6 @@ import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.view.BoardView;
-import com.group15.roborally.server.model.Game;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
@@ -649,14 +648,14 @@ public class GameController implements Observer {
         String[] tempCards = new String[Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
 
         for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
-            Card card = localPlayer.getPermanentUpgradeCardField(i).getCard();
-            if (card != null)
-                permCards[i] = card.getName();
+            UpgradeCardPermanent card = (UpgradeCardPermanent)localPlayer.getPermanentUpgradeCardField(i).getCard();
+            //if (card != null)
+                //permCards[i] = card.getCommand().name();
         }
         for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
             Card card = localPlayer.getTemporaryUpgradeCardField(i).getCard();
             if (card != null)
-            tempCards[i] = card.getName();
+                tempCards[i] = card.getDisplayName();
         }
 
         networkingController.updatePlayerCards(permCards, tempCards);

@@ -36,7 +36,7 @@ public class CommandCard extends Card {
         this.command = command;
     }
 
-    public String getName() {
+    public String getDisplayName() {
         return command.displayName;
     }
 

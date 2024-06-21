@@ -40,11 +40,11 @@ public class GameControllerTest {
     @Test
     @DirtiesContext
     public void createGameTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/games"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/games"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/games"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/games"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));
     }
@@ -59,7 +59,7 @@ public class GameControllerTest {
     @Test
     @DirtiesContext
     public void joinGameTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/games"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/games"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
@@ -97,7 +97,7 @@ public class GameControllerTest {
     @Test
     @DirtiesContext
     public void getLobbyTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/games"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/games"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/games/1/players"))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ public class GameControllerTest {
     @Test
     @DirtiesContext
     public void getGameTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/games"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/games"));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/games/1"))
                 .andExpect(status().isOk())

@@ -42,7 +42,7 @@ public class ProgControllerTest {
          * TO FIX: See outcommented lines
          */
         long expectedGameId = 1L;
-        mockMvc.perform(MockMvcRequestBuilders.get("/games")
+        mockMvc.perform(MockMvcRequestBuilders.post("/games")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectedGameId + ""));

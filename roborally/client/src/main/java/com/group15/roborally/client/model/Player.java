@@ -276,7 +276,7 @@ public class Player extends Subject {
             }
             boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(shopField, this);
             if (boughtCard != null) {
-                System.out.println("Player: \"" + name + "\" bought: \"" + boughtCard.getName() + "\".");
+                System.out.println("Player: \"" + name + "\" bought: \"" + boughtCard.getDisplayName() + "\".");
                 addUpgradeCard(boughtCard, gameController);
             }
             board.updateBoard();
@@ -302,7 +302,7 @@ public class Player extends Subject {
         }
 
         if (couldAdd) {
-            System.out.println("Player: \"" + name + "\" got: \"" + card.getName() + "\" for free.");
+            System.out.println("Player: \"" + name + "\" got: \"" + card.getDisplayName() + "\" for free.");
             addUpgradeCard(card, gameController);
         }
 
@@ -338,14 +338,14 @@ public class Player extends Subject {
     public void removeUpgradeCard(UpgradeCard upgradeCard) {
         try {
             if (!upgradeCards.contains(upgradeCard)) {
-                throw new IllegalPlayerPropertyAccess("ERROR - Attempted to remove upgradeCard: \"" + upgradeCard.getName() + "\" that player: \"" + name + "\" doesn't own.");
+                throw new IllegalPlayerPropertyAccess("ERROR - Attempted to remove upgradeCard: \"" + upgradeCard.getDisplayName() + "\" that player: \"" + name + "\" doesn't own.");
             }
             // Removing player as owner of card and removes card events from EventHandler.
             upgradeCard.unInitialize();
 
             // Return to shop
             board.getUpgradeShop().returnCardToShop(upgradeCard);
-            System.out.println("Player: \"" + name + "\" returned: \"" + upgradeCard.getName() + "\" to the shop.");
+            System.out.println("Player: \"" + name + "\" returned: \"" + upgradeCard.getDisplayName() + "\" to the shop.");
 
             // Remove from player
             upgradeCards.remove(upgradeCard);
