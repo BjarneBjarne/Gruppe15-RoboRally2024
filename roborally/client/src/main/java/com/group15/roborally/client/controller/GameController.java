@@ -385,7 +385,7 @@ public class GameController implements Observer {
      *  @param option the option the player have chosen, and sets the activation phase active again
      */
     public void executeCommandOptionAndContinue(Command option) {
-        currentPlayerInteraction.player.queueCommand(option, false, this);
+        currentPlayerInteraction.getPlayer().queueCommand(option, false, this);
         currentPlayerInteraction.interactionFinished();
     }
 
@@ -608,7 +608,7 @@ public class GameController implements Observer {
             networkingController.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             networkingController.setIsReady(1);
         } else {
-            currentPlayerInteraction.player.setHeading(direction);
+            currentPlayerInteraction.getPlayer().setHeading(direction);
             currentPlayerInteraction.interactionFinished();
         }
     }

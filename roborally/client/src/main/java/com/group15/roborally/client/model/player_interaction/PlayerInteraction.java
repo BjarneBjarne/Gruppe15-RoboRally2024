@@ -2,10 +2,12 @@ package com.group15.roborally.client.model.player_interaction;
 
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.Player;
+import lombok.Getter;
 
 public abstract class PlayerInteraction {
     protected final GameController gameController;
-    public final Player player;
+    @Getter
+    protected final Player player;
     private final Runnable callback;
 
     public PlayerInteraction(GameController gameController, Player player) {
