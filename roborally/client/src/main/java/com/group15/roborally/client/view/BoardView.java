@@ -207,7 +207,7 @@ public class BoardView extends VBox implements ViewObserver {
             System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
         } else {
             finishUpgradingButton.setOnMouseClicked(_ -> {
-                gameController.finishedUpgrading();
+                gameController.updatePlayerCards();
                 upgradeShopPane.setVisible(false);
                 upgradeShopPane.setMouseTransparent(true);
             });
@@ -241,11 +241,13 @@ public class BoardView extends VBox implements ViewObserver {
      */
     public void updateUpgradeShop() {
         upgradeShopCardsHBox.getChildren().clear();
+
         UpgradeShop upgradeShop = board.getUpgradeShop();
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
+            cardFieldView.setDisable(!gameController.getPlayerUpgrading().equals(gameController.getLocalPlayer()));
             upgradeShopCardsHBox.getChildren().add(cardFieldView);
             cardFieldView.setAlignment(Pos.CENTER);
             switch (cardField.getCard()) {
@@ -334,6 +336,9 @@ public class BoardView extends VBox implements ViewObserver {
             Space directionOptionsSpace = gameController.getDirectionOptionsSpace();
             if (directionOptionsSpace != null) {
                 setDirectionOptionsPane(spaceViews[directionOptionsSpace.x][directionOptionsSpace.y]);
+            } else {
+                directionOptionsPane.setDisable(true);
+                directionOptionsPane.setVisible(false);
             }
 
             if (board.getCurrentPhase() == INITIALIZATION) {
