@@ -43,10 +43,7 @@ import java.util.stream.Collectors;
 import static com.group15.roborally.client.model.Heading.SOUTH;
 
 /**
- * ...
- *
  * @author Ekkart Kindler, ekki@dtu.dk
- *
  */
 public class Player extends Subject {
     final public static int NO_OF_REGISTERS = 5;
@@ -695,16 +692,6 @@ public class Player extends Subject {
         Laser laser = new Laser(space, direction, this, Player.class, Space.class);
 
         EventHandler.event_PlayerShootHandle(this, laser);
-    }
-
-    public void addPermanentBonusDamage(Damage bonusDamage) {
-        this.permanentBonusDamage.add(bonusDamage);
-    }
-    public void removePermanentBonusDamage(Damage bonusDamage) {
-        this.permanentBonusDamage.subtract(bonusDamage);
-    }
-    public void clearPermanentBonusDamage() {
-        this.permanentBonusDamage.clear();
     }
 
     public void addTemporaryBonusDamage(Damage bonusDamage) {

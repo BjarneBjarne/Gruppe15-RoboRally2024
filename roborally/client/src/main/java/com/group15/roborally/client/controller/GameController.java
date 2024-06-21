@@ -34,6 +34,7 @@ import com.group15.roborally.server.model.Game;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -51,15 +52,20 @@ import static com.group15.roborally.client.BoardOptions.*;
 public class GameController implements Observer {
     public final Board board;
     private final Runnable gameOverMethod;
+    @Getter
     private final Player localPlayer;
     private final NetworkingController networkingController;
 
+    @Getter
     private Space directionOptionsSpace;
+    @Getter
     private String winnerName;
+    @Getter
     private Image winnerIMG;
 
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
+    @Getter
     private PlayerInteraction currentPlayerInteraction = null;
     private int turnCounter;
 
@@ -293,10 +299,6 @@ public class GameController implements Observer {
         pause.play();
     }
 
-    public Player getLocalPlayer() {
-        return localPlayer;
-    }
-
     /**
      * This method exhausts the action queue by removing the first action, executing it, waits for the action delay, then calls itself again.
      * Is interrupted if the action queue is empty or if there is a player action.
@@ -394,14 +396,6 @@ public class GameController implements Observer {
     }
 
     /**
-     * @return the current PlayerInteraction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public PlayerInteraction getCurrentPlayerInteraction() {
-        return currentPlayerInteraction;
-    }
-
-    /**
      * Handles the player command for a command with multiple options
      *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
      *  @param option the option the player have chosen, and sets the activation phase active again
@@ -447,24 +441,6 @@ public class GameController implements Observer {
         board.queueClearLasers();
         board.queueBoardElementsWithIndex(this, 5, "Energy spaces");
         board.queueBoardElementsWithIndex(this, 6, "Checkpoints");
-    }
-
-    /**
-     * Returns the winners image.
-     * @return Image
-     * @author Maximillian Bjørn Mortensen
-     */
-    public Image getWinnerIMG(){
-        return winnerIMG;
-    }
-
-    /**
-     * Returns the winners name.
-     * @return String
-     * @author Maximillian Bjørn Mortensen
-     */
-    public String getWinnerName() {
-        return winnerName;
     }
 
     /**
@@ -601,6 +577,17 @@ public class GameController implements Observer {
         return couldMove;
     }
 
+    /**
+     * Method for setting the direction pane position at a space.
+     * @param space The space that the direction pane should appear at.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void setDirectionOptionsPane(Space space) {
+        space.updateSpace();
+        directionOptionsSpace = space;
+        board.updateBoard();
+    }
+
 
     // Updates to the server
     /**
@@ -652,7 +639,6 @@ public class GameController implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject.equals(networkingController)) {
-            Game updatedGame = networkingController.getUpdatedGame();
             HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers = networkingController.getUpdatedPlayerMap();
 
             for (Player client : board.getPlayers()) {
@@ -676,7 +662,7 @@ public class GameController implements Observer {
         switch (board.getCurrentPhase()) {
             case INITIALIZATION -> updateInitialization();
             case PROGRAMMING -> updateProgramming();
-            //case PLAYER_ACTIVATION ->
+            case UPGRADE -> updateUpgrading();
         }
     }
 
@@ -731,25 +717,5 @@ public class GameController implements Observer {
 
     private void updateUpgrading() {
 
-    }
-
-    /**
-     * Method for setting the direction pane position at a space.
-     * @param space The space that the direction pane should appear at.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void setDirectionOptionsPane(Space space) {
-        space.updateSpace();
-        directionOptionsSpace = space;
-        board.updateBoard();
-    }
-
-    /**
-     * Method for the BoardView to get the new direction pane space.
-     * @return The space to put the direction pane at.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public Space getDirectionOptionsSpace() {
-        return directionOptionsSpace;
     }
 }
