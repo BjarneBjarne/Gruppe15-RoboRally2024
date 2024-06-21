@@ -572,6 +572,10 @@ public class GameController implements Observer {
                 sourceField.setCard(null);
             }
             targetField.setCard(sourceCard);
+
+            if (targetField.cardFieldType == PERMANENT_UPGRADE_CARD_FIELD || targetField.cardFieldType == TEMPORARY_UPGRADE_CARD_FIELD) {
+                //
+            }
         }
 
         return couldMove;
