@@ -268,13 +268,13 @@ public class Player extends Subject {
         board.updateBoard();
     }
 
-    public boolean attemptUpgradeCardPurchase(CardField shopField, GameController gameController) {
+    public boolean attemptUpgradeCardPurchase(Card card, GameController gameController) {
         UpgradeCard boughtCard = null;
         try {
             for (UpgradeCard ownedCard : upgradeCards) { // First, check if player already has this card
-                if (ownedCard.getClass().equals(shopField.getCard().getClass())) return false;
+                if (ownedCard.getClass().equals(card.getClass())) return false;
             }
-            boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(shopField, this);
+            boughtCard = board.getUpgradeShop().attemptBuyCardFromShop(card, this);
             if (boughtCard != null) {
                 System.out.println("Player: \"" + name + "\" bought: \"" + boughtCard.getDisplayName() + "\".");
                 addUpgradeCard(boughtCard, gameController);

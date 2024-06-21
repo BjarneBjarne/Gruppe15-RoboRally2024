@@ -37,7 +37,7 @@ public class UpgradeShopTest{
         CardField upgradeCardField = upgradeShop.getAvailableCardsField(1);
         UpgradeCard upgradeCard = (UpgradeCard) upgradeCardField.getCard();
         p1.setEnergyCubes(upgradeCard.getPurchaseCost());
-        UpgradeCard result = upgradeShop.attemptBuyCardFromShop(upgradeCardField, p1);
+        UpgradeCard result = upgradeShop.attemptBuyCardFromShop(upgradeCardField.getCard(), p1);
         Assertions.assertNotNull(result);
         Assertions.assertEquals(0, p1.getEnergyCubes());
         Assertions.assertSame(upgradeCard, result);
