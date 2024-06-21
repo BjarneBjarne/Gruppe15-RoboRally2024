@@ -741,6 +741,11 @@ public class GameController implements Observer {
 
     }
 
+    /**
+     * Updates the players' upgrade cards from the server.
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     */
     private void updateUpgrading() {
         HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
         for (Player client : board.getPlayers()) {
@@ -751,17 +756,18 @@ public class GameController implements Observer {
             String[] permCardsStr = updatedPlayer.getPermCards();
             String[] tempCardsStr = updatedPlayer.getTempCards();
 
-            for (int i = 0; i < permCardsStr.length; i++) {
-                if (!permCardsStr[i].equals(null)) {
-                    client.getPermanentUpgradeCardField(i).setCard(UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass));
+            for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
+                if (permCardsStr[i] != null) {
+                    client.getPermanentUpgradeCardField(i).setCard(UpgradeCard
+                            .getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass));
                 }
             }
-            for (int i = 0; i < tempCardsStr.length; i++) {
-                if (!tempCardsStr[i].equals(null)) {
-                    client.getTemporaryUpgradeCardField(i).setCard(UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass));
+            for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
+                if (tempCardsStr[i] != null) {
+                    client.getTemporaryUpgradeCardField(i).setCard(UpgradeCard
+                            .getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass));
                 }
             }
-
         }
     }
 }
