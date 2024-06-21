@@ -679,10 +679,7 @@ public class GameController implements Observer {
         switch (board.getCurrentPhase()) {
             case INITIALIZATION -> updateInitialization();
             case PROGRAMMING -> updateProgramming();
-            case UPGRADE -> {
-
-                updateUpgrading();
-            }
+            case UPGRADE -> updateUpgrading();
         }
     }
 
