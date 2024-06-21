@@ -42,7 +42,7 @@ public class GameController {
      * 
      * @return ResponseEntity<Long> - the generated id of the game created
      */
-    @GetMapping
+    @PostMapping
     public ResponseEntity<Long> createGame() {
         Game game = new Game();
         game.setNrOfPlayers(0);

@@ -1,14 +1,11 @@
 package com.group15.roborally.client.controller;
 
-import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicReference;
 
-import com.group15.roborally.server.model.GamePhase;
 import static com.group15.roborally.server.model.GamePhase.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

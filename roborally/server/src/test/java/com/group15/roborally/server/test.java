@@ -129,9 +129,5 @@ public class test {
             System.out.println("No registers found");
             System.out.println();
         }
-
-
-
-
     }
 }
