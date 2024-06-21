@@ -149,7 +149,7 @@ public class NetworkingController extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
-        if (serverCommunication.getIsConnectedToServer()) {
+        if (serverCommunication.isConnectedToServer()) {
             if (infoMessage == null || infoMessage.isEmpty()) {
                 infoMessage = "Disconnected from server.";
             }
@@ -193,7 +193,7 @@ public class NetworkingController extends Subject implements Observer {
     private void startUpdateGameLoop(MultiplayerMenuView multiplayerMenuView) {
         Runnable lobbyUpdate = () -> {
             Game currentGameData = game;
-            if (serverCommunication.getIsConnectedToServer()) {
+            if (serverCommunication.isConnectedToServer()) {
                 if (currentGameData == null) return;
 
                 long gameId = currentGameData.getGameId();
@@ -269,7 +269,7 @@ public class NetworkingController extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateLobby(MultiplayerMenuView multiplayerMenuView, Game updatedGame, List<Player> updatedPlayers) {
-        if (serverCommunication.getIsConnectedToServer()) {
+        if (serverCommunication.isConnectedToServer()) {
             // Check if any change has happened
             /*boolean hasChanges =
                     isFirstUpdate ||
@@ -380,7 +380,7 @@ public class NetworkingController extends Subject implements Observer {
     @Override
     public void update(Subject subject) {
         // If the player was disconnected from the server.
-        if (!serverCommunication.getIsConnectedToServer()) {
+        if (!serverCommunication.isConnectedToServer()) {
             connectionToServerTimedOut();
         }
     }
