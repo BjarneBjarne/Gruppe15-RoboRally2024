@@ -12,6 +12,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.group15.roborally.server.model.Player;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 // A Spring Boot Test which tests the endpoints in the PlayerController
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -19,6 +23,12 @@ public class PlayerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    private Gson gson;
+
+    public PlayerControllerTest() {
+        gson = new GsonBuilder().serializeNulls().create();
+    }
 
     /**
      * Test the createPlayer endpoint in the PlayerController
@@ -40,9 +50,9 @@ public class PlayerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));
 
-        // mockMvc.perform(MockMvcRequestBuilders.post("/players").contentType(MediaType.APPLICATION_JSON_VALUE)
-        // .content("player1"))
-        // .andExpect(status().is(409));
+        mockMvc.perform(MockMvcRequestBuilders.post("/players").contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content("player1"))
+        .andExpect(status().is(409));
     }
 
     /**
@@ -55,7 +65,22 @@ public class PlayerControllerTest {
     @Test
     @DirtiesContext
     public void updatePlayer() throws Exception {
-        // TODO
+        mockMvc.perform(MockMvcRequestBuilders.post("/players").contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content("player1"));
+
+        Player player = new Player(1, 1, null, "player1", null, null, 0, null, null);
+        mockMvc.perform(MockMvcRequestBuilders.put("/players/1").contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(gson.toJson(player)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/players/2").contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(gson.toJson(player)))
+                .andExpect(status().isBadRequest());
+        
+        player.setPlayerName("player2");
+        mockMvc.perform(MockMvcRequestBuilders.put("/players/1").contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(gson.toJson(player)))
+                .andExpect(status().isOk());
     }
 
     /**
