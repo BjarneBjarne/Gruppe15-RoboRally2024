@@ -254,7 +254,7 @@ public class BoardView extends VBox implements ViewObserver {
                 case null -> {
                 }
                 default ->
-                        System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getName() + ". Check card and BoardView.setUpgradeShop().");
+                        System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getDisplayName() + ". Check card and BoardView.setUpgradeShop().");
             }
             cardFieldView.setStyle(
                     "-fx-background-color: transparent; " +

@@ -234,7 +234,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 useButton.setDisable(!field.getCanBeActivated());
                 useButton.setVisible(field.getHasActivateButton());
 
-                String cardName = card.getName();
+                String cardName = card.getDisplayName();
                 String cardImageName;
                 String cardFolderPath = "";
                 if (card instanceof CommandCard commandCard) {

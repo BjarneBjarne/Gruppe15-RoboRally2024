@@ -81,7 +81,7 @@ public abstract class UpgradeCard extends Card {
     }
 
     @Override
-    public String getName() {
+    public String getDisplayName() {
         return title;
     }
 
@@ -150,5 +150,10 @@ public abstract class UpgradeCard extends Card {
             e.printStackTrace();
         }
         return newUpgradeCard;
+    }
+
+    public UpgradeCards getEnum() {
+        String enumName = title.toUpperCase().replace(' ', '_');;
+        return UpgradeCards.valueOf(enumName);
     }
 }
