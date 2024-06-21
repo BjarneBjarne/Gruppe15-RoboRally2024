@@ -69,7 +69,7 @@ public class GameControllerTest {
                 .content("player1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                /* .andExpect(content().string(gson.toJson(expectedPlayer))) */;
+        /* .andExpect(content().string(gson.toJson(expectedPlayer))) */;
 
         mockMvc.perform(MockMvcRequestBuilders.post("/games/1/join").contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content("player2"))
@@ -152,5 +152,27 @@ public class GameControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/games/2"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DirtiesContext
+    public void orphanRemovalTest() throws Exception {
+        // mockMvc.perform(MockMvcRequestBuilders.post("/games"))
+        //         .andExpect(status().isOk())
+        //         .andExpect(content().string("1"));
+
+        // mockMvc.perform(MockMvcRequestBuilders.post("/games/1/join").contentType(MediaType.APPLICATION_JSON_VALUE)
+        //         .content("player1"))
+        //         .andExpect(status().isOk());
+
+        // mockMvc.perform(MockMvcRequestBuilders.post("/players/1/register/1").contentType(MediaType.APPLICATION_JSON_VALUE)
+        //         .content("player1"))
+        //         .andExpect(status().isOk());
+
+        // mockMvc.perform(MockMvcRequestBuilders.delete("/games/1"))
+        //         .andExpect(status().isOk());
+        
+        // mockMvc.perform(MockMvcRequestBuilders.post("/games"))
+        //         .andExpect(status().isOk());
     }
 }

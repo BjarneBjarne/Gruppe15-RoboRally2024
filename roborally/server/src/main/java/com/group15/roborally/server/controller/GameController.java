@@ -70,7 +70,7 @@ public class GameController {
      * 
      * @return ResponseEntity<Long> - the generated id of the player created
      */
-    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE) // TODO: change to post to players instead of join?
     public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
 
         Game game = gameRepository.findById(gameId).orElse(null);
