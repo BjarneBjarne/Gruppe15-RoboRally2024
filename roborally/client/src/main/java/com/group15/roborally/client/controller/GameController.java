@@ -104,6 +104,7 @@ public class GameController implements Observer {
      */
     public void startProgrammingPhase() {
         updateCurrentPhase(PROGRAMMING);
+        networkingController.setIsReady(0);
 
         board.setCurrentRegister(0);
         board.updatePriorityList();
@@ -135,6 +136,7 @@ public class GameController implements Observer {
      */
     public void finishedProgramming() {
         if (networkingController.getLocalPlayer().getIsReady() == 0) {
+            networkingController.setIsReady(1);
             if (DRAW_ON_EMPTY_REGISTER) {
                 localPlayer.fillRestOfRegisters();
             }
@@ -569,7 +571,9 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void setDirectionOptionsPane(Space space) {
-        space.updateSpace();
+        if (space != null) {
+            space.updateSpace();
+        }
         directionOptionsSpace = space;
         board.updateBoard();
     }
@@ -675,7 +679,10 @@ public class GameController implements Observer {
         switch (board.getCurrentPhase()) {
             case INITIALIZATION -> updateInitialization();
             case PROGRAMMING -> updateProgramming();
-            case UPGRADE -> updateUpgrading();
+            case UPGRADE -> {
+
+                updateUpgrading();
+            }
         }
     }
 
@@ -687,6 +694,7 @@ public class GameController implements Observer {
         boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
         if (allHaveSetSpawnPoint) {
             startProgrammingPhase();
+            setDirectionOptionsPane(null);
         }
 
         for (Player client : board.getPlayers()) {
@@ -714,9 +722,13 @@ public class GameController implements Observer {
                             board.updateBoard();
                         }
                     } else {
-                        if (client.equals(localPlayer) && networkingController.getLocalPlayer().getIsReady() == 0) {
-                            // Local player direction option
-                            setDirectionOptionsPane(clientSpawnPosition);
+                        if (client.equals(localPlayer)) {
+                            if (networkingController.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
+                                // Local player direction option
+                                setDirectionOptionsPane(clientSpawnPosition);
+                            } else {
+                                setDirectionOptionsPane(null);
+                            }
                         }
                     }
                 }

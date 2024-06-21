@@ -69,6 +69,8 @@ public class BoardView extends VBox implements ViewObserver {
     private final GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private HBox upgradeShopCardsHBox;
+    private Text otherPlayerTurnText;
+    private Button finishUpgradingButton;
     //private final Label statusLabel;
 
     /**
@@ -179,9 +181,7 @@ public class BoardView extends VBox implements ViewObserver {
      */
     public void initializeDirectionButton(Button button, BoardView boardView) {
         Heading direction = Heading.valueOf(button.getId());
-        button.setOnMouseClicked(_ -> {
-            gameController.chooseDirection(direction, boardView);
-        });
+        button.setOnMouseClicked(_ -> gameController.chooseDirection(direction, boardView));
     }
 
     /**
@@ -197,6 +197,7 @@ public class BoardView extends VBox implements ViewObserver {
     public void setUpgradeShopFXML(StackPane upgradeShopPane, StackPane upgradeShopTitelPane, StackPane upgradeShopMainPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
         this.upgradeShopPane = upgradeShopPane;
         this.upgradeShopCardsHBox = upgradeShopCardsHBox;
+        this.finishUpgradingButton = finishUpgradingButton;
 
         mainBoardPane.getChildren().add(upgradeShopPane);
 
@@ -214,7 +215,8 @@ public class BoardView extends VBox implements ViewObserver {
 
             // Button text
             Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
-            Text buttonText = getOtherPlayerTurnText(textFont, "Finish Upgrading");
+            Text buttonText = getOtherPlayerTurnText(textFont);
+            buttonText.setText("Finish Upgrading");
             finishUpgradingButton.setGraphic(buttonText);
         }
 
@@ -226,6 +228,10 @@ public class BoardView extends VBox implements ViewObserver {
                 "-fx-background-color: rgba(0,0,0,.5); " +
                         "-fx-background-radius: 15px"
         );
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
+        otherPlayerTurnText = getOtherPlayerTurnText(textFont);
+        this.upgradeShopPane.getChildren().add(otherPlayerTurnText);
+        otherPlayerTurnText.setMouseTransparent(true);
     }
 
     /**
@@ -240,8 +246,7 @@ public class BoardView extends VBox implements ViewObserver {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
-            boolean localPlayersTurn = gameController.getPlayerUpgrading().equals(gameController.getLocalPlayer());
-            cardFieldView.setDisable(!localPlayersTurn);
+            boolean localPlayersTurn = gameController.getLocalPlayer().equals(gameController.getPlayerUpgrading());
             upgradeShopCardsHBox.getChildren().add(cardFieldView);
             cardFieldView.setAlignment(Pos.CENTER);
             switch (cardField.getCard()) {
@@ -258,25 +263,28 @@ public class BoardView extends VBox implements ViewObserver {
                             "-fx-border-width: 2px 2px 2px 2px;" +
                             "-fx-border-radius: 5"
             );
+
             if (!localPlayersTurn) {
-                Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
-                Text otherPlayerTurnText = getOtherPlayerTurnText(textFont, gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
-                this.upgradeShopPane.getChildren().add(otherPlayerTurnText);
+                if (gameController.getPlayerUpgrading() != null) {
+                    otherPlayerTurnText.setText(gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
+                }
             }
-            //cardFieldView.setStyle("-fx-background-color: transparent; -fx-border-color: black; -fx-border-width: 2px;");
+            cardFieldView.setDisable(!localPlayersTurn);
+            otherPlayerTurnText.setVisible(!localPlayersTurn);
+            finishUpgradingButton.setVisible(localPlayersTurn);
+
             GridPane.setHalignment(cardFieldView, HPos.CENTER);
             GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
         }
     }
 
-    private @NotNull Text getOtherPlayerTurnText(Font textFont, String text) {
+    private @NotNull Text getOtherPlayerTurnText(Font textFont) {
         Text otherPlayerTurnText = new Text();
         otherPlayerTurnText.setFont(textFont);
         otherPlayerTurnText.setFill(Color.WHITE);
         otherPlayerTurnText.setStroke(Color.BLACK);
         otherPlayerTurnText.setStrokeWidth(2);
         otherPlayerTurnText.setStrokeType(StrokeType.OUTSIDE);
-        otherPlayerTurnText.setText(text);
         otherPlayerTurnText.setTextAlignment(TextAlignment.CENTER);
         return otherPlayerTurnText;
     }
