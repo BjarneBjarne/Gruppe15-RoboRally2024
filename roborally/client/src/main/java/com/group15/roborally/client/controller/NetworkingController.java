@@ -33,8 +33,8 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
  */
 public class NetworkingController extends Subject implements Observer {
     private final AppController appController;
-    //private final ServerCommunication serverCommunication = new ServerCommunication("http://localhost:8080"); // Local host
-    private final ServerCommunication serverCommunication = new ServerCommunication("http://129.151.221.13:8080/"); // Remote server
+    private final ServerCommunication serverCommunication = new ServerCommunication();
+
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
     private final Random random = new Random();
@@ -63,7 +63,7 @@ public class NetworkingController extends Subject implements Observer {
     public void tryCreateAndJoinGame(MultiplayerMenuView multiplayerMenuView, String playerName) {
         appController.setInfoText("Creating new game...");
         AtomicLong gameId = new AtomicLong();
-        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame()), random.nextInt(125, 500)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(multiplayerMenuView.getServerURLInput())), random.nextInt(125, 500)), () -> {
             if (gameId.get() != -1) {
                 runActionAndCallback(new ActionWithDelay(() -> {
                     appController.setInfoText("Successfully created new game!");
@@ -91,7 +91,7 @@ public class NetworkingController extends Subject implements Observer {
     public void tryJoinGameWithGameID(MultiplayerMenuView multiplayerMenuView, long gameId, String playerName) {
         appController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
-        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(gameId, playerName)), random.nextInt(125, 500)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(multiplayerMenuView.getServerURLInput(), gameId, playerName)), random.nextInt(125, 500)), () -> {
             if (player.get() != null) {
                 runActionAndCallback(new ActionWithDelay(() -> {
                     appController.setInfoText("Successfully joined game!");
@@ -177,11 +177,9 @@ public class NetworkingController extends Subject implements Observer {
         List<Player> players = serverCommunication.getPlayers(gameId);
         hasStartedGameLocally = false;
         this.localPlayer = localPlayer;
-        if (localPlayer.getPlayerId() == game.getHostId()) {
-            this.isHost = true;
-        }
+        this.isHost = localPlayer.getPlayerId() == game.getHostId();
         updateGameData(game, players);
-        multiplayerMenuView.setupLobby(this, game, players, localPlayer, appController.getCourses(), isHost);
+        multiplayerMenuView.setupLobby(this, game, players, localPlayer, appController.getCourses(), this.isHost);
         updateFromServer(multiplayerMenuView, game, players);
         startUpdateGameLoop(multiplayerMenuView);
     }

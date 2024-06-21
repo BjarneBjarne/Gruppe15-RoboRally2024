@@ -68,7 +68,7 @@ public class MainMenuView {
 
     private void createMultiplayerButton() {
         mainMenuButtonMultiplayer = (Button) mainMenu.lookup("#mainMenuButtonMultiplayer");
-        mainMenuButtonMultiplayer.setOnAction(event -> appController.initializeMultiplayerMenu());
+        mainMenuButtonMultiplayer.setOnAction(_ -> appController.initializeMultiplayerMenu());
         buttons[0] = mainMenuButtonMultiplayer;
 
         //newGame.setGraphic(createButtonTextPane(newGame.getText()));

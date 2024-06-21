@@ -8,7 +8,6 @@ import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
-import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -42,6 +41,8 @@ public class MultiplayerMenuView {
     StackPane multiplayerMenuPaneJoinOrHost;
     @FXML
     TextField multiplayerMenuTextFieldPlayerName;
+    @FXML
+    TextField multiplayerMenuTextFieldServerURL;
     @FXML
     TextField multiplayerMenuTextFieldGameID;
     @FXML
@@ -159,7 +160,7 @@ public class MultiplayerMenuView {
                 .map(Robots::getRobotName)
                 .toList();
         localPlayerRobotComboBox.getItems().addAll(robotNames);
-        localPlayerRobotComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+        localPlayerRobotComboBox.valueProperty().addListener((_, _, _) -> {
             String localRobotName = localPlayerRobotComboBox.getSelectionModel().getSelectedItem();
             playerSlots[0].setRobotByRobotName(localRobotName);
             networkingController.changeRobot(localRobotName);
@@ -167,11 +168,7 @@ public class MultiplayerMenuView {
         });
         if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
             if (stackPane.getChildren().getFirst() instanceof Text text) {
-                String buttonText = "Ready";
-                if (isHost) {
-                    buttonText = "Start";
-                }
-                text.setText(buttonText);
+                text.setText(isHost ? "Start" : "Ready");
             }
         }
 
@@ -186,7 +183,7 @@ public class MultiplayerMenuView {
         // Keep hand
         lobbySettingsKeepHand.getItems().addAll(OPTIONS_KEEP_HAND);
         lobbySettingsKeepHand.getSelectionModel().select(1);
-        lobbySettingsKeepHand.setOnAction(e -> {
+        lobbySettingsKeepHand.setOnAction(_ -> {
             String keepHandString = lobbySettingsKeepHand.getSelectionModel().getSelectedItem();
             KEEP_HAND = keepHandString.equals("Yes");
             updateUI(networkingController);
@@ -195,7 +192,7 @@ public class MultiplayerMenuView {
         // Draw on empty register
         lobbySettingsDrawOnEmpty.getItems().addAll(OPTIONS_DRAW_ON_EMPTY_REGISTER);
         lobbySettingsDrawOnEmpty.getSelectionModel().select(0);
-        lobbySettingsDrawOnEmpty.setOnAction(e -> {
+        lobbySettingsDrawOnEmpty.setOnAction(_ -> {
             String keepHandString = lobbySettingsDrawOnEmpty.getSelectionModel().getSelectedItem();
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI(networkingController);
@@ -277,7 +274,7 @@ public class MultiplayerMenuView {
                     newCourseVBox.setAlignment(Pos.CENTER);
 
                     // Course buttons OnMouseClicked
-                    courseButton.setOnMouseClicked(e -> {
+                    courseButton.setOnMouseClicked(_ -> {
                         if (isHost) {
                             networkingController.changeCourse(course);
                             lobbySelectedCourseImageView.setImage(course.getImage());
@@ -318,21 +315,21 @@ public class MultiplayerMenuView {
         }));
 
         // Join button
-        multiplayerMenuButtonJoin.setOnMouseClicked(e -> {
+        multiplayerMenuButtonJoin.setOnMouseClicked(_ -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank() && !multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
                 networkingController.tryJoinGameWithGameID(this, Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Host button
-        multiplayerMenuButtonHost.setOnMouseClicked(e -> {
+        multiplayerMenuButtonHost.setOnMouseClicked(_ -> {
             if (!multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
                 networkingController.tryCreateAndJoinGame(this, multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Ready/Start button
-        lobbyButtonStart.setOnMouseClicked(e -> {
+        lobbyButtonStart.setOnMouseClicked(_ -> {
             if (canReadyOrStart(networkingController)) {
                 if (isHost) {
                     networkingController.setGamePhase(GamePhase.INITIALIZATION);
@@ -351,7 +348,7 @@ public class MultiplayerMenuView {
      */
     public void setupBackButton(Runnable backMethod) {
         // Back button
-        multiplayerMenuButtonBack.setOnMouseClicked(e -> {
+        multiplayerMenuButtonBack.setOnMouseClicked(_ -> {
             backMethod.run();
         });
     }
@@ -409,6 +406,14 @@ public class MultiplayerMenuView {
         return true;
     }
 
+    public void setServerURLInput(String serverURL) {
+        multiplayerMenuTextFieldServerURL.setText(serverURL);
+    }
+
+    public String getServerURLInput() {
+        return multiplayerMenuTextFieldServerURL.getText();
+    }
+
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -417,9 +422,5 @@ public class MultiplayerMenuView {
         multiplayerMenuLobbyPane.setDisable(!showLobby);
         multiplayerMenuPaneJoinOrHost.setVisible(!showLobby);
         multiplayerMenuPaneJoinOrHost.setDisable(showLobby);
-    }
-
-    public Player getCurrentLocalPlayer() {
-        return localPlayer;
     }
 }

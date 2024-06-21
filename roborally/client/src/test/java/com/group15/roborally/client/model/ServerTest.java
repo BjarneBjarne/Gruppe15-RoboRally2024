@@ -18,20 +18,20 @@ public class ServerTest {
         Player p4 = new Player();
         p4.setPlayerName("Michael");
 
-        ServerCommunication sc = new ServerCommunication("http://localhost:8080");
+        ServerCommunication sc = new ServerCommunication();
 
         // Host game
         System.out.println("Creating game");
-        Long gameId = sc.createGame();
+        Long gameId = sc.createGame("http://localhost:8080");
         System.out.println("Game created with ID " + gameId);
         System.out.println();
 
         // Join game
         System.out.println("Players joining game");
-        p1 = sc.joinGame(gameId, p1.getPlayerName());
-        p2 = sc.joinGame(gameId, p2.getPlayerName());
-        p3 = sc.joinGame(gameId, p3.getPlayerName());
-        p4 = sc.joinGame(gameId, p4.getPlayerName());
+        p1 = sc.joinGame("http://localhost:8080", gameId, p1.getPlayerName());
+        p2 = sc.joinGame("http://localhost:8080", gameId, p2.getPlayerName());
+        p3 = sc.joinGame("http://localhost:8080", gameId, p3.getPlayerName());
+        p4 = sc.joinGame("http://localhost:8080", gameId, p4.getPlayerName());
         System.out.println("Players: " 
             + "\n- " + p1.getPlayerName() + " [" + p1.getPlayerId() + "], "
             + "\n- " + p2.getPlayerName() + " [" + p2.getPlayerId() + "], "

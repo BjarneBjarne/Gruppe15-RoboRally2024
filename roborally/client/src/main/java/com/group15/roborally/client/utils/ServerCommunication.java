@@ -12,7 +12,6 @@ import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class ServerCommunication extends Subject {
-    private final String baseUrl;
+    private String baseUrl;
     private final HttpHeaders headers;
 
     // Connection tracking
@@ -34,8 +33,7 @@ public class ServerCommunication extends Subject {
     @Getter
     private long timeSinceConnectionLost;
 
-    public ServerCommunication(String baseUrl) {
-        this.baseUrl = baseUrl;
+    public ServerCommunication() {
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -46,7 +44,8 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @return gameId - id of the created game
      */
-    public long createGame() {
+    public long createGame(String baseUrl) {
+        this.baseUrl = baseUrl;
         Long gameId = null;
         try {
             gameId = sendRequest(
@@ -67,7 +66,8 @@ public class ServerCommunication extends Subject {
      * @param playerName - name of the player joining
      * @return Player object of the player joining
      */
-    public Player joinGame(long gameId, String playerName) {
+    public Player joinGame(String baseUrl, long gameId, String playerName) {
+        this.baseUrl = baseUrl;
         Player player = null;
         try {
             player = sendRequest(
