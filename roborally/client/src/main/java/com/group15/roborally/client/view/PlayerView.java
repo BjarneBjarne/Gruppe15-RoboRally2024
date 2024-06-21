@@ -302,7 +302,7 @@ public class PlayerView extends Tab implements ViewObserver {
                 }
 
                 playerOptionsPanel.getChildren().clear();
-                if (commandOptionsInteraction.player == player) {
+                if (commandOptionsInteraction.getPlayer() == player) {
                     List<Command> options = commandOptionsInteraction.getOptions();
                     for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
