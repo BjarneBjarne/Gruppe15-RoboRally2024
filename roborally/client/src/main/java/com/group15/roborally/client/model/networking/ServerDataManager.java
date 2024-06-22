@@ -311,7 +311,7 @@ public class ServerDataManager extends Subject implements Observer {
         }
     }
     // In game
-    public void updateRegister(long playerId, String[] registerMoves, int turn) {
+    public void setPlayerRegister(long playerId, String[] registerMoves, int turn) {
         Player player = playerMap.get(playerId);
         serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
     }
@@ -322,19 +322,18 @@ public class ServerDataManager extends Subject implements Observer {
             serverCommunication.updatePlayer(localPlayer);
         }
     }
-    public void updateUpgradeShop(CardField[] availableCardsFields) {
+    public void setUpgradeShop(CardField[] availableCardsFields) {
         String[] availableCards = new String[availableCardsFields.length];
         for (int i = 0; i < availableCards.length; i++) {
             availableCards[i] = ((UpgradeCard)availableCardsFields[i].getCard()).getEnum().name();
         }
         serverCommunication.updateUpgradeShop(availableCards, this.game.getGameId());
     }
-    void updatePlayerUpgradeCards(String[] permCards, String[] tempCards) {
+    public void setPlayerUpgradeCards(String[] permCards, String[] tempCards) {
         localPlayer.setPermCards(permCards);
         localPlayer.setTempCards(tempCards);
         serverCommunication.updatePlayer(localPlayer);
     }
-
 
     // Getters
     public String[] getRegistersFromPlayer(long playerId) {
