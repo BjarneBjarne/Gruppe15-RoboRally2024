@@ -211,10 +211,8 @@ public class NetworkingController extends Subject implements Observer {
         }
 
         if (updatedPlayers != null) {
-            System.out.println();
-            for (Player player : updatedPlayers) {
-                System.out.println("Got " + player.getPlayerName() + " with id " + player.getPlayerId() + " with robot " + player.getRobotName());
-            }
+
+
             Platform.runLater(() -> {
                 // Check if host has disconnected
                 boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
