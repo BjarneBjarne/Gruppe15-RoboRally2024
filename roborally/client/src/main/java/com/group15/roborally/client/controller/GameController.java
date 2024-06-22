@@ -26,6 +26,7 @@ import com.group15.observer.Subject;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
+import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
@@ -52,7 +53,7 @@ public class GameController implements Observer {
     public final Board board;
     @Getter
     private final Player localPlayer;
-    private final NetworkingController networkingController;
+    private final ServerDataManager serverDataManager;
 
     @Getter
     private Space directionOptionsSpace;
@@ -75,11 +76,11 @@ public class GameController implements Observer {
      * Constructor method for GameController.
      * @param board The current board
      */
-    public GameController(@NotNull Board board, Player localPlayer, NetworkingController networkController) {
+    public GameController(@NotNull Board board, Player localPlayer, ServerDataManager networkController) {
         this.board = board;
         this.localPlayer = localPlayer;
-        this.networkingController = networkController;
-        this.networkingController.attach(this);
+        this.serverDataManager = networkController;
+        this.serverDataManager.attach(this);
     }
 
     /**
@@ -89,9 +90,9 @@ public class GameController implements Observer {
     public void startUpgradingPhase() {
         updateCurrentPhase(UPGRADE);
         board.updatePriorityList();
-        if (networkingController.isHost()) {
+        if (serverDataManager.isHost()) {
             board.getUpgradeShop().refillAvailableCards();
-            networkingController.updateUpgradeShop(board.getUpgradeShop().getAvailableCardsFields());
+            serverDataManager.updateUpgradeShop(board.getUpgradeShop().getAvailableCardsFields());
         }
 
         board.updateBoard();
@@ -102,7 +103,7 @@ public class GameController implements Observer {
      */
     public void startProgrammingPhase() {
         updateCurrentPhase(PROGRAMMING);
-        networkingController.setIsReady(0);
+        serverDataManager.setIsReady(0);
 
         board.setCurrentRegister(0);
         board.updatePriorityList();
@@ -133,27 +134,27 @@ public class GameController implements Observer {
      * Method for when the local player is done choosing their program and has pressed "ready".
      */
     public void finishedProgramming() {
-        if (NetworkingController.getLocalPlayer().getIsReady() == 0) {
-            networkingController.setIsReady(1);
+        if (ServerDataManager.getLocalPlayer().getIsReady() == 0) {
+            serverDataManager.setIsReady(1);
             if (DRAW_ON_EMPTY_REGISTER) {
                 localPlayer.fillRestOfRegisters();
             }
             turnCounter++;
-            networkingController.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
+            serverDataManager.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
             board.updateBoard();
-            networkingController.updateRegisters(this::startPlayerActivationPhase);
+            serverDataManager.updateRegisters(this::startPlayerActivationPhase);
         }
     }
 
     private void startPlayerActivationPhase() {
-        networkingController.setIsReady(0);
+        serverDataManager.setIsReady(0);
         updateCurrentPhase(PLAYER_ACTIVATION);
 
         for (Player player : board.getPlayers()) {
             if (player.equals(localPlayer)) {
                 continue;
             }
-            String[] registers = networkingController.getRegistersFromPlayer(player.getPlayerId());
+            String[] registers = serverDataManager.getRegistersFromPlayer(player.getPlayerId());
             player.setRegisters(registers); // Convert String to CardField
         }
 
@@ -447,7 +448,7 @@ public class GameController implements Observer {
     }
 
     public boolean getIsLocalPlayerReady() {
-        return NetworkingController.getLocalPlayer().getIsReady() == 1;
+        return ServerDataManager.getLocalPlayer().getIsReady() == 1;
     }
 
     /**
@@ -586,7 +587,7 @@ public class GameController implements Observer {
         if (board.getCurrentPhase() == INITIALIZATION) {
             if (space.getBoardElement() instanceof BE_SpawnPoint) {
                 if (space.getPlayer() == null) {
-                    networkingController.setPlayerSpawn(space, null);
+                    serverDataManager.setPlayerSpawn(space, null);
                 }
             }
         }
@@ -606,8 +607,8 @@ public class GameController implements Observer {
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == INITIALIZATION) {
             localPlayer.setHeading(direction);
-            networkingController.setPlayerSpawn(localPlayer.getSpace(), direction.name());
-            networkingController.setIsReady(1);
+            serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
+            serverDataManager.setIsReady(1);
         } else {
             currentPlayerInteraction.getPlayer().setHeading(direction);
             currentPlayerInteraction.interactionFinished();
@@ -619,8 +620,8 @@ public class GameController implements Observer {
      * @param phase The GamePhase to switch to.
      */
     public void updateCurrentPhase(GamePhase phase) {
-        if (networkingController.isHost()) {
-            networkingController.updatePhase(phase);
+        if (serverDataManager.isHost()) {
+            serverDataManager.updatePhase(phase);
         }
         board.setCurrentPhase(phase);
     }
@@ -645,36 +646,36 @@ public class GameController implements Observer {
                 tempCards[i] = card.getEnum().name();
         }
 
-        networkingController.updatePlayerUpgradeCards(permCards, tempCards);
-        networkingController.setIsReady(1);
+        serverDataManager.updatePlayerUpgradeCards(permCards, tempCards);
+        serverDataManager.setIsReady(1);
     }
 
     // Updates from server
     @Override
     public void update(Subject subject) {
-        if (subject.equals(networkingController)) {
+        if (subject.equals(serverDataManager)) {
             // Updating data
-            List<NetworkedDataTypes> changedData = NetworkingController.getChangedData();
+            List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
 
             if (changedData.contains(NetworkedDataTypes.GAME)) {
-                latestGameData = networkingController.getUpdatedGame();
+                latestGameData = serverDataManager.getUpdatedGame();
             }
             if (changedData.contains(NetworkedDataTypes.PLAYERS)) {
-                latestPlayerData = networkingController.getUpdatedPlayerMap();
+                latestPlayerData = serverDataManager.getUpdatedPlayerMap();
             }
             if (changedData.contains(NetworkedDataTypes.GAME)) {
-                latestUpgradeShopData = networkingController.getUpdatedUpgradeShop();
+                latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
             }
 
             if (latestGameData == null || latestPlayerData == null) return;
 
-            HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
+            HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = serverDataManager.getUpdatedPlayerMap();
             for (Player client : board.getPlayers()) {
                 com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
                 if (updatedPlayer == null) {
                     // Player disconnected.
                     // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
-                    networkingController.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
+                    serverDataManager.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
                 }
             }
 
@@ -726,7 +727,7 @@ public class GameController implements Observer {
                         } else {
                             // Local player direction options
                             if (client.equals(localPlayer)) {
-                                if (NetworkingController.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
+                                if (ServerDataManager.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
                                     // Local player direction option
                                     setDirectionOptionsPane(clientSpawnPosition);
                                 } else {
@@ -756,7 +757,7 @@ public class GameController implements Observer {
      */
     private void updateUpgrading() {
         // Updating players upgrade cards.
-        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
+        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = serverDataManager.getUpdatedPlayerMap();
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
             if (updatedPlayer == null)

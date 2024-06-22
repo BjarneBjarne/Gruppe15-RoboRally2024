@@ -3,7 +3,7 @@ package com.group15.roborally.client.view;
 import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.controller.AppController;
-import com.group15.roborally.client.controller.NetworkingController;
+import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.Robots;
@@ -39,7 +39,7 @@ import static com.group15.roborally.client.BoardOptions.*;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class MultiplayerMenuView implements Observer {
-    private NetworkingController networkingController;
+    private ServerDataManager serverDataManager;
 
     @FXML
     Button multiplayerMenuButtonBack;
@@ -94,9 +94,9 @@ public class MultiplayerMenuView implements Observer {
 
     private boolean hasBeenSetup = false;
 
-    public void setControllers(NetworkingController networkingController) {
-        this.networkingController = networkingController;
-        this.networkingController.attach(this);
+    public void setControllers(ServerDataManager serverDataManager) {
+        this.serverDataManager = serverDataManager;
+        this.serverDataManager.attach(this);
     }
 
     /**
@@ -128,7 +128,7 @@ public class MultiplayerMenuView implements Observer {
             lobbyTextGameID.setText("Game ID: " + updatedGame.getGameId());
             // If the game had changes, the player gets set to not ready.
             if (updatedGame.hasChanges(this.game)) {
-                networkingController.setIsReady(0);
+                serverDataManager.setIsReady(0);
             }
             // Update selected course if it changed
             if (updatedGame.getCourseName() != null && !updatedGame.getCourseName().isBlank() && (this.selectedCourse == null || !updatedGame.getCourseName().equals(this.selectedCourse.getCourseName()))) {
@@ -154,7 +154,7 @@ public class MultiplayerMenuView implements Observer {
             int slotIndex = 1;
             for (Player player : updatedPlayers.values()) {
                 LobbyPlayerSlot playerSlot = playerSlots[slotIndex];
-                boolean isLocalPlayer = player.getPlayerId() == NetworkingController.getLocalPlayer().getPlayerId();
+                boolean isLocalPlayer = player.getPlayerId() == ServerDataManager.getLocalPlayer().getPlayerId();
                 if (isLocalPlayer) {
                     playerSlot = playerSlots[0];
                 }
@@ -179,7 +179,7 @@ public class MultiplayerMenuView implements Observer {
             if (updatedGame.getPhase() != GamePhase.LOBBY) {
                 if (!hasStartedGameLocally) {
                     hasStartedGameLocally = true;
-                    AppController.startGame(selectedCourse, players, NetworkingController.getLocalPlayer().getPlayerId());
+                    AppController.startGame(selectedCourse, players, ServerDataManager.getLocalPlayer().getPlayerId());
                 }
             }
         }
@@ -201,7 +201,7 @@ public class MultiplayerMenuView implements Observer {
         // Start/ready button
         if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
             if (stackPane.getChildren().getFirst() instanceof Text text) {
-                text.setText(networkingController.isHost() ? "Start" : "Ready");
+                text.setText(serverDataManager.isHost() ? "Start" : "Ready");
             }
         }
 
@@ -215,7 +215,7 @@ public class MultiplayerMenuView implements Observer {
         localPlayerRobotComboBox.valueProperty().addListener((_, _, _) -> {
             String localRobotName = localPlayerRobotComboBox.getSelectionModel().getSelectedItem();
             playerSlots[0].setRobotByRobotName(localRobotName);
-            networkingController.changeRobot(localRobotName);
+            serverDataManager.changeRobot(localRobotName);
             updateUI();
         });
 
@@ -325,15 +325,15 @@ public class MultiplayerMenuView implements Observer {
 
                     // Course buttons OnMouseClicked
                     courseButton.setOnMouseClicked(_ -> {
-                        if (networkingController.isHost()) {
-                            networkingController.changeCourse(course);
+                        if (serverDataManager.isHost()) {
+                            serverDataManager.changeCourse(course);
                             this.selectedCourse = course;
                             lobbySelectedCourseImageView.setImage(course.getImage());
                             lobbySelectedCourseText.setText(course.getCourseName().toUpperCase());
                             updateUI();
                         }
                     });
-                    courseButton.setDisable(!networkingController.isHost());
+                    courseButton.setDisable(!serverDataManager.isHost());
                     lobbyCoursesVBox.getChildren().add(newCourseVBox);
                 }
             } else {
@@ -371,27 +371,27 @@ public class MultiplayerMenuView implements Observer {
         // Join button
         multiplayerMenuButtonJoin.setOnMouseClicked(_ -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank() && !multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
-                networkingController.tryJoinGameWithGameID(multiplayerMenuTextFieldServerURL.getText(), Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
+                serverDataManager.tryJoinGameWithGameID(multiplayerMenuTextFieldServerURL.getText(), Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Host button
         multiplayerMenuButtonHost.setOnMouseClicked(_ -> {
             if (!multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
-                networkingController.tryCreateAndJoinGame(multiplayerMenuTextFieldServerURL.getText(), multiplayerMenuTextFieldPlayerName.getText());
+                serverDataManager.tryCreateAndJoinGame(multiplayerMenuTextFieldServerURL.getText(), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Ready/Start button
         lobbyButtonStart.setOnMouseClicked(_ -> {
             if (canReadyOrStart()) {
-                if (networkingController.isHost()) {
-                    networkingController.setGamePhase(GamePhase.INITIALIZATION);
+                if (serverDataManager.isHost()) {
+                    serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
                 } else {
                     // Toggling whether the player is ready.
-                    int isReady = NetworkingController.getLocalPlayer().getIsReady() == 0 ? 1 : 0;
-                    NetworkingController.getLocalPlayer().setIsReady(isReady);
-                    networkingController.setIsReady(isReady);
+                    int isReady = ServerDataManager.getLocalPlayer().getIsReady() == 0 ? 1 : 0;
+                    ServerDataManager.getLocalPlayer().setIsReady(isReady);
+                    serverDataManager.setIsReady(isReady);
                 }
             }
         });
@@ -434,18 +434,18 @@ public class MultiplayerMenuView implements Observer {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean canReadyOrStart() {
-        if (NetworkingController.getLocalPlayer().getPlayerName() == null || NetworkingController.getLocalPlayer().getRobotName() == null || NetworkingController.getLocalPlayer().getPlayerName().isBlank() || NetworkingController.getLocalPlayer().getRobotName().isBlank() || Robots.getRobotByName(NetworkingController.getLocalPlayer().getRobotName()) == null) return false;
+        if (ServerDataManager.getLocalPlayer().getPlayerName() == null || ServerDataManager.getLocalPlayer().getRobotName() == null || ServerDataManager.getLocalPlayer().getPlayerName().isBlank() || ServerDataManager.getLocalPlayer().getRobotName().isBlank() || Robots.getRobotByName(ServerDataManager.getLocalPlayer().getRobotName()) == null) return false;
         for (Player player : this.players.values()) {
-            if (player.getPlayerId() != NetworkingController.getLocalPlayer().getPlayerId()) {
-                if (NetworkingController.getLocalPlayer().getPlayerName().equals(player.getPlayerName())) return false;
-                if (NetworkingController.getLocalPlayer().getRobotName().equals(player.getRobotName())) return false;
+            if (player.getPlayerId() != ServerDataManager.getLocalPlayer().getPlayerId()) {
+                if (ServerDataManager.getLocalPlayer().getPlayerName().equals(player.getPlayerName())) return false;
+                if (ServerDataManager.getLocalPlayer().getRobotName().equals(player.getRobotName())) return false;
             }
         }
-        if (networkingController.isHost()) {
+        if (serverDataManager.isHost()) {
             if (courses.isEmpty()) return false;
             if (selectedCourse == null) return false;
             for (Player player : this.players.values()) {
-                if (player.getPlayerId() != NetworkingController.getLocalPlayer().getPlayerId()) {
+                if (player.getPlayerId() != ServerDataManager.getLocalPlayer().getPlayerId()) {
                     if (player.getIsReady() == 0) {
                         return false;
                     }
@@ -475,20 +475,20 @@ public class MultiplayerMenuView implements Observer {
 
     @Override
     public void update(Subject subject) {
-        if (subject == networkingController) {
+        if (subject == serverDataManager) {
             // Setting up the lobby
-            if (networkingController.isConnectedToGame()) {
+            if (serverDataManager.isConnectedToGame()) {
                 if (!hasBeenSetup) {
                     setupLobby();
                 }
                 // Updating lobby
                 Game updatedGame = null;
                 HashMap<Long, Player> updatedPlayers = null;
-                if (NetworkingController.getChangedData().contains(NetworkedDataTypes.GAME)) {
-                    updatedGame = networkingController.getUpdatedGame();
+                if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.GAME)) {
+                    updatedGame = serverDataManager.getUpdatedGame();
                 }
-                if (NetworkingController.getChangedData().contains(NetworkedDataTypes.PLAYERS)) {
-                    updatedPlayers = networkingController.getUpdatedPlayerMap();
+                if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.PLAYERS)) {
+                    updatedPlayers = serverDataManager.getUpdatedPlayerMap();
                 }
 
                 updateLobby(updatedGame, updatedPlayers);
