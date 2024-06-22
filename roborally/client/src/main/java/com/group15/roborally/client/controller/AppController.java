@@ -109,6 +109,7 @@ public class AppController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public static void startGame(CC_CourseData courseData, HashMap<Long, Player> players, long localPlayerId) {
+        System.out.println("Starting game...");
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
