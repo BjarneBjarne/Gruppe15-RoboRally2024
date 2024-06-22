@@ -103,38 +103,39 @@ public class MultiplayerMenuView {
         lobbyTextGameID.setText("Game ID: " + game.getGameId());
         playerSlots[0].setName(localPlayer.getPlayerName());
 
-        updateLobby(networkingController, game, players, localPlayer, null);
+        updateLobby(networkingController, game, players, null);
 
         updateUI(networkingController);
     }
 
-    public void updateLobby(NetworkingController networkingController, Game game, List<Player> players, Player localPlayer, CC_CourseData selectedCourse) {
-        this.localPlayer = localPlayer;
-
+    public void updateLobby(NetworkingController networkingController, Game updatedGame, List<Player> updatedPlayers, CC_CourseData updatedSelectedCourse) {
         // Course
-        if (selectedCourse != null) {
-            lobbySelectedCourseImageView.setImage(selectedCourse.getImage());
-            lobbySelectedCourseText.setText(selectedCourse.getCourseName().toUpperCase());
+        if (updatedSelectedCourse != null) {
+            lobbySelectedCourseImageView.setImage(updatedSelectedCourse.getImage());
+            lobbySelectedCourseText.setText(updatedSelectedCourse.getCourseName().toUpperCase());
         } else {
             lobbySelectedCourseImageView.setImage(null);
             lobbySelectedCourseText.setText("Selected course");
         }
 
         // Players
-        int slotIndexer = 1;
+        int slotIndex = 1;
         for (int playerIndex = 0; playerIndex < NO_OF_PLAYERS; playerIndex++) {
-            int slotIndex = slotIndexer;
-            boolean isLocalPlayer = players.get(playerIndex).getPlayerId() == localPlayer.getPlayerId();
+            Player player = updatedPlayers.get(playerIndex);
+            LobbyPlayerSlot playerSlot = playerSlots[slotIndex];
+
+            boolean isLocalPlayer = player.getPlayerId() == this.localPlayer.getPlayerId();
             if (isLocalPlayer) {
-                slotIndex = 0;
+                player = this.localPlayer;
+                playerSlot = playerSlots[0];
             }
-            playerSlots[slotIndex].setName(players.get(playerIndex).getPlayerName());
-            playerSlots[slotIndex].setRobotByRobotName(players.get(playerIndex).getRobotName());
-            boolean playerIsHost = players.get(playerIndex).getPlayerId() == game.getHostId();
-            playerSlots[slotIndex].setHostStarVisible(playerIsHost);
-            playerSlots[slotIndex].setReadyCheckVisible(players.get(playerIndex).getIsReady() == 1);
+            playerSlot.setName(player.getPlayerName());
+            playerSlot.setRobotByRobotName(player.getRobotName());
+            boolean playerIsHost = player.getPlayerId() == updatedGame.getHostId();
+            playerSlot.setHostStarVisible(playerIsHost);
+            playerSlot.setReadyCheckVisible(player.getIsReady() == 1);
             if (!isLocalPlayer) {
-                slotIndexer++;
+                slotIndex++;
             }
         }
         updateUI(networkingController);
