@@ -1,5 +1,6 @@
 package com.group15.roborally.server.controller;
 
+import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.PlayerRepository;
@@ -13,11 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.group15.roborally.server.model.Game;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 @RequestMapping("/players")
@@ -66,20 +66,38 @@ public class PlayerController {
             return ResponseEntity.badRequest().build();
         }
 
+        // If no players - ERROR
         Optional<List<Player>> players = playerRepository.findAllByGameId(player.getGameId());
         if (players.isEmpty()) {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.badRequest().build();
         }
 
-        for (Player p : players.get()) {
-            if (p.getPlayerId() != player.getPlayerId() && Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint())) {
-                return ResponseEntity.ok().build();
+        // Validate player property change
+        AtomicBoolean illegalPlayerProperty = new AtomicBoolean(false);
+
+        gameRepository.findById(player.getGameId()).ifPresent(game -> {
+            // When not in lobby
+            if (!game.getPhase().equals(GamePhase.LOBBY)) {
+                if (!isFreeSpace(player.getSpawnPoint(), players.get())) {
+                    illegalPlayerProperty.set(true);
+                }
             }
-        }
+        });
 
-        playerRepository.save(player);
+        if (!illegalPlayerProperty.get()) {
+            playerRepository.save(player);
+        }
 
         return ResponseEntity.ok().build();
+    }
+
+    private boolean isFreeSpace(int[] spaceToCheck, List<Player> players) {
+        for (Player p : players) {
+            if (Arrays.equals(p.getSpawnPoint(), spaceToCheck)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
