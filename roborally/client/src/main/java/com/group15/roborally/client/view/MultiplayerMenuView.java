@@ -173,16 +173,6 @@ public class MultiplayerMenuView implements Observer {
         if (updatedGame != null || updatedPlayers != null) {
             updateUI();
         }
-
-        if (updatedGame != null && updatedPlayers != null) {
-            // Check if game started
-            if (updatedGame.getPhase() != GamePhase.LOBBY) {
-                if (!hasStartedGameLocally) {
-                    hasStartedGameLocally = true;
-                    AppController.startGame(selectedCourse, players, ServerDataManager.getLocalPlayer().getPlayerId());
-                }
-            }
-        }
     }
 
     /**
@@ -387,6 +377,7 @@ public class MultiplayerMenuView implements Observer {
             if (canReadyOrStart()) {
                 if (serverDataManager.isHost()) {
                     serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
+                    startGame();
                 } else {
                     // Toggling whether the player is ready.
                     int isReady = ServerDataManager.getLocalPlayer().getIsReady() == 0 ? 1 : 0;
@@ -476,12 +467,12 @@ public class MultiplayerMenuView implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject == serverDataManager) {
-            // Setting up the lobby
             if (serverDataManager.isConnectedToGame()) {
+                // Setting up the lobby
                 if (!hasBeenSetup) {
                     setupLobby();
                 }
-                // Updating lobby
+                // Updating data
                 Game updatedGame = null;
                 HashMap<Long, Player> updatedPlayers = null;
                 if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.GAME)) {
@@ -491,12 +482,29 @@ public class MultiplayerMenuView implements Observer {
                     updatedPlayers = serverDataManager.getUpdatedPlayerMap();
                 }
 
+                // Updating lobby
                 updateLobby(updatedGame, updatedPlayers);
                 showLobby(true);
+
+                // Check if game started
+                if (this.game != null) {
+                    if (this.game.getPhase() != GamePhase.LOBBY) {
+                        if (this.players != null) {
+                            startGame();
+                        }
+                    }
+                }
             } else {
                 hasBeenSetup = false;
                 showLobby(false);
             }
+        }
+    }
+
+    private void startGame() {
+        if (!hasStartedGameLocally) {
+            hasStartedGameLocally = true;
+            AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
         }
     }
 }

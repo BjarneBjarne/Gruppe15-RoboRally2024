@@ -76,10 +76,10 @@ public class GameController implements Observer {
      * Constructor method for GameController.
      * @param board The current board
      */
-    public GameController(@NotNull Board board, Player localPlayer, ServerDataManager networkController) {
+    public GameController(@NotNull Board board, Player localPlayer, ServerDataManager serverDataManager) {
         this.board = board;
         this.localPlayer = localPlayer;
-        this.serverDataManager = networkController;
+        this.serverDataManager = serverDataManager;
         this.serverDataManager.attach(this);
     }
 
@@ -372,10 +372,10 @@ public class GameController implements Observer {
         } else if (board.getCurrentPhase() == BOARD_ACTIVATION) {
             currentPlayerInteraction = null;
             handleBoardElementActions();
-        }else if (board.getCurrentPhase() == PROGRAMMING) {
+        } else if (board.getCurrentPhase() == PROGRAMMING) {
             currentPlayerInteraction = null;
             board.getCurrentPlayer().stopRebooting();
-        }else {
+        } else {
             throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
         }
     }
