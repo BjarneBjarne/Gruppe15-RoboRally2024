@@ -1,7 +1,6 @@
 package com.group15.roborally.server.model;
 
 import java.util.Arrays;
-import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,15 +43,16 @@ public class Player/*  implements Serializable */ {
 
     /**
      * Compares two player objects.
-     * @param player The player at another point. Must have same playerId.
+     * @param otherPlayerState The player at another point.
      * @return Whether the player has had any variables changed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public boolean hasChanged(Player player) {
-        return  this.playerId != player.playerId ||
-                ((this.robotName != null || player.robotName != null) && !Objects.equals(this.robotName, player.robotName)) ||
-                ((this.playerName != null || player.playerName != null) && !Objects.equals(this.playerName, player.playerName)) ||
-                 this.isReady != player.isReady ||
-                 !Arrays.equals(this.spawnPoint, player.spawnPoint);
+    public boolean hasChanges(Player otherPlayerState) {
+        return  otherPlayerState == null ||
+                this.playerId != otherPlayerState.playerId ||
+                ((this.robotName != null || otherPlayerState.robotName != null) && !Objects.equals(this.robotName, otherPlayerState.robotName)) ||
+                ((this.playerName != null || otherPlayerState.playerName != null) && !Objects.equals(this.playerName, otherPlayerState.playerName)) ||
+                 this.isReady != otherPlayerState.isReady ||
+                 !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint);
     }
 }

@@ -25,6 +25,7 @@ import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_Controller;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.NoCoursesException;
+import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.view.InfoPaneView;
@@ -327,10 +328,10 @@ public class RoboRally extends Application {
      * @param gameController
      * @author Maximillian Bjørn Mortensen
      */
-    public void goToWinScreen(GameController gameController){
+    public void goToWinScreen(GameController gameController, Player winner) {
         root.getChildren().clear();
 
-        AnchorPane w = new WinScreenView().initialize(gameController, appController, this).getWinScreen();
+        AnchorPane w = new WinScreenView().initialize(gameController, appController, this, winner).getWinScreen();
 
         root.setCenter(w);
     }

@@ -28,9 +28,10 @@ import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
+import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.view.BoardView;
+import com.group15.roborally.server.model.Game;
 import javafx.animation.PauseTransition;
-import javafx.scene.image.Image;
 import javafx.util.Duration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -49,36 +50,33 @@ import static com.group15.roborally.client.BoardOptions.*;
  */
 public class GameController implements Observer {
     public final Board board;
-    private final Runnable gameOverMethod;
     @Getter
     private final Player localPlayer;
     private final NetworkingController networkingController;
 
     @Getter
     private Space directionOptionsSpace;
-    @Getter
-    private String winnerName;
-    @Getter
-    private Image winnerIMG;
 
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
     @Getter
     private PlayerInteraction currentPlayerInteraction = null;
 
-    //
     private int turnCounter;
     @Getter
     private Player playerUpgrading;
 
+    // Latest data
+    private Game latestGameData;
+    private HashMap<Long, com.group15.roborally.server.model.Player> latestPlayerData;
+    private String[] latestUpgradeShopData;
+
     /**
      * Constructor method for GameController.
      * @param board The current board
-     * @param gameOverMethod The method for calling game over.
      */
-    public GameController(@NotNull Board board, Player localPlayer, NetworkingController networkController, Runnable gameOverMethod) {
+    public GameController(@NotNull Board board, Player localPlayer, NetworkingController networkController) {
         this.board = board;
-        this.gameOverMethod = gameOverMethod;
         this.localPlayer = localPlayer;
         this.networkingController = networkController;
         this.networkingController.attach(this);
@@ -135,7 +133,7 @@ public class GameController implements Observer {
      * Method for when the local player is done choosing their program and has pressed "ready".
      */
     public void finishedProgramming() {
-        if (networkingController.getLocalPlayer().getIsReady() == 0) {
+        if (NetworkingController.getLocalPlayer().getIsReady() == 0) {
             networkingController.setIsReady(1);
             if (DRAW_ON_EMPTY_REGISTER) {
                 localPlayer.fillRestOfRegisters();
@@ -429,28 +427,27 @@ public class GameController implements Observer {
     }
 
     /**
-     * Sets the parameters as the winner
-     * @author Maximillian Bjørn Mortensen
-     */
-    public void setWinner(String winnerName, Image winnerIMG) {
-        this.winnerName = winnerName;
-        this.winnerIMG = winnerIMG;
-        gameOverMethod.run();
-    }
-
-    /**
      * Checks whether a player has reached the last checkpoint.
      * @param player The player who reached a checkpoint.
      * @param number The checkpoint number.
      */
     public void checkpointReached(Player player, int number) {
         if(number >= board.getNumberOfCheckpoints()){
-            setWinner(player.getName(), player.getCharImage());
+            setGameOver(player);
         }
     }
 
+    /**
+     * Calls gameOver() from the AppController.
+     * @param winner The player who won.
+     * @author Maximillian Bjørn Mortensen
+     */
+    public void setGameOver(Player winner) {
+        AppController.gameOver(winner);
+    }
+
     public boolean getIsLocalPlayerReady() {
-        return networkingController.getLocalPlayer().getIsReady() == 1;
+        return NetworkingController.getLocalPlayer().getIsReady() == 1;
     }
 
     /**
@@ -656,10 +653,24 @@ public class GameController implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject.equals(networkingController)) {
-            HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayers = networkingController.getPlayerMap();
+            // Updating data
+            List<NetworkedDataTypes> changedData = NetworkingController.getChangedData();
 
+            if (changedData.contains(NetworkedDataTypes.GAME)) {
+                latestGameData = networkingController.getUpdatedGame();
+            }
+            if (changedData.contains(NetworkedDataTypes.PLAYERS)) {
+                latestPlayerData = networkingController.getUpdatedPlayerMap();
+            }
+            if (changedData.contains(NetworkedDataTypes.GAME)) {
+                latestUpgradeShopData = networkingController.getUpdatedUpgradeShop();
+            }
+
+            if (latestGameData == null || latestPlayerData == null) return;
+
+            HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
             for (Player client : board.getPlayers()) {
-                com.group15.roborally.server.model.Player updatedPlayer = updatedPlayers.get(client.getPlayerId());
+                com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
                 if (updatedPlayer == null) {
                     // Player disconnected.
                     // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
@@ -667,35 +678,24 @@ public class GameController implements Observer {
                 }
             }
 
-            // Update current GamePhase
-            updateForGamePhase();
-        }
-    }
-
-    /**
-     * Updates logic for the GamePhase locally from the data received from the server.
-     */
-    public void updateForGamePhase() {
-        switch (board.getCurrentPhase()) {
-            case INITIALIZATION -> updateInitialization();
-            case PROGRAMMING -> updateProgramming();
-            case UPGRADE -> updateUpgrading();
+            // Updates logic for the current GamePhase locally from the data received from the server.
+            switch (board.getCurrentPhase()) {
+                case INITIALIZATION -> updateInitialization();
+                case PROGRAMMING -> updateProgramming();
+                case UPGRADE -> {
+                    if (latestUpgradeShopData != null) updateUpgrading();
+                }
+            }
         }
     }
 
     private void updateInitialization() {
-        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getPlayerMap();
-        List<com.group15.roborally.server.model.Player> updatedPlayers = networkingController.getPlayers();
-
         // Check if all players have set their spawn point
-        boolean allHaveSetSpawnPoint = updatedPlayers.stream().allMatch(p -> p.getSpawnDirection() != null && !p.getSpawnDirection().isBlank());
-        if (allHaveSetSpawnPoint) {
-            startProgrammingPhase();
-            setDirectionOptionsPane(null);
-        }
+
+        boolean allHaveSetSpawnPoint = true;
 
         for (Player client : board.getPlayers()) {
-            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
+            com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null) {
                 // Player disconnected.
                 continue;
@@ -703,33 +703,45 @@ public class GameController implements Observer {
 
             // Position
             int[] clientSpawnPoint = updatedPlayer.getSpawnPoint();
-            if (clientSpawnPoint != null) {
-                Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
-                if (clientSpawnPosition != null) {
-                    client.setSpace(clientSpawnPosition);
-                    // Heading
-                    String playerSpawnDirection = updatedPlayer.getSpawnDirection();
-                    if (playerSpawnDirection != null && !playerSpawnDirection.isBlank() && client.getSpawnPoint() == null) {
-                        // Setting spawnPoint
-                        Heading clientHeading = Heading.valueOf(playerSpawnDirection);
-                        client.setHeading(clientHeading);
-                        client.setSpawn(clientSpawnPosition);
-                        if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
-                            spawnPoint.setColor(client);
-                            board.updateBoard();
-                        }
-                    } else {
-                        if (client.equals(localPlayer)) {
-                            if (networkingController.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
-                                // Local player direction option
-                                setDirectionOptionsPane(clientSpawnPosition);
-                            } else {
-                                setDirectionOptionsPane(null);
+            if (client.getSpawnPoint() == null) {
+                allHaveSetSpawnPoint = false;
+                if (clientSpawnPoint != null) {
+                    Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
+                    if (clientSpawnPosition != null) {
+                        // Selected position
+                        client.setSpace(clientSpawnPosition);
+
+                        // Heading
+                        String playerSpawnDirection = updatedPlayer.getSpawnDirection();
+                        if (playerSpawnDirection != null && !playerSpawnDirection.isBlank()) {
+
+                            // Setting spawnPoint
+                            Heading clientHeading = Heading.valueOf(playerSpawnDirection);
+                            client.setHeading(clientHeading);
+                            client.setSpawn(clientSpawnPosition);
+                            if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                                spawnPoint.setColor(client);
+                                board.updateBoard();
+                            }
+                        } else {
+                            // Local player direction options
+                            if (client.equals(localPlayer)) {
+                                if (NetworkingController.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
+                                    // Local player direction option
+                                    setDirectionOptionsPane(clientSpawnPosition);
+                                } else {
+                                    setDirectionOptionsPane(null);
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+
+        if (allHaveSetSpawnPoint) {
+            startProgrammingPhase();
+            setDirectionOptionsPane(null);
         }
     }
 
@@ -744,7 +756,7 @@ public class GameController implements Observer {
      */
     private void updateUpgrading() {
         // Updating players upgrade cards.
-        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getPlayerMap();
+        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = networkingController.getUpdatedPlayerMap();
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
             if (updatedPlayer == null)
@@ -784,8 +796,7 @@ public class GameController implements Observer {
             }
         }
 
-        String[] availableCards = networkingController.getUpgradeShop();
-        board.getUpgradeShop().setAvailableCards(availableCards);
+        board.getUpgradeShop().setAvailableCards(latestUpgradeShopData);
 
         // Finish check
         if (upgradeTurn >= NO_OF_PLAYERS) {
