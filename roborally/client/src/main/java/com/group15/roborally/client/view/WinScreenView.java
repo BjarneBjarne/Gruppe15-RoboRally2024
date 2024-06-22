@@ -3,6 +3,7 @@ package com.group15.roborally.client.view;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.controller.GameController;
+import com.group15.roborally.client.model.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -48,7 +49,7 @@ public class WinScreenView {
      * @author Maximillian Bjørn Mortensen
      */
     @FXML
-    public WinScreenView initialize(GameController gameController, AppController appController, RoboRally roboRally) {
+    public WinScreenView initialize(GameController gameController, AppController appController, RoboRally roboRally, Player winner) {
         try {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("WinScreen.fxml"));
             wincon = loader.load();
@@ -65,11 +66,11 @@ public class WinScreenView {
 
         winnerText1 = (Text) wincon.lookup("#winnerText1");
         winnerText2 = (Text) wincon.lookup("#winnerText2");
-        winnerText1.setText(winnerText1.getText() + gameController.getWinnerName());
-        winnerText2.setText(winnerText2.getText() + gameController.getWinnerName());
+        winnerText1.setText(winnerText1.getText() + winner.getName());
+        winnerText2.setText(winnerText2.getText() + winner.getName());
 
         playerIMG = (ImageView) wincon.lookup("#playerIMG");
-        playerIMG.setImage(gameController.getWinnerIMG());
+        playerIMG.setImage(winner.getCharImage());
 
         return this;
     }

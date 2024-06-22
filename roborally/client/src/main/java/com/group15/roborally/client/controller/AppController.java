@@ -24,6 +24,8 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.group15.observer.Observer;
+import com.group15.observer.Subject;
 import com.group15.roborally.client.view.InfoPaneView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.model.*;
@@ -62,25 +64,26 @@ import static com.group15.roborally.client.BoardOptions.*;
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class AppController {
-    private final RoboRally roboRally;
+public class AppController implements Observer {
+    private static RoboRally roboRally;
     public boolean isCourseCreatorOpen = false;
     @Setter
-    private GameController gameController;
+    private static GameController gameController;
     @Getter
-    private List<CC_CourseData> courses = new ArrayList<>();
+    private static List<CC_CourseData> courses = new ArrayList<>();
 
-    private final NetworkingController networkingController = new NetworkingController(this);
+    private static final NetworkingController networkingController = new NetworkingController();
 
     private MultiplayerMenuView multiplayerMenuView;
-    private final InfoPaneView infoPane;
+    private static InfoPaneView infoPane;
 
     public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
-        this.roboRally = roboRally;
-        this.infoPane = infoPane;
+        AppController.roboRally = roboRally;
+        AppController.infoPane = infoPane;
+        networkingController.attach(this);
     }
 
-    public void setInfoText(String text) {
+    public static void setInfoText(String text) {
         infoPane.setInfoText(text);
     }
 
@@ -92,38 +95,32 @@ public class AppController {
         infoPane.setInfoText("Setting up multiplayer...");
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView();
+            multiplayerMenuView.setControllers(networkingController);
             roboRally.createMultiplayerMenu(multiplayerMenuView);
-            multiplayerMenuView.setupMenuUI(networkingController);
+            multiplayerMenuView.setupMenuUI();
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
             infoPane.setInfoText("");
             multiplayerMenuView.setServerURLInput("http://localhost:8080");
         });
     }
 
-    public void showLobby(boolean showLobby) {
-        multiplayerMenuView.showLobby(showLobby);
-    }
-
-    public void leftGame() {
-        roboRally.goToMainMenu();
-    }
-
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void startGame(CC_CourseData courseData, List<Player> players, Player localPlayer) {
+    public static void startGame(CC_CourseData courseData, HashMap<Long, Player> players, long localPlayerId) {
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
 
-        // Adding players
         com.group15.roborally.client.model.Player localClient = null;
-        for (Player player : players) {
+
+        // Adding players
+        for (Player player : players.values()) {
             com.group15.roborally.client.model.Player newClient = new com.group15.roborally.client.model.Player(player.getPlayerId(),
                     player.getPlayerName(),
                     board,
                     Objects.requireNonNull(Robots.getRobotByName(player.getRobotName())));
 
-            if (player.getPlayerId() == localPlayer.getPlayerId()) {
+            if (player.getPlayerId() == localPlayerId) {
                 localClient = newClient;
             }
 
@@ -132,7 +129,7 @@ public class AppController {
         }
 
         // GameController
-        gameController = new GameController(board, localClient, networkingController, this::gameOver);
+        gameController = new GameController(board, localClient, networkingController);
         //board.setCurrentPlayer(board.getPlayer(0));
         roboRally.createBoardView(gameController);
     }
@@ -178,7 +175,7 @@ public class AppController {
         }
 
         // GameController
-        gameController = new GameController(newBoard, null, networkingController, this::gameOver);
+        gameController = new GameController(newBoard, null, networkingController);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
         //newBoard.setCurrentPhase(GamePhase.PROGRAMMING);
 
@@ -223,8 +220,8 @@ public class AppController {
      * sets ends game
      * @author Maximillian Bjørn Mortensen
      */
-    public void gameOver() {
-        roboRally.goToWinScreen(gameController);
+    public static void gameOver(com.group15.roborally.client.model.Player winner) {
+        roboRally.goToWinScreen(gameController, winner);
     }
 
     /**
@@ -295,5 +292,14 @@ public class AppController {
 
     public void disconnectFromServer(String s, int i) {
         networkingController.disconnectFromServer(s, i);
+    }
+
+    @Override
+    public void update(Subject subject) {
+        if (subject.equals(networkingController)) {
+            if (!networkingController.isConnectedToGame) {
+                roboRally.goToMainMenu();
+            }
+        }
     }
 }

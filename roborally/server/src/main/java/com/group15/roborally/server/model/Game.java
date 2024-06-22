@@ -36,19 +36,22 @@ public class Game {
     
     /**
      * Compares whether the game has had variables changed between "this" and the argument game.
-     * @param game The game at another point. Must have same gameId.
+     * @param otherGameState The game at another point. Must have same gameId.
      * @return Whether the game has had any variables changed.
      * @throws IllegalArgumentException If the argument game has another gameId than this.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public boolean hasChanged(Game game) throws IllegalArgumentException {
-        if (this.gameId != game.gameId) {
-            throw new IllegalArgumentException("This gameId is: \"" + this.gameId + "\". Argument game has gameId: \"" + game.gameId + "\". Can't compare two different games.");
+    public boolean hasChanges(Game otherGameState) throws IllegalArgumentException {
+        if (otherGameState == null) {
+            return true;
         }
-        return  this.turnId != game.turnId ||
-                this.hostId != game.hostId ||
-                this.nrOfPlayers != game.nrOfPlayers ||
-                this.phase != game.phase ||
-                ((this.courseName != null || game.courseName != null) && !Objects.equals(this.courseName, game.courseName));
+        if (this.gameId != otherGameState.gameId) {
+            throw new IllegalArgumentException("This gameId is: \"" + this.gameId + "\". Argument game has gameId: \"" + otherGameState.gameId + "\". Can't compare two different games.");
+        }
+        return  this.turnId != otherGameState.turnId ||
+                this.hostId != otherGameState.hostId ||
+                this.nrOfPlayers != otherGameState.nrOfPlayers ||
+                this.phase != otherGameState.phase ||
+                ((this.courseName != null || otherGameState.courseName != null) && !Objects.equals(this.courseName, otherGameState.courseName));
     }
 }
