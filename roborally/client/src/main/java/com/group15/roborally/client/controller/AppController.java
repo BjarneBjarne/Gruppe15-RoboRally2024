@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder;
 
 import com.group15.observer.Observer;
 import com.group15.observer.Subject;
+import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.view.InfoPaneView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.model.*;
@@ -72,7 +73,7 @@ public class AppController implements Observer {
     @Getter
     private static List<CC_CourseData> courses = new ArrayList<>();
 
-    private static final NetworkingController networkingController = new NetworkingController();
+    private static final ServerDataManager SERVER_DATA_MANAGER = new ServerDataManager();
 
     private MultiplayerMenuView multiplayerMenuView;
     private static InfoPaneView infoPane;
@@ -80,7 +81,7 @@ public class AppController implements Observer {
     public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
         AppController.roboRally = roboRally;
         AppController.infoPane = infoPane;
-        networkingController.attach(this);
+        SERVER_DATA_MANAGER.attach(this);
     }
 
     public static void setInfoText(String text) {
@@ -95,7 +96,7 @@ public class AppController implements Observer {
         infoPane.setInfoText("Setting up multiplayer...");
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView();
-            multiplayerMenuView.setControllers(networkingController);
+            multiplayerMenuView.setControllers(SERVER_DATA_MANAGER);
             roboRally.createMultiplayerMenu(multiplayerMenuView);
             multiplayerMenuView.setupMenuUI();
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
@@ -129,7 +130,7 @@ public class AppController implements Observer {
         }
 
         // GameController
-        gameController = new GameController(board, localClient, networkingController);
+        gameController = new GameController(board, localClient, SERVER_DATA_MANAGER);
         //board.setCurrentPlayer(board.getPlayer(0));
         roboRally.createBoardView(gameController);
     }
@@ -175,7 +176,7 @@ public class AppController implements Observer {
         }
 
         // GameController
-        gameController = new GameController(newBoard, null, networkingController);
+        gameController = new GameController(newBoard, null, SERVER_DATA_MANAGER);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
         //newBoard.setCurrentPhase(GamePhase.PROGRAMMING);
 
@@ -291,13 +292,13 @@ public class AppController implements Observer {
     }
 
     public void disconnectFromServer(String s, int i) {
-        networkingController.disconnectFromServer(s, i);
+        SERVER_DATA_MANAGER.disconnectFromServer(s, i);
     }
 
     @Override
     public void update(Subject subject) {
-        if (subject.equals(networkingController)) {
-            if (!networkingController.isConnectedToGame) {
+        if (subject.equals(SERVER_DATA_MANAGER)) {
+            if (!SERVER_DATA_MANAGER.isConnectedToGame()) {
                 roboRally.goToMainMenu();
             }
         }

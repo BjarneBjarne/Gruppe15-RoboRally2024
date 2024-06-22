@@ -1,7 +1,8 @@
-package com.group15.roborally.client.controller;
+package com.group15.roborally.client.model.networking;
 
 import com.group15.observer.Observer;
 import com.group15.observer.Subject;
+import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
 import com.group15.roborally.client.model.CardField;
@@ -32,7 +33,7 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 /**
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class NetworkingController extends Subject implements Observer {
+public class ServerDataManager extends Subject implements Observer {
     private final ServerCommunication serverCommunication = new ServerCommunication();
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
@@ -55,7 +56,7 @@ public class NetworkingController extends Subject implements Observer {
     @Getter
     private final static List<NetworkedDataTypes> changedData = new ArrayList<>();
 
-    public NetworkingController() {
+    public ServerDataManager() {
         serverCommunication.attach(this);
     }
 
@@ -117,7 +118,7 @@ public class NetworkingController extends Subject implements Observer {
         isConnectedToGame = true;
         Game game = serverCommunication.getGame(gameId);
         List<Player> players = serverCommunication.getPlayers(gameId);
-        NetworkingController.localPlayer = localPlayer;
+        ServerDataManager.localPlayer = localPlayer;
         this.isHost = localPlayer.getPlayerId() == game.getHostId();
         notifyChange(); // Notify multiplayer menu that we have connected to the game.
         loadDataAndNotify(game, players, null);
