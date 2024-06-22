@@ -92,7 +92,7 @@ public class GameController implements Observer {
         board.updatePriorityList();
         if (serverDataManager.isHost()) {
             board.getUpgradeShop().refillAvailableCards();
-            serverDataManager.updateUpgradeShop(board.getUpgradeShop().getAvailableCardsFields());
+            serverDataManager.setUpgradeShop(board.getUpgradeShop().getAvailableCardsFields());
         }
 
         board.updateBoard();
@@ -140,7 +140,7 @@ public class GameController implements Observer {
                 localPlayer.fillRestOfRegisters();
             }
             turnCounter++;
-            serverDataManager.updateRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
+            serverDataManager.setPlayerRegister(localPlayer.getPlayerId(), localPlayer.getProgramFieldNames(), turnCounter);
             board.updateBoard();
             serverDataManager.updateRegisters(this::startPlayerActivationPhase);
         }
@@ -646,7 +646,7 @@ public class GameController implements Observer {
                 tempCards[i] = card.getEnum().name();
         }
 
-        serverDataManager.updatePlayerUpgradeCards(permCards, tempCards);
+        serverDataManager.setPlayerUpgradeCards(permCards, tempCards);
         serverDataManager.setIsReady(1);
     }
 
