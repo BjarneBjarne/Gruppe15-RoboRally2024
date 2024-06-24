@@ -25,11 +25,6 @@ public abstract class UpgradeCardPermanent extends UpgradeCard {
     }
 
     @Override
-    protected void onActivated() {
-        printUsage();
-    }
-
-    @Override
     public void unInitialize() {
         // Unsubscribe
         for (EventListener eventListener : eventListeners) {

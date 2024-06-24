@@ -208,7 +208,7 @@ public class BoardView extends VBox implements ViewObserver {
             System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
         } else {
             finishUpgradingButton.setOnMouseClicked(_ -> {
-                gameController.updatePlayerCards();
+                gameController.setPlayerCards();
                 upgradeShopPane.setVisible(false);
                 upgradeShopPane.setMouseTransparent(true);
             });

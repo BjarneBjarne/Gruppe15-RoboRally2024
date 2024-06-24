@@ -92,11 +92,18 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void startUpgradingPhase() {
-        updateCurrentPhase(UPGRADE);
+        setCurrentPhase(UPGRADE);
         board.updatePriorityList();
+
+        // The host sets the available upgrade cards and sends it to the server.
         if (serverDataManager.isHost()) {
             board.getUpgradeShop().refillAvailableCards();
-            serverDataManager.setUpgradeShop(board.getUpgradeShop().getAvailableCardsFields());
+            CardField[] availableCardsFields = board.getUpgradeShop().getAvailableCardsFields();
+            String[] availableCards = new String[availableCardsFields.length];
+            for (int i = 0; i < availableCards.length; i++) {
+                availableCards[i] = ((UpgradeCard)availableCardsFields[i].getCard()).getEnum().name();
+            }
+            serverDataManager.setUpgradeShop(availableCards);
         }
 
         board.updateBoard();
@@ -106,7 +113,7 @@ public class GameController implements Observer {
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
-        updateCurrentPhase(PROGRAMMING);
+        setCurrentPhase(PROGRAMMING);
         serverDataManager.setIsReady(0);
 
         board.setCurrentRegister(0);
@@ -152,7 +159,7 @@ public class GameController implements Observer {
 
     private void startPlayerActivationPhase() {
         serverDataManager.setIsReady(0);
-        updateCurrentPhase(PLAYER_ACTIVATION);
+        setCurrentPhase(PLAYER_ACTIVATION);
 
         for (Player player : board.getPlayers()) {
             if (player.equals(localPlayer)) {
@@ -232,7 +239,7 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void startBoardActivationPhase() {
-        updateCurrentPhase(BOARD_ACTIVATION);
+        setCurrentPhase(BOARD_ACTIVATION);
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
         handleBoardElementActions();
@@ -561,7 +568,7 @@ public class GameController implements Observer {
             // If the player just bought an upgrade card
             if (sourceField.cardFieldType == UPGRADE_CARD_SHOP_FIELD) {
                 if (targetField.cardFieldType == PERMANENT_UPGRADE_CARD_FIELD || targetField.cardFieldType == TEMPORARY_UPGRADE_CARD_FIELD) {
-                    updatePlayerCards();
+                    setPlayerCards();
                 }
             }
         }
@@ -625,12 +632,12 @@ public class GameController implements Observer {
     }
 
     /**
-     * Updates the GamePhase locally, and tells the server to change GamePhase if this is the host.
+     * Sets the GamePhase locally, and tells the server to change GamePhase if this is the host.
      * @param phase The GamePhase to switch to.
      */
-    public void updateCurrentPhase(GamePhase phase) {
+    public void setCurrentPhase(GamePhase phase) {
         if (serverDataManager.isHost()) {
-            serverDataManager.updatePhase(phase);
+            serverDataManager.setGamePhase(phase);
         }
         board.setCurrentPhase(phase);
     }
@@ -640,7 +647,7 @@ public class GameController implements Observer {
      * Tells the server to update the player cards and that the player is ready.
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
-    public void updatePlayerCards() {
+    public void setPlayerCards() {
         String[] permCards = new String[Player.NO_OF_PERMANENT_UPGRADE_CARDS];
         String[] tempCards = new String[Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
 
@@ -675,7 +682,7 @@ public class GameController implements Observer {
             if (changedData.contains(NetworkedDataTypes.PLAYERS)) {
                 latestPlayerData = serverDataManager.getUpdatedPlayerMap();
             }
-            if (changedData.contains(NetworkedDataTypes.GAME)) {
+            if (changedData.contains(NetworkedDataTypes.UPGRADE_SHOP)) {
                 latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
             }
 
@@ -778,7 +785,14 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateUpgrading() {
+        System.out.println();
         System.out.println("Updating upgrade shop");
+        System.out.println("Upgrade cards: ");
+        String[] availableCards = Arrays.copyOf(latestUpgradeShopData, latestUpgradeShopData.length);
+        for (String cardString : availableCards) {
+            System.out.println("Card with name: " + cardString);
+        }
+        boolean changesInAvailableCards = false;
         // Updating players upgrade cards.
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
@@ -788,24 +802,21 @@ public class GameController implements Observer {
             String[] permCardsStr = updatedPlayer.getPermCards();
             String[] tempCardsStr = updatedPlayer.getTempCards();
 
-            if (permCardsStr != null) {
-                for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
-                    if (permCardsStr[i] != null) {
-                        UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(permCardsStr[i]).upgradeCardClass);
-                        client.attemptUpgradeCardPurchase(upgradeCard, this);
-                        client.getPermanentUpgradeCardField(i).setCard(upgradeCard);
-                    }
+            client.updateUpgradeCards(permCardsStr, tempCardsStr, this);
+
+            // Remove bought cards locally
+            for (int i = 0; i < availableCards.length; i++) {
+                if (availableCards[i] == null) continue;
+                String cardString = availableCards[i];
+                if (client.getUpgradeCards().stream().anyMatch(playerUpgradeCard -> playerUpgradeCard.getEnum().name().equals(cardString))) {
+                    availableCards[i] = null;
+                    changesInAvailableCards = true;
                 }
             }
-            if (tempCardsStr != null) {
-                for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
-                    if (tempCardsStr[i] != null) {
-                        UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(tempCardsStr[i]).upgradeCardClass);
-                        client.attemptUpgradeCardPurchase(upgradeCard, this);
-                        client.getTemporaryUpgradeCardField(i).setCard(upgradeCard);
-                    }
-                }
-            }
+        }
+
+        if (serverDataManager.isHost() && changesInAvailableCards) {
+            serverDataManager.setUpgradeShop(availableCards);
         }
 
         int upgradeTurn = 0;
@@ -819,18 +830,17 @@ public class GameController implements Observer {
             }
         }
 
-        System.out.println("upgrade turn: " + upgradeTurn);
-
-        board.getUpgradeShop().setAvailableCards(latestUpgradeShopData);
+        System.out.println("upgradeTurn: " + upgradeTurn);
 
         // Finish check
-        if (upgradeTurn >= NO_OF_PLAYERS) {
+        if (upgradeTurn < NO_OF_PLAYERS) {
+            // Set available cards
+            board.getUpgradeShop().setAvailableCards(availableCards);
+            // Set turn
+            playerUpgrading = board.getPriorityList().stream().toList().get(upgradeTurn);
+            board.updateBoard();
+        } else {
             startProgrammingPhase();
         }
-
-        // Set turn
-        playerUpgrading = board.getPriorityList().stream().toList().get(upgradeTurn);
-        System.out.println("Player upgrading: " + playerUpgrading.getName());
-        board.updateBoard();
     }
 }
