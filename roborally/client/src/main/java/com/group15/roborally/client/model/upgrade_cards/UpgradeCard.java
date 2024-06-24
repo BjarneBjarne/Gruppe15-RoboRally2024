@@ -55,7 +55,7 @@ public abstract class UpgradeCard extends Card {
 
     protected abstract void onEnabled();
     protected abstract void onDisabled();
-    protected abstract void onActivated();
+    public abstract void onActivated();
 
     /**
      * Cards must override this method.
@@ -109,8 +109,8 @@ public abstract class UpgradeCard extends Card {
     public void tryActivate() {
         if (canBeActivated()) {
             this.currentUses--;
-            this.onActivated();
             owner.setEnergyCubes(owner.getEnergyCubes() - useCost);
+            gameController.useUpgradeCard(this);
         }
     }
 

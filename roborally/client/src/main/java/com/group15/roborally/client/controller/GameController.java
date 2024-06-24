@@ -64,6 +64,7 @@ public class GameController implements Observer {
     private PlayerInteraction currentPlayerInteraction = null;
 
     private int turnCounter;
+    private int movementCounter;
     @Getter
     private Player playerUpgrading;
 
@@ -81,7 +82,8 @@ public class GameController implements Observer {
         this.localPlayer = localPlayer;
         this.serverDataManager = serverDataManager;
         this.serverDataManager.attach(this);
-
+        this.turnCounter = 0;
+        this.movementCounter = 0;
         latestGameData = serverDataManager.getUpdatedGame();
         latestPlayerData = serverDataManager.getUpdatedPlayerMap();
         latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
@@ -151,6 +153,7 @@ public class GameController implements Observer {
     }
 
     private void startPlayerActivationPhase() {
+        movementCounter = 0;
         serverDataManager.setIsReady(0);
         updateCurrentPhase(PLAYER_ACTIVATION);
 
@@ -217,7 +220,35 @@ public class GameController implements Observer {
         if (getIsPlayerInteracting()) { // Return and wait for player interaction.
             return;
         }
-        // When player command is executed, check if there are more player turns this register.
+        serverDataManager.setChoices();
+        serverDataManager.updateChoices(this::executeUpgradeCards, movementCounter, turnCounter);
+    }
+
+    public void useUpgradeCard(UpgradeCard card){
+        serverDataManager.addUsedUpgradeCard(card.getEnum().name(), movementCounter, turnCounter);
+    }
+
+    private void executeUpgradeCards(){
+        for(Player player : board.getPlayers()){
+            List<String> usedCards = serverDataManager.getUsedUpgrades(player.getName());
+            for(String card : usedCards){
+                for(CardField field : player.getPermanentUpgradeCardFields()){
+                    if(field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)){
+                        ((UpgradeCard) field.getCard()).onActivated();
+                    }
+                }
+                for(CardField field : player.getTemporaryUpgradeCardFields()){
+                    if(field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)){
+                        ((UpgradeCard) field.getCard()).onActivated();
+                    }
+                }
+            }
+        }
+        nextMovement();
+    }
+
+    private void nextMovement(){
+        movementCounter++;
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
         } else {
