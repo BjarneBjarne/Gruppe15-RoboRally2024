@@ -156,22 +156,22 @@ public class GameControllerTest {
     @Test
     @DirtiesContext
     public void orphanRemovalTest() throws Exception {
-        // mockMvc.perform(MockMvcRequestBuilders.post("/games"))
-        //         .andExpect(status().isOk())
-        //         .andExpect(content().string("1"));
+        mockMvc.perform(MockMvcRequestBuilders.post("/games"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("1"));
 
-        // mockMvc.perform(MockMvcRequestBuilders.post("/games/1/join").contentType(MediaType.APPLICATION_JSON_VALUE)
-        //         .content("player1"))
-        //         .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.post("/games/1/join").contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content("player1"))
+                .andExpect(status().isOk());
 
-        // mockMvc.perform(MockMvcRequestBuilders.post("/players/1/register/1").contentType(MediaType.APPLICATION_JSON_VALUE)
-        //         .content("player1"))
-        //         .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/games/1/players"))
+                .andExpect(status().isOk());
 
-        // mockMvc.perform(MockMvcRequestBuilders.delete("/games/1"))
-        //         .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/games/1"))
+                .andExpect(status().isOk());
         
-        // mockMvc.perform(MockMvcRequestBuilders.post("/games"))
-        //         .andExpect(status().isOk());
+        // the player should be deleted too after the game is deleted
+        mockMvc.perform(MockMvcRequestBuilders.get("/games/1/players"))
+                .andExpect(status().isNotFound());
     }
 }
