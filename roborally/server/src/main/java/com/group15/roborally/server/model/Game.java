@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "games")
 @Getter
@@ -32,8 +34,13 @@ public class Game {
     private String courseName;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Player> players;
     
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private UpgradeShop upgradeShop;
+
     /**
      * Compares whether the game has had variables changed between "this" and the argument game.
      * @param otherGameState The game at another point. Must have same gameId.

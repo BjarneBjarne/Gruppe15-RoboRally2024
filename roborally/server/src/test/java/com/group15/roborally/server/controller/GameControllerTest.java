@@ -63,8 +63,7 @@ public class GameControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
 
-        Player expectedPlayer = new Player(1, 1, null, "player1",
-                null, null, 0, null, null, null, null);
+        Player expectedPlayer = new Player(1, 1, null, "player1", null, null, 0, null, null, null, null, null);
         mockMvc.perform(MockMvcRequestBuilders.post("/games/1/join").contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content("player1"))
                 .andExpect(status().isOk())
