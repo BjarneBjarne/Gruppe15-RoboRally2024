@@ -241,6 +241,7 @@ public class ServerDataManager extends Subject implements Observer {
         }
         // Update if there has been changes.
         if (hasChanges) {
+            System.out.println("Had changes");
             notifyChange();
         }
     }
@@ -319,6 +320,7 @@ public class ServerDataManager extends Subject implements Observer {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
             localPlayer.setSpawnPoint(new int[]{space.x, space.y});
             localPlayer.setSpawnDirection(directionName);
+            System.out.println("Setting spawn");
             serverCommunication.updatePlayer(localPlayer);
         }
     }

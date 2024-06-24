@@ -657,6 +657,8 @@ public class GameController implements Observer {
             // Updating data
             List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
 
+            System.out.println("Received changed data: " + changedData);
+
             if (changedData.contains(NetworkedDataTypes.GAME)) {
                 latestGameData = serverDataManager.getUpdatedGame();
             }
@@ -669,9 +671,9 @@ public class GameController implements Observer {
 
             if (latestGameData == null || latestPlayerData == null) return;
 
-            HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = serverDataManager.getUpdatedPlayerMap();
+            // Check if any player disconnected
             for (Player client : board.getPlayers()) {
-                com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
+                com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
                 if (updatedPlayer == null) {
                     // Player disconnected.
                     // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
@@ -679,7 +681,7 @@ public class GameController implements Observer {
                 }
             }
 
-            // Updates logic for the current GamePhase locally from the data received from the server.
+            // Update logic for the current GamePhase locally from the data received from the server.
             switch (board.getCurrentPhase()) {
                 case INITIALIZATION -> updateInitialization();
                 case PROGRAMMING -> updateProgramming();
@@ -697,46 +699,46 @@ public class GameController implements Observer {
 
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
-            if (updatedPlayer == null) {
-                // Player disconnected.
+            if (updatedPlayer == null) continue; // Player disconnected.
+            if (client.getSpawnPoint() != null) continue; // Client already has a spawn point
+            int[] clientSpawnPoint = updatedPlayer.getSpawnPoint();
+            if (clientSpawnPoint == null) {
+                // Client hasn't chosen a spawn point.
+                allHaveSetSpawnPoint = false;
+                continue;
+            }
+            Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
+            if (clientSpawnPosition == null) continue; // Can't find space at position.
+
+            // Local player direction options
+            if (client.equals(localPlayer)) {
+                if (ServerDataManager.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
+                    // Local player direction option
+                    setDirectionOptionsPane(clientSpawnPosition);
+                } else {
+                    setDirectionOptionsPane(null);
+                }
+            }
+
+            // Setting player at selected position
+            client.setSpace(clientSpawnPosition);
+
+            // Heading
+            String playerSpawnDirection = updatedPlayer.getSpawnDirection();
+            if (playerSpawnDirection == null || playerSpawnDirection.isBlank()) {
+                // Client hasn't chosen a direction.
+                allHaveSetSpawnPoint = false;
                 continue;
             }
 
-            // Position
-            int[] clientSpawnPoint = updatedPlayer.getSpawnPoint();
-            if (client.getSpawnPoint() == null) {
-                allHaveSetSpawnPoint = false;
-                if (clientSpawnPoint != null) {
-                    Space clientSpawnPosition = board.getSpace(clientSpawnPoint[0], clientSpawnPoint[1]);
-                    if (clientSpawnPosition != null) {
-                        // Selected position
-                        client.setSpace(clientSpawnPosition);
-
-                        // Heading
-                        String playerSpawnDirection = updatedPlayer.getSpawnDirection();
-                        if (playerSpawnDirection != null && !playerSpawnDirection.isBlank()) {
-
-                            // Setting spawnPoint
-                            Heading clientHeading = Heading.valueOf(playerSpawnDirection);
-                            client.setHeading(clientHeading);
-                            client.setSpawn(clientSpawnPosition);
-                            if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
-                                spawnPoint.setColor(client);
-                                board.updateBoard();
-                            }
-                        } else {
-                            // Local player direction options
-                            if (client.equals(localPlayer)) {
-                                if (ServerDataManager.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
-                                    // Local player direction option
-                                    setDirectionOptionsPane(clientSpawnPosition);
-                                } else {
-                                    setDirectionOptionsPane(null);
-                                }
-                            }
-                        }
-                    }
-                }
+            // Setting spawnPoint
+            Heading clientHeading = Heading.valueOf(playerSpawnDirection);
+            client.setHeading(clientHeading);
+            client.setSpawn(clientSpawnPosition);
+            System.out.println("Setting spawn point for " + client.getName());
+            if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
+                spawnPoint.setColor(client);
+                board.updateBoard();
             }
         }
 
