@@ -333,11 +333,13 @@ public class Player extends Subject {
     private void updateUpgradeCardPositions(String[] cardsStr, int noOfUpgradeCards, CardField[] upgradeCardFields) {
         for (int i = 0; i < noOfUpgradeCards; i++) {
             UpgradeCard upgradeCardAtPosition = null;
-            for (UpgradeCard upgradeCard : upgradeCards) {
-                if (upgradeCard instanceof UpgradeCardPermanent) {
-                    if (cardsStr[i].equals(upgradeCard.getEnum().name())) {
-                        upgradeCardAtPosition = upgradeCard;
-                        break;
+            if (cardsStr != null) {
+                for (UpgradeCard upgradeCard : upgradeCards) {
+                    if (upgradeCard instanceof UpgradeCardPermanent) {
+                        if (cardsStr[i].equals(upgradeCard.getEnum().name())) {
+                            upgradeCardAtPosition = upgradeCard;
+                            break;
+                        }
                     }
                 }
             }
