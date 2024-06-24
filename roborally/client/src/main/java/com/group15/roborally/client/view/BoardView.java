@@ -21,6 +21,7 @@
 package com.group15.roborally.client.view;
 
 import com.group15.observer.Subject;
+import com.group15.observer.ViewObserver;
 import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
