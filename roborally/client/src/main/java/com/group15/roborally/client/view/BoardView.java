@@ -21,6 +21,7 @@
 package com.group15.roborally.client.view;
 
 import com.group15.observer.Subject;
+import com.group15.observer.ViewObserver;
 import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
@@ -208,7 +209,7 @@ public class BoardView extends VBox implements ViewObserver {
             System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
         } else {
             finishUpgradingButton.setOnMouseClicked(_ -> {
-                gameController.updatePlayerCards();
+                gameController.setPlayerCards();
                 upgradeShopPane.setVisible(false);
                 upgradeShopPane.setMouseTransparent(true);
             });

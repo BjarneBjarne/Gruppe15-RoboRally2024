@@ -55,7 +55,9 @@ public abstract class UpgradeCard extends Card {
 
     protected abstract void onEnabled();
     protected abstract void onDisabled();
-    protected abstract void onActivated();
+    protected void onActivated() {
+        printUsage();
+    }
 
     /**
      * Cards must override this method.
