@@ -59,7 +59,7 @@ public class Card_PressorBeam extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

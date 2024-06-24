@@ -31,7 +31,7 @@ public class Card_AdminPrivilege extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         printUsage();
         Queue<Player> oldPriorityList = owner.board.getPriorityList();
         List<Player> newPriorityList = new ArrayList<>();

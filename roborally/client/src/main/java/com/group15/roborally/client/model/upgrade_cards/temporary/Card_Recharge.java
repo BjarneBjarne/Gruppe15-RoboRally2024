@@ -28,7 +28,7 @@ public class Card_Recharge extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.setEnergyCubes(owner.getEnergyCubes() + 3);
         super.onActivated();
     }

@@ -28,7 +28,7 @@ public class Card_MemoryStick extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 
