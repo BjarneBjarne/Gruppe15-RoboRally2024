@@ -14,7 +14,7 @@ public abstract class UpgradeCardTemporary extends UpgradeCard {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         printUsage();
     }
 

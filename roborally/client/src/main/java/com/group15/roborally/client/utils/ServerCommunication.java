@@ -220,11 +220,11 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public void updateChoice(Choice choice){
+    public void updateChoice(List<Choice> choices, long playerId){
         sendRequest(
-                "/choices/" + choice.getPlayerId(),
+                "/choices/" + playerId,
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<String>() {}, choice
+                new ParameterizedTypeReference<String>() {}, choices
         );
     }
 

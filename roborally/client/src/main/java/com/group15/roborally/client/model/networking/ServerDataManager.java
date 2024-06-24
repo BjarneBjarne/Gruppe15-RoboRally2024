@@ -9,6 +9,7 @@ import com.group15.roborally.client.model.CardField;
 import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
+import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
@@ -18,6 +19,8 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.Setter;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -47,6 +50,9 @@ public class ServerDataManager extends Subject implements Observer {
     private static Player localPlayer;
     @Getter
     private boolean isHost = false;
+    @Setter
+    private List<Choice> usedUpgradeCards;
+    private List<Choice> othersUsedUpgradeCards;
 
     // Updated Game data
     private Game game;
@@ -377,5 +383,38 @@ public class ServerDataManager extends Subject implements Observer {
         if (isHost) {
             setGamePhase(phase);
         }
+    }
+
+    public void updateChoices(Runnable callback, int move, int turn) {
+        this.othersUsedUpgradeCards = null;
+        Runnable poll = () -> {
+            // System.out.println("Polling server for registers.");
+            this.othersUsedUpgradeCards = serverCommunication.getChoices(game.getGameId(), turn, move);
+            if (this.othersUsedUpgradeCards != null) {
+                // System.out.println("Registers received");
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
+            }
+        };
+        serverPoller = Executors.newScheduledThreadPool(1);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+    }
+
+    public void setChoices() {
+        serverCommunication.updateChoice(usedUpgradeCards, localPlayer.getPlayerId());
+    }
+
+    public void addUsedUpgradeCard(String cardName, int move, int turn) {
+        usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), cardName, move, turn));
+    }
+
+    public List<String> getUsedUpgrades(String playerName) {
+        List<String> usedUpgrades = new ArrayList<>();
+        for (Choice choice : othersUsedUpgradeCards) {
+            if (playerName.equals(playerMap.get(choice.getPlayerId()).getPlayerName())) {
+                usedUpgrades.add(choice.getChoice());
+            }
+        }
+        return usedUpgrades;
     }
 }

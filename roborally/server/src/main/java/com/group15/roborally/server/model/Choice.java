@@ -12,17 +12,27 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "choices")
+@IdClass(ChoiceId.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
 public class Choice {
+
+    public Choice(long playerId, String choice, int turn, int movement) {
+        this.playerId = playerId;
+        this.choice = choice;
+        this.turn = turn;
+        this.movement = movement;
+    }
     
     @Id
     long playerId;
     String choice;
+    @Id
     int turn;
+    @Id
     int movement;
 
     @OneToOne(fetch = FetchType.LAZY)

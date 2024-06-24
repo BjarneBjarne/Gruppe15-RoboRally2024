@@ -25,7 +25,7 @@ public abstract class UpgradeCardPermanent extends UpgradeCard {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         printUsage();
     }
 
