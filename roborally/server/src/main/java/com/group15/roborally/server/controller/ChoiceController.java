@@ -49,8 +49,8 @@ public class ChoiceController {
 
     }
 
-    // @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    // public ResponseEntity<List<Choice>> getAllChoices(){
-    //     return ResponseEntity.ok(choiceRepository.findAll());
-    // }
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Choice>> getAllChoices(){
+        return ResponseEntity.ok(choiceRepository.findAll());
+    }
 }
