@@ -67,8 +67,8 @@ public class GameController {
      * Endpoint to join an already existing game, update the number of players in game 
      * and insert new player into the database
      * 
-     * @author  Marcus Rémi Lemser Eychenne, s230985
-     *          Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      *
      * @param playerName - the name of the player joining the game
      * @param gameId - the id of the game to be joined
@@ -159,6 +159,24 @@ public class GameController {
             return ResponseEntity.badRequest().build();
         }
         gameRepository.save(game);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Endpoint to delete a game in the database
+     * 
+     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * 
+     * @param gameId - the id of the game to be deleted
+     * @return ResponseEntity<String>
+     */
+    @DeleteMapping(value = "/{gameId}")
+    public ResponseEntity<String> deleteGame(@PathVariable("gameId") Long gameId) {
+        boolean gameExists = gameRepository.existsById(gameId);
+        if (!gameExists) {
+            return ResponseEntity.badRequest().build();
+        }
+        gameRepository.deleteById(gameId);
         return ResponseEntity.ok().build();
     }
 
