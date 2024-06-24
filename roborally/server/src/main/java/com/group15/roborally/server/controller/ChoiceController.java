@@ -21,22 +21,26 @@ public class ChoiceController {
         this.gameRepository = gameRepository;
     }
 
-    @PutMapping(value = "/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateChoice(@RequestBody Choice choice){
-        if(choiceRepository.existsById(choice.getPlayerId())){
+    @PostMapping(value = "/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateChoice(@RequestBody List<Choice> choices){
+        System.out.println("\n\nUpdating choices");
+        for(Choice choice : choices){
+            System.out.println("Inserting choice: " + choice.getChoice());
             choiceRepository.save(choice);
-            return ResponseEntity.ok().build();
+            System.out.println("Choice inserted");
         }
-        return ResponseEntity.notFound().build();
+        System.out.println("Choices updated\n\n");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/{gameId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Choice>> getChoices(@PathVariable("gameId") long gameId, @RequestParam("turn") int turn, @RequestParam("movement") int movement){
         List<Choice> choices = choiceRepository.findAllByGameIdAndTurnAndMovement(gameId, turn, movement);
         int nrOfPlayers = gameRepository.findById(gameId).orElse(null).getNrOfPlayers();
+        int nrOfPlayerInput = choiceRepository.countDistinctByTurnAndMovement(turn, movement);
         if(choices.isEmpty()){
             return ResponseEntity.notFound().build();
-        } else if (choices.size() != nrOfPlayers){
+        } else if (nrOfPlayerInput < nrOfPlayers){
             System.out.println("Nr. of players: " + nrOfPlayers + " Nr. of choices: " + choices.size());
             return ResponseEntity.ok(null);
         } else{

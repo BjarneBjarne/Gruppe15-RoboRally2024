@@ -223,7 +223,7 @@ public class ServerCommunication extends Subject {
     public void updateChoice(List<Choice> choices, long playerId){
         sendRequest(
                 "/choices/" + playerId,
-                HttpMethod.PUT,
+                HttpMethod.POST,
                 new ParameterizedTypeReference<String>() {}, choices
         );
     }
