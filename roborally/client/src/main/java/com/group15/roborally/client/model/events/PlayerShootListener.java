@@ -10,5 +10,6 @@ public interface PlayerShootListener extends EventListener {
      *
      * @return
      */
-    Laser onPlayerShoot(Player playerShooting, Laser laser);
+//    Laser onPlayerShoot(Player playerShooting, Laser laser);
+    Laser onPlayerShoot(Player playerShooting, Laser laser,Boolean rear);
 }
