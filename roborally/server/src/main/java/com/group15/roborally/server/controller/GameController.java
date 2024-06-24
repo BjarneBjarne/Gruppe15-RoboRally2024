@@ -9,12 +9,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.UpgradeShop;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
+import com.group15.roborally.server.repository.ChoiceRepository;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.UpgradeShopRepository;
 
@@ -26,12 +28,15 @@ public class GameController {
     GameRepository gameRepository;
     UpgradeShopRepository upgradeShopRepository;
     RegisterRepository registerRepository;
+    ChoiceRepository choiceRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, 
+                UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository, ChoiceRepository choiceRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.upgradeShopRepository = upgradeShopRepository;
         this.registerRepository = registerRepository;
+        this.choiceRepository = choiceRepository;
     }
 
     /**
@@ -96,6 +101,11 @@ public class GameController {
         register.setPlayerId(player.getPlayerId());
         register.setTurn(0);
         registerRepository.save(register);
+
+        Choice choice = new Choice();
+        choice.setPlayerId(player.getPlayerId());
+        choiceRepository.save(choice);
+        
 
         return ResponseEntity.ok().body(player);
     }
