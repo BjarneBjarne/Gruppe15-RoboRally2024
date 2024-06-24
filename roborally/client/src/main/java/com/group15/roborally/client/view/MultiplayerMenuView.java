@@ -96,7 +96,6 @@ public class MultiplayerMenuView implements Observer {
 
     public void setControllers(ServerDataManager serverDataManager) {
         this.serverDataManager = serverDataManager;
-        this.serverDataManager.attach(this);
     }
 
     /**
@@ -109,6 +108,7 @@ public class MultiplayerMenuView implements Observer {
 
         hasStartedGameLocally = false;
         selectedCourse = null;
+        this.serverDataManager.attach(this);
     }
 
     private void setupLobby() {
@@ -376,7 +376,6 @@ public class MultiplayerMenuView implements Observer {
         lobbyButtonStart.setOnMouseClicked(_ -> {
             if (canReadyOrStart()) {
                 if (serverDataManager.isHost()) {
-                    serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
                     startGame();
                 } else {
                     // Toggling whether the player is ready.
@@ -504,6 +503,8 @@ public class MultiplayerMenuView implements Observer {
     private void startGame() {
         if (!hasStartedGameLocally) {
             hasStartedGameLocally = true;
+            serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
+            this.serverDataManager.detach(this);
             AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
         }
     }

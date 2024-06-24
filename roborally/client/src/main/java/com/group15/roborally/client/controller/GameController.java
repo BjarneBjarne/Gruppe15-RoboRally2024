@@ -81,6 +81,10 @@ public class GameController implements Observer {
         this.localPlayer = localPlayer;
         this.serverDataManager = serverDataManager;
         this.serverDataManager.attach(this);
+
+        latestGameData = serverDataManager.getUpdatedGame();
+        latestPlayerData = serverDataManager.getUpdatedPlayerMap();
+        latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
     }
 
     /**
@@ -657,7 +661,7 @@ public class GameController implements Observer {
             // Updating data
             List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
 
-            System.out.println("Received changed data: " + changedData);
+            System.out.println("Changed data: " + changedData);
 
             if (changedData.contains(NetworkedDataTypes.GAME)) {
                 latestGameData = serverDataManager.getUpdatedGame();
@@ -694,10 +698,10 @@ public class GameController implements Observer {
 
     private void updateInitialization() {
         // Check if all players have set their spawn point
-
         boolean allHaveSetSpawnPoint = true;
 
         for (Player client : board.getPlayers()) {
+            System.out.println("Setting player: " + client.getName());
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null) continue; // Player disconnected.
             if (client.getSpawnPoint() != null) continue; // Client already has a spawn point
@@ -722,6 +726,7 @@ public class GameController implements Observer {
 
             // Setting player at selected position
             client.setSpace(clientSpawnPosition);
+            board.updateBoard();
 
             // Heading
             String playerSpawnDirection = updatedPlayer.getSpawnDirection();

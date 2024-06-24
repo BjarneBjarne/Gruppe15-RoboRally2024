@@ -241,7 +241,7 @@ public class ServerDataManager extends Subject implements Observer {
         }
         // Update if there has been changes.
         if (hasChanges) {
-            System.out.println("Had changes");
+            //System.out.println("Had changes");
             notifyChange();
         }
     }
