@@ -35,11 +35,16 @@ public class Player/*  implements Serializable */ {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
+    @JsonIgnore
     private Game game;
 
     @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
     @JsonIgnore
     private Register registers;
+
+    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Choice choice;
 
     /**
      * Compares two player objects.
