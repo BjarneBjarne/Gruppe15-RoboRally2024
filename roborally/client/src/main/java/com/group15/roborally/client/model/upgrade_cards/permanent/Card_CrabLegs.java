@@ -23,9 +23,7 @@ public class Card_CrabLegs extends UpgradeCardPermanent {
         eventListeners.add(EventHandler.subscribe((PlayerCommandListener) command -> {
             if (command == Command.MOVE_1) {
                 printUsage();
-                owner.queueCommand(Command.CRAB_LEGS, gameController);
-                owner.queueCommand(Command.MOVE_1, false, gameController);
-                return Command.BRAKES;
+                return Command.CRAB_LEGS;
             } else {
                 return command;
             }

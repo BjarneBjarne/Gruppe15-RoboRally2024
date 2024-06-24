@@ -24,6 +24,7 @@ package com.group15.roborally.client.model;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.IllegalPlayerPropertyAccess;
 import com.group15.roborally.client.model.damage.Damage;
+import com.group15.roborally.client.model.events.PlayerShootListener;
 import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
 import com.group15.roborally.client.model.player_interaction.RebootInteraction;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
@@ -40,6 +41,7 @@ import com.group15.roborally.server.model.GamePhase;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.group15.roborally.client.model.EventHandler.getPlayerCardEventListeners;
 import static com.group15.roborally.client.model.Heading.SOUTH;
 
 /**
@@ -209,6 +211,33 @@ public class Player extends Subject {
         }
         this.temporarySpace = null;
     }
+
+
+    public void setVelocity(Velocity velocity) {
+        this.velocity = velocity;
+
+    }
+
+    public void setForwardVelocity(int velocity) {
+        this.velocity.forward = velocity;
+
+
+    }
+
+    public void setRightVelocity(int velocity) {
+        this.velocity.right = velocity;
+
+
+    }
+
+    public Velocity getVelocity() {
+        return velocity;
+    }
+
+    public Heading getHeading() {
+        return heading;
+    }
+
 
     public void setHeading(@NotNull Heading heading) {
         if (heading != this.heading) {
@@ -527,16 +556,20 @@ public class Player extends Subject {
      */
     public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {
         if (command == null) return;
-
+        System.out.println("Command queued: "+ command);
         // Call the event handler, and let it modify the command
         if (notifyUpgradeCards) {
             command = EventHandler.event_RegisterActivate(this, command);
         }
 
         switch (command) {
+            case MOVE_0:
+                break;
             case MOVE_1:
                 setVelocity(new Velocity(1, 0));
+                System.out.println(velocity.toString());
                 startMovement(gameController);
+
                 break;
             case MOVE_2:
                 setVelocity(new Velocity(2, 0));
@@ -616,6 +649,27 @@ public class Player extends Subject {
                 }
                 break;
 
+            case CRAB_MOVE:
+                setForwardVelocity(1);
+                startMovement(gameController);
+                queueCommand(Command.CRAB_DIRECTION,gameController);
+                break;
+            case CRAB_STAY:
+                queueCommand(Command.CRAB_DIRECTION,gameController);
+                break;
+            case CRAB_MOVE_LEFT:
+                setVelocity(new Velocity(0, -1));
+                startMovement(gameController);
+                queueCommand(Command.MOVE_1,false,gameController);
+
+                break;
+            case CRAB_MOVE_RIGHT:
+                setVelocity(new Velocity(0, 1));
+                startMovement(gameController);
+                queueCommand(Command.MOVE_1,false,gameController);
+                break;
+
+
             // Commands with options
             default:
                 if (command.isInteractive()) {
@@ -641,28 +695,30 @@ public class Player extends Subject {
      */
     public void startMovement(GameController gameController) {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
-
+        Velocity temp = new Velocity(velocity.forward,velocity.right);
         // For each forward movement
-        for (int i = 0; i < Math.abs(velocity.forward); i++) {
-            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                Heading direction = (velocity.forward > 0) ? heading : heading.opposite();
+        for (int i = 0; i < Math.abs(temp.forward); i++) {
+            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
+                if (temp.forward!=0){
+                Heading direction = (temp.forward > 0) ? heading : heading.opposite();
                 // Decrement
-                velocity.forward -= (velocity.forward > 0) ? 1 : -1;
+                //velocity.forward -= (velocity.forward > 0) ? 1 : -1;
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
-                }
+                }}
             }, 150, "Player movement: " + getName()));
         }
 
         // For each sideways movement
-        for (int i = 0; i < Math.abs(velocity.right); i++) {
-            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                Heading direction = (velocity.right > 0) ? heading.next() : heading.prev();
-                // Decrement
-                velocity.right -= (velocity.right > 0) ? 1 : -1;
+        for (int i = 0; i < Math.abs(temp.right); i++) {
+            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
+                if (temp.right!=0){
+                Heading direction = (temp.right > 0) ? heading.next() : heading.prev();
+                             // Decrement
+                //velocity.right -= (velocity.right > 0) ? 1 : -1;
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
-                }
+                }}
             }, 150, "Player movement: " + getName()));
         }
     }
@@ -690,6 +746,11 @@ public class Player extends Subject {
      */
     public void shootLaser(Heading direction) {
         Laser laser = new Laser(space, direction, this, Player.class, Space.class);
+
+        List<PlayerShootListener> playerShootListeners = getPlayerCardEventListeners(this, PlayerShootListener.class);
+        for (PlayerShootListener listener : playerShootListeners) {
+            laser = listener.onPlayerShoot(this, laser,true);
+        }
 
         EventHandler.event_PlayerShootHandle(this, laser);
     }
