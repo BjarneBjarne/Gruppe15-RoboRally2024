@@ -57,6 +57,17 @@ public class Test {
         }
         sc.updateChoice(p2Choices, p2.getPlayerId());
 
+        System.out.println("Attempting to print choice mid-update");
+        List<Choice> choices = sc.getChoices(gameId, 5, 2);
+        if (choices == null) {
+            System.out.println("No choices found");
+        } else {
+            for (Choice c : choices) {
+                System.out.println("Player with ID '" + c.getPlayerId() + "' chose " + c.getChoice());
+            }
+        }
+        System.out.println();
+
         List<Choice> p3Choices = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             p3Choices.add(new Choice(p3.getPlayerId(), "p3Move" + (i + 1), turn, movement));
@@ -65,7 +76,7 @@ public class Test {
 
         List<Choice> p4Choices = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            p4Choices.add(new Choice(p1.getPlayerId(), "p4Move" + (i + 1), turn, movement));
+            p4Choices.add(new Choice(p4.getPlayerId(), "p4Move" + (i + 1), turn, movement));
         }
         sc.updateChoice(p4Choices, p4.getPlayerId());
         System.out.println("Choices updated");
@@ -73,9 +84,13 @@ public class Test {
 
         // Retrieving choices
         System.out.println("Retrieving choices");
-        List<Choice> choices = sc.getChoices(gameId, 5, 2);
-        for (Choice c : choices) {
-            System.out.println("Player with ID '" + c.getPlayerId() + "' chose " + c.getChoice());
+        choices = sc.getChoices(gameId, 5, 2);
+        if (choices == null) {
+            System.out.println("No choices found");
+        } else {
+            for (Choice c : choices) {
+                System.out.println("Player with ID '" + c.getPlayerId() + "' chose " + c.getChoice());
+            }
         }
 
 

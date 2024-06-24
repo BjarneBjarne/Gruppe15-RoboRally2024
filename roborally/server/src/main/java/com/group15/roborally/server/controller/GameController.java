@@ -102,11 +102,6 @@ public class GameController {
         register.setTurn(0);
         registerRepository.save(register);
 
-        Choice choice = new Choice();
-        choice.setPlayerId(player.getPlayerId());
-        choiceRepository.save(choice);
-        
-
         return ResponseEntity.ok().body(player);
     }
 

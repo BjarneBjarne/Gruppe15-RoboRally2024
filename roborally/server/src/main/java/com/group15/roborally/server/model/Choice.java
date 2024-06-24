@@ -29,6 +29,7 @@ public class Choice {
     
     @Id
     long playerId;
+    @Id
     String choice;
     @Id
     int turn;
