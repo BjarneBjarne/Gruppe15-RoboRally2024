@@ -10,7 +10,7 @@ public class RebootInteraction extends PlayerInteraction {
 
     @Override
     public void initializeInteraction() {
-        gameController.setDirectionOptionsPane(player.getSpace());
+        gameController.setDirectionOptionsPane(player, player.getSpace());
     }
 
     @Override
