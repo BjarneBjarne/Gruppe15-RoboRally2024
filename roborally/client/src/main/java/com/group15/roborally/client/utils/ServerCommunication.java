@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.group15.observer.Subject;
+import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
@@ -214,6 +215,22 @@ public class ServerCommunication extends Subject {
     public List<Register> getRegisters(long gameId) {
         return sendRequest(
                 "/games/" + gameId + "/registers",
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {}, null
+        );
+    }
+
+    public void updateChoice(Choice choice){
+        sendRequest(
+                "/choices/" + choice.getPlayerId(),
+                HttpMethod.PUT,
+                new ParameterizedTypeReference<String>() {}, choice
+        );
+    }
+
+    public List<Choice> getChoices(long gameId, int turn, int movement) {
+        return sendRequest(
+                "/choices/" + gameId + "?turn=" + turn + "&movement=" + movement,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {}, null
         );
