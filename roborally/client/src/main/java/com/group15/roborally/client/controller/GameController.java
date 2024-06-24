@@ -675,6 +675,8 @@ public class GameController implements Observer {
 
             if (latestGameData == null || latestPlayerData == null) return;
 
+            System.out.println("GamePhase: " + latestGameData.getPhase());
+
             // Check if any player disconnected
             for (Player client : board.getPlayers()) {
                 com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
@@ -701,7 +703,6 @@ public class GameController implements Observer {
         boolean allHaveSetSpawnPoint = true;
 
         for (Player client : board.getPlayers()) {
-            System.out.println("Setting player: " + client.getName());
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null) continue; // Player disconnected.
             if (client.getSpawnPoint() != null) continue; // Client already has a spawn point

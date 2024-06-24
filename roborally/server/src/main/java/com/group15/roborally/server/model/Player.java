@@ -53,6 +53,7 @@ public class Player/*  implements Serializable */ {
                 ((this.robotName != null || otherPlayerState.robotName != null) && !Objects.equals(this.robotName, otherPlayerState.robotName)) ||
                 ((this.playerName != null || otherPlayerState.playerName != null) && !Objects.equals(this.playerName, otherPlayerState.playerName)) ||
                  this.isReady != otherPlayerState.isReady ||
-                 !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint);
+                 !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint) ||
+                ((this.spawnDirection != null || otherPlayerState.spawnDirection != null) && !Objects.equals(this.spawnDirection, otherPlayerState.spawnDirection));
     }
 }
