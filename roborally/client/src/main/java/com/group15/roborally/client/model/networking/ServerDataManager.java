@@ -51,8 +51,8 @@ public class ServerDataManager extends Subject implements Observer {
     @Getter
     private boolean isHost = false;
     @Setter
-    private List<Choice> usedUpgradeCards;
-    private List<Choice> othersUsedUpgradeCards;
+    private List<Choice> usedUpgradeCards = new ArrayList<>();
+    private List<Choice> othersUsedUpgradeCards = new ArrayList<>();
 
     // Updated Game data
     private Game game;
@@ -388,20 +388,25 @@ public class ServerDataManager extends Subject implements Observer {
     public void updateChoices(Runnable callback, int move, int turn) {
         this.othersUsedUpgradeCards = null;
         Runnable poll = () -> {
-            // System.out.println("Polling server for registers.");
+            System.out.println("Polling choices");
             this.othersUsedUpgradeCards = serverCommunication.getChoices(game.getGameId(), turn, move);
             if (this.othersUsedUpgradeCards != null) {
-                // System.out.println("Registers received");
+                System.out.println("Choices received");
                 serverPoller.shutdownNow();
                 Platform.runLater(callback);
             }
+            System.out.println("Choices are null");
         };
         serverPoller = Executors.newScheduledThreadPool(1);
         serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 
-    public void setChoices() {
+    public void setChoices(int turn, int movement) {
+        if(usedUpgradeCards.isEmpty()) {
+            usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), "No choice", turn, movement));
+        }
         serverCommunication.updateChoice(usedUpgradeCards, localPlayer.getPlayerId());
+        usedUpgradeCards.clear();
     }
 
     public void addUsedUpgradeCard(String cardName, int move, int turn) {
