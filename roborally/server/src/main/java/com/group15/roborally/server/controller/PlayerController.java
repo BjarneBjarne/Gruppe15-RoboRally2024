@@ -78,9 +78,13 @@ public class PlayerController {
         gameRepository.findById(player.getGameId()).ifPresent(game -> {
             // When not in lobby
             if (!game.getPhase().equals(GamePhase.LOBBY)) {
-                if (!isFreeSpace(player.getSpawnPoint(), players.get())) {
-                    illegalPlayerProperty.set(true);
-                }
+                players.get().forEach(p -> {
+                    if (p.getPlayerId() == playerId)
+                        return;
+                    if (Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint())) {
+                        illegalPlayerProperty.set(true);
+                    }
+                });
             }
         });
 
@@ -89,15 +93,6 @@ public class PlayerController {
         }
 
         return ResponseEntity.ok().build();
-    }
-
-    private boolean isFreeSpace(int[] spaceToCheck, List<Player> players) {
-        for (Player p : players) {
-            if (Arrays.equals(p.getSpawnPoint(), spaceToCheck)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
