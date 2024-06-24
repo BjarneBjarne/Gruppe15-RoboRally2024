@@ -286,14 +286,14 @@ public class Player extends Subject {
         upgradeCards.forEach(upgradeCard -> {
             if (upgradeCard instanceof UpgradeCardPermanent) {
                 if (permCardsStr != null) {
-                    if (Arrays.stream(permCardsStr).noneMatch(cardStr -> cardStr.equals(upgradeCard.getEnum().name()))) {
+                    if (Arrays.stream(permCardsStr).noneMatch(cardStr -> cardStr != null && cardStr.equals(upgradeCard.getEnum().name()))) {
                         removeUpgradeCard(upgradeCard);
                         System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
                     }
                 }
             } else if (upgradeCard instanceof UpgradeCardTemporary) {
                 if (tempCardsStr != null) {
-                    if (Arrays.stream(tempCardsStr).noneMatch(cardStr -> cardStr.equals(upgradeCard.getEnum().name()))) {
+                    if (Arrays.stream(tempCardsStr).noneMatch(cardStr -> cardStr != null && cardStr.equals(upgradeCard.getEnum().name()))) {
                         removeUpgradeCard(upgradeCard);
                         System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
                     }
@@ -333,7 +333,7 @@ public class Player extends Subject {
     private void updateUpgradeCardPositions(String[] cardsStr, int noOfUpgradeCards, CardField[] upgradeCardFields) {
         for (int i = 0; i < noOfUpgradeCards; i++) {
             UpgradeCard upgradeCardAtPosition = null;
-            if (cardsStr != null) {
+            if (cardsStr[i] != null) {
                 for (UpgradeCard upgradeCard : upgradeCards) {
                     if (upgradeCard instanceof UpgradeCardPermanent) {
                         if (cardsStr[i].equals(upgradeCard.getEnum().name())) {
