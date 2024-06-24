@@ -15,4 +15,7 @@ public interface ChoiceRepository extends JpaRepository<Choice, Long> {
 
     @Query("SELECT c FROM Choice c WHERE c.player.gameId = :gameId")
     List<Choice> findAllByGameId(@Param("gameId") long gameId);
+
+    @Query("SELECT COUNT(DISTINCT c.playerId) FROM Choice c WHERE c.turn = :turn AND c.movement = :movement")
+    int countDistinctByTurnAndMovement(@Param("turn") int turn, @Param("movement") int movement);
 }
