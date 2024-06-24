@@ -572,11 +572,16 @@ public class GameController implements Observer {
      * @param space The space that the direction pane should appear at.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setDirectionOptionsPane(Space space) {
-        if (space != null) {
-            space.updateSpace();
+    public void setDirectionOptionsPane(Player player, Space space) {
+        if (player != null && player.equals(localPlayer)) {
+            if (space != null) {
+                space.updateSpace();
+            }
+            directionOptionsSpace = space;
+        } else {
+            directionOptionsSpace = null;
         }
-        directionOptionsSpace = space;
+
         board.updateBoard();
     }
 
@@ -661,6 +666,7 @@ public class GameController implements Observer {
             // Updating data
             List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
 
+            System.out.println();
             System.out.println("Changed data: " + changedData);
 
             if (changedData.contains(NetworkedDataTypes.GAME)) {
@@ -692,12 +698,19 @@ public class GameController implements Observer {
                 case INITIALIZATION -> updateInitialization();
                 case PROGRAMMING -> updateProgramming();
                 case UPGRADE -> {
-                    if (latestUpgradeShopData != null) updateUpgrading();
+                    if (latestUpgradeShopData != null) {
+                        updateUpgrading();
+                    } else {
+                        System.out.println("Shop is null");
+                    }
                 }
             }
         }
     }
 
+    /**
+     *
+     */
     private void updateInitialization() {
         // Check if all players have set their spawn point
         boolean allHaveSetSpawnPoint = true;
@@ -719,9 +732,9 @@ public class GameController implements Observer {
             if (client.equals(localPlayer)) {
                 if (ServerDataManager.getLocalPlayer().getIsReady() == 0 && board.getCurrentPhase() == INITIALIZATION) {
                     // Local player direction option
-                    setDirectionOptionsPane(clientSpawnPosition);
+                    setDirectionOptionsPane(client, clientSpawnPosition);
                 } else {
-                    setDirectionOptionsPane(null);
+                    setDirectionOptionsPane(null, null);
                 }
             }
 
@@ -750,7 +763,7 @@ public class GameController implements Observer {
 
         if (allHaveSetSpawnPoint) {
             startProgrammingPhase();
-            setDirectionOptionsPane(null);
+            setDirectionOptionsPane(null, null);
         }
     }
 
@@ -762,12 +775,13 @@ public class GameController implements Observer {
      * Updates the players' upgrade cards from the server.
      * 
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateUpgrading() {
+        System.out.println("Updating upgrade shop");
         // Updating players upgrade cards.
-        HashMap<Long, com.group15.roborally.server.model.Player> updatedPlayerMap = serverDataManager.getUpdatedPlayerMap();
         for (Player client : board.getPlayers()) {
-            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
+            com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null)
                 continue;
 
@@ -797,13 +811,15 @@ public class GameController implements Observer {
         int upgradeTurn = 0;
         for (int i = 0; i < board.getPriorityList().size(); i++) {
             Player client = board.getPriorityList().stream().toList().get(i);
-            com.group15.roborally.server.model.Player updatedPlayer = updatedPlayerMap.get(client.getPlayerId());
+            com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer.getIsReady() == 1) {
                 upgradeTurn++;
             } else {
                 break;
             }
         }
+
+        System.out.println("upgrade turn: " + upgradeTurn);
 
         board.getUpgradeShop().setAvailableCards(latestUpgradeShopData);
 
@@ -814,6 +830,7 @@ public class GameController implements Observer {
 
         // Set turn
         playerUpgrading = board.getPriorityList().stream().toList().get(upgradeTurn);
+        System.out.println("Player upgrading: " + playerUpgrading.getName());
         board.updateBoard();
     }
 }
