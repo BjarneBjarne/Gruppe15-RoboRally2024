@@ -11,14 +11,16 @@ import lombok.Setter;
 public class ChoiceId implements Serializable {
     private long playerId;
     private int turn;
-    int movement;
+    private int movement;
+    private String choice;
 
     // Default constructor
     public ChoiceId() {}
 
     // Parameterized constructor
-    public ChoiceId(long playerId, int turn, int movement) {
+    public ChoiceId(long playerId, String choice, int turn, int movement) {
         this.playerId = playerId;
+        this.choice = choice;
         this.turn = turn;
         this.movement = movement;
     }

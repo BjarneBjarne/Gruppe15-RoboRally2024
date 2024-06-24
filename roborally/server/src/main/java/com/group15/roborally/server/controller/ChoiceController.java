@@ -35,17 +35,22 @@ public class ChoiceController {
 
     @GetMapping(value = "/{gameId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Choice>> getChoices(@PathVariable("gameId") long gameId, @RequestParam("turn") int turn, @RequestParam("movement") int movement){
-        List<Choice> choices = choiceRepository.findAllByGameIdAndTurnAndMovement(gameId, turn, movement);
         int nrOfPlayers = gameRepository.findById(gameId).orElse(null).getNrOfPlayers();
-        int nrOfPlayerInput = choiceRepository.countDistinctByTurnAndMovement(turn, movement);
+        int nrOfPlayerInput = choiceRepository.countDistinctByGameIdAndTurnAndMovement(gameId, turn, movement);
+        if (nrOfPlayerInput != nrOfPlayers){
+            return ResponseEntity.ok(null);
+        }
+        List<Choice> choices = choiceRepository.findAllByGameIdAndTurnAndMovement(gameId, turn, movement);
         if(choices.isEmpty()){
             return ResponseEntity.notFound().build();
-        } else if (nrOfPlayerInput < nrOfPlayers){
-            System.out.println("Nr. of players: " + nrOfPlayers + " Nr. of choices: " + choices.size());
-            return ResponseEntity.ok(null);
         } else{
             return ResponseEntity.ok(choices);
         }
 
     }
+
+    // @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<List<Choice>> getAllChoices(){
+    //     return ResponseEntity.ok(choiceRepository.findAll());
+    // }
 }
