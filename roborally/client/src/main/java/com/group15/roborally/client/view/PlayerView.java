@@ -292,7 +292,7 @@ public class PlayerView extends Tab implements ViewObserver {
                     interactionPane.getChildren().add(readyPanel);
                 }
                 if (board.getCurrentPhase() == PROGRAMMING) {
-                    readyButton.setDisable(gameController.getIsLocalPlayerReady());
+                    readyButton.setDisable(gameController.getIsLocalPlayerFinishedProgramming());
                 } else {
                     readyButton.setDisable(true);
                 }

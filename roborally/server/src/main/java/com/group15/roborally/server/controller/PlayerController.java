@@ -46,6 +46,7 @@ public class PlayerController {
     public ResponseEntity<Long> createPlayer(@RequestBody String playerName) {
         Player player = new Player();
         player.setPlayerName(playerName);
+        player.setReadyForPhase(GamePhase.LOBBY);
         playerRepository.save(player);
         return ResponseEntity.ok(player.getPlayerId());
     }

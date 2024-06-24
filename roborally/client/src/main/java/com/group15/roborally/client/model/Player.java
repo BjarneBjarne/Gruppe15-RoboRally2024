@@ -600,7 +600,6 @@ public class Player extends Subject {
      */
     public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {
         if (command == null) return;
-        System.out.println("Command queued: "+ command);
         // Call the event handler, and let it modify the command
         if (notifyUpgradeCards) {
             command = EventHandler.event_RegisterActivate(this, command);
@@ -611,9 +610,7 @@ public class Player extends Subject {
                 break;
             case MOVE_1:
                 setVelocity(new Velocity(1, 0));
-                System.out.println(velocity.toString());
                 startMovement(gameController);
-
                 break;
             case MOVE_2:
                 setVelocity(new Velocity(2, 0));

@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UpgradeController {
     PlayerRepository playerRepository;
     GameRepository gameRepository;
-    UpgradeShopRepository markRepository;
+    UpgradeShopRepository upgradeShopRepository;
 
-    public UpgradeController(PlayerRepository playerRepository, GameRepository gameRepository, UpgradeShopRepository markRepository) {
+    public UpgradeController(PlayerRepository playerRepository, GameRepository gameRepository, UpgradeShopRepository upgradeShopRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
-        this.markRepository = markRepository;
+        this.upgradeShopRepository = upgradeShopRepository;
     }
 
     /**
@@ -38,7 +38,7 @@ public class UpgradeController {
      */
     @GetMapping(value = "/{gameId}/turn", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> getTurn(@PathVariable("gameId") long gameId) {
-        return ResponseEntity.ok().body(markRepository.findById(gameId).orElse(null).getTurn());
+        return ResponseEntity.ok().body(upgradeShopRepository.findById(gameId).orElse(null).getTurn());
     }
 
     /**
@@ -52,7 +52,7 @@ public class UpgradeController {
      */
     @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String[]> getUpgradeShop(@PathVariable("gameId") long gameId) {
-        UpgradeShop upgradeShop = markRepository.findById(gameId).orElse(null);
+        UpgradeShop upgradeShop = upgradeShopRepository.findById(gameId).orElse(null);
         String[] upgradeShopCards = upgradeShop.getCards();
         return ResponseEntity.ok().body(upgradeShopCards);
     }
@@ -68,9 +68,9 @@ public class UpgradeController {
      */
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postUpgradeShop(@RequestBody String[] upgradeShopCards, @PathVariable("gameId") long gameId) {
-        UpgradeShop upgradeShop = markRepository.findById(gameId).orElse(null);
+        UpgradeShop upgradeShop = upgradeShopRepository.findById(gameId).orElse(null);
         upgradeShop.setCards(upgradeShopCards); 
-        markRepository.save(upgradeShop);
+        upgradeShopRepository.save(upgradeShop);
         return ResponseEntity.ok().build();
     }
 }

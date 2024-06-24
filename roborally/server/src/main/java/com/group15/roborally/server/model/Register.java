@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 @Entity
 @Table(name = "registers")
 @Getter
@@ -47,11 +50,18 @@ public class Register {
     }
 
     public boolean hasNull() {
+        if (moves == null) return true;
         for (String move : moves) {
-            if (move == null || move.equals("")) {
+            if (move == null || move.isBlank()) {
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean hasChanges(Register otherRegisterState) {
+        return otherRegisterState == null ||
+                this.playerId != otherRegisterState.playerId ||
+                ((this.moves != null || otherRegisterState.moves != null) && !Arrays.equals(this.moves, otherRegisterState.moves));
     }
 }

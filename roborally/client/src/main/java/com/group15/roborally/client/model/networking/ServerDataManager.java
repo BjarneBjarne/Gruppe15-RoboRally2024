@@ -5,9 +5,7 @@ import com.group15.observer.Subject;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
-import com.group15.roborally.client.model.CardField;
 import com.group15.roborally.client.model.Space;
-import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
@@ -27,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 
@@ -36,7 +35,6 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 public class ServerDataManager extends Subject implements Observer {
     private final ServerCommunication serverCommunication = new ServerCommunication();
     private ScheduledExecutorService gameUpdateScheduler;
-    private ScheduledExecutorService serverPoller;
 
     @Getter
     boolean isConnectedToGame = false;
@@ -119,9 +117,10 @@ public class ServerDataManager extends Subject implements Observer {
         Game game = serverCommunication.getGame(gameId);
         List<Player> players = serverCommunication.getPlayers(gameId);
         ServerDataManager.localPlayer = localPlayer;
+        setReadyForPhase(GamePhase.LOBBY);
         this.isHost = localPlayer.getPlayerId() == game.getHostId();
         notifyChange(); // Notify multiplayer menu that we have connected to the game.
-        loadDataAndNotify(game, players, null);
+        loadDataAndNotify(game, players, null, null);
         updateGameFromServerData();
         startUpdateGameLoop();
     }
@@ -174,21 +173,6 @@ public class ServerDataManager extends Subject implements Observer {
         gameUpdateScheduler = null;
     }
 
-    public void updateRegisters(Runnable callback) {
-        this.registers = null;
-        Runnable poll = () -> {
-            // System.out.println("Polling server for registers.");
-            this.registers = serverCommunication.getRegisters(game.getGameId());
-            if (this.registers != null) {
-                // System.out.println("Registers received");
-                serverPoller.shutdownNow();
-                Platform.runLater(callback);
-            }
-        };
-        serverPoller = Executors.newScheduledThreadPool(1);
-        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
-    }
-
     /**
      * Updates the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
@@ -205,6 +189,12 @@ public class ServerDataManager extends Subject implements Observer {
         } else {
             updatedUpgradeShop = null;
         }
+        List<Register> updatedRegisters;
+        if (updatedGame.getPhase() == GamePhase.PROGRAMMING) {
+            updatedRegisters = serverCommunication.getRegisters(game.getGameId());
+        } else {
+            updatedRegisters = null;
+        }
 
         // Check if the host has disconnected
         boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
@@ -215,7 +205,7 @@ public class ServerDataManager extends Subject implements Observer {
 
         // Update the game in the JavaFX application thread.
         Platform.runLater(() -> {
-            loadDataAndNotify(updatedGame, updatedPlayers, updatedUpgradeShop);
+            loadDataAndNotify(updatedGame, updatedPlayers, updatedUpgradeShop, updatedRegisters);
         });
     }
 
@@ -223,7 +213,7 @@ public class ServerDataManager extends Subject implements Observer {
      * Loads the data received from the server and notifies listeners if any data has changed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void loadDataAndNotify(Game updatedGame, List<Player> updatedPlayers, String[] updatedUpgradeShop) {
+    private void loadDataAndNotify(Game updatedGame, List<Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters) {
         boolean hasChanges = false;
         // Update any data that has changed.
         if (updatedGame.hasChanges(this.game)) {
@@ -238,6 +228,14 @@ public class ServerDataManager extends Subject implements Observer {
         if (updatedUpgradeShop != null) {
             if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
                 updateUpgradeShopData(updatedUpgradeShop);
+                hasChanges = true;
+            }
+        }
+        if (updatedRegisters != null) {
+            if (this.registers == null ||
+                    this.registers.size() != updatedRegisters.size() ||
+                    IntStream.range(0, updatedRegisters.size()).anyMatch(i -> updatedRegisters.get(i).hasChanges(this.registers.get(i)))) {
+                updateRegisterData(updatedRegisters);
                 hasChanges = true;
             }
         }
@@ -265,6 +263,11 @@ public class ServerDataManager extends Subject implements Observer {
     private void updateUpgradeShopData(@NotNull String[] updatedUpgradeShop) {
         this.upgradeShop = updatedUpgradeShop;
         changedData.add(NetworkedDataTypes.UPGRADE_SHOP);
+    }
+
+    private void updateRegisterData(@NotNull List<Register> updatedRegisters) {
+        this.registers = updatedRegisters;
+        changedData.add(NetworkedDataTypes.REGISTERS);
     }
 
     /**
@@ -295,30 +298,35 @@ public class ServerDataManager extends Subject implements Observer {
 
     // Update data and send to server
     // Lobby
-    public void changeRobot(String robotName) {
-        localPlayer.setRobotName(robotName);
-        serverCommunication.updatePlayer(localPlayer);
+    public void changeRobot(@NotNull String robotName) {
+        if (!robotName.equals(localPlayer.getRobotName())) {
+            localPlayer.setRobotName(robotName);
+            serverCommunication.updatePlayer(localPlayer);
+        }
     }
-    public void setIsReady(int isReady) {
-        localPlayer.setIsReady(isReady);
-        serverCommunication.updatePlayer(localPlayer);
+    public void setReadyForPhase(@NotNull GamePhase nextPhase) {
+        if (!nextPhase.equals(localPlayer.getReadyForPhase())) {
+            localPlayer.setReadyForPhase(nextPhase);
+            serverCommunication.updatePlayer(localPlayer);
+        }
     }
-    public void changeCourse(CC_CourseData selectedCourse) {
-        this.game.setCourseName(selectedCourse.getCourseName());
-        serverCommunication.updateGame(game);
+    public void changeCourse(@NotNull CC_CourseData selectedCourse) {
+        if (!selectedCourse.getCourseName().equals(game.getCourseName())) {
+            game.setCourseName(selectedCourse.getCourseName());
+            serverCommunication.updateGame(game);
+        }
     }
-    public void setGamePhase(GamePhase gamePhase) {
-        if (isHost) {
-            this.game.setPhase(gamePhase);
+    public void setGamePhase(@NotNull GamePhase gamePhase) {
+        if (isHost && !gamePhase.equals(game.getPhase())) {
+            game.setPhase(gamePhase);
             serverCommunication.updateGame(game);
         }
     }
     // In game
-    public void setPlayerRegister(long playerId, String[] registerMoves, int turn) {
-        Player player = playerMap.get(playerId);
-        serverCommunication.updateRegister(registerMoves, player.getPlayerId(), turn);
+    public void setPlayerRegister(@NotNull String[] programFieldNames, int turn) {
+        serverCommunication.updateRegister(programFieldNames, localPlayer.getPlayerId(), turn);
     }
-    public void setPlayerSpawn(Space space, String directionName) {
+    public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
             localPlayer.setSpawnPoint(new int[]{space.x, space.y});
             localPlayer.setSpawnDirection(directionName);
@@ -326,20 +334,22 @@ public class ServerDataManager extends Subject implements Observer {
             serverCommunication.updatePlayer(localPlayer);
         }
     }
-    public void setUpgradeShop(String[] availableCards) {
-        serverCommunication.updateUpgradeShop(availableCards, this.game.getGameId());
+    public void setUpgradeShop(@NotNull String[] availableCards) {
+        if (!Arrays.equals(upgradeShop, availableCards)) {
+            serverCommunication.updateUpgradeShop(availableCards, game.getGameId());
+        }
     }
-    public void setPlayerUpgradeCards(String[] permCards, String[] tempCards) {
+    public void setPlayerUpgradeCards(@NotNull String[] permCards, @NotNull String[] tempCards) {
         localPlayer.setPermCards(permCards);
         localPlayer.setTempCards(tempCards);
         serverCommunication.updatePlayer(localPlayer);
     }
 
+
     // Getters
     public String[] getRegistersFromPlayer(long playerId) {
         if (this.registers != null) {
             Register register = this.registers.stream().filter(r -> (r.getPlayerId() == playerId)).findFirst().orElse(null);
-
             if (register != null) {
                 return register.getMoves();
             }
@@ -358,6 +368,10 @@ public class ServerDataManager extends Subject implements Observer {
     public String[] getUpdatedUpgradeShop() {
         changedData.remove(NetworkedDataTypes.UPGRADE_SHOP);
         return upgradeShop;
+    }
+    public List<Register> getUpdatedRegisters() {
+        changedData.remove(NetworkedDataTypes.REGISTERS);
+        return registers;
     }
 
 
