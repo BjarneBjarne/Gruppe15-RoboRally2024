@@ -14,11 +14,6 @@ public abstract class UpgradeCardTemporary extends UpgradeCard {
     }
 
     @Override
-    protected void onActivated() {
-        printUsage();
-    }
-
-    @Override
     public void tryActivate() {
         super.tryActivate();
         // Remove card on use
