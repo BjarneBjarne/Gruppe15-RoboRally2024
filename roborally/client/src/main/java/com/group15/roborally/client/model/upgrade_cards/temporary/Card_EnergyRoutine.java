@@ -3,7 +3,6 @@ package com.group15.roborally.client.model.upgrade_cards.temporary;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
-import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.GamePhase;
 
 public class Card_EnergyRoutine extends UpgradeCardTemporary {
@@ -28,7 +27,7 @@ public class Card_EnergyRoutine extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discard(new CommandCard(Command.ENERGY_ROUTINE));
         super.onActivated();
     }

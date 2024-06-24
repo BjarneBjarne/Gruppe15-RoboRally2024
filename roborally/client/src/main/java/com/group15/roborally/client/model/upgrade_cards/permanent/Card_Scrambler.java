@@ -50,7 +50,7 @@ public class Card_Scrambler extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

@@ -29,7 +29,7 @@ public class Card_RepeatRoutine extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discard(new CommandCard(Command.REPEAT_ROUTINE));
         super.onActivated();
     }

@@ -44,7 +44,7 @@ public class Card_BlueScreenOfDeath extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

@@ -28,7 +28,7 @@ public class Card_Reboot extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         EventHandler.event_PlayerReboot(owner, false, gameController);
         gameController.handleNextInteraction();
         super.onActivated();
