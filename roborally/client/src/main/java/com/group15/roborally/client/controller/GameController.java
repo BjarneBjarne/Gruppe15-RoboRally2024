@@ -565,11 +565,8 @@ public class GameController implements Observer {
             }
             targetField.setCard(sourceCard);
 
-            // If the player just bought an upgrade card
-            if (sourceField.cardFieldType == UPGRADE_CARD_SHOP_FIELD) {
-                if (targetField.cardFieldType == PERMANENT_UPGRADE_CARD_FIELD || targetField.cardFieldType == TEMPORARY_UPGRADE_CARD_FIELD) {
-                    setPlayerCards();
-                }
+            if (targetField.cardFieldType == PERMANENT_UPGRADE_CARD_FIELD || targetField.cardFieldType == TEMPORARY_UPGRADE_CARD_FIELD) {
+                setPlayerCards();
             }
         }
     }
@@ -634,6 +631,7 @@ public class GameController implements Observer {
     /**
      * Sets the GamePhase locally, and tells the server to change GamePhase if this is the host.
      * @param phase The GamePhase to switch to.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void setCurrentPhase(GamePhase phase) {
         if (serverDataManager.isHost()) {
@@ -664,9 +662,14 @@ public class GameController implements Observer {
 
         serverDataManager.setPlayerUpgradeCards(permCards, tempCards);
         serverDataManager.setIsReady(1);
+        updateGame();
     }
 
-    // Updates from server
+    /**
+     * Updates when data received from the server has changed.
+     * @param subject the subject which changed
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     @Override
     public void update(Subject subject) {
         if (subject.equals(serverDataManager)) {
@@ -700,16 +703,22 @@ public class GameController implements Observer {
                 }
             }
 
-            // Update logic for the current GamePhase locally from the data received from the server.
-            switch (board.getCurrentPhase()) {
-                case INITIALIZATION -> updateInitialization();
-                case PROGRAMMING -> updateProgramming();
-                case UPGRADE -> {
-                    if (latestUpgradeShopData != null) {
-                        updateUpgrading();
-                    } else {
-                        System.out.println("Shop is null");
-                    }
+            updateGame();
+        }
+    }
+
+    /**
+     * Update logic for the current local GamePhase.
+     */
+    private void updateGame() {
+        switch (board.getCurrentPhase()) {
+            case INITIALIZATION -> updateInitialization();
+            case PROGRAMMING -> updateProgramming();
+            case UPGRADE -> {
+                if (latestUpgradeShopData != null) {
+                    updateUpgrading();
+                } else {
+                    System.out.println("Shop is null");
                 }
             }
         }
@@ -793,18 +802,14 @@ public class GameController implements Observer {
             System.out.println("Card with name: " + cardString);
         }
         boolean changesInAvailableCards = false;
-        // Updating players upgrade cards.
+
+        // Updating proxy players upgrade cards.
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null)
                 continue;
 
-            String[] permCardsStr = updatedPlayer.getPermCards();
-            String[] tempCardsStr = updatedPlayer.getTempCards();
-
-            client.updateUpgradeCards(permCardsStr, tempCardsStr, this);
-
-            // Remove bought cards locally
+            // Remove bought cards from available cards locally
             for (int i = 0; i < availableCards.length; i++) {
                 if (availableCards[i] == null) continue;
                 String cardString = availableCards[i];
@@ -813,6 +818,13 @@ public class GameController implements Observer {
                     changesInAvailableCards = true;
                 }
             }
+
+            // Only update proxy players cards
+            if (client.equals(localPlayer)) continue;
+
+            String[] permCardsStr = updatedPlayer.getPermCards();
+            String[] tempCardsStr = updatedPlayer.getTempCards();
+            client.updateUpgradeCards(permCardsStr, tempCardsStr, this);
         }
 
         if (serverDataManager.isHost() && changesInAvailableCards) {
