@@ -501,11 +501,13 @@ public class MultiplayerMenuView implements Observer {
     }
 
     private void startGame() {
-        if (!hasStartedGameLocally) {
-            hasStartedGameLocally = true;
-            serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
-            this.serverDataManager.detach(this);
-            AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
-        }
+        Platform.runLater(() -> {
+            if (!hasStartedGameLocally) {
+                hasStartedGameLocally = true;
+                serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
+                this.serverDataManager.detach(this);
+                AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
+            }
+        });
     }
 }

@@ -231,15 +231,17 @@ public class ServerDataManager extends Subject implements Observer {
             hasChanges = true;
         }
         if (this.game.getNrOfPlayers() != updatedGame.getNrOfPlayers() ||
-        updatedPlayers.stream().anyMatch(updatedPlayer -> updatedPlayer.hasChanges(playerMap.get(updatedPlayer.getPlayerId())))) {
+                updatedPlayers.stream().anyMatch(updatedPlayer -> updatedPlayer.hasChanges(playerMap.get(updatedPlayer.getPlayerId())))) {
             updatePlayerData(updatedPlayers);
             hasChanges = true;
         }
-        if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
-            updateUpgradeShopData(updatedUpgradeShop);
-            hasChanges = true;
+        if (updatedUpgradeShop != null) {
+            if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
+                updateUpgradeShopData(updatedUpgradeShop);
+                hasChanges = true;
+            }
         }
-        // Update if there has been changes.
+        // Notify if there have been changes.
         if (hasChanges) {
             //System.out.println("Had changes");
             notifyChange();
@@ -324,11 +326,7 @@ public class ServerDataManager extends Subject implements Observer {
             serverCommunication.updatePlayer(localPlayer);
         }
     }
-    public void setUpgradeShop(CardField[] availableCardsFields) {
-        String[] availableCards = new String[availableCardsFields.length];
-        for (int i = 0; i < availableCards.length; i++) {
-            availableCards[i] = ((UpgradeCard)availableCardsFields[i].getCard()).getEnum().name();
-        }
+    public void setUpgradeShop(String[] availableCards) {
         serverCommunication.updateUpgradeShop(availableCards, this.game.getGameId());
     }
     public void setPlayerUpgradeCards(String[] permCards, String[] tempCards) {
@@ -370,12 +368,6 @@ public class ServerDataManager extends Subject implements Observer {
         // If the player was disconnected from the server.
         if (!serverCommunication.isConnectedToServer()) {
             connectionToServerTimedOut();
-        }
-    }
-
-    public void updatePhase(GamePhase phase) {
-        if (isHost) {
-            setGamePhase(phase);
         }
     }
 }
