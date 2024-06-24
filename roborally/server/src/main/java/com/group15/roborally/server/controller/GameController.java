@@ -57,7 +57,7 @@ public class GameController {
 
         UpgradeShop upgradeShop = new UpgradeShop();
         upgradeShop.setGameId(game.getGameId());
-        upgradeShop.setTurn(1);
+        upgradeShop.setTurn(0);
         upgradeShopRepository.save(upgradeShop);
 
         return ResponseEntity.ok().body(game.getGameId());

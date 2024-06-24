@@ -28,7 +28,7 @@ public class Player/*  implements Serializable */ {
     private String playerName;
     private int[] spawnPoint;
     private String spawnDirection;
-    private int isReady;
+    private GamePhase readyForPhase = GamePhase.LOBBY;
 
     private String[] permCards;
     private String[] tempCards;
@@ -57,7 +57,7 @@ public class Player/*  implements Serializable */ {
                 this.playerId != otherPlayerState.playerId ||
                 ((this.robotName != null || otherPlayerState.robotName != null) && !Objects.equals(this.robotName, otherPlayerState.robotName)) ||
                 ((this.playerName != null || otherPlayerState.playerName != null) && !Objects.equals(this.playerName, otherPlayerState.playerName)) ||
-                 this.isReady != otherPlayerState.isReady ||
+                 this.readyForPhase != otherPlayerState.readyForPhase ||
                  !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint) ||
                 ((this.spawnDirection != null || otherPlayerState.spawnDirection != null) && !Objects.equals(this.spawnDirection, otherPlayerState.spawnDirection));
     }
