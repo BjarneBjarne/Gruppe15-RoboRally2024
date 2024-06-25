@@ -29,6 +29,7 @@ import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
+import com.group15.roborally.client.model.upgrade_cards.permanent.Card_Brakes;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.server.model.Game;
@@ -99,7 +100,6 @@ public class GameController implements Observer {
      */
     public void startUpgradingPhase() {
         board.updatePriorityList();
-
         // The host sets the available upgrade cards and sends it to the server.
         if (serverDataManager.isHost()) {
             board.getUpgradeShop().refillAvailableCards();
@@ -616,6 +616,7 @@ public class GameController implements Observer {
 
             if (targetField.cardFieldType == PERMANENT_UPGRADE_CARD_FIELD || targetField.cardFieldType == TEMPORARY_UPGRADE_CARD_FIELD) {
                 setPlayerCards();
+                board.updateBoard();
             }
         }
     }
@@ -711,6 +712,7 @@ public class GameController implements Observer {
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
     public void setPlayerCards() {
+        playerUpgrading = null;
         String[] permCards = new String[Player.NO_OF_PERMANENT_UPGRADE_CARDS];
         String[] tempCards = new String[Player.NO_OF_TEMPORARY_UPGRADE_CARDS];
 
@@ -725,7 +727,20 @@ public class GameController implements Observer {
                 tempCards[i] = card.getEnum().name();
         }
 
+        // Remove bought cards from available cards and send the updated shop to the server
+        String[] availableCards = new String[latestUpgradeShopData.length];
+        for (int i = 0; i < latestUpgradeShopData.length; i++) {
+            availableCards[i] = latestUpgradeShopData[i];
+        }
+        for (int i = 0; i < availableCards.length; i++) {
+            if (availableCards[i] == null) continue;
+            int finalI = i;
+            if (localPlayer.getUpgradeCards().stream().anyMatch(playerUpgradeCard -> playerUpgradeCard.getEnum().name().equals(availableCards[finalI]))) {
+                availableCards[finalI] = null;
+            }
+        }
         serverDataManager.setPlayerUpgradeCards(permCards, tempCards);
+        serverDataManager.setUpgradeShop(availableCards);
         setReadyForPhase(GamePhase.PROGRAMMING);
     }
 
@@ -883,18 +898,6 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void updateUpgrading() {
-        if (latestUpgradeShopData == null) {
-            System.out.println("Shop is null");
-            return;
-        }
-
-        String[] availableCards = new String[latestUpgradeShopData.length];
-        for (int i = 0; i < latestUpgradeShopData.length; i++) {
-            availableCards[i] = latestUpgradeShopData[i];
-        }
-
-        boolean changesInAvailableCards = false;
-
         // Updating proxy players upgrade cards.
         for (Player client : board.getPlayers()) {
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
@@ -907,29 +910,12 @@ public class GameController implements Observer {
                 String[] tempCardsStr = updatedPlayer.getTempCards();
                 client.updateUpgradeCards(permCardsStr, tempCardsStr, this);
             }
-
-            // Remove bought cards from available cards locally
-            for (int i = 0; i < availableCards.length; i++) {
-                if (availableCards[i] == null) continue;
-                String cardString = availableCards[i];
-                if (client.getUpgradeCards().stream().anyMatch(playerUpgradeCard -> playerUpgradeCard.getEnum().name().equals(cardString))) {
-                    availableCards[i] = null;
-                    changesInAvailableCards = true;
-                }
-            }
         }
 
-        if (serverDataManager.isHost() && changesInAvailableCards) {
-            for (int i = 0; i < latestUpgradeShopData.length; i++) {
-                if (latestUpgradeShopData[i] == null) continue;
-                if (availableCards[i] == null) {
-                    System.out.println("CARD TO DELETE: " + latestUpgradeShopData[i]);
-                    board.getUpgradeShop().removeAvailableCardByName(latestUpgradeShopData[i]);
-                }
-            }
-            serverDataManager.setUpgradeShop(availableCards);
-        }
+        // Set available cards locally
+        board.getUpgradeShop().setAvailableCards(latestUpgradeShopData);
 
+        // Finding whose turn it is to upgrade.
         int upgradeTurn = 0;
         for (int i = 0; i < board.getPriorityList().size(); i++) {
             Player client = board.getPriorityList().stream().toList().get(i);
@@ -941,30 +927,35 @@ public class GameController implements Observer {
             }
         }
 
-        // Finish check
+        // Update view with the upgrading player
         if (upgradeTurn < NO_OF_PLAYERS) {
-            // Set available cards
-            board.getUpgradeShop().setAvailableCards(availableCards);
-            // Set turn
             playerUpgrading = board.getPriorityList().stream().toList().get(upgradeTurn);
+            board.updateBoard();
+        } else {
+            playerUpgrading = null;
+            Arrays.fill(latestUpgradeShopData, null);
+            if (serverDataManager.isHost()) {
+                serverDataManager.setUpgradeShop(latestUpgradeShopData);
+            }
             board.updateBoard();
         }
 
         System.out.println();
-        System.out.println("Updating upgrade shop");
-        System.out.println("Upgrade cards: ");
-        for (String cardString : availableCards) {
-            System.out.println("Card with name: " + cardString);
+        System.out.println("************");
+        System.out.println("Shop from server:");
+        for (String card : latestUpgradeShopData) {
+            System.out.println(card);
         }
-
         System.out.println();
-        System.out.println("Upgrade cards in actual shop:");
-        for(CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
-            if (cardField.getCard() != null) {
-                System.out.println(cardField.getCard().getDisplayName());
-            } else {
+        System.out.println("Actual shop:");
+        for (CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
+            if (cardField.getCard() == null) {
                 System.out.println("null");
+            } else {
+                System.out.println(((UpgradeCard)(cardField.getCard())).getEnum().name());
             }
         }
+        System.out.println("************");
+        System.out.println();
     }
 }

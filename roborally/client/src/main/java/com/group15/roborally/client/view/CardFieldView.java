@@ -41,6 +41,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
@@ -67,7 +68,9 @@ public class CardFieldView extends StackPane implements ViewObserver {
 
     private final GameController gameController;
 
+    @Getter
     private final ImageView cardImageView = new ImageView();
+    @Getter
     private final ImageView cardForegroundImageView = new ImageView();
     private final Button useButton = new Button();
 

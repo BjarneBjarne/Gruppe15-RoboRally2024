@@ -32,6 +32,7 @@ import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
+import com.group15.roborally.client.model.upgrade_cards.permanent.Card_Brakes;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.observer.Subject;
 import javafx.scene.image.Image;

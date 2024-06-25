@@ -25,6 +25,7 @@ import com.group15.observer.ViewObserver;
 import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.utils.ImageUtils;
@@ -210,8 +211,9 @@ public class BoardView extends VBox implements ViewObserver {
         } else {
             finishUpgradingButton.setOnMouseClicked(_ -> {
                 gameController.setPlayerCards();
-                upgradeShopPane.setVisible(false);
-                upgradeShopPane.setMouseTransparent(true);
+                finishUpgradingButton.setVisible(false);
+                finishUpgradingButton.setDisable(true);
+                finishUpgradingButton.setMouseTransparent(true);
             });
 
             // Button text
@@ -241,13 +243,13 @@ public class BoardView extends VBox implements ViewObserver {
      */
     public void updateUpgradeShop() {
         upgradeShopCardsHBox.getChildren().clear();
-
         UpgradeShop upgradeShop = board.getUpgradeShop();
+        Player playerUpgrading = gameController.getPlayerUpgrading();
 
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             CardField cardField = upgradeShop.getAvailableCardsField(i);
             CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
-            boolean localPlayersTurn = gameController.getLocalPlayer().equals(gameController.getPlayerUpgrading());
+            boolean localPlayersTurn = gameController.getLocalPlayer().equals(playerUpgrading);
             upgradeShopCardsHBox.getChildren().add(cardFieldView);
             cardFieldView.setAlignment(Pos.CENTER);
             switch (cardField.getCard()) {
@@ -265,14 +267,24 @@ public class BoardView extends VBox implements ViewObserver {
                             "-fx-border-radius: 5"
             );
 
-            if (!localPlayersTurn) {
-                if (gameController.getPlayerUpgrading() != null) {
-                    otherPlayerTurnText.setText(gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
-                }
+            if (!localPlayersTurn && playerUpgrading != null) {
+                otherPlayerTurnText.setText(gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
             }
-            cardFieldView.setDisable(!localPlayersTurn);
             otherPlayerTurnText.setVisible(!localPlayersTurn);
-            finishUpgradingButton.setVisible(localPlayersTurn);
+
+            cardFieldView.setDisable(!localPlayersTurn);
+            upgradeShopCardsHBox.setDisable(!localPlayersTurn);
+            cardFieldView.getCardImageView().setDisable(!localPlayersTurn);
+            cardFieldView.getCardForegroundImageView().setDisable(!localPlayersTurn);
+            if (playerUpgrading != null && ServerDataManager.getLocalPlayer().getReadyForPhase() == UPGRADE) {
+                finishUpgradingButton.setVisible(localPlayersTurn);
+                finishUpgradingButton.setDisable(!localPlayersTurn);
+                finishUpgradingButton.setMouseTransparent(!localPlayersTurn);
+            } else {
+                finishUpgradingButton.setVisible(false);
+                finishUpgradingButton.setDisable(true);
+                finishUpgradingButton.setMouseTransparent(true);
+            }
 
             GridPane.setHalignment(cardFieldView, HPos.CENTER);
             GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
@@ -372,9 +384,10 @@ public class BoardView extends VBox implements ViewObserver {
 
             Platform.runLater(() -> {
                 if (board.getCurrentPhase() == GamePhase.UPGRADE) {
-                    updateUpgradeShop();
                     upgradeShopPane.setVisible(true);
                     upgradeShopPane.setMouseTransparent(false);
+                    finishUpgradingButton.setVisible(gameController.getPlayerUpgrading() != null && ServerDataManager.getLocalPlayer().getReadyForPhase() == UPGRADE);
+                    updateUpgradeShop();
                 } else {
                     if (upgradeShopPane != null) {
                         upgradeShopPane.setVisible(false);
