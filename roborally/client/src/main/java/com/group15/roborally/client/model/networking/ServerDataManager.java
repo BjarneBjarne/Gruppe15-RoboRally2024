@@ -346,6 +346,7 @@ public class ServerDataManager extends Subject implements Observer {
     }
     public void setUpgradeShop(@NotNull String[] availableCards) {
         if (!Arrays.equals(upgradeShop, availableCards)) {
+            System.out.println("******** SETTING NEW CARDS ON THE SERVER ********");
             serverCommunication.updateUpgradeShop(availableCards, game.getGameId());
         }
     }
