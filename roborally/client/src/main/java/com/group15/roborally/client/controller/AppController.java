@@ -101,7 +101,7 @@ public class AppController implements Observer {
             multiplayerMenuView.setupMenuUI();
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
             infoPane.setInfoText("");
-            multiplayerMenuView.setServerURLInput("http://localhost:8080");
+            multiplayerMenuView.setServerURLInput("http://localhost:3306");
         });
     }
 
