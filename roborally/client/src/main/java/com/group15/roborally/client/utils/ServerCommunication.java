@@ -239,15 +239,15 @@ public class ServerCommunication extends Subject {
 
     public void setInteraction(Interaction interaction) {
         sendRequest(
-                "/interactions/" + interaction.getPlayerId() + "?movement=" + interaction.getMovement(),
+                "/interactions/" + interaction.getPlayerId(),
                 HttpMethod.PUT,
                 new ParameterizedTypeReference<>() {}, interaction
         );
     }
 
-    public Interaction getInteraction(long playerId, int movement) {
+    public Interaction getInteraction(long playerId, int turn, int movement) {
         return sendRequest(
-                "/interactions/" + playerId + "?movement=" + movement, 
+                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement, 
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {}, null
         );

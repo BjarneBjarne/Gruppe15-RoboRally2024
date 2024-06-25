@@ -107,7 +107,7 @@ public class GameController {
         register.setTurn(0);
         registerRepository.save(register);
 
-        Interaction interaction = new Interaction(player.getPlayerId(), null, -1);
+        Interaction interaction = new Interaction(player.getPlayerId(), null, -1, -1);
         interactionController.updateInteraction(interaction);
 
         return ResponseEntity.ok().body(player);
