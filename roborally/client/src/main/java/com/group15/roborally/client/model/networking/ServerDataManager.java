@@ -7,6 +7,7 @@ import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
 import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
+import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
 import com.group15.roborally.server.model.Player;
@@ -16,6 +17,8 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.Setter;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -45,6 +48,9 @@ public class ServerDataManager extends Subject implements Observer {
     private static Player localPlayer;
     @Getter
     private boolean isHost = false;
+    @Setter
+    private List<Choice> usedUpgradeCards = new ArrayList<>();
+    private List<Choice> othersUsedUpgradeCards = new ArrayList<>();
 
     // Updated Game data
     private Game game;
@@ -383,5 +389,40 @@ public class ServerDataManager extends Subject implements Observer {
         if (!serverCommunication.isConnectedToServer()) {
             connectionToServerTimedOut();
         }
+    }
+
+    public void updateChoices(Runnable callback, int move, int turn) {
+        this.othersUsedUpgradeCards = null;
+        Runnable poll = () -> {
+            this.othersUsedUpgradeCards = serverCommunication.getChoices(game.getGameId(), turn, move);
+            if (this.othersUsedUpgradeCards != null) {
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
+            }
+        };
+        serverPoller = Executors.newScheduledThreadPool(1);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+    }
+
+    public void setChoices(int movement, int turn) {
+        if(usedUpgradeCards.isEmpty()) {
+            usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), "No choice", turn, movement));
+        }
+        serverCommunication.updateChoice(usedUpgradeCards, localPlayer.getPlayerId());
+        usedUpgradeCards.clear();
+    }
+
+    public void addUsedUpgradeCard(String cardName, int move, int turn) {
+        usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), cardName, turn, move));
+    }
+
+    public List<String> getUsedUpgrades(String playerName) {
+        List<String> usedUpgrades = new ArrayList<>();
+        for (Choice choice : othersUsedUpgradeCards) {
+            if (playerName.equals(playerMap.get(choice.getPlayerId()).getPlayerName())) {
+                usedUpgrades.add(choice.getChoice());
+            }
+        }
+        return usedUpgrades;
     }
 }

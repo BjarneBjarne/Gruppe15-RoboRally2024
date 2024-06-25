@@ -58,7 +58,7 @@ public class Card_TrojanNeedler extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

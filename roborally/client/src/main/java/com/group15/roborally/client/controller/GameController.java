@@ -65,6 +65,7 @@ public class GameController implements Observer {
     private PlayerInteraction currentPlayerInteraction = null;
 
     private int turnCounter;
+    private int movementCounter;
     @Getter
     private Player playerUpgrading;
 
@@ -83,7 +84,8 @@ public class GameController implements Observer {
         this.localPlayer = localPlayer;
         this.serverDataManager = serverDataManager;
         this.serverDataManager.attach(this);
-
+        this.turnCounter = 0;
+        this.movementCounter = 0;
         latestGameData = serverDataManager.getUpdatedGame();
         latestPlayerData = serverDataManager.getUpdatedPlayerMap();
         latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
@@ -157,6 +159,7 @@ public class GameController implements Observer {
     }
 
     private void startPlayerActivationPhase() {
+        movementCounter = 0;
         for (Player player : board.getPlayers()) {
             if (player.equals(localPlayer)) {
                 continue;
@@ -220,7 +223,43 @@ public class GameController implements Observer {
         if (getIsPlayerInteracting()) { // Return and wait for player interaction.
             return;
         }
-        // When player command is executed, check if there are more player turns this register.
+        setAndUpdateChoices(this::executeUpgradeCards);
+        // serverDataManager.setChoices(movementCounter, turnCounter);
+        // serverDataManager.updateChoices(this::executeUpgradeCards, movementCounter, turnCounter);
+    }
+
+    public void addChoice(String choice){
+        serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
+    }
+
+    private void setAndUpdateChoices(Runnable callback){
+        serverDataManager.setChoices(movementCounter, turnCounter);
+        serverDataManager.updateChoices(callback, movementCounter, turnCounter);
+    }
+
+    private void executeUpgradeCards(){
+        for(Player player : board.getPlayers()){
+            List<String> usedCards = serverDataManager.getUsedUpgrades(player.getName());
+            for(String card : usedCards){
+                for(CardField field : player.getPermanentUpgradeCardFields()){
+                    if(field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)){
+                        ((UpgradeCard) field.getCard()).onActivated();
+                        usedCards.remove(card);
+                    }
+                }
+                for(CardField field : player.getTemporaryUpgradeCardFields()){
+                    if(field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)){
+                        ((UpgradeCard) field.getCard()).onActivated();
+                        usedCards.remove(card);
+                    }
+                }
+            }
+        }
+        nextMovement();
+    }
+
+    private void nextMovement(){
+        movementCounter++;
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
         } else {
@@ -580,11 +619,15 @@ public class GameController implements Observer {
                 space.updateSpace();
             }
             directionOptionsSpace = space;
+            board.updateBoard();
         } else {
             directionOptionsSpace = null;
+            board.updateBoard();
+            /*
+             * TODO: Set "isReady" to true and start polling for player Heading from server.
+             * Poll server with callback(this::handleNextPlayerInteraction)
+             */
         }
-
-        board.updateBoard();
     }
 
 
@@ -623,6 +666,10 @@ public class GameController implements Observer {
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             setReadyForPhase(GamePhase.PROGRAMMING);
         } else {
+            /*
+             * TODO: Set "isReady" to true and set Heading to server, and get all players Heading from the server.
+             * Poll server with callback(this::handleNextPlayerInteraction)
+             */
             currentPlayerInteraction.getPlayer().setHeading(direction);
             currentPlayerInteraction.interactionFinished();
         }

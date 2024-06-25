@@ -5,7 +5,6 @@ import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.BE_Hole;
 import com.group15.roborally.client.model.events.PlayerEndOfActionListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
-import com.group15.roborally.client.model.Player;
 
 public class Card_HoverUnit extends UpgradeCardPermanent {
 
@@ -43,7 +42,7 @@ public class Card_HoverUnit extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

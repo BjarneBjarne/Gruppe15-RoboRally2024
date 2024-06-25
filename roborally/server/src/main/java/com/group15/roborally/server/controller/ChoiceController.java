@@ -21,27 +21,35 @@ public class ChoiceController {
         this.gameRepository = gameRepository;
     }
 
-    @PutMapping(value = "/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateChoice(@RequestBody Choice choice){
-        if(choiceRepository.existsById(choice.getPlayerId())){
+    @PostMapping(value = "/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateChoice(@RequestBody List<Choice> choices){
+        for(Choice choice : choices){
+            System.out.println("Inserting choice: " + choice.getChoice());
             choiceRepository.save(choice);
-            return ResponseEntity.ok().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/{gameId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Choice>> getChoices(@PathVariable("gameId") long gameId, @RequestParam("turn") int turn, @RequestParam("movement") int movement){
-        List<Choice> choices = choiceRepository.findAllByGameIdAndTurnAndMovement(gameId, turn, movement);
         int nrOfPlayers = gameRepository.findById(gameId).orElse(null).getNrOfPlayers();
+        int nrOfPlayerInput = choiceRepository.countDistinctByGameIdAndTurnAndMovement(gameId, turn, movement);
+        System.out.println("\n\n\nTurn: " + turn + "  | move: " + movement + "\nNr of players: " + nrOfPlayers + "\nNr of player input: " + nrOfPlayerInput);
+        System.out.println("\n\n\n");
+        if (nrOfPlayerInput != nrOfPlayers){
+            return ResponseEntity.ok(null);
+        }
+        List<Choice> choices = choiceRepository.findAllByGameIdAndTurnAndMovement(gameId, turn, movement);
         if(choices.isEmpty()){
             return ResponseEntity.notFound().build();
-        } else if (choices.size() != nrOfPlayers){
-            System.out.println("Nr. of players: " + nrOfPlayers + " Nr. of choices: " + choices.size());
-            return ResponseEntity.ok(null);
         } else{
             return ResponseEntity.ok(choices);
         }
 
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Choice>> getAllChoices(){
+        return ResponseEntity.ok(choiceRepository.findAll());
     }
 }

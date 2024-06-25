@@ -27,7 +27,7 @@ public class Card_Recompile extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discardHand();
         owner.drawHand();
         super.onActivated();

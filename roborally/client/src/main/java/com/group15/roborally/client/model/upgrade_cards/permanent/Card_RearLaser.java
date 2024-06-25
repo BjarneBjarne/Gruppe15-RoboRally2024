@@ -47,7 +47,7 @@ public class Card_RearLaser extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

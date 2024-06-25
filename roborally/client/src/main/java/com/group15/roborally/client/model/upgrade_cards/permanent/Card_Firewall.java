@@ -41,7 +41,7 @@ public class Card_Firewall extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

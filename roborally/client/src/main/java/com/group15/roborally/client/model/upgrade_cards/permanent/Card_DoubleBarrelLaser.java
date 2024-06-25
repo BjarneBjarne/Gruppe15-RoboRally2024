@@ -41,7 +41,7 @@ public class Card_DoubleBarrelLaser extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

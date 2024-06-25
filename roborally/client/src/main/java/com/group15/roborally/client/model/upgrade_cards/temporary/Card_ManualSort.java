@@ -31,7 +31,7 @@ public class Card_ManualSort extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         // TODO: Make this override Card_AdminPrivilege
         Queue<Player> oldPriorityList = owner.board.getPriorityList();
         List<Player> newPriorityList = new ArrayList<>();

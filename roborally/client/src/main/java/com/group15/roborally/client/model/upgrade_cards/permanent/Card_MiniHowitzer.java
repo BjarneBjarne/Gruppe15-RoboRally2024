@@ -6,7 +6,6 @@ import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.damage.Damage;
 import com.group15.roborally.client.model.events.PlayerLaserHitListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
-import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.GamePhase;
 
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         super.onActivated();
         owner.addTemporaryBonusDamage(new Damage(2, 0, 0, 0));
         activated = true;
