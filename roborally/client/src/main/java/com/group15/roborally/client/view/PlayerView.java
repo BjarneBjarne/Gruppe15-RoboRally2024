@@ -42,6 +42,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -57,6 +58,7 @@ import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
  *
  */
 public class PlayerView extends Tab implements ViewObserver {
+    @Getter
     private final Player player;
 
     private final CardFieldView[] programCardViews;
@@ -307,7 +309,7 @@ public class PlayerView extends Tab implements ViewObserver {
                     List<Command> options = commandOptionsInteraction.getOptions();
                     for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(_ -> gameController.executeCommandOptionAndContinue(command));
+                        optionButton.setOnAction(_ -> gameController.chooseCommandOption(command));
                         optionButton.setDisable(false);
                         playerOptionsPanel.getChildren().add(optionButton);
                     }
@@ -319,7 +321,4 @@ public class PlayerView extends Tab implements ViewObserver {
         }
     }
 
-    public Player getPlayer() {
-        return player;
-    }
 }

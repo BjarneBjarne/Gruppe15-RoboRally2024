@@ -23,7 +23,7 @@ public class CommandOptionsInteraction extends PlayerInteraction {
 
     @Override
     public void initializeInteraction() {
-
+        super.initializeInteraction();
     }
 
     @Override

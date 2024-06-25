@@ -65,8 +65,6 @@ public class Board extends Subject {
     private GamePhase currentPhase = INITIALIZATION;
     @Getter
     private int currentRegister = 0;
-    @Getter
-    private int turnCounter = 0;
 
     final public int NO_OF_CHECKPOINTS;
 
@@ -512,7 +510,7 @@ public class Board extends Subject {
      * @param nextSpace the space to which the current player should move
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      */
-    public void movePlayerToSpace(Player player, Space nextSpace, GameController gameController) {
+    public void movePlayerToSpace(Player player, Space nextSpace) {
         Space currentSpace = player.getSpace();
         if (currentSpace == null) {
             System.out.println("ERROR: Current space of " + player.getName() + " is null. Cannot move player.");
@@ -546,7 +544,7 @@ public class Board extends Subject {
         }
 
         // Setting the players position to nextSpace in the EventHandler
-        EventHandler.event_PlayerMove(player, nextSpace, gameController);
+        EventHandler.event_PlayerMove(player, nextSpace);
     }
 
     /**

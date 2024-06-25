@@ -258,23 +258,11 @@ public class EventHandler {
     /**
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
-    public static void event_PlayerMove(Player playerMoving, Space space, GameController gc) {
-        playerMoving.setSpace(space);
-        /*List<PlayerEndOfActionListener> playerMoveListeners = getPlayerCardEventListeners(playerMoving, PlayerEndOfActionListener.class);
-        boolean shouldReboot = (space == null || space.getBoardElement() instanceof BE_Hole); // If player is out of bounds or on a hole
-
-        // Handle listener logic
-        for (PlayerEndOfActionListener listener : playerMoveListeners) {
-            Pair<Space, Boolean> movePair = listener.onPlayerMove(space, shouldReboot);
-            space = movePair.getKey();
-            shouldReboot = movePair.getValue();
+    public static void event_PlayerMove(Player playerMoving, Space space) {
+        if (space == null) {
+            playerMoving.setTemporarySpace(playerMoving.getSpace());
         }
-
-        if (shouldReboot) {
-            event_PlayerReboot(playerMoving, true, gc);
-        } else {
-            playerMoving.setSpace(space);
-        }*/
+        playerMoving.setSpace(space);
     }
 
 
@@ -289,6 +277,7 @@ public class EventHandler {
         if (oldSpace == null) {
             //System.out.println("old space null for " + player.getName());
             oldSpace = player.getTemporarySpace();
+            player.setTemporarySpace(null);
         }
         Space[][] currentSubBoard = null;
         Space rebootSpace;

@@ -16,7 +16,14 @@ public abstract class PlayerInteraction {
         this.player = player;
     }
 
-    public abstract void initializeInteraction();
+    public void initializeInteraction() {
+        gameController.getServerDataManager().updateInteraction(
+                gameController::continueFromInteraction,
+                gameController.getCurrentPlayerInteraction().getPlayer().getPlayerId(),
+                gameController.getTurnCounter(),
+                gameController.getMovementCounter()
+        );
+    }
     public void interactionFinished() {
         callback.run();
     }

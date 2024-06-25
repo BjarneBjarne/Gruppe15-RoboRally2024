@@ -623,15 +623,15 @@ public class Player extends Subject {
                 break;
             case MOVE_1:
                 setVelocity(new Velocity(1, 0));
-                startMovement(gameController);
+                startMovement();
                 break;
             case MOVE_2:
                 setVelocity(new Velocity(2, 0));
-                startMovement(gameController);
+                startMovement();
                 break;
             case MOVE_3, SPEED_ROUTINE:
                 setVelocity(new Velocity(3, 0));
-                startMovement(gameController);
+                startMovement();
                 break;
             case RIGHT_TURN:
                 turn(1);
@@ -644,7 +644,7 @@ public class Player extends Subject {
                 break;
             case MOVE_BACK:
                 setVelocity(new Velocity(-1, 0));
-                startMovement(gameController);
+                startMovement();
                 break;
             case AGAIN, REPEAT_ROUTINE:
                 queueCommand(getLastCmd(), gameController);
@@ -698,7 +698,7 @@ public class Player extends Subject {
 
             case CRAB_MOVE:
                 setForwardVelocity(1);
-                startMovement(gameController);
+                startMovement();
                 queueCommand(Command.CRAB_DIRECTION, gameController);
                 break;
             case CRAB_STAY:
@@ -706,13 +706,13 @@ public class Player extends Subject {
                 break;
             case CRAB_MOVE_LEFT:
                 setVelocity(new Velocity(0, -1));
-                startMovement(gameController);
+                startMovement();
                 queueCommand(Command.MOVE_1, false, gameController);
 
                 break;
             case CRAB_MOVE_RIGHT:
                 setVelocity(new Velocity(0, 1));
-                startMovement(gameController);
+                startMovement();
                 queueCommand(Command.MOVE_1, false, gameController);
                 break;
 
@@ -740,7 +740,7 @@ public class Player extends Subject {
      * Moves the player based on heading and velocity
      * @author Maximillian Bjørn Mortensen
      */
-    public void startMovement(GameController gameController) {
+    public void startMovement() {
         // We take stepwise movement, and call moveCurrentPlayerToSpace() for each.
         Velocity temp = new Velocity(velocity.forward,velocity.right);
         // For each forward movement
@@ -751,7 +751,7 @@ public class Player extends Subject {
                 // Decrement
                 //velocity.forward -= (velocity.forward > 0) ? 1 : -1;
                 if (!getIsRebooting()) {
-                    board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
+                    board.movePlayerToSpace(this, board.getNeighbour(space, direction));
                 }}
             }, 150, "Player movement: " + getName()));
         }
@@ -764,7 +764,7 @@ public class Player extends Subject {
                              // Decrement
                 //velocity.right -= (velocity.right > 0) ? 1 : -1;
                 if (!getIsRebooting()) {
-                    board.movePlayerToSpace(this, board.getNeighbour(space, direction), gameController);
+                    board.movePlayerToSpace(this, board.getNeighbour(space, direction));
                 }}
             }, 150, "Player movement: " + getName()));
         }

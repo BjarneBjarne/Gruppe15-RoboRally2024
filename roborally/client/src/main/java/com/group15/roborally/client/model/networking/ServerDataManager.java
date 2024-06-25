@@ -6,6 +6,7 @@ import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
 import com.group15.roborally.client.model.Space;
+import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
@@ -387,9 +388,11 @@ public class ServerDataManager extends Subject implements Observer {
 
     @Override
     public void update(Subject subject) {
-        // If the player was disconnected from the server.
-        if (!serverCommunication.isConnectedToServer()) {
-            connectionToServerTimedOut();
+        if (subject.equals(serverCommunication)) {
+            // If the player was disconnected from the server.
+            if (!serverCommunication.isConnectedToServer()) {
+                connectionToServerTimedOut();
+            }
         }
     }
 
@@ -428,13 +431,13 @@ public class ServerDataManager extends Subject implements Observer {
         return usedUpgrades;
     }
 
-    public void setInteraction(String interaction, int turn, int movement) {
+    public void setInteraction(PlayerInteraction currentPlayerInteraction, String interaction, int turn, int movement) {
+        if (currentPlayerInteraction.getPlayer().getPlayerId() != localPlayer.getPlayerId()) return;
         serverCommunication.setInteraction(new Interaction(localPlayer.getPlayerId(), interaction, turn, movement));
     }
 
-    public void updateInteraction(Runnable callback, String playerName, int turn, int movement) {
+    public void updateInteraction(Runnable callback, long playerId, int turn, int movement) {
         interaction = null;
-        long playerId = playerMap.entrySet().stream().filter(entry -> entry.getValue().getPlayerName().equals(playerName)).findFirst().orElse(null).getKey();
         Runnable poll = () -> {
             interaction = serverCommunication.getInteraction(playerId, turn, movement);
             if (interaction != null) {
