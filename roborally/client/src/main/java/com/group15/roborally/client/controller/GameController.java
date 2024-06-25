@@ -670,10 +670,6 @@ public class GameController implements Observer {
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             setReadyForPhase(GamePhase.PROGRAMMING);
         } else {
-            /*
-             * TODO: Set "isReady" to true and set Heading to server, and get all players Heading from the server.
-             * Poll server with callback(this::handleNextPlayerInteraction)
-             */
             serverDataManager.setInteraction(direction.name(), turnCounter, movementCounter);
             serverDataManager.updateInteraction(
                 this::continueFromInteraction, 
@@ -687,7 +683,7 @@ public class GameController implements Observer {
     private void continueFromInteraction() {
         Heading direction = Heading.valueOf(serverDataManager.getInteraction());
         currentPlayerInteraction.getPlayer().setHeading(direction);
-            currentPlayerInteraction.interactionFinished();
+        currentPlayerInteraction.interactionFinished();
     }
 
     /**
