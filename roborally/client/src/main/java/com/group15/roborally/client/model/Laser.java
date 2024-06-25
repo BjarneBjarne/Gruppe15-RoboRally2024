@@ -62,8 +62,11 @@ public class Laser {
         Space nextSpace = origin.getSpaceNextTo(direction, boardSpaces);
 
         boolean thisHasWall = origin.getWalls().contains(direction);
-        boolean otherHasWall = nextSpace != null && nextSpace.getWalls().contains(direction.opposite());
-
+        boolean otherHasWall = (nextSpace != null &&
+                (nextSpace.getWalls().contains(direction.opposite()) ||
+                (nextSpace.getBoardElement() instanceof BE_PushPanel panel && panel.getDirection() == direction.opposite()) ||
+                (nextSpace.getBoardElement() instanceof BE_Antenna)) &&
+                objectTypesToCollideWith.contains(Space.class));
         if (thisHasWall || otherHasWall) { // If the source is looking into a wall, stop here
             if (owner != null) { // If there is an owner, a player shot the laser.
                 addLaserPiece(origin, "Laser_StartPlayerBlocked");
