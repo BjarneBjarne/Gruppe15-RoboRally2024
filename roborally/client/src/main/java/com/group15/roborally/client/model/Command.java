@@ -22,6 +22,7 @@
 package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.model.damage.*;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,6 +78,7 @@ public enum Command {
 
     public final String displayName;
     public final boolean repeatable;
+    @Getter
     private final List<Command> options;
 
     static {
@@ -100,10 +102,6 @@ public enum Command {
         return !options.isEmpty();
     }
 
-    public List<Command> getOptions() {
-        return options;
-    }
-
     public boolean isDamage() {
         return this == SPAM || this == TROJAN_HORSE || this == WORM || this == VIRUS;
     }
@@ -112,5 +110,9 @@ public enum Command {
         return (this == MOVE_1 || this == MOVE_2 || this == MOVE_3 || this == MOVE_BACK ||
                 this == RIGHT_TURN || this == LEFT_TURN || this == U_TURN ||
                 this == AGAIN || this == POWER_UP);
+    }
+
+    public boolean drawsTopCard() {
+        return this == SPAM || this == TROJAN_HORSE || this == VIRUS;
     }
 }

@@ -333,8 +333,8 @@ public class ServerDataManager extends Subject implements Observer {
         }
     }
     // In game
-    public void setPlayerRegister(@NotNull String[] programFieldNames, @NotNull String[] commandCards, int turn) {
-        serverCommunication.updateRegister(new String[][] {programFieldNames, commandCards}, localPlayer.getPlayerId(), turn);
+    public void setPlayerRegister(@NotNull String[] programFieldNames, int turn) {
+        serverCommunication.updateRegister(programFieldNames, localPlayer.getPlayerId(), turn);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
@@ -344,20 +344,9 @@ public class ServerDataManager extends Subject implements Observer {
         }
     }
     public void setUpgradeShop(@NotNull String[] availableCards) {
-        System.out.println();
-        System.out.println("-------");
-        System.out.println("Updating card to the server");
         if (!Arrays.equals(upgradeShop, availableCards)) {
-            System.out.println("New shop to the server:");
-            for (String card : availableCards) {
-                System.out.println(card);
-            }
             serverCommunication.updateUpgradeShop(availableCards, game.getGameId());
-        } else {
-            System.out.println("CARDS ARE THE SAME");
         }
-        System.out.println("--------");
-        System.out.println();
     }
     public void setPlayerUpgradeCards(@NotNull String[] permCards, @NotNull String[] tempCards) {
         localPlayer.setPermCards(permCards);

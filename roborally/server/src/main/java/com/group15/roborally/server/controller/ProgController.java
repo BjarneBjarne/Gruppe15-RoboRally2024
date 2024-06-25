@@ -34,25 +34,22 @@ public class ProgController {
      * Endpoint to post a register for a player in a game
      * 
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
-     * 
-     * @param register
+     *
+     * @param moves
      * @param playerId
      * @param turn
      * @return ResponseEntity<String> 
      */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postRegister(@RequestBody String[][] movesAndDeck, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
+    public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
         Register register = registerRepository.findById(playerId).orElse(null);
         if (!(register == null)) {
-            String[] moves = movesAndDeck[0];
-            String[] deck = movesAndDeck[1];
             register.setMoves(moves);
-            register.setDeck(deck);
             register.setTurn(turn);
             if (!register.hasNull()) {
                 registerRepository.save(register);
                 Game game = gameRepository.findById(playerRepository.findById(playerId).orElse(null).getGameId()).orElse(null);
-                if(game.getTurnId() < turn) {
+                if (game.getTurnId() < turn) {
                     game.setTurnId(turn);
                     gameRepository.save(game);
                 }

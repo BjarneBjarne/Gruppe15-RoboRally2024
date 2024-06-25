@@ -149,20 +149,9 @@ public class GameController implements Observer {
     public void finishedProgramming() {
         if (!finishedProgramming) {
             finishedProgramming = true;
-            if (DRAW_ON_EMPTY_REGISTER) {
-                localPlayer.fillRestOfRegisters();
-            }
+            localPlayer.fillRestOfRegisters();
             turnCounter++;
-            Queue<CommandCard> commandCards = localPlayer.getProgrammingDeck();
-            String[] commandCardsStr = new String[commandCards.size()];
-            for (int i = 0; i < commandCards.size(); i++) {
-                CommandCard card = commandCards.poll();
-                if (card != null)
-                    commandCardsStr[i] = card.getCommand().name();
-                else
-                    commandCardsStr[i] = "null";
-            }
-            serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), commandCardsStr, turnCounter);
+            serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), turnCounter);
             board.updateBoard();
         }
     }
@@ -755,8 +744,8 @@ public class GameController implements Observer {
             // Updating data
             List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
 
-            System.out.println();
-            System.out.println("Changed data: " + changedData);
+            //System.out.println();
+            //System.out.println("Changed data: " + changedData);
 
             if (changedData.contains(NetworkedDataTypes.GAME)) {
                 latestGameData = serverDataManager.getUpdatedGame();
@@ -794,10 +783,6 @@ public class GameController implements Observer {
         GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
         if (allReadyForNextPhase(nextPhase)) {
             startNextPhase(nextPhase);
-        }
-
-        if (board.getCurrentPhase() != latestGameData.getPhase()) {
-            System.err.println("Mismatched game phases with server. This phase: " + board.getCurrentPhase() + ". Server phase: " + latestGameData.getPhase());
         }
     }
 
@@ -939,23 +924,5 @@ public class GameController implements Observer {
             }
             board.updateBoard();
         }
-
-        System.out.println();
-        System.out.println("************");
-        System.out.println("Shop from server:");
-        for (String card : latestUpgradeShopData) {
-            System.out.println(card);
-        }
-        System.out.println();
-        System.out.println("Actual shop:");
-        for (CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
-            if (cardField.getCard() == null) {
-                System.out.println("null");
-            } else {
-                System.out.println(((UpgradeCard)(cardField.getCard())).getEnum().name());
-            }
-        }
-        System.out.println("************");
-        System.out.println();
     }
 }

@@ -23,13 +23,13 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long gameId;
 
-    private int turnId;
+    private int turnId = 0;
 
     private long hostId;
 
     private int nrOfPlayers = 0;
     
-    private GamePhase phase;
+    private GamePhase phase = GamePhase.LOBBY;
 
     private String courseName;
 

@@ -55,7 +55,7 @@ public class UpgradeShop implements Observer {
     public void setAvailableCards(String[] upgradeCards) {
         for (int i = 0; i < availableCardsFields.length; i++) {
             UpgradeCard upgradeCard = null;
-            if (upgradeCards[i] != null) {
+            if (upgradeCards != null && upgradeCards[i] != null) {
                 upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(upgradeCards[i]).upgradeCardClass);
             }
             availableCardsFields[i].setCard(upgradeCard);
