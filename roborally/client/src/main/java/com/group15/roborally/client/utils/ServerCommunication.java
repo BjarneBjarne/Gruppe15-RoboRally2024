@@ -203,13 +203,13 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public void updateRegister(String[][] commandCardsAndDeck, long playerId, int turn) {
+    public void updateRegister(String[] commandCards, long playerId, int turn) {
         sendRequest(
                 "/players/" + playerId + "/registers/" + turn,
                 HttpMethod.POST,
                 new ParameterizedTypeReference<>() {
                 },
-                commandCardsAndDeck
+                commandCards
         );
     }
 

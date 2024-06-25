@@ -44,6 +44,7 @@ import com.group15.roborally.server.model.GamePhase;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.group15.roborally.client.BoardOptions.DRAW_ON_EMPTY_REGISTER;
 import static com.group15.roborally.client.model.EventHandler.getPlayerCardEventListeners;
 import static com.group15.roborally.client.model.Heading.SOUTH;
 
@@ -285,8 +286,10 @@ public class Player extends Subject {
     }
 
     public void addEnergyCube() {
-        energyCubes++;
-        board.updateBoard();
+        if (energyCubes < 10) {
+            energyCubes++;
+            board.updateBoard();
+        }
     }
 
     public void updateUpgradeCards(String[] permCardsStr, String[] tempCardsStr, GameController gameController) {
@@ -590,7 +593,7 @@ public class Player extends Subject {
 
     public void fillRestOfRegisters() {
         for (CardField programField : programFields) {
-            if (programField.getCard() == null) {
+            if ((DRAW_ON_EMPTY_REGISTER && programField.getCard() == null) || ((CommandCard)programField.getCard()).getCommand().drawsTopCard()) {
                 programField.setCard(drawFromDeck());
             }
         }
@@ -653,17 +656,13 @@ public class Player extends Subject {
             // Damage
             case SPAM:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                    CommandCard topCard = drawFromDeck();
-                    queueCommand(topCard.getCommand(), gameController);
-                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, 0, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
             case TROJAN_HORSE:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
                     for (int i = 0; i < 2; i++) {
                         discard(new CommandCard(Command.SPAM));
                     }
-                    CommandCard topCard = drawFromDeck();
-                    queueCommand(topCard.getCommand(), gameController);
                 }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
             case WORM:
@@ -676,11 +675,8 @@ public class Player extends Subject {
                     for (Player foundPlayer : board.getPlayers()) {
                         if (space.getDistanceFromOtherSpace(foundPlayer.space) <= 6) {
                             foundPlayer.discard(new CommandCard(Command.VIRUS));
-                            foundPlayer.discard(new CommandCard(Command.SPAM));
                         }
                     }
-                    CommandCard topCard = drawFromDeck();
-                    queueCommand(topCard.getCommand(), gameController);
                 }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
                 break;
 
