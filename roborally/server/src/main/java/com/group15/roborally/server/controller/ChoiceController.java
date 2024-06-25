@@ -23,13 +23,10 @@ public class ChoiceController {
 
     @PostMapping(value = "/{playerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateChoice(@RequestBody List<Choice> choices){
-        System.out.println("\n\nUpdating choices");
         for(Choice choice : choices){
             System.out.println("Inserting choice: " + choice.getChoice());
             choiceRepository.save(choice);
-            System.out.println("Choice inserted");
         }
-        System.out.println("Choices updated\n\n");
         return ResponseEntity.ok().build();
     }
 
@@ -37,6 +34,8 @@ public class ChoiceController {
     public ResponseEntity<List<Choice>> getChoices(@PathVariable("gameId") long gameId, @RequestParam("turn") int turn, @RequestParam("movement") int movement){
         int nrOfPlayers = gameRepository.findById(gameId).orElse(null).getNrOfPlayers();
         int nrOfPlayerInput = choiceRepository.countDistinctByGameIdAndTurnAndMovement(gameId, turn, movement);
+        System.out.println("\n\n\nTurn: " + turn + "  | move: " + movement + "\nNr of players: " + nrOfPlayers + "\nNr of player input: " + nrOfPlayerInput);
+        System.out.println("\n\n\n");
         if (nrOfPlayerInput != nrOfPlayers){
             return ResponseEntity.ok(null);
         }
