@@ -430,15 +430,15 @@ public class ServerDataManager extends Subject implements Observer {
         return usedUpgrades;
     }
 
-    public void setInteraction(String interaction, int movement) {
-        serverCommunication.setInteraction(new Interaction(localPlayer.getPlayerId(), interaction, movement));
+    public void setInteraction(String interaction, int turn, int movement) {
+        serverCommunication.setInteraction(new Interaction(localPlayer.getPlayerId(), interaction, turn, movement));
     }
 
-    public void updateInteraction(Runnable callback, String playerName, int movement) {
+    public void updateInteraction(Runnable callback, String playerName, int turn, int movement) {
         interaction = null;
         long playerId = playerMap.entrySet().stream().filter(entry -> entry.getValue().getPlayerName().equals(playerName)).findFirst().orElse(null).getKey();
         Runnable poll = () -> {
-            interaction = serverCommunication.getInteraction(playerId, movement);
+            interaction = serverCommunication.getInteraction(playerId, turn, movement);
             if (interaction != null) {
                 serverPoller.shutdownNow();
                 Platform.runLater(callback);
@@ -446,5 +446,9 @@ public class ServerDataManager extends Subject implements Observer {
         };
         serverPoller = Executors.newScheduledThreadPool(1);
         serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+    }
+
+    public String getInteraction() {
+        return interaction.getChoice();
     }
 }

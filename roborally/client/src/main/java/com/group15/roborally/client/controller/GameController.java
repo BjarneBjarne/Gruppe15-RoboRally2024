@@ -625,11 +625,12 @@ public class GameController implements Observer {
             board.updateBoard();
         } else {
             directionOptionsSpace = null;
-            board.updateBoard();
-            /*
-             * TODO: Set "isReady" to true and start polling for player Heading from server.
-             * Poll server with callback(this::handleNextPlayerInteraction)
-             */
+            serverDataManager.updateInteraction(
+                this::continueFromInteraction, 
+                currentPlayerInteraction.getPlayer().getName(), 
+                turnCounter, 
+                movementCounter
+            );
         }
     }
 
@@ -673,9 +674,20 @@ public class GameController implements Observer {
              * TODO: Set "isReady" to true and set Heading to server, and get all players Heading from the server.
              * Poll server with callback(this::handleNextPlayerInteraction)
              */
-            currentPlayerInteraction.getPlayer().setHeading(direction);
-            currentPlayerInteraction.interactionFinished();
+            serverDataManager.setInteraction(direction.name(), turnCounter, movementCounter);
+            serverDataManager.updateInteraction(
+                this::continueFromInteraction, 
+                currentPlayerInteraction.getPlayer().getName(),
+                turnCounter, 
+                movementCounter
+            );
         }
+    }
+
+    private void continueFromInteraction() {
+        Heading direction = Heading.valueOf(serverDataManager.getInteraction());
+        currentPlayerInteraction.getPlayer().setHeading(direction);
+            currentPlayerInteraction.interactionFinished();
     }
 
     /**
