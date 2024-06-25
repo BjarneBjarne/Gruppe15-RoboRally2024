@@ -67,7 +67,6 @@ public class UpgradeShop implements Observer {
      * @param availableCard
      */
     public void removeAvailableCardByName(String availableCard) {
-        System.out.println("REMOVING " + availableCard);
         for (CardField availableCardsField : availableCardsFields) {
             UpgradeCard upgradeCard = (UpgradeCard) availableCardsField.getCard();
             if (upgradeCard == null) continue;

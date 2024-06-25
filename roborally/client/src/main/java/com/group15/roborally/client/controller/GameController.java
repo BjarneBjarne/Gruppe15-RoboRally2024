@@ -887,7 +887,11 @@ public class GameController implements Observer {
             System.out.println("Shop is null");
             return;
         }
-        String[] availableCards = Arrays.copyOf(latestUpgradeShopData, latestUpgradeShopData.length);
+
+        String[] availableCards = new String[latestUpgradeShopData.length];
+        for (int i = 0; i < latestUpgradeShopData.length; i++) {
+            availableCards[i] = latestUpgradeShopData[i];
+        }
 
         boolean changesInAvailableCards = false;
 
@@ -926,23 +930,6 @@ public class GameController implements Observer {
             serverDataManager.setUpgradeShop(availableCards);
         }
 
-        System.out.println();
-        System.out.println("Updating upgrade shop");
-        System.out.println("Upgrade cards: ");
-        for (String cardString : availableCards) {
-            System.out.println("Card with name: " + cardString);
-        }
-
-        System.out.println();
-        System.out.println("Upgrade cards in actual shop:");
-        for(CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
-            if (cardField.getCard() != null) {
-                System.out.println(cardField.getCard().getDisplayName());
-            } else {
-                System.out.println("null");
-            }
-        }
-
         int upgradeTurn = 0;
         for (int i = 0; i < board.getPriorityList().size(); i++) {
             Player client = board.getPriorityList().stream().toList().get(i);
@@ -961,6 +948,23 @@ public class GameController implements Observer {
             // Set turn
             playerUpgrading = board.getPriorityList().stream().toList().get(upgradeTurn);
             board.updateBoard();
+        }
+
+        System.out.println();
+        System.out.println("Updating upgrade shop");
+        System.out.println("Upgrade cards: ");
+        for (String cardString : availableCards) {
+            System.out.println("Card with name: " + cardString);
+        }
+
+        System.out.println();
+        System.out.println("Upgrade cards in actual shop:");
+        for(CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
+            if (cardField.getCard() != null) {
+                System.out.println(cardField.getCard().getDisplayName());
+            } else {
+                System.out.println("null");
+            }
         }
     }
 }
