@@ -12,7 +12,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "choices")
-@IdClass(ChoiceId.class)
+// @IdClass(ChoiceId.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,16 +28,19 @@ public class Choice {
     }
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long choiceId;
+
     long playerId;
-    @Id
+    
     String choice;
-    @Id
+    
     int turn;
-    @Id
+    
     int movement;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "playerId", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "playerId", referencedColumnName = "playerId", insertable = false, updatable = false)
     @JsonIgnore
     private Player player;
 
