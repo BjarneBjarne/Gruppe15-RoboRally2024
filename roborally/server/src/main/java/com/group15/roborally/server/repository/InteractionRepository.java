@@ -10,12 +10,16 @@ import com.group15.roborally.server.model.Interaction;
 
 public interface InteractionRepository extends JpaRepository<Interaction, Long> {
 
-    @Query("SELECT c FROM Interaction c WHERE c.player.gameId = :gameId AND c.movement = :movement")
-    List<Interaction> findAllByGameIdAndMovement(@Param("gameId") long gameId, @Param("movement") int movement);
+    // @Query("SELECT c FROM Interaction c WHERE c.player.gameId = :gameId AND c.movement = :movement")
+    // List<Interaction> findAllByGameIdAndMovement(@Param("gameId") long gameId, @Param("movement") int movement);
 
-    @Query("SELECT c FROM Interaction c WHERE c.player.gameId = :gameId")
-    List<Interaction> findAllByGameId(@Param("gameId") long gameId);
+    // @Query("SELECT c FROM Interaction c WHERE c.player.gameId = :gameId")
+    // List<Interaction> findAllByGameId(@Param("gameId") long gameId);
 
-    @Query("SELECT COUNT(DISTINCT c.playerId) FROM Interaction c WHERE c.player.gameId = :gameId AND c.movement = :movement")
-    int countDistinctByGameIdAndMovement(@Param("gameId") long gameId, @Param("movement") int movement);
+    // @Query("SELECT COUNT(DISTINCT c.playerId) FROM Interaction c WHERE c.player.gameId = :gameId AND c.movement = :movement")
+    // int countDistinctByGameIdAndMovement(@Param("gameId") long gameId, @Param("movement") int movement);
+
+    Interaction findByPlayerIdAndTurnAndMovement(long playerId, int turn, int movement);
+
+    boolean existsByPlayerIdAndTurnAndMovement(long playerId, int turn, int movement);
 }
