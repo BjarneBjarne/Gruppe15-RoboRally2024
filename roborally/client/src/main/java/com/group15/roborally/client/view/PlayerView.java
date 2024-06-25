@@ -39,6 +39,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -181,11 +182,29 @@ public class PlayerView extends Tab implements ViewObserver {
         temporaryUpgradeCardsPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
 
         // Buttons
-        readyButton = new Button("Ready");
+        readyButton = new Button();
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 48);
+        Text buttonText = new Text();
+        buttonText.setFont(textFont);
+        buttonText.setFill(Color.WHITE);
+        buttonText.setStroke(Color.BLACK);
+        buttonText.setStrokeWidth(2);
+        buttonText.setStrokeType(StrokeType.OUTSIDE);
+        buttonText.setTextAlignment(TextAlignment.CENTER);
+        buttonText.setText("Ready");
+        readyButton.setGraphic(buttonText);
         readyButton.setOnAction(_ -> gameController.finishedProgramming());
         readyPanel = new HBox(readyButton);
         readyPanel.setAlignment(Pos.CENTER);
         readyPanel.setSpacing(3.0);
+        readyButton.setPadding(new Insets(5, 30, 5, 30));
+        readyButton.setEffect(new DropShadow(3, 0, 0, Color.BLACK));
+        readyButton.setStyle("-fx-background-color: transparent;" +
+                "-fx-background-radius: 10; " +
+                "-fx-border-radius: 10; " +
+                "-fx-border-color: ffffff; " +
+                "-fx-border-width: 1 ");
+
         playerOptionsPanel = new HBox();
         playerOptionsPanel.setAlignment(Pos.CENTER);
         playerOptionsPanel.setSpacing(3.0);
@@ -231,7 +250,6 @@ public class PlayerView extends Tab implements ViewObserver {
         AnchorPane.setLeftAnchor(playerMatCharacterText, 135.0);
         AnchorPane.setTopAnchor(playerMatCharacterText, 43.0);
         playerMatCharacterText.setText(player.getRobot().getRobotName());
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
         playerMatCharacterText.setFont(textFont);
         playerMatCharacterText.setTextAlignment(TextAlignment.RIGHT);
         playerMatCharacterText.setFill(Color.WHITE);
@@ -244,7 +262,7 @@ public class PlayerView extends Tab implements ViewObserver {
         checkpointTokenImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
         checkpointTokenImageView.setPreserveRatio(true);
 
-        // Right side
+        // Left side
         VBox leftSideVBox = new VBox(cardsPane, interactionPane);
         temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
         interactionPane.setAlignment(Pos.CENTER);
@@ -254,7 +272,7 @@ public class PlayerView extends Tab implements ViewObserver {
         leftSideStackPane.setAlignment(Pos.CENTER);
 
         // Padding
-        HBox.setMargin(leftSideStackPane, new Insets(40, 0, 0, 150)); // Top, right, bottom, left
+        HBox.setMargin(leftSideStackPane, new Insets(25, 0, 0, 150)); // Top, right, bottom, left
         HBox.setMargin(temporaryUpgradeCardsPane, new Insets(40, 150, 10, 0)); // Top, right, bottom, left
 
         HBox hBox = new HBox();

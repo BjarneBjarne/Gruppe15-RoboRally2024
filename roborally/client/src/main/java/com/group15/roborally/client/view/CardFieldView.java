@@ -36,6 +36,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -87,21 +88,30 @@ public class CardFieldView extends StackPane implements ViewObserver {
         cardForegroundImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
         cardForegroundImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
 
-        useButton.setText("Use");
         useButton.setOnAction(_ -> {
             field.activateCard();
         });
         useButton.setDisable(true);
         useButton.setVisible(false);
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 16);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 28);
         Text buttonText = new Text();
         buttonText.setFont(textFont);
         buttonText.setFill(Color.WHITE);
         buttonText.setStroke(Color.BLACK);
-        buttonText.setStrokeWidth(2);
+        buttonText.setStrokeWidth(1);
         buttonText.setStrokeType(StrokeType.OUTSIDE);
         buttonText.setTextAlignment(TextAlignment.CENTER);
-        StackPane.setAlignment(useButton, Pos.BOTTOM_RIGHT);
+        buttonText.setText("Use");
+        useButton.setGraphic(buttonText);
+        StackPane.setAlignment(useButton, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(useButton, new Insets(0, 0, 7, 0));
+        useButton.setPadding(new Insets(3, 20, 3, 20));
+        useButton.setEffect(new DropShadow(2, 0, 0, Color.BLACK));
+        useButton.setStyle("-fx-background-color: transparent;" +
+                "-fx-background-radius: 5; " +
+                "-fx-border-radius: 5; " +
+                "-fx-border-color:  rgb(0,0,0);" +
+                "-fx-border-width: 1 ");
 
         this.setPrefSize((CARDFIELD_SIZE - 5) * cardWidthMultiplier, (CARDFIELD_SIZE - 3) * cardHeightMultiplier);
         this.getChildren().addAll(cardImageView, cardForegroundImageView, useButton);

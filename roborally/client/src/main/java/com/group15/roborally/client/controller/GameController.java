@@ -30,6 +30,7 @@ import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.model.upgrade_cards.permanent.Card_Brakes;
+import com.group15.roborally.client.model.upgrade_cards.temporary.Card_Reboot;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.server.model.Game;
