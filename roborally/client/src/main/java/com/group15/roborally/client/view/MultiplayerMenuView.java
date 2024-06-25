@@ -412,7 +412,7 @@ public class MultiplayerMenuView implements Observer {
                     "-fx-border-width: 1");
         } else {
             lobbyButtonStart.setStyle("-fx-background-color:  #993a3a60;" +
-                    "-fx-background-radius:  15;" +
+                    "-fx-background-radius: 15;" +
                     "-fx-border-radius: 15;" +
                     "-fx-border-color:  ffffff;" +
                     "-fx-border-width: 1");
