@@ -47,8 +47,6 @@ public class UpgradeShop implements Observer {
 
     /**
      * Method for getting the shops CardsFields.
-     * @param index
-     * @return
      */
     public CardField getAvailableCardsField(int index) {
         return availableCardsFields[index];
@@ -61,6 +59,21 @@ public class UpgradeShop implements Observer {
                 upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(upgradeCards[i]).upgradeCardClass);
             }
             availableCardsFields[i].setCard(upgradeCard);
+        }
+    }
+
+    /**
+     * Method for removing a card from the available cards on the host, when a proxy players have bought a card.
+     * @param availableCard
+     */
+    public void removeAvailableCardByName(String availableCard) {
+        System.out.println("REMOVING " + availableCard);
+        for (CardField availableCardsField : availableCardsFields) {
+            UpgradeCard upgradeCard = (UpgradeCard) availableCardsField.getCard();
+            if (upgradeCard == null) continue;
+            if (upgradeCard.getEnum().name().equals(availableCard)) {
+                availableCardsField.setCard(null);
+            }
         }
     }
 
