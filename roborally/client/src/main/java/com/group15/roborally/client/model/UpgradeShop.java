@@ -79,9 +79,10 @@ public class UpgradeShop implements Observer {
         player.setEnergyCubes(player.getEnergyCubes() - cardToSell.getPurchaseCost());
         energyLevel += cardToSell.getPurchaseCost();
         for (CardField cardfield: availableCardsFields) {
+            if(cardfield.getCard()!=null){
             if (cardfield.getCard().getClass() == cardToSell.getClass()) {
                 cardfield.setCard(null);
-            }
+            }}
         }
         return cardToSell; // SUCCESSFUL PURCHASE - Transaction complete. Sending UpgradeCard to buyer method.
     }

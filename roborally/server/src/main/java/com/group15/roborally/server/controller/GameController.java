@@ -120,13 +120,14 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
+        //todo fix crash
+       List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
         if (players == null) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(players);
-    }
+        }
 
     /**
      * Endpoint to get a game by its id

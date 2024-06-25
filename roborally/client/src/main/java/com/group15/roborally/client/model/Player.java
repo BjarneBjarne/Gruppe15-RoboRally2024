@@ -349,6 +349,7 @@ public class Player extends Subject {
 
     public boolean attemptUpgradeCardPurchase(Card card, GameController gameController) {
         UpgradeCard boughtCard = null;
+
         try {
             for (UpgradeCard ownedCard : upgradeCards) { // First, check if player already has this card
                 if (ownedCard.getClass().equals(card.getClass())) return false;
@@ -362,6 +363,7 @@ public class Player extends Subject {
         } catch (Exception e) {
             System.out.println("ERROR - Attempt to buy upgrade card from shopField failed.");
             System.out.println(e.getMessage());
+
         }
 
         return boughtCard != null;
