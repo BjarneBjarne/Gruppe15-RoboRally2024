@@ -755,6 +755,9 @@ public class GameController implements Observer {
     }
 
     private void updateGameWithLatestData() {
+        // Update the current local phase.
+        updateCurrentGamePhase();
+
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
         GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
         if (allReadyForNextPhase(nextPhase)) {
@@ -764,9 +767,6 @@ public class GameController implements Observer {
         if (board.getCurrentPhase() != latestGameData.getPhase()) {
             System.err.println("Mismatched game phases with server. This phase: " + board.getCurrentPhase() + ". Server phase: " + latestGameData.getPhase());
         }
-
-        // Update the current local phase.
-        updateCurrentGamePhase();
     }
 
     private boolean allReadyForNextPhase(GamePhase nextPhase) {
@@ -792,6 +792,7 @@ public class GameController implements Observer {
                 case GamePhase.BOARD_ACTIVATION -> startBoardActivationPhase();
                 case GamePhase.UPGRADE -> startUpgradingPhase();
             }
+            updateCurrentGamePhase();
         }
     }
 

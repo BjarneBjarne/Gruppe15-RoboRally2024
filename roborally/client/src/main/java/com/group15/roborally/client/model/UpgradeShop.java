@@ -127,6 +127,7 @@ public class UpgradeShop implements Observer {
      * Method for refilling the shop. Check the UpgradeShop class description for more info.
      */
     public void refillAvailableCards() {
+        System.out.println("Refilling shop. Missing cards: " + getNoOfMissingCards());
         // If no cards were bought, discard all cards
         if (getNoOfMissingCards() == 0) {
             System.out.println("No cards bought. Refreshing whole shop.");
@@ -139,6 +140,7 @@ public class UpgradeShop implements Observer {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (availableCardsFields[i].getCard() == null) {
                 availableCardsFields[i].setCard(drawCard());
+                System.out.println("Setting new available card: " + drawCard().getDisplayName());
             }
         }
     }
