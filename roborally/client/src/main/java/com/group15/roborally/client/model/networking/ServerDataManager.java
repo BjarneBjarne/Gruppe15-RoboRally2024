@@ -38,6 +38,7 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 public class ServerDataManager extends Subject implements Observer {
     private final ServerCommunication serverCommunication = new ServerCommunication();
     private ScheduledExecutorService gameUpdateScheduler;
+    private ScheduledExecutorService serverPoller;
 
     @Getter
     boolean isConnectedToGame = false;
@@ -201,6 +202,7 @@ public class ServerDataManager extends Subject implements Observer {
         } else {
             updatedRegisters = null;
         }
+
 
         // Check if the host has disconnected
         boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
