@@ -9,6 +9,7 @@ import java.util.List;
 import com.group15.observer.Subject;
 import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
+import com.group15.roborally.server.model.Interaction;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 
@@ -236,6 +237,22 @@ public class ServerCommunication extends Subject {
         );
     }
 
+    public void setInteraction(Interaction interaction) {
+        sendRequest(
+                "/interactions/" + interaction.getPlayerId(),
+                HttpMethod.PUT,
+                new ParameterizedTypeReference<>() {}, interaction
+        );
+    }
+
+    public Interaction getInteraction(long playerId, int turn, int movement) {
+        return sendRequest(
+                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement, 
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {}, null
+        );
+    }
+
     /**
      * Customize a server request.
      * @param <T>    - type of the request body
@@ -282,4 +299,6 @@ public class ServerCommunication extends Subject {
             }
         }
     }
+
+    
 }
