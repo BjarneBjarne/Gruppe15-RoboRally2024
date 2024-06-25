@@ -41,10 +41,13 @@ public class ProgController {
      * @return ResponseEntity<String> 
      */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
+    public ResponseEntity<String> postRegister(@RequestBody String[][] movesAndDeck, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
         Register register = registerRepository.findById(playerId).orElse(null);
         if (!(register == null)) {
+            String[] moves = movesAndDeck[0];
+            String[] deck = movesAndDeck[1];
             register.setMoves(moves);
+            register.setDeck(deck);
             register.setTurn(turn);
             if (!register.hasNull()) {
                 registerRepository.save(register);

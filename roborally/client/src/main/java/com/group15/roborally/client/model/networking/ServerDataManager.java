@@ -333,8 +333,8 @@ public class ServerDataManager extends Subject implements Observer {
         }
     }
     // In game
-    public void setPlayerRegister(@NotNull String[] programFieldNames, int turn) {
-        serverCommunication.updateRegister(programFieldNames, localPlayer.getPlayerId(), turn);
+    public void setPlayerRegister(@NotNull String[] programFieldNames, @NotNull String[] commandCards, int turn) {
+        serverCommunication.updateRegister(new String[][] {programFieldNames, commandCards}, localPlayer.getPlayerId(), turn);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
@@ -357,11 +357,11 @@ public class ServerDataManager extends Subject implements Observer {
 
 
     // Getters
-    public String[] getRegistersFromPlayer(long playerId) {
+    public Register getRegistersFromPlayer(long playerId) {
         if (this.registers != null) {
             Register register = this.registers.stream().filter(r -> (r.getPlayerId() == playerId)).findFirst().orElse(null);
             if (register != null) {
-                return register.getMoves();
+                return register;
             }
         }
         return null;
