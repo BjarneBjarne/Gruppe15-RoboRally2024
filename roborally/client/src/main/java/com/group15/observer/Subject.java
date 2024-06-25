@@ -21,6 +21,8 @@
  */
 package com.group15.observer;
 
+import javafx.application.Platform;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -71,6 +73,14 @@ public abstract class Subject {
 	 * relevant for the observer).
 	 */
 	final protected void notifyChange() {
+		if (Platform.isFxApplicationThread()) {
+			notifyObserversInFXThread();
+		} else {
+			Platform.runLater(this::notifyObserversInFXThread);
+		}
+	}
+
+	private void notifyObserversInFXThread() {
 		for (Observer observer: observers) {
 			observer.update(this);
 		}

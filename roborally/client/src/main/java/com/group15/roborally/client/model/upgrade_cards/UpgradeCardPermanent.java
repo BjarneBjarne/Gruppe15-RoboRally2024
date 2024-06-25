@@ -24,10 +24,7 @@ public abstract class UpgradeCardPermanent extends UpgradeCard {
         super(title, purchaseCost, 0, 0, null);
     }
 
-    @Override
-    public void onActivated() {
-        printUsage();
-    }
+ 
 
     @Override
     public void unInitialize() {

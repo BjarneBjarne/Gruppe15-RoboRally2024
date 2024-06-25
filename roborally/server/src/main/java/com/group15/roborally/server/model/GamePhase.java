@@ -6,5 +6,15 @@ public enum GamePhase {
     PROGRAMMING,
     PLAYER_ACTIVATION,
     BOARD_ACTIVATION,
-    UPGRADE
+    UPGRADE;
+
+    public static GamePhase getNextPhase(GamePhase currentPhase, int register) {
+        return switch(currentPhase) {
+            case LOBBY -> INITIALIZATION;
+            case INITIALIZATION, UPGRADE -> PROGRAMMING;
+            case PROGRAMMING -> PLAYER_ACTIVATION;
+            case PLAYER_ACTIVATION -> BOARD_ACTIVATION;
+            case BOARD_ACTIVATION -> register <= 4 ? PLAYER_ACTIVATION : UPGRADE;
+        };
+    }
 }

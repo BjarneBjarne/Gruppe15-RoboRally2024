@@ -2,6 +2,7 @@ package com.group15.roborally.server.repository;
 
 import java.util.Arrays;
 
+import com.group15.roborally.server.model.GamePhase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,14 +45,14 @@ public class RegisterRepositoryTest {
         testPlayer1 = new Player();
         testPlayer1.setPlayerName("Player Name");
         testPlayer1.setRobotName("Robot Name");
-        testPlayer1.setIsReady(0);
+        testPlayer1.setReadyForPhase(GamePhase.LOBBY);
         testPlayer1.setGameId(1L);
         playerRepository.save(testPlayer1);
 
         testPlayer2 = new Player();
         testPlayer2.setPlayerName("Player Name 2");
         testPlayer2.setRobotName("Robot Name 2");
-        testPlayer2.setIsReady(0);
+        testPlayer2.setReadyForPhase(GamePhase.LOBBY);
         testPlayer2.setGameId(1L);
         playerRepository.save(testPlayer2);
 

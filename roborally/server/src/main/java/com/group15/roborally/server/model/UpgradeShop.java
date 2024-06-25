@@ -24,4 +24,8 @@ public class UpgradeShop {
     private String[] cards;
 
     private int turn;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
+    private Game game;
 }

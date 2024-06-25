@@ -22,6 +22,7 @@
 package com.group15.roborally.client.view;
 
 import com.group15.observer.Subject;
+import com.group15.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
@@ -56,7 +57,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
     final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
     final public static Background BG_DEFAULT = new Background(new BackgroundFill(Color.TRANSPARENT, null, null));
-    final public static Background BG_DRAG = new Background(new BackgroundFill(new Color(122 / 255.0, 119 / 255.0, 110 / 255.0, .5), null, null));
+    final public static Background BG_DRAG = new Background(new BackgroundFill(new Color(122 / 255.0, 119 / 255.0, 110 / 255.0, .25), null, null));
     final public static Background BG_DROP = new Background(new BackgroundFill(new Color(198 / 255.0, 194 / 255.0, 179 / 255.0, .5), null, null));
 
     final public static Background BG_ACTIVE = new Background(new BackgroundFill(new Color(234 / 255.0, 209 / 255.0, 87 / 255.0, .5), null, null));
@@ -276,12 +277,8 @@ public class CardFieldView extends StackPane implements ViewObserver {
                     params.setFill(Color.TRANSPARENT);
                     Image originalImage = source.snapshot(params, null);
                     ImageView imageView = new ImageView(originalImage);
-                    imageView.setFitWidth(CARDFIELD_SIZE);
-                    double cardHeightScale = 1.4;
-                    if (sourceField.getCard() instanceof UpgradeCard) {
-                        cardHeightScale = 1.6;
-                    }
-                    imageView.setFitHeight(CARDFIELD_SIZE * cardHeightScale);
+                    imageView.setFitWidth(source.cardImageView.getFitWidth() * APP_SCALE);
+                    imageView.setFitHeight(source.cardImageView.getFitHeight() * APP_SCALE);
                     Image resizedImage = imageView.snapshot(params, null);
 
                     // Setting image to the Dragboard

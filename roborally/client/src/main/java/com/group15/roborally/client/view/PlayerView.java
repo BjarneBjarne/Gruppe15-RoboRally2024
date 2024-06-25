@@ -22,6 +22,7 @@
 package com.group15.roborally.client.view;
 
 import com.group15.observer.Subject;
+import com.group15.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
@@ -291,7 +292,7 @@ public class PlayerView extends Tab implements ViewObserver {
                     interactionPane.getChildren().add(readyPanel);
                 }
                 if (board.getCurrentPhase() == PROGRAMMING) {
-                    readyButton.setDisable(gameController.getIsLocalPlayerReady());
+                    readyButton.setDisable(gameController.getIsLocalPlayerFinishedProgramming());
                 } else {
                     readyButton.setDisable(true);
                 }
