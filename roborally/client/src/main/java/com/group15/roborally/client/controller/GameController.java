@@ -675,7 +675,7 @@ public class GameController implements Observer {
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == GamePhase.INITIALIZATION) {
             localPlayer.setHeading(direction);
-            localPlayer.setSpace(localPlayer.getSpace());
+            localPlayer.setSpawn(localPlayer.getSpace());
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             setReadyForPhase(GamePhase.PROGRAMMING);
         } else {
@@ -859,11 +859,6 @@ public class GameController implements Observer {
             Heading clientHeading = Heading.valueOf(playerSpawnDirection);
             client.setHeading(clientHeading);
             client.setSpawn(clientSpawnPosition);
-            System.out.println("Setting spawn point for " + client.getName());
-            if (clientSpawnPosition.getBoardElement() instanceof BE_SpawnPoint spawnPoint) {
-                spawnPoint.setColor(client);
-                board.updateBoard();
-            }
         }
     }
 
@@ -892,13 +887,8 @@ public class GameController implements Observer {
             System.out.println("Shop is null");
             return;
         }
-        System.out.println();
-        System.out.println("Updating upgrade shop");
-        System.out.println("Upgrade cards: ");
         String[] availableCards = Arrays.copyOf(latestUpgradeShopData, latestUpgradeShopData.length);
-        for (String cardString : availableCards) {
-            System.out.println("Card with name: " + cardString);
-        }
+
         boolean changesInAvailableCards = false;
 
         // Updating proxy players upgrade cards.
@@ -906,6 +896,13 @@ public class GameController implements Observer {
             com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null)
                 continue;
+
+            // Only update proxy players cards
+            if (!client.equals(localPlayer)) {
+                String[] permCardsStr = updatedPlayer.getPermCards();
+                String[] tempCardsStr = updatedPlayer.getTempCards();
+                client.updateUpgradeCards(permCardsStr, tempCardsStr, this);
+            }
 
             // Remove bought cards from available cards locally
             for (int i = 0; i < availableCards.length; i++) {
@@ -916,17 +913,34 @@ public class GameController implements Observer {
                     changesInAvailableCards = true;
                 }
             }
-
-            // Only update proxy players cards
-            if (client.equals(localPlayer)) continue;
-
-            String[] permCardsStr = updatedPlayer.getPermCards();
-            String[] tempCardsStr = updatedPlayer.getTempCards();
-            client.updateUpgradeCards(permCardsStr, tempCardsStr, this);
         }
 
         if (serverDataManager.isHost() && changesInAvailableCards) {
+            for (int i = 0; i < latestUpgradeShopData.length; i++) {
+                if (latestUpgradeShopData[i] == null) continue;
+                if (availableCards[i] == null) {
+                    System.out.println("CARD TO DELETE: " + latestUpgradeShopData[i]);
+                    board.getUpgradeShop().removeAvailableCardByName(latestUpgradeShopData[i]);
+                }
+            }
             serverDataManager.setUpgradeShop(availableCards);
+        }
+
+        System.out.println();
+        System.out.println("Updating upgrade shop");
+        System.out.println("Upgrade cards: ");
+        for (String cardString : availableCards) {
+            System.out.println("Card with name: " + cardString);
+        }
+
+        System.out.println();
+        System.out.println("Upgrade cards in actual shop:");
+        for(CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
+            if (cardField.getCard() != null) {
+                System.out.println(cardField.getCard().getDisplayName());
+            } else {
+                System.out.println("null");
+            }
         }
 
         int upgradeTurn = 0;
@@ -939,8 +953,6 @@ public class GameController implements Observer {
                 break;
             }
         }
-
-        System.out.println("upgradeTurn: " + upgradeTurn);
 
         // Finish check
         if (upgradeTurn < NO_OF_PLAYERS) {
