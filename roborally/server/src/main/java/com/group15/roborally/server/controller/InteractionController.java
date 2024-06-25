@@ -45,4 +45,14 @@ public class InteractionController {
             return ResponseEntity.ok(interactions);
         }
     }
+
+    @GetMapping(value = "/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Interaction> getInteraction(@PathVariable("playerId") long playerId, @RequestParam("movement") int movement){
+        Interaction interaction = interactionRepository.findByIdAndMovement(playerId, movement);
+        if(interaction == null){
+            return ResponseEntity.ok(null);
+        } else{
+            return ResponseEntity.ok(interaction);
+        }
+    }
 }

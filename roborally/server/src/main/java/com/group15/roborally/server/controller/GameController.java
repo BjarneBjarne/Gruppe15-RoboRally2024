@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.server.model.Interaction;
+
 import static com.group15.roborally.server.model.GamePhase.*;
 import com.group15.roborally.server.model.UpgradeShop;
 import com.group15.roborally.server.model.Player;
@@ -29,14 +31,17 @@ public class GameController {
     UpgradeShopRepository upgradeShopRepository;
     RegisterRepository registerRepository;
     ChoiceRepository choiceRepository;
+    InteractionController interactionController;
 
     public GameController(PlayerRepository playerRepository, GameRepository gameRepository, 
-                UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository, ChoiceRepository choiceRepository) {
+                UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository, 
+                ChoiceRepository choiceRepository, InteractionController interactionController) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.upgradeShopRepository = upgradeShopRepository;
         this.registerRepository = registerRepository;
         this.choiceRepository = choiceRepository;
+        this.interactionController = interactionController;
     }
 
     /**
@@ -101,6 +106,9 @@ public class GameController {
         register.setPlayerId(player.getPlayerId());
         register.setTurn(0);
         registerRepository.save(register);
+
+        Interaction interaction = new Interaction(player.getPlayerId(), null, -1);
+        interactionController.updateInteraction(interaction);
 
         return ResponseEntity.ok().body(player);
     }

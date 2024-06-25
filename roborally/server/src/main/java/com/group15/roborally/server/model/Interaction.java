@@ -17,6 +17,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Interaction {
 
+    public Interaction(long playerId, String choice, int movement) {
+        this.playerId = playerId;
+        this.choice = choice;
+        this.movement = movement;
+    }
+
     @Id
     long playerId;
     String choice;

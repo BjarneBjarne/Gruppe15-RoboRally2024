@@ -10,6 +10,7 @@ import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Game;
 import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.server.model.Interaction;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 import com.group15.roborally.client.utils.ServerCommunication;
@@ -52,6 +53,7 @@ public class ServerDataManager extends Subject implements Observer {
     @Setter
     private List<Choice> usedUpgradeCards = new ArrayList<>();
     private List<Choice> othersUsedUpgradeCards = new ArrayList<>();
+    private Interaction interaction;
 
     // Updated Game data
     private Game game;
@@ -426,5 +428,23 @@ public class ServerDataManager extends Subject implements Observer {
             }
         }
         return usedUpgrades;
+    }
+
+    public void setInteraction(String interaction, int movement) {
+        serverCommunication.setInteraction(new Interaction(localPlayer.getPlayerId(), interaction, movement));
+    }
+
+    public void updateInteraction(Runnable callback, String playerName, int movement) {
+        interaction = null;
+        long playerId = playerMap.entrySet().stream().filter(entry -> entry.getValue().getPlayerName().equals(playerName)).findFirst().orElse(null).getKey();
+        Runnable poll = () -> {
+            interaction = serverCommunication.getInteraction(playerId, movement);
+            if (interaction != null) {
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
+            }
+        };
+        serverPoller = Executors.newScheduledThreadPool(1);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 }

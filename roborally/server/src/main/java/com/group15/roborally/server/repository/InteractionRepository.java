@@ -18,4 +18,6 @@ public interface InteractionRepository extends JpaRepository<Interaction, Long> 
 
     @Query("SELECT COUNT(DISTINCT c.playerId) FROM Interaction c WHERE c.player.gameId = :gameId AND c.movement = :movement")
     int countDistinctByGameIdAndMovement(@Param("gameId") long gameId, @Param("movement") int movement);
+
+    Interaction findByIdAndMovement(long playerId, int movement);
 }
