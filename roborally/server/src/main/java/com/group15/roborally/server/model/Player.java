@@ -1,6 +1,8 @@
 package com.group15.roborally.server.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -42,9 +44,10 @@ public class Player/*  implements Serializable */ {
     @JsonIgnore
     private Register registers;
 
-    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Choice choice;
+    private List<Choice> choices = new ArrayList<>();
+    
 
     /**
      * Compares two player objects.
