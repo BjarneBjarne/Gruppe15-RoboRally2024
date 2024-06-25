@@ -5,8 +5,8 @@ import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "classpath:features/changing_phases",
+@CucumberOptions(features = "classpath:features",
                  glue = "cucumber_tests")
 
-public class ChangingPhasesTest {
+public class GameControllerTests {
 }
