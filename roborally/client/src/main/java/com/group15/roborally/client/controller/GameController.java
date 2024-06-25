@@ -401,6 +401,9 @@ public class GameController implements Observer {
                 System.out.println(e.getMessage());
             }
         } else {
+            /*
+             * TODO: logic for server/client when playerinteraction
+             */
             currentPlayerInteraction = playerInteractionQueue.poll();
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
