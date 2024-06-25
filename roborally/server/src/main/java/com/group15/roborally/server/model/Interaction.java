@@ -16,15 +16,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Interaction {
-
-    public Interaction(long playerId, String choice, int turn, int movement) {
-        this.playerId = playerId;
-        this.choice = choice;
-        this.movement = movement;
-        this.turn = turn;
-    }
-
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long interactionId;
+
     long playerId;
     String choice;
     int turn;
@@ -34,4 +29,11 @@ public class Interaction {
     @JoinColumn(name = "playerId", insertable = false, updatable = false)
     @JsonIgnore
     private Player player;
+
+    public Interaction(long playerId, String choice, int turn, int movement) {
+        this.playerId = playerId;
+        this.choice = choice;
+        this.movement = movement;
+        this.turn = turn;
+    }
 }

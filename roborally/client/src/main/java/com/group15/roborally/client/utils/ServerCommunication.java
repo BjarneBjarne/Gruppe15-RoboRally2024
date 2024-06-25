@@ -13,10 +13,12 @@ import com.group15.roborally.server.model.Interaction;
 import com.group15.roborally.server.model.Player;
 import com.group15.roborally.server.model.Register;
 
+import javafx.application.Platform;
 import lombok.Getter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -272,32 +274,34 @@ public class ServerCommunication extends Subject {
             ResponseEntity<R> response = new RestTemplate().exchange(request, responseType);
             evaluateTimeout(true);
             return response.getBody();
-        } catch (ResourceAccessException | HttpClientErrorException e) {
+        } catch (ResourceAccessException | HttpClientErrorException | HttpServerErrorException e) {
             evaluateTimeout(false);
             return null;
         }
     }
 
     private void evaluateTimeout(boolean couldConnect) {
-        if (couldConnect) {
-            // Reset timeout.
-            if (startTimeOfConnectionLost != null) {
-                System.out.println("Reestablished connection to server.");
+        Platform.runLater(() -> {
+            if (couldConnect) {
+                // Reset timeout.
+                if (startTimeOfConnectionLost != null) {
+                    System.out.println("Reestablished connection to server.");
+                }
+                startTimeOfConnectionLost = null;
+            } else if (startTimeOfConnectionLost == null) {
+                // Start timeout "timer".
+                startTimeOfConnectionLost = Instant.now();
+                System.out.println("Server not responding. Trying to reestablish connection to server...");
+            } else {
+                // Evaluate timeout
+                timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now()).getSeconds();
+                long timeBeforeTimeOutInSeconds = 10;
+                if (timeSinceConnectionLost >= timeBeforeTimeOutInSeconds) {
+                    isConnectedToServer = false;
+                    notifyChange();
+                }
             }
-            startTimeOfConnectionLost = null;
-        } else if (startTimeOfConnectionLost == null) {
-            // Start timeout "timer".
-            startTimeOfConnectionLost = Instant.now();
-            System.out.println("Server not responding. Trying to reestablish connection to server...");
-        } else {
-            // Evaluate timeout
-            timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now()).getSeconds();
-            long timeBeforeTimeOutInSeconds = 10;
-            if (timeSinceConnectionLost >= timeBeforeTimeOutInSeconds) {
-                isConnectedToServer = false;
-                notifyChange();
-            }
-        }
+        });
     }
 
     

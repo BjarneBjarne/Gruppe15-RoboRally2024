@@ -40,7 +40,6 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
 import com.group15.roborally.server.model.GamePhase;
@@ -55,6 +54,7 @@ public class GameController implements Observer {
     public final Board board;
     @Getter
     private final Player localPlayer;
+    @Getter
     private final ServerDataManager serverDataManager;
 
     @Getter
@@ -65,7 +65,9 @@ public class GameController implements Observer {
     @Getter
     private PlayerInteraction currentPlayerInteraction = null;
 
+    @Getter
     private int turnCounter;
+    @Getter
     private int movementCounter;
     @Getter
     private Player playerUpgrading;
@@ -92,6 +94,10 @@ public class GameController implements Observer {
         latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
         latestRegisterData = serverDataManager.getUpdatedRegisters();
         setReadyForPhase(GamePhase.INITIALIZATION);
+
+        for (Player player : board.getPlayers()) {
+            player.tryAddFreeUpgradeCard(UpgradeCard.getUpgradeCardFromClass(Card_Brakes.class), this, 0);
+        }
     }
 
     /**
@@ -257,7 +263,6 @@ public class GameController implements Observer {
     }
 
     private void nextMovement() {
-        movementCounter++;
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
         } else {
@@ -340,6 +345,7 @@ public class GameController implements Observer {
         if (playerInteractionQueue.isEmpty()) {
             if (board.getCurrentPhase() == GamePhase.PLAYER_ACTIVATION || board.getCurrentPhase() == GamePhase.BOARD_ACTIVATION) {
                 if (!actionQueue.isEmpty()) { // As long as there are more actions.
+                    movementCounter++;
                     // Handle the next action
                     ActionWithDelay nextAction = actionQueue.removeFirst();
                     nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
@@ -389,7 +395,6 @@ public class GameController implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void handleNextInteraction() {
-        System.err.println("INTERACTION");
         // Check if there are more interactions.
         if (playerInteractionQueue.isEmpty()) {
             // If not, continue
@@ -399,9 +404,6 @@ public class GameController implements Observer {
                 System.out.println(e.getMessage());
             }
         } else {
-            /*
-             * TODO: logic for server/client when playerinteraction
-             */
             currentPlayerInteraction = playerInteractionQueue.poll();
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
@@ -431,11 +433,10 @@ public class GameController implements Observer {
     /**
      * Handles the player command for a command with multiple options
      *  @author Michael Sylvest Bendtsen, s214954@dtu.dk
-     *  @param option the option the player have chosen, and sets the activation phase active again
+     *  @param command the command the player have chosen, and sets the activation phase active again
      */
-    public void executeCommandOptionAndContinue(Command option) {
-        currentPlayerInteraction.getPlayer().queueCommand(option, false, this);
-        currentPlayerInteraction.interactionFinished();
+    public void executeCommandOptionAndContinue(Command command) {
+        currentPlayerInteraction.getPlayer().queueCommand(command, false, this);
     }
 
     /**
@@ -624,12 +625,6 @@ public class GameController implements Observer {
             board.updateBoard();
         } else {
             directionOptionsSpace = null;
-            serverDataManager.updateInteraction(
-                this::continueFromInteraction, 
-                currentPlayerInteraction.getPlayer().getName(), 
-                turnCounter, 
-                movementCounter
-            );
         }
     }
 
@@ -669,19 +664,28 @@ public class GameController implements Observer {
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             setReadyForPhase(GamePhase.PROGRAMMING);
         } else {
-            serverDataManager.setInteraction(direction.name(), turnCounter, movementCounter);
-            serverDataManager.updateInteraction(
-                this::continueFromInteraction, 
-                currentPlayerInteraction.getPlayer().getName(),
-                turnCounter, 
-                movementCounter
-            );
+            serverDataManager.setInteraction(currentPlayerInteraction, direction.name(), turnCounter, movementCounter);
         }
     }
 
-    private void continueFromInteraction() {
-        Heading direction = Heading.valueOf(serverDataManager.getInteraction());
-        currentPlayerInteraction.getPlayer().setHeading(direction);
+    public void chooseCommandOption(Command command) {
+        serverDataManager.setInteraction(currentPlayerInteraction, command.name(), turnCounter, movementCounter);
+    }
+
+    public void continueFromInteraction() {
+        if (currentPlayerInteraction == null) return;
+        switch (currentPlayerInteraction) {
+            case RebootInteraction _ -> {
+                Heading direction = Heading.valueOf(serverDataManager.getInteraction());
+                currentPlayerInteraction.getPlayer().setHeading(direction);
+            }
+            case CommandOptionsInteraction _ -> {
+                Command command = Command.valueOf(serverDataManager.getInteraction());
+                executeCommandOptionAndContinue(command);
+            }
+            case null, default -> {
+            }
+        }
         currentPlayerInteraction.interactionFinished();
     }
 
@@ -792,7 +796,7 @@ public class GameController implements Observer {
 
     private void startNextPhase(GamePhase phaseToStart) {
         if (board.getCurrentPhase() != phaseToStart) {
-            System.out.println("STARTING PHASE: " + phaseToStart);
+            //System.out.println("STARTING PHASE: " + phaseToStart);
             board.setCurrentPhase(phaseToStart);
             if (serverDataManager.isHost()) {
                 serverDataManager.setGamePhase(phaseToStart);
