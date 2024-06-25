@@ -23,6 +23,7 @@ package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.IllegalPlayerPropertyAccess;
+import com.group15.roborally.client.model.boardelements.BE_SpawnPoint;
 import com.group15.roborally.client.model.damage.Damage;
 import com.group15.roborally.client.model.events.PlayerShootListener;
 import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
@@ -180,8 +181,14 @@ public class Player extends Subject {
     }
 
     public void setSpawn(Space space) {
-        setSpace(space);
-        this.spawnPoint = space;
+        if (this.spawnPoint == null) {
+            setSpace(space);
+            this.spawnPoint = space;
+            if (space.getBoardElement() instanceof BE_SpawnPoint BE_spawnPoint) {
+                BE_spawnPoint.setColor(this);
+                board.updateBoard();
+            }
+        }
     }
 
 
