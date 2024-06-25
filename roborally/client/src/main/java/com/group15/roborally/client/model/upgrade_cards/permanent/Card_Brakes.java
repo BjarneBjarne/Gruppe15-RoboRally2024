@@ -4,7 +4,6 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.events.PlayerCommandListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
-import com.group15.roborally.client.model.Player;
 
 public class Card_Brakes extends UpgradeCardPermanent {
 
@@ -40,7 +39,7 @@ public class Card_Brakes extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
 
     }
 }

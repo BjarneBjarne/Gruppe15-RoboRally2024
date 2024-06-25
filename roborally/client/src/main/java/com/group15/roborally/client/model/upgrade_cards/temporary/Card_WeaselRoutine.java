@@ -29,7 +29,7 @@ public class Card_WeaselRoutine extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discard(new CommandCard(Command.WEASEL_ROUTINE));
         super.onActivated();
     }

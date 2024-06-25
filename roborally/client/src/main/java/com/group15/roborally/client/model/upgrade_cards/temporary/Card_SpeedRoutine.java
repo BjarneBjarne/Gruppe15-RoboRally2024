@@ -29,7 +29,7 @@ public class Card_SpeedRoutine extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discard(new CommandCard(Command.SPEED_ROUTINE));
         super.onActivated();
     }

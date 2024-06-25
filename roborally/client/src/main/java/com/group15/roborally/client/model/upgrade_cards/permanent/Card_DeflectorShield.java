@@ -5,7 +5,6 @@ import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.events.PlayerLaserHitListener;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
-import com.group15.roborally.client.model.Player;
 import com.group15.roborally.server.model.GamePhase;
 
 public class Card_DeflectorShield extends UpgradeCardPermanent {
@@ -47,7 +46,7 @@ public class Card_DeflectorShield extends UpgradeCardPermanent {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         super.onActivated();
         activated = true;
     }

@@ -29,7 +29,7 @@ public class Card_SpamFolderRoutine extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discard(new CommandCard(Command.SPAM_FOLDER));
         super.onActivated();
     }

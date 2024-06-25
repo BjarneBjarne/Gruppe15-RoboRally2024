@@ -29,7 +29,7 @@ public class Card_SandboxRoutine extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.discard(new CommandCard(Command.SANDBOX_ROUTINE));
         super.onActivated();
     }

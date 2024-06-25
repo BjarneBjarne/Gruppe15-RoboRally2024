@@ -27,7 +27,7 @@ public class Card_Hack extends UpgradeCardTemporary {
     }
 
     @Override
-    protected void onActivated() {
+    public void onActivated() {
         owner.queueCommand(owner.getLastCmd(), gameController);
         super.onActivated();
     }
