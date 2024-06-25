@@ -617,11 +617,15 @@ public class GameController implements Observer {
                 space.updateSpace();
             }
             directionOptionsSpace = space;
+            board.updateBoard();
         } else {
             directionOptionsSpace = null;
+            board.updateBoard();
+            /*
+             * TODO: Set "isReady" to true and start polling for player Heading from server.
+             * Poll server with callback(this::handleNextPlayerInteraction)
+             */
         }
-
-        board.updateBoard();
     }
 
 
@@ -658,6 +662,10 @@ public class GameController implements Observer {
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             serverDataManager.setIsReady(1);
         } else {
+            /*
+             * TODO: Set "isReady" to true and set Heading to server, and get all players Heading from the server.
+             * Poll server with callback(this::handleNextPlayerInteraction)
+             */
             currentPlayerInteraction.getPlayer().setHeading(direction);
             currentPlayerInteraction.interactionFinished();
         }

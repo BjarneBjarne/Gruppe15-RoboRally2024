@@ -10,6 +10,9 @@ public class RebootInteraction extends PlayerInteraction {
 
     @Override
     public void initializeInteraction() {
+        /*
+         * TODO: Set the "isReady" to false on server
+         */
         gameController.setDirectionOptionsPane(player, player.getSpace());
     }
 
