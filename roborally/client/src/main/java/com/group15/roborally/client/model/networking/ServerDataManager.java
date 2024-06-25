@@ -77,10 +77,10 @@ public class ServerDataManager extends Subject implements Observer {
     public void tryCreateAndJoinGame(String serverURL, String playerName) {
         AppController.setInfoText("Creating new game...");
         AtomicLong gameId = new AtomicLong();
-        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(125, 500)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(50, 250)), () -> {
             if (gameId.get() != -1) {
                 runActionAndCallback(new ActionWithDelay(
-                        () -> AppController.setInfoText("Successfully created new game!"), 500),
+                        () -> AppController.setInfoText("Successfully created new game!"), 250),
                         () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
             } else {
                 runActionAndCallback(new ActionWithDelay(
@@ -101,12 +101,12 @@ public class ServerDataManager extends Subject implements Observer {
     public void tryJoinGameWithGameID(String serverURL, long gameId, String playerName) {
         AppController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
-        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(125, 500)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(50, 250)), () -> {
             if (player.get() != null) {
                 runActionAndCallback(new ActionWithDelay(() -> {
                     AppController.setInfoText("Successfully joined game!");
                     connectedToGame(gameId, player.get());
-                }, 500), () -> AppController.setInfoText(""));
+                }, 250), () -> AppController.setInfoText(""));
             } else {
                 runActionAndCallback(new ActionWithDelay(
                         () -> AppController.setInfoText("Failed to join game."), 1500),
@@ -148,7 +148,7 @@ public class ServerDataManager extends Subject implements Observer {
             }
         };
         gameUpdateScheduler = Executors.newScheduledThreadPool(1);
-        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 500, TimeUnit.MILLISECONDS);
+        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 250, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -340,22 +340,30 @@ public class ServerDataManager extends Subject implements Observer {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
             localPlayer.setSpawnPoint(new int[]{space.x, space.y});
             localPlayer.setSpawnDirection(directionName);
-            System.out.println("Setting spawn");
             serverCommunication.updatePlayer(localPlayer);
         }
     }
     public void setUpgradeShop(@NotNull String[] availableCards) {
+        System.out.println();
+        System.out.println("-------");
+        System.out.println("Updating card to the server");
         if (!Arrays.equals(upgradeShop, availableCards)) {
-            System.out.println("******** SETTING NEW CARDS ON THE SERVER ********");
+            System.out.println("New shop to the server:");
+            for (String card : availableCards) {
+                System.out.println(card);
+            }
             serverCommunication.updateUpgradeShop(availableCards, game.getGameId());
+        } else {
+            System.out.println("CARDS ARE THE SAME");
         }
+        System.out.println("--------");
+        System.out.println();
     }
     public void setPlayerUpgradeCards(@NotNull String[] permCards, @NotNull String[] tempCards) {
         localPlayer.setPermCards(permCards);
         localPlayer.setTempCards(tempCards);
         serverCommunication.updatePlayer(localPlayer);
     }
-
 
     // Getters
     public Register getRegistersFromPlayer(long playerId) {

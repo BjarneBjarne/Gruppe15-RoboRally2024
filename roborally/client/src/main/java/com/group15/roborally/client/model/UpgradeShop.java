@@ -66,7 +66,7 @@ public class UpgradeShop implements Observer {
      * Method for removing a card from the available cards on the host, when a proxy players have bought a card.
      * @param availableCard
      */
-    public void removeAvailableCardByName(String availableCard) {
+    /*public void removeAvailableCardByName(String availableCard) {
         for (CardField availableCardsField : availableCardsFields) {
             UpgradeCard upgradeCard = (UpgradeCard) availableCardsField.getCard();
             if (upgradeCard == null) continue;
@@ -74,7 +74,7 @@ public class UpgradeShop implements Observer {
                 availableCardsField.setCard(null);
             }
         }
-    }
+    }*/
 
     // Methods for access of transactions with shop.
     /**
@@ -91,10 +91,11 @@ public class UpgradeShop implements Observer {
         player.setEnergyCubes(player.getEnergyCubes() - cardToSell.getPurchaseCost());
         energyLevel += cardToSell.getPurchaseCost();
         for (CardField cardfield: availableCardsFields) {
-            if(cardfield.getCard()!=null){
-            if (cardfield.getCard().getClass() == cardToSell.getClass()) {
-                cardfield.setCard(null);
-            }}
+            if (cardfield.getCard() != null) {
+                if (cardfield.getCard().getClass().equals(cardToSell.getClass())) {
+                    cardfield.setCard(null);
+                }
+            }
         }
         return cardToSell; // SUCCESSFUL PURCHASE - Transaction complete. Sending UpgradeCard to buyer method.
     }
@@ -151,8 +152,11 @@ public class UpgradeShop implements Observer {
         // Add noOfMissing cards to availableUpgradeCards
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             if (availableCardsFields[i].getCard() == null) {
-                availableCardsFields[i].setCard(drawCard());
-                System.out.println("Setting new available card: " + drawCard().getDisplayName());
+                UpgradeCard drawnCard = drawCard();
+                availableCardsFields[i].setCard(drawnCard);
+                if (drawnCard != null) {
+                    System.out.println("Setting new available card: " + drawnCard.getDisplayName());
+                }
             }
         }
     }
