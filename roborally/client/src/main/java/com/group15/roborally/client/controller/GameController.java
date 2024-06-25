@@ -220,18 +220,21 @@ public class GameController implements Observer {
         if (getIsPlayerInteracting()) { // Return and wait for player interaction.
             return;
         }
-        System.out.println("Sending choices");
-        serverDataManager.setChoices(movementCounter, turnCounter);
-        System.out.println("Choices sent");
-        serverDataManager.updateChoices(this::executeUpgradeCards, movementCounter, turnCounter);
+        setAndUpdateChoices(this::executeUpgradeCards);
+        // serverDataManager.setChoices(movementCounter, turnCounter);
+        // serverDataManager.updateChoices(this::executeUpgradeCards, movementCounter, turnCounter);
     }
 
-    public void useUpgradeCard(UpgradeCard card){
-        serverDataManager.addUsedUpgradeCard(card.getEnum().name(), movementCounter, turnCounter);
+    public void addChoice(String choice){
+        serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
+    }
+
+    private void setAndUpdateChoices(Runnable callback){
+        serverDataManager.setChoices(movementCounter, turnCounter);
+        serverDataManager.updateChoices(callback, movementCounter, turnCounter);
     }
 
     private void executeUpgradeCards(){
-        System.out.println("Executing upgrade cards");
         for(Player player : board.getPlayers()){
             List<String> usedCards = serverDataManager.getUsedUpgrades(player.getName());
             for(String card : usedCards){
@@ -253,7 +256,6 @@ public class GameController implements Observer {
     }
 
     private void nextMovement(){
-        System.out.println("Continuing to next movement");
         movementCounter++;
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
