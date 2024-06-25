@@ -153,7 +153,16 @@ public class GameController implements Observer {
                 localPlayer.fillRestOfRegisters();
             }
             turnCounter++;
-            serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), turnCounter);
+            Queue<CommandCard> commandCards = localPlayer.getProgrammingDeck();
+            String[] commandCardsStr = new String[commandCards.size()];
+            for (int i = 0; i < commandCards.size(); i++) {
+                CommandCard card = commandCards.poll();
+                if (card != null)
+                    commandCardsStr[i] = card.getCommand().name();
+                else
+                    commandCardsStr[i] = "null";
+            }
+            serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), commandCardsStr, turnCounter);
             board.updateBoard();
         }
     }
@@ -164,8 +173,8 @@ public class GameController implements Observer {
             if (player.equals(localPlayer)) {
                 continue;
             }
-            String[] registers = serverDataManager.getRegistersFromPlayer(player.getPlayerId());
-            player.setRegisters(registers); // Convert String to CardField
+            Register registers = serverDataManager.getRegistersFromPlayer(player.getPlayerId());
+            player.setRegisters(registers.getMoves()); // Convert String to CardField
         }
 
         board.setStepMode(false);

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 @Entity
 @Table(name = "registers")
@@ -26,6 +25,8 @@ public class Register {
     private int turn;
 
     private String[] moves;
+
+    private String[] deck;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playerId", insertable = false, updatable = false)
