@@ -122,7 +122,7 @@ public abstract class UpgradeCard extends Card {
     }
 
     public boolean getHasActivateButton() {
-        return activatableOn != null;
+        return activatableOn != null && !activatableOn.isEmpty();
     }
 
     public void printUsage() {

@@ -94,10 +94,6 @@ public class GameController implements Observer {
         latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
         latestRegisterData = serverDataManager.getUpdatedRegisters();
         setReadyForPhase(GamePhase.INITIALIZATION);
-
-        for (Player player : board.getPlayers()) {
-            player.tryAddFreeUpgradeCard(UpgradeCard.getUpgradeCardFromClass(Card_Brakes.class), this, 0);
-        }
     }
 
     /**

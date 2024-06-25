@@ -28,6 +28,7 @@ import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.server.model.GamePhase;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -40,6 +41,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -83,11 +88,19 @@ public class CardFieldView extends StackPane implements ViewObserver {
         cardForegroundImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
 
         useButton.setText("Use");
-        useButton.setOnAction(event -> {
+        useButton.setOnAction(_ -> {
             field.activateCard();
         });
         useButton.setDisable(true);
         useButton.setVisible(false);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 16);
+        Text buttonText = new Text();
+        buttonText.setFont(textFont);
+        buttonText.setFill(Color.WHITE);
+        buttonText.setStroke(Color.BLACK);
+        buttonText.setStrokeWidth(2);
+        buttonText.setStrokeType(StrokeType.OUTSIDE);
+        buttonText.setTextAlignment(TextAlignment.CENTER);
         StackPane.setAlignment(useButton, Pos.BOTTOM_RIGHT);
 
         this.setPrefSize((CARDFIELD_SIZE - 5) * cardWidthMultiplier, (CARDFIELD_SIZE - 3) * cardHeightMultiplier);
