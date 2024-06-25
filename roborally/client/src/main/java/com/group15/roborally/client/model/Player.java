@@ -693,21 +693,21 @@ public class Player extends Subject {
             case CRAB_MOVE:
                 setForwardVelocity(1);
                 startMovement(gameController);
-                queueCommand(Command.CRAB_DIRECTION,gameController);
+                queueCommand(Command.CRAB_DIRECTION, gameController);
                 break;
             case CRAB_STAY:
-                queueCommand(Command.CRAB_DIRECTION,gameController);
+                queueCommand(Command.CRAB_DIRECTION, gameController);
                 break;
             case CRAB_MOVE_LEFT:
                 setVelocity(new Velocity(0, -1));
                 startMovement(gameController);
-                queueCommand(Command.MOVE_1,false,gameController);
+                queueCommand(Command.MOVE_1, false, gameController);
 
                 break;
             case CRAB_MOVE_RIGHT:
                 setVelocity(new Velocity(0, 1));
                 startMovement(gameController);
-                queueCommand(Command.MOVE_1,false,gameController);
+                queueCommand(Command.MOVE_1, false, gameController);
                 break;
 
 

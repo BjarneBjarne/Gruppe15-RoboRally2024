@@ -228,27 +228,27 @@ public class GameController implements Observer {
         // serverDataManager.updateChoices(this::executeUpgradeCards, movementCounter, turnCounter);
     }
 
-    public void addChoice(String choice){
+    public void addChoice(String choice) {
         serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
     }
 
-    private void setAndUpdateChoices(Runnable callback){
+    private void setAndUpdateChoices(Runnable callback) {
         serverDataManager.setChoices(movementCounter, turnCounter);
         serverDataManager.updateChoices(callback, movementCounter, turnCounter);
     }
 
-    private void executeUpgradeCards(){
-        for(Player player : board.getPlayers()){
+    private void executeUpgradeCards() {
+        for (Player player : board.getPlayers()) {
             List<String> usedCards = serverDataManager.getUsedUpgrades(player.getName());
-            for(String card : usedCards){
-                for(CardField field : player.getPermanentUpgradeCardFields()){
-                    if(field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)){
+            for (String card : usedCards){
+                for (CardField field : player.getPermanentUpgradeCardFields()) {
+                    if (field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)) {
                         ((UpgradeCard) field.getCard()).onActivated();
                         usedCards.remove(card);
                     }
                 }
-                for(CardField field : player.getTemporaryUpgradeCardFields()){
-                    if(field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)){
+                for (CardField field : player.getTemporaryUpgradeCardFields()) {
+                    if (field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)) {
                         ((UpgradeCard) field.getCard()).onActivated();
                         usedCards.remove(card);
                     }
@@ -258,7 +258,7 @@ public class GameController implements Observer {
         nextMovement();
     }
 
-    private void nextMovement(){
+    private void nextMovement() {
         movementCounter++;
         if (!board.getPriorityList().isEmpty()) {
             handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
