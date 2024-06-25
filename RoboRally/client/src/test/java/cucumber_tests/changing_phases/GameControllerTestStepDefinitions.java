@@ -1,10 +1,9 @@
 package cucumber_tests.changing_phases;
 
 import com.group15.roborally.client.controller.GameController;
-import com.group15.roborally.client.model.Board;
-import com.group15.roborally.client.model.CardField;
-import com.group15.roborally.client.model.Phase;
-import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.*;
+import com.group15.roborally.client.model.boardelements.BE_SpawnPoint;
+import com.group15.roborally.client.view.BoardView;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -13,24 +12,28 @@ import cucumber.api.java.en.When;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.group15.roborally.client.BoardOptions.DRAW_ON_EMPTY_REGISTER;
+import static com.group15.roborally.client.BoardOptions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GameControllerTestStepDefinitions {
 
     private Board board;
+    private BoardView boardView;
     private Runnable gameOverMethod;
     private GameController gameController;
-    private Player player1;
+    private Player currentPlayer;
     private Queue<Player> mockPriorityList;
     private AtomicReference<Phase> currentPhase;
+    private Space spawnSpace;
 
     @Before
     public void setUp() {
         board = mock(Board.class);
+        boardView = mock(BoardView.class);
+        spawnSpace = mock(Space.class);
         gameOverMethod = mock(Runnable.class);
-        player1 = mock(Player.class);
+        currentPlayer = mock(Player.class);
         mockPriorityList = mock(Queue.class);
         gameController = new GameController(board, gameOverMethod);
         currentPhase = new AtomicReference<>();
@@ -41,7 +44,7 @@ public class GameControllerTestStepDefinitions {
         }).when(board).setCurrentPhase(any(Phase.class));
         when(board.getCurrentPhase()).thenAnswer(invocation -> currentPhase.get());
 
-        when(mockPriorityList.peek()).thenReturn(player1);
+        when(mockPriorityList.peek()).thenReturn(currentPlayer);
         when(board.getPriorityList()).thenReturn(mockPriorityList);
     }
 
@@ -76,7 +79,7 @@ public class GameControllerTestStepDefinitions {
 
     @Given("the board is in the programming phase")
     public void the_board_is_in_the_programming_phase() {
-        gameController.startProgrammingPhase();
+        board.setCurrentPhase(Phase.PROGRAMMING);
     }
 
     @When("the finishProgrammingPhase method is called")
@@ -106,9 +109,87 @@ public class GameControllerTestStepDefinitions {
     @Then("players should fill the rest of their registers if draw on empty register is enabled")
     public void players_should_fill_the_rest_of_their_registers_if_draw_on_empty_register_is_enabled() {
         if (DRAW_ON_EMPTY_REGISTER) {
-            for (com.group15.roborally.client.model.Player player : board.getPlayers()) {
+            for (Player player : board.getPlayers()) {
                 player.fillRestOfRegisters();
             }
         }
     }
+
+    // Scenario Outline: Choose direction in the initialization phase
+
+    @Given("the board is in the initialization phase")
+    public void the_board_is_in_the_initialization_phase() {
+
+        when(board.getCurrentPhase()).thenReturn(Phase.INITIALIZATION);
+        NO_OF_PLAYERS = 2;
+
+        when(board.getCurrentPlayer()).thenReturn(currentPlayer);
+        when(currentPlayer.getSpace()).thenReturn(spawnSpace);
+
+        for (int i = 1; i <= NO_OF_PLAYERS; i++) {
+            Player player = mock(Player.class);
+            Space playerSpace = mock(Space.class);
+            when(board.getPlayer(i)).thenReturn(player);
+            when(player.getSpace()).thenReturn(playerSpace);
+            when(playerSpace.getBoardElement()).thenReturn(mock(BE_SpawnPoint.class));
+        }
+    }
+
+    @When("the player chooses the {word} direction")
+    public void the_player_chooses_the_direction(String direction) {
+        Heading heading = Heading.valueOf(direction);
+        gameController.chooseDirection(heading, boardView);
+    }
+
+    @Then("the board should set the current player's heading to {word}")
+    public void the_board_should_set_the_current_player_s_heading_to(String direction) {
+        Heading expectedHeading = Heading.valueOf(direction);
+        assertEquals(expectedHeading, board.getCurrentPlayer().getHeading());
+    }
 }
+
+
+
+
+
+/*    @Given("the board is in the initialization phase with current player {int}")
+    public void the_board_is_in_the_initialization_phase_with_current_player(int currentPlayerIndex) {
+
+        NO_OF_PLAYERS = 4;
+
+        when(board.getCurrentPhase()).thenReturn(Phase.INITIALIZATION);
+
+        currentPlayer = mock(Player.class);
+        Space spawnSpace = mock(Space.class);
+        when(currentPlayer.getSpace()).thenReturn(spawnSpace);
+        when(board.getCurrentPlayer()).thenReturn(currentPlayer);
+        when(board.getPlayerNumber(currentPlayer)).thenReturn(currentPlayerIndex);
+
+        for (int i = 1; i <= NO_OF_PLAYERS; i++) {
+            Player player = mock(Player.class);
+            Space playerSpace = mock(Space.class);
+            when(board.getPlayer(i)).thenReturn(player);
+            when(player.getSpace()).thenReturn(playerSpace);
+            when(playerSpace.getBoardElement()).thenReturn(mock(BE_SpawnPoint.class));
+        }
+    }
+
+    @When("the player chooses the {word} direction")
+    public void the_player_chooses_the_direction(String direction) {
+        Heading heading = Heading.valueOf(direction);
+        gameController.chooseDirection(heading, boardView);
+    }
+
+    @Then("the board should set the current player's heading to {word}")
+    public void the_board_should_set_the_current_player_s_heading_to(String heading) {
+        Heading expectedHeading = Heading.valueOf(heading);
+        assertEquals(expectedHeading, board.getCurrentPlayer().getHeading());
+    }
+
+    @Then("the current player should be updated to {int}")
+    public void the_current_player_should_be_updated_to(int nextPlayerIndex) {
+        Player nextPlayer = board.getPlayer(nextPlayerIndex);
+        assertEquals(nextPlayer, board.getCurrentPlayer());
+    }
+}
+*/
