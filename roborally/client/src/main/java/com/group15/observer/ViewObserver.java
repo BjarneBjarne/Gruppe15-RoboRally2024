@@ -19,10 +19,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package com.group15.roborally.client.view;
+package com.group15.observer;
 
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
 import javafx.application.Platform;
 
 /**

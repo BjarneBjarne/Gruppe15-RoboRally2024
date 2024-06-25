@@ -128,7 +128,7 @@ public class MultiplayerMenuView implements Observer {
             lobbyTextGameID.setText("Game ID: " + updatedGame.getGameId());
             // If the game had changes, the player gets set to not ready.
             if (updatedGame.hasChanges(this.game)) {
-                serverDataManager.setIsReady(0);
+                serverDataManager.setReadyForPhase(GamePhase.LOBBY);
             }
             // Update selected course if it changed
             if (updatedGame.getCourseName() != null && !updatedGame.getCourseName().isBlank() && (this.selectedCourse == null || !updatedGame.getCourseName().equals(this.selectedCourse.getCourseName()))) {
@@ -162,7 +162,7 @@ public class MultiplayerMenuView implements Observer {
                 playerSlot.setRobotByRobotName(player.getRobotName());
                 boolean playerIsHost = player.getPlayerId() == this.game.getHostId();
                 playerSlot.setHostStarVisible(playerIsHost);
-                playerSlot.setReadyCheckVisible(player.getIsReady() == 1);
+                playerSlot.setReadyCheckVisible(player.getReadyForPhase() == GamePhase.INITIALIZATION);
                 if (!isLocalPlayer) {
                     slotIndex++;
                 }
@@ -376,12 +376,13 @@ public class MultiplayerMenuView implements Observer {
         lobbyButtonStart.setOnMouseClicked(_ -> {
             if (canReadyOrStart()) {
                 if (serverDataManager.isHost()) {
+                    serverDataManager.setReadyForPhase(GamePhase.INITIALIZATION);
+                    serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
                     startGame();
                 } else {
                     // Toggling whether the player is ready.
-                    int isReady = ServerDataManager.getLocalPlayer().getIsReady() == 0 ? 1 : 0;
-                    ServerDataManager.getLocalPlayer().setIsReady(isReady);
-                    serverDataManager.setIsReady(isReady);
+                    GamePhase gamePhase = ServerDataManager.getLocalPlayer().getReadyForPhase() != GamePhase.INITIALIZATION ? GamePhase.INITIALIZATION : GamePhase.LOBBY;
+                    serverDataManager.setReadyForPhase(gamePhase);
                 }
             }
         });
@@ -436,7 +437,7 @@ public class MultiplayerMenuView implements Observer {
             if (selectedCourse == null) return false;
             for (Player player : this.players.values()) {
                 if (player.getPlayerId() != ServerDataManager.getLocalPlayer().getPlayerId()) {
-                    if (player.getIsReady() == 0) {
+                    if (player.getReadyForPhase() != GamePhase.INITIALIZATION) {
                         return false;
                     }
                 }
@@ -501,11 +502,12 @@ public class MultiplayerMenuView implements Observer {
     }
 
     private void startGame() {
-        if (!hasStartedGameLocally) {
-            hasStartedGameLocally = true;
-            serverDataManager.setGamePhase(GamePhase.INITIALIZATION);
-            this.serverDataManager.detach(this);
-            AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
-        }
+        Platform.runLater(() -> {
+            if (!hasStartedGameLocally) {
+                hasStartedGameLocally = true;
+                this.serverDataManager.detach(this);
+                AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
+            }
+        });
     }
 }

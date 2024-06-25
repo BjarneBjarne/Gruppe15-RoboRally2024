@@ -184,7 +184,7 @@ public class RoboRally extends Application {
         //System.out.println(APP_SCALE);
         APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());
         //root.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
-        UpdateSizes();
+        //UpdateSizes();
     }
 
     /**
