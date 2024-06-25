@@ -755,17 +755,9 @@ public class GameController implements Observer {
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
         GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
         if (allReadyForNextPhase(nextPhase)) {
-            System.out.println("All are ready for next phase.");
             startNextPhase(nextPhase);
-        } else {
-            System.out.println("NOT ready for next phase");
-            latestPlayerData.values().forEach(player -> {
-                System.out.println("Player " + player.getPlayerName() + " are ready for: " + player.getReadyForPhase());
-            });
         }
 
-        System.out.println("Current phase: " + board.getCurrentPhase());
-        System.out.println("Ready for: " + ServerDataManager.getLocalPlayer().getReadyForPhase());
         if (board.getCurrentPhase() != latestGameData.getPhase()) {
             System.err.println("Mismatched game phases with server. This phase: " + board.getCurrentPhase() + ". Server phase: " + latestGameData.getPhase());
         }
