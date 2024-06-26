@@ -1,0 +1,25 @@
+@startuml
+
+start
+:Program registers;
+:Press 'Finish programming';
+:Send registers to server;
+repeat: Send GET to server;
+    :Handle response;
+backward: Wait n seconds;
+repeat while (Server ready?) is (no)
+-> yes;
+note right
+  Server is ready when all players
+  have uploaded registers
+end note
+:Update controller;
+note right
+  Loading other players registers,
+  received from server, into controller
+end note
+:Enter activation phase;
+:Execute registers;
+stop 
+
+@enduml

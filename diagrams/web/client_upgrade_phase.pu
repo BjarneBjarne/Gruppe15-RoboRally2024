@@ -1,0 +1,21 @@
+@startuml
+
+start
+
+repeat:GET "/upgradeShop/{gameId}/turn";
+repeat while (turn == playerPriority) is (false)
+-> true;
+
+:GET "/upgradeShop/{gameId}";
+:Update view with upgradeShop data;
+:Buy cards;
+:PUT "/upgradeShop/{gameId}";
+
+repeat:GET "/gameId/{gameId}/phase";
+repeat while (gamePhase == upgrade) is (true)
+-> false;
+
+:Enter programming phase;
+
+stop
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+start
+repeat :Wait for POST request;
+fork
+    :Receive new game POST request;
+    :Generate new gameId;
+    :Generate new playerId;
+    :Add gameId to 'Games' tabel;
+    :Add playerId and gameId to 'Players' tabel;
+    :Add playerId and gameId to 'Lobby' tabel;
+    :Send gameId, playerId, SlotNr and lobby state to client;
+fork again
+    :Receive new player POST request;
+    if (gameId exists?) then (yes)
+        :Generate new playerId;
+        :Add playerId and gameId to 'Players' tabel;
+        :Add playerId and gameId to 'Lobby' tabel;
+        :Update NrOfPlayers in 'Games' tabel;
+        :Send playerId, SlotNr and lobby state to client;
+    else (no)
+        :Send error message to client;
+    endif
+fork again
+    :Receive player update POST request;
+    if (Changes made?) then (yes)
+        :Update 'Players' tabel;
+        :Update 'Lobby' tabel;
+        if (Player disconnected?) then (no)
+            :Send lobby state to client;
+        else (yes)
+            :Update NrOfPlayers in 'Games' tabel;
+            :Remove Player from 'Players' tabel;
+            :Update SlotNr in 'Lobby' tabel;
+        endif
+    else (no)
+        :Send lobby state to client;
+    endif
+    note right
+        Lobby state sent to client:
+        - Other player Robots
+        - Chosen map
+        - Game start?
+        If host:
+        - Players ready status
+    end note
+end fork
+    repeat while (Game not started?)
+    stop
+@enduml

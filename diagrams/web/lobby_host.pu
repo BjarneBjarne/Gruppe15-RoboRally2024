@@ -1,0 +1,62 @@
+@startuml
+
+start
+:Start server application;
+:Press 'Host game' button in RoboRally;
+:Change player state to 'host';
+:Enter player name;
+:Send name to server;
+:Receives generated playerId and gameId from server;
+:Update client view;
+:Client enters lobby;
+note right
+    Enters multithreaded process 
+    for sending and receiving 
+    updates to/from server
+end note
+repeat
+fork
+        :Post request to server with changes;
+        note left
+            Sends info:
+            - Changes made?
+            - PlayerId
+            - Robot
+            - Ready status
+            - Chosen map
+            - Game phase
+        end note
+        if(Player state disconnected?) then (yes)
+            stop
+        else (no)
+        endif
+        :Receive updated lobby state from server;
+        note left
+            - Other player names
+            - Other player robots
+            - Other player ready status
+            - Player SlotNr
+            - Chosen Map
+            - Game phase
+        end note
+        :Change client state to 'connected';
+        :Update client view;
+fork again
+        :Make changes to lobby;
+        note right
+            - Change robot
+            - Change ready status
+            - Pressed 'Exit Lobby'?
+            - Change map
+            - Press start?
+        end note
+        if (Player exit lobby?) then (yes)
+            :Change client state to 'disconnected';
+            stop
+        else (no)
+        endif
+end merge
+    repeat while (Game phase play?) is (no)
+    ->yes;
+:Create boardview;
+@enduml

@@ -1,2 +1,4 @@
-Roborally/target
 .idea
+.vscode
+target
+out/artifacts

@@ -1,0 +1,22 @@
+@startuml
+
+start
+:Program registers;
+:Press 'Finish programming';
+:PUT "/players/{playerId}";
+repeat: GET "/games/{gameId}/registers";
+repeat while (register == null) is (true)
+-> false;
+note right
+  Server is ready when all players
+  have uploaded registers
+end note
+:Update controller;
+note right
+  Loading other players registers,
+  received from server, into controller
+end note
+:Enter activation phase;
+stop 
+
+@enduml

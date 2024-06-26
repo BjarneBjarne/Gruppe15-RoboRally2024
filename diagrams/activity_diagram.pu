@@ -3,7 +3,7 @@
 start
 
 :New game initialized;
-|Upgrade Phase|
+|Upgrade GamePhase|
 
     repeat :Determine Current player;
     repeat :Current player buys Upgrade Card;
@@ -12,7 +12,7 @@ start
     repeat while (More players?) is (yes)
     ->no;
 
-|Programming Phase|
+|Programming GamePhase|
     repeat
         fork
             :Players individually program robot;
@@ -22,7 +22,7 @@ start
     repeat while (All pressed 'Finish Programming'?) is (no)
     ->yes;
 
-|Execution Phase|
+|Execution GamePhase|
     :Determine Current player;
     repeat
         fork

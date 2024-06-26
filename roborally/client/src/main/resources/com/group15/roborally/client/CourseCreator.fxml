@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane maxHeight="1440.0" maxWidth="2560.0" minHeight="1440.0" minWidth="2560.0" prefHeight="1440.0" prefWidth="2560.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.group15.roborally.client.coursecreator.CC_Controller">
+   <top>
+      <MenuBar fx:id="topPane" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="10.0" top="30.0" />
+         </padding>
+         <Menu mnemonicParsing="false" text="File">
+            <MenuItem fx:id="CC_saveCourse" mnemonicParsing="false" text="Save Course" />
+            <MenuItem fx:id="CC_loadCourse" mnemonicParsing="false" text="Load Course" />
+            <MenuItem fx:id="CC_exitToMainMenu" mnemonicParsing="false" text="Exit course creator" />
+         </Menu>
+      </MenuBar>
+   </top>
+   <bottom>
+      <ScrollPane fx:id="bottomPane" minHeight="200.0" BorderPane.alignment="CENTER">
+         <HBox fx:id="CC_elementButtonsHBox" alignment="CENTER_LEFT" fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" />
+      </ScrollPane>
+   </bottom>
+</BorderPane>

@@ -1,0 +1,40 @@
+@startuml
+
+package "Lobby" as Lobby{
+
+    class newGame{
+    - Long pId
+    - Long gId
+    - String pName
+    }
+
+    class newPlayer{
+        - Long gId
+        - Long pid 
+        - String pName
+        - int slotNr
+        - int[] slotNrs
+        - String[] playerNames
+        - String[] robots
+        - String[] availableRobots
+        - boolean[] areReady
+        - String map
+    }
+
+    class updateClient{
+        - Long pId
+        - int slotNr
+        - int[] slotNrs
+        - String[] playerNames
+        - String[] robots
+        - String[] availableRobots
+        - boolean[] areReady
+        - String map
+        - boolean isReady
+        - boolean hasChanged
+    }
+
+}
+
+
+@enduml
