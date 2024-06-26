@@ -1,3 +1,6 @@
+# Link to demo video
+https://www.youtube.com/watch?v=IkSLw8IZ5Xg
+
 ## Opening the application
 To open the RoboRally-application, navigate to the folder Gruppe15-RoboRally2024 and double-click the file
 "RoboRally.jar".
