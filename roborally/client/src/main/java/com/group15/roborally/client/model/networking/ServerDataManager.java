@@ -144,7 +144,6 @@ public class ServerDataManager extends Subject implements Observer {
             Game currentGameData = this.game;
             if (serverCommunication.isConnectedToServer()) {
                 if (currentGameData == null) return;
-
                 updateGameFromServerData();
             }
         };

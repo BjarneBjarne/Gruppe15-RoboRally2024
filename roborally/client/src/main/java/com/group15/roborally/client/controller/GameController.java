@@ -680,7 +680,7 @@ public class GameController implements Observer {
                 Command command = Command.valueOf(serverDataManager.getInteraction());
                 executeCommandOptionAndContinue(command);
             }
-            case null, default -> {
+            default -> {
             }
         }
         currentPlayerInteraction.interactionFinished();
