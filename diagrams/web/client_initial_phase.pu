@@ -1,0 +1,25 @@
+@startuml
+
+start
+repeat
+fork
+
+    :GET "/games/{gameId}/players";
+    :Update player position + direction;
+
+fork again
+    :Makes change;
+    :PUT "/games/{gameId}/players";
+end fork
+
+:Update view;
+
+:GET "/games/{gameId}/phase";
+repeat while (gamePhase == initialize) is (true)
+->false;
+
+: Enter upgrade phase;
+
+stop
+
+@enduml
