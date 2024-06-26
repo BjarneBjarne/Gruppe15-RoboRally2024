@@ -29,8 +29,6 @@ import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
-import com.group15.roborally.client.model.upgrade_cards.permanent.Card_Brakes;
-import com.group15.roborally.client.model.upgrade_cards.temporary.Card_Reboot;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.server.model.Game;
@@ -170,7 +168,7 @@ public class GameController implements Observer {
         }
 
         board.setStepMode(false);
-        handlePlayerRegister();
+        waitForPossibleCardUse();
     }
 
     /**
@@ -190,11 +188,18 @@ public class GameController implements Observer {
     /*
      *    ### These methods are the main flow of the activation phases. ###
      */
+    private void waitForPossibleCardUse() {
+
+    }
+
     /**
      * Gets the next player in the priority queue, queues that player's command card and executes it.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void handlePlayerRegister() {
+    private void startNextPlayerRegister() {
+
+        setAndUpdateChoices(this::executeUpgradeCards);
+
         System.out.println();
         board.setCurrentPlayer(board.getPriorityList().poll());
         makeProgramFieldsVisible(board.getCurrentRegister());
@@ -204,14 +209,14 @@ public class GameController implements Observer {
             queuePlayerCommandFromCommandCard(currentPlayer);
         }
         // Begin handling the actions.
-        handlePlayerActions();
+        handlePlayerRegister();
     }
 
     /**
      * This method splits up handlePlayerRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void handlePlayerActions() {
+    private void handlePlayerRegister() {
         // Run through the queue and execute the player command.
         runActionsAndCallback(this::handleEndOfPlayerTurn, board.getBoardActionQueue());
     }
@@ -224,9 +229,7 @@ public class GameController implements Observer {
         if (getIsPlayerInteracting()) { // Return and wait for player interaction.
             return;
         }
-        setAndUpdateChoices(this::executeUpgradeCards);
-        // serverDataManager.setChoices(movementCounter, turnCounter);
-        // serverDataManager.updateChoices(this::executeUpgradeCards, movementCounter, turnCounter);
+        nextMovement();
     }
 
     public void addChoice(String choice) {
@@ -256,12 +259,12 @@ public class GameController implements Observer {
                 }
             }
         }
-        nextMovement();
+
     }
 
     private void nextMovement() {
         if (!board.getPriorityList().isEmpty()) {
-            handlePlayerRegister(); // There are more players in the priorityList. Continue to next player.
+            waitForPossibleCardUse(); // There are more players in the priorityList. Continue to next player.
         } else {
             setReadyForPhase(GamePhase.BOARD_ACTIVATION); // PriorityList is empty, therefore we are ready to end the register.
         }
@@ -415,7 +418,7 @@ public class GameController implements Observer {
     private void continueActions() throws UnhandledPhaseInteractionException {
         if (board.getCurrentPhase() == GamePhase.PLAYER_ACTIVATION) {
             currentPlayerInteraction = null;
-            handlePlayerActions();
+            handlePlayerRegister();
         } else if (board.getCurrentPhase() == GamePhase.BOARD_ACTIVATION) {
             currentPlayerInteraction = null;
             handleBoardElementActions();
@@ -804,7 +807,7 @@ public class GameController implements Observer {
                     if (board.getCurrentRegister() == 0) {
                         startPlayerActivationPhase();
                     } else {
-                        handlePlayerRegister();
+                        waitForPossibleCardUse();
                     }
                 }
                 case GamePhase.BOARD_ACTIVATION -> startBoardActivationPhase();
