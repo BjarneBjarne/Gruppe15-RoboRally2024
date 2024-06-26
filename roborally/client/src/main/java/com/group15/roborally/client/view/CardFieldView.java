@@ -81,6 +81,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
     private final Button useButton = new Button();
 
     public CardFieldView(@NotNull GameController gameController, @NotNull CardField field, double cardWidthMultiplier, double cardHeightMultiplier) {
+        this.setMouseTransparent(false);
         cardImageView.setMouseTransparent(true);
         cardImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
         cardImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);

@@ -55,7 +55,8 @@ public class ServerCommunication extends Subject {
             gameId = sendRequest(
                     "/games",
                     HttpMethod.POST,
-                    new ParameterizedTypeReference<>() {}, null
+                    new ParameterizedTypeReference<>() {},
+                    null
             );
         } catch (HttpClientErrorException e) {
             //System.out.println(e.getStatusCode());
@@ -77,7 +78,8 @@ public class ServerCommunication extends Subject {
             player = sendRequest(
                     "/games/" + gameId + "/join",
                     HttpMethod.POST,
-                    new ParameterizedTypeReference<>() {}, playerName
+                    new ParameterizedTypeReference<>() {},
+                    playerName
             );
             isConnectedToServer = true;
         } catch (HttpClientErrorException e) {
@@ -97,7 +99,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/games/" + gameId + "/players",
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 
@@ -111,8 +114,8 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/players/" + player.getPlayerId(),
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {
-                }, player
+                new ParameterizedTypeReference<>() {},
+                player
         );
     }
 
@@ -126,8 +129,8 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/players/" + player.getPlayerId(),
                 HttpMethod.DELETE,
-                new ParameterizedTypeReference<>() {
-                }, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
         isConnectedToServer = false;
     }
@@ -142,7 +145,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/games/" + gameId,
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 
@@ -156,8 +160,8 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/games/" + game.getGameId(),
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {
-                }, game
+                new ParameterizedTypeReference<>() {},
+                game
         );
     }
 
@@ -173,7 +177,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/upgradeShop/" + gameId,
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 
@@ -187,7 +192,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/upgradeShop/" + gameId + "/turn",
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 
@@ -201,7 +207,8 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/upgradeShop/" + gameId,
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {}, upgradeShopCards
+                new ParameterizedTypeReference<>() {},
+                upgradeShopCards
         );
     }
 
@@ -209,8 +216,7 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/players/" + playerId + "/registers/" + turn,
                 HttpMethod.POST,
-                new ParameterizedTypeReference<>() {
-                },
+                new ParameterizedTypeReference<>() {},
                 commandCards
         );
     }
@@ -219,7 +225,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/games/" + gameId + "/registers",
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 
@@ -227,7 +234,8 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/choices/" + playerId,
                 HttpMethod.POST,
-                new ParameterizedTypeReference<String>() {}, choices
+                new ParameterizedTypeReference<String>() {},
+                choices
         );
     }
 
@@ -235,7 +243,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/choices/" + gameId + "?turn=" + turn + "&movement=" + movement,
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 
@@ -243,7 +252,8 @@ public class ServerCommunication extends Subject {
         sendRequest(
                 "/interactions/" + interaction.getPlayerId(),
                 HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {}, interaction
+                new ParameterizedTypeReference<>() {},
+                interaction
         );
     }
 
@@ -251,7 +261,8 @@ public class ServerCommunication extends Subject {
         return sendRequest(
                 "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement, 
                 HttpMethod.GET,
-                new ParameterizedTypeReference<>() {}, null
+                new ParameterizedTypeReference<>() {},
+                null
         );
     }
 

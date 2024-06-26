@@ -136,6 +136,8 @@ public class PlayerView extends Tab implements ViewObserver {
             if (cardField != null) {
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.4);
                 programCardViews[i] = cardFieldView;
+                cardFieldView.setOnMouseEntered(_ -> cardFieldView.setTranslateY(-programPaneOffset));
+                cardFieldView.setOnMouseExited(_ -> cardFieldView.setTranslateY(0));
                 cardFieldView.setAlignment(Pos.CENTER);
                 cardFieldView.setStyle("-fx-background-color: transparent; ");
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
