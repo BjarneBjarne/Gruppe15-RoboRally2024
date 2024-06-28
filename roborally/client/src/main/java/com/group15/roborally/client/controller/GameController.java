@@ -70,6 +70,8 @@ public class GameController implements Observer {
     private int movementCounter;
     @Getter
     private Player playerUpgrading;
+    @Getter
+    boolean finishedProgramming = false;
 
     // Latest data
     private Game latestGameData;
@@ -171,69 +173,30 @@ public class GameController implements Observer {
         waitForPossibleCardUse();
     }
 
-    /**
-     * Makes all players program fields, up to a certain register, visible.
-     * @param register The register to set players program fields visible up to.
-     */
-    private void makeProgramFieldsVisible(int register) {
-        if (register >= 0 && register < Player.NO_OF_REGISTERS) {
-            for (int i = 0; i < NO_OF_PLAYERS; i++) {
-                Player player = board.getPlayer(i);
-                CardField field = player.getProgramField(register);
-                field.setVisible(true);
-            }
-        }
-    }
 
     /*
      *    ### These methods are the main flow of the activation phases. ###
      */
     private void waitForPossibleCardUse() {
-
-    }
-
-    /**
-     * Gets the next player in the priority queue, queues that player's command card and executes it.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void startNextPlayerRegister() {
-
-        setAndUpdateChoices(this::executeUpgradeCards);
-
         System.out.println();
-        board.setCurrentPlayer(board.getPriorityList().poll());
-        makeProgramFieldsVisible(board.getCurrentRegister());
-        Player currentPlayer = board.getCurrentPlayer();
-        if (!currentPlayer.getIsRebooting()) {
-            // Handle the players command on the current register. This will queue any command on the register.
-            queuePlayerCommandFromCommandCard(currentPlayer);
+
+        // Delay before assessing card usages.
+        board.getBoardActionQueue().add(new ActionWithDelay(() -> {}, 1000));
+
+        // After delay, set and get card usages.
+        runActionsAndCallback(() -> setAndUpdateChoices(this::executeUsedUpgradeCards));
+    }
+
+    public void tryUseUpgradeCard(String choice) {
+        switch (board.getCurrentPhase()) {
+            case GamePhase.PROGRAMMING -> {
+                if (!finishedProgramming) {
+                    serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
+                }
+            }
+            case GamePhase.PLAYER_ACTIVATION, GamePhase.BOARD_ACTIVATION -> serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
+            default -> {}
         }
-        // Begin handling the actions.
-        handlePlayerRegister();
-    }
-
-    /**
-     * This method splits up handlePlayerRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handlePlayerRegister() {
-        // Run through the queue and execute the player command.
-        runActionsAndCallback(this::handleEndOfPlayerTurn, board.getBoardActionQueue());
-    }
-
-    /**
-     * Handles the end of the current player's register execution.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handleEndOfPlayerTurn() {
-        if (getIsPlayerInteracting()) { // Return and wait for player interaction.
-            return;
-        }
-        nextMovement();
-    }
-
-    public void addChoice(String choice) {
-        serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
     }
 
     private void setAndUpdateChoices(Runnable callback) {
@@ -241,7 +204,7 @@ public class GameController implements Observer {
         serverDataManager.updateChoices(callback, movementCounter, turnCounter);
     }
 
-    private void executeUpgradeCards() {
+    private void executeUsedUpgradeCards() {
         for (Player player : board.getPlayers()) {
             List<String> usedCards = serverDataManager.getUsedUpgrades(player.getName());
             for (String card : usedCards){
@@ -259,7 +222,42 @@ public class GameController implements Observer {
                 }
             }
         }
+        startNextPlayerRegister();
+    }
 
+    /**
+     * Gets the next player in the priority queue, queues that player's command card and executes it.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void startNextPlayerRegister() {
+        board.setCurrentPlayer(board.getPriorityList().poll());
+        Player currentPlayer = board.getCurrentPlayer();
+        if (!currentPlayer.getIsRebooting()) {
+            // Handle the players command on the current register. This will queue any command on the register.
+            queuePlayerCommandFromCommandCard(currentPlayer);
+        }
+        // Begin handling the actions.
+        handlePlayerRegister();
+    }
+
+    /**
+     * This method splits up handlePlayerRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void handlePlayerRegister() {
+        // Run through the queue and execute the player command.
+        runActionsAndCallback(this::handleEndOfPlayerTurn);
+    }
+
+    /**
+     * Handles the end of the current player's register execution.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void handleEndOfPlayerTurn() {
+        if (getIsPlayerInteracting()) { // Return and wait for player interaction.
+            return;
+        }
+        nextMovement();
     }
 
     private void nextMovement() {
@@ -288,7 +286,7 @@ public class GameController implements Observer {
      */
     private void handleBoardElementActions() {
         // Execute board elements and player lasers. When actions have taken place, we go to the next register.
-        runActionsAndCallback(this::nextRegister, board.getBoardActionQueue());
+        runActionsAndCallback(this::nextRegister);
     }
 
     /**
@@ -338,12 +336,12 @@ public class GameController implements Observer {
      * This method exhausts the action queue by removing the first action, executing it, waits for the action delay, then calls itself again.
      * Is interrupted if the action queue is empty or if there is a player action.
      * @param callback The method to call back to, when the action queue is exhausted.
-     * @param actionQueue The action queue to execute.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void runActionsAndCallback(Runnable callback, LinkedList<ActionWithDelay> actionQueue) {
+    private void runActionsAndCallback(Runnable callback) {
         if (playerInteractionQueue.isEmpty()) {
             if (board.getCurrentPhase() == GamePhase.PLAYER_ACTIVATION || board.getCurrentPhase() == GamePhase.BOARD_ACTIVATION) {
+                LinkedList<ActionWithDelay> actionQueue = board.getBoardActionQueue();
                 if (!actionQueue.isEmpty()) { // As long as there are more actions.
                     movementCounter++;
                     // Handle the next action
@@ -353,7 +351,7 @@ public class GameController implements Observer {
                     PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
                     pause.setOnFinished(_ -> {
                         EventHandler.event_EndOfAction(this);
-                        runActionsAndCallback(callback, actionQueue);
+                        runActionsAndCallback(callback);
                     }); // Continue actions
                     if (WITH_ACTION_DELAY) {
                         pause.play();
@@ -496,11 +494,6 @@ public class GameController implements Observer {
         AppController.gameOver(winner);
     }
 
-    boolean finishedProgramming = false;
-    public boolean getIsLocalPlayerFinishedProgramming() {
-        return finishedProgramming;
-    }
-
     /**
      * Method for checking if a card is allowed to be dragged.
      * @param sourceField The CardField to drag.
@@ -518,9 +511,11 @@ public class GameController implements Observer {
         // Drag from player
         if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
             // Limited card movement when not programming
-            assert sourceField.player != null;
+            if (sourceField.player == null) return false;
             List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
-            if (board.getCurrentPhase() != GamePhase.PROGRAMMING) {
+            if (board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) {
+                return !finishedProgramming;
+            } else {
                 return !playerProgramField.contains(sourceField);
             }
         }
@@ -683,8 +678,7 @@ public class GameController implements Observer {
                 Command command = Command.valueOf(serverDataManager.getInteraction());
                 executeCommandOptionAndContinue(command);
             }
-            default -> {
-            }
+            default -> {}
         }
         currentPlayerInteraction.interactionFinished();
     }

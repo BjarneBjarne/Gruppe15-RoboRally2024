@@ -19,7 +19,6 @@ import lombok.Setter;
 @AllArgsConstructor
 
 public class Choice {
-
     public Choice(long playerId, String choice, int turn, int movement) {
         this.playerId = playerId;
         this.choice = choice;
