@@ -8,6 +8,7 @@ import com.group15.roborally.server.repository.PlayerRepository;
 import com.group15.roborally.server.repository.RegisterRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -80,13 +81,9 @@ public class ProgController {
         if (!gameRepository.existsById(gameId)) {
             return ResponseEntity.status(404).build();
         }
-        int currentTurn = gameRepository.findById(gameId).orElse(null).getTurnId();
+        int currentTurn = Objects.requireNonNull(gameRepository.findById(gameId).orElse(null)).getTurnId();
         List<Register> registers = registerRepository.findAllByGameId(gameId);
-        for (Register register : registers) {
-            if (register.getTurn() != currentTurn) {
-                return ResponseEntity.ok(null);
-            }
-        }
+        registers.removeIf(register -> register.getTurn() != currentTurn);
         return ResponseEntity.ok(registers);
         // List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
         // if (players == null) {

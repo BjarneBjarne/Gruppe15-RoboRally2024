@@ -32,6 +32,7 @@ import com.group15.roborally.client.model.boardelements.BE_ConveyorBelt;
 import com.group15.roborally.client.model.boardelements.BE_EnergySpace;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 import com.group15.roborally.client.utils.ImageUtils;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -60,6 +61,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     private final List<ImageView> laserImageViews = new ArrayList<>();
     private final List<ImageView> wallImageViews = new ArrayList<>();
     private final ImageView playerImageView = new ImageView();
+    private final ImageView readyCheckImageView = new ImageView();
     private final ImageView checkpointImageView = new ImageView();
     private boolean usingPlayerRebootImage = false;
     private Image playerRebootImage;
@@ -117,6 +119,12 @@ public class SpaceView extends StackPane implements ViewObserver {
         playerImageView.setFitWidth(ApplicationSettings.SPACE_SIZE);
         playerImageView.setFitHeight(SPACE_SIZE);
         this.getChildren().add(playerImageView);
+
+        readyCheckImageView.setFitWidth(ApplicationSettings.SPACE_SIZE / 2);
+        readyCheckImageView.setFitHeight(SPACE_SIZE / 2);
+        readyCheckImageView.setImage(ImageUtils.getImageFromName("ReadyCheck.png"));
+        readyCheckImageView.setVisible(false);
+        this.getChildren().add(readyCheckImageView);
 
         if (DEBUG_SHOW_COORDINATES) {
             spaceCoords.setTextAlignment(TextAlignment.CENTER);
@@ -185,6 +193,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 playerImageView.setImage(ImageUtils.getRotatedImageByHeading(ImageUtils.getImageFromName("Robot_Error.png"), player.getHeading()));
             }
             this.getChildren().add(playerImageView);
+            this.getChildren().add(readyCheckImageView);
         }
 
         // Walls imageView
@@ -226,5 +235,15 @@ public class SpaceView extends StackPane implements ViewObserver {
         if (subject == this.space) {
             updateSpace();
         }
+    }
+
+    public void setReadyTickVisible(boolean visible) {
+        if (visible) {
+            DropShadow dropShadow = new DropShadow(2, 0, 1, Color.BLACK);
+            readyCheckImageView.setEffect(dropShadow);
+        } else {
+            readyCheckImageView.setEffect(null);
+        }
+        readyCheckImageView.setVisible(visible);
     }
 }
