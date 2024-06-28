@@ -121,6 +121,8 @@ public class GameController implements Observer {
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
+        latestRegisterData = null;
+        turnCounter++;
         board.setCurrentRegister(0);
         board.updatePriorityList();
         board.setCurrentPlayer(board.getPriorityList().peek());
@@ -153,13 +155,13 @@ public class GameController implements Observer {
         if (!finishedProgramming) {
             finishedProgramming = true;
             localPlayer.fillRestOfRegisters();
-            turnCounter++;
             serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), turnCounter);
             board.updateBoard();
         }
     }
 
     private void startPlayerActivationPhase() {
+        finishedProgramming = false;
         movementCounter = 0;
         for (Player player : board.getPlayers()) {
             if (player.equals(localPlayer)) {
@@ -327,7 +329,6 @@ public class GameController implements Observer {
                 player.getSpace().updateSpace();
             }
             setReadyForPhase(GamePhase.UPGRADE);
-            finishedProgramming = false;
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
     }
@@ -492,6 +493,14 @@ public class GameController implements Observer {
      */
     public void setGameOver(Player winner) {
         AppController.gameOver(winner);
+    }
+
+    public boolean getIsPlayerReady(Player player) {
+        return latestRegisterData != null && latestRegisterData.stream().anyMatch(register ->
+                register.getPlayerId() == player.getPlayerId() &&
+                !register.hasNull() &&
+                register.getTurn() == turnCounter &&
+                register.getMoves().length == Player.NO_OF_REGISTERS);
     }
 
     /**
@@ -731,6 +740,9 @@ public class GameController implements Observer {
         setReadyForPhase(GamePhase.PROGRAMMING);
     }
 
+
+
+
     /**
      * Updates when data received from the server has changed.
      * @param subject the subject which changed
@@ -742,8 +754,8 @@ public class GameController implements Observer {
             // Updating data
             List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
 
-            //System.out.println();
-            //System.out.println("Changed data: " + changedData);
+            /*System.out.println();
+            System.out.println("Changed data: " + changedData);*/
 
             if (changedData.contains(NetworkedDataTypes.GAME)) {
                 latestGameData = serverDataManager.getUpdatedGame();
@@ -756,6 +768,9 @@ public class GameController implements Observer {
             }
             if (changedData.contains(NetworkedDataTypes.REGISTERS)) {
                 latestRegisterData = serverDataManager.getUpdatedRegisters();
+                for (Register register : latestRegisterData) {
+                    System.out.println(register);
+                }
             }
 
             if (latestGameData == null || latestPlayerData == null) return;
@@ -820,6 +835,7 @@ public class GameController implements Observer {
             case GamePhase.PROGRAMMING -> updateProgramming();
             case GamePhase.UPGRADE -> updateUpgrading();
         }
+        board.updateBoard();
     }
 
     /**

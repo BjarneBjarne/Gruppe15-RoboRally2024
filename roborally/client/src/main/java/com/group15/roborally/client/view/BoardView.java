@@ -382,6 +382,22 @@ public class BoardView extends VBox implements ViewObserver {
                 }
             }
 
+            if (board.getCurrentPhase().equals(PROGRAMMING) || board.getCurrentPhase().equals(PLAYER_ACTIVATION)) {
+                System.out.println();
+                for (Player player : board.getPlayers()) {
+                    Space playerSpace = player.getSpace();
+                    if (playerSpace != null) {
+                        boolean playerIsReady = gameController.getIsPlayerReady(player);
+                        spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady);
+                        if (playerIsReady) {
+                            System.out.println(player.getName() + " is ready!");
+                        } else {
+                            System.out.println(player.getName() + " is NOT ready.");
+                        }
+                    }
+                }
+            }
+
             Platform.runLater(() -> {
                 if (board.getCurrentPhase() == GamePhase.UPGRADE) {
                     upgradeShopPane.setVisible(true);

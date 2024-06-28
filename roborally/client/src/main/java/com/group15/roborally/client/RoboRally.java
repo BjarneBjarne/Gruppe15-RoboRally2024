@@ -199,7 +199,7 @@ public class RoboRally extends Application {
         boolean isGameRunning = appController.isGameRunning();
         boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 
-        if (isGameRunning) {
+        /*if (isGameRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Exit RoboRally?");
             alert.setContentText("Are you sure you want to exit RoboRally?");
@@ -254,7 +254,8 @@ public class RoboRally extends Application {
                     }
                 }
             }
-        } else if (isCourseCreatorRunning) {
+        }*/
+            if (isCourseCreatorRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Exit RoboRally course creator?");
             alert.setContentText("Are you sure you want to exit the RoboRally course creator?");
