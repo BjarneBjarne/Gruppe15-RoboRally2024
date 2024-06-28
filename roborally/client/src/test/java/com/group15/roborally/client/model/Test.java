@@ -1,10 +1,6 @@
 package com.group15.roborally.client.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.group15.roborally.client.utils.ServerCommunication;
-import com.group15.roborally.server.model.Choice;
 import com.group15.roborally.server.model.Interaction;
 import com.group15.roborally.server.model.Player;
 
@@ -52,7 +48,7 @@ public class Test {
             System.out.println("Interaction found: " + received.getChoice());
         }
 
-        sc.setInteraction(interaction);
+        sc.putInteraction(interaction);
         
         received = sc.getInteraction(p1.getPlayerId(),5,2);
         if(received == null) {

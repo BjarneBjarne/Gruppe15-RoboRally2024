@@ -88,29 +88,15 @@ public class ServerCommunication extends Subject {
         return player;
     }
 
-    // Player(s)
-    /**
-     * Get list of players in a game.
-     * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param gameId - id of the game
-     * @return List of players in the game
-     */
-    public List<Player> getPlayers(long gameId) {
-        return sendRequest(
-                "/games/" + gameId + "/players",
-                HttpMethod.GET,
-                new ParameterizedTypeReference<>() {},
-                null
-        );
-    }
 
+    // Put
     /**
      * Update a player in the database.
      *
      * @param player - player object to update
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
-    public void updatePlayer(Player player) {
+    public void putPlayer(Player player) {
         sendRequest(
                 "/players/" + player.getPlayerId(),
                 HttpMethod.PUT,
@@ -120,22 +106,66 @@ public class ServerCommunication extends Subject {
     }
 
     /**
-     * Delete a player from the database.
+     * Updates the game on the server.
      *
-     * @param player - The player to delete
-     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param game The object of the game to be set on the server.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void deletePlayer(Player player) {
+    public void putGame(Game game) {
         sendRequest(
-                "/players/" + player.getPlayerId(),
-                HttpMethod.DELETE,
+                "/games/" + game.getGameId(),
+                HttpMethod.PUT,
                 new ParameterizedTypeReference<>() {},
-                null
+                game
         );
-        isConnectedToServer = false;
     }
 
-    // Game
+    /**
+     * Update the upgradeShop cards of the game.
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param upgradeShopCards - array of upgradeShop cards
+     * @param gameId - id of the game
+     */
+    public void putUpgradeShop(String[] upgradeShopCards, long gameId) {
+        sendRequest(
+                "/upgradeShop/" + gameId,
+                HttpMethod.PUT,
+                new ParameterizedTypeReference<>() {},
+                upgradeShopCards
+        );
+    }
+
+    public void putInteraction(Interaction interaction) {
+        sendRequest(
+                "/interactions/" + interaction.getPlayerId(),
+                HttpMethod.PUT,
+                new ParameterizedTypeReference<>() {},
+                interaction
+        );
+    }
+
+
+    // Post
+    public void postRegister(String[] commandCards, long playerId, int turn) {
+        sendRequest(
+                "/players/" + playerId + "/registers/" + turn,
+                HttpMethod.POST,
+                new ParameterizedTypeReference<>() {},
+                commandCards
+        );
+    }
+
+    public void postChoice(List<Choice> choices, long playerId){
+        sendRequest(
+                "/choices/" + playerId,
+                HttpMethod.POST,
+                new ParameterizedTypeReference<String>() {},
+                choices
+        );
+    }
+
+
+    // Get
     /**
      * @param gameId The gameId of the game to retrieve.
      * @return The game object from the server.
@@ -151,22 +181,47 @@ public class ServerCommunication extends Subject {
     }
 
     /**
-     * Updates the game on the server.
-     *
-     * @param game The object of the game to be set on the server.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     * Get list of players in a game.
+     * @author Marcus Rémi Lemser Eychenne, s230985
+     * @param gameId - id of the game
+     * @return List of players in the game
      */
-    public void updateGame(Game game) {
-        sendRequest(
-                "/games/" + game.getGameId(),
-                HttpMethod.PUT,
+    public List<Player> getPlayers(long gameId) {
+        return sendRequest(
+                "/games/" + gameId + "/players",
+                HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
-                game
+                null
         );
     }
 
+    public List<Register> getRegisters(long gameId) {
+        return sendRequest(
+                "/games/" + gameId + "/registers",
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {},
+                null
+        );
+    }
 
-    // UpgradeShop
+    public List<Choice> getChoices(long gameId, int turn, int movement) {
+        return sendRequest(
+                "/choices/" + gameId + "?turn=" + turn + "&movement=" + movement,
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {},
+                null
+        );
+    }
+
+    public Interaction getInteraction(long playerId, int turn, int movement) {
+        return sendRequest(
+                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement, 
+                HttpMethod.GET,
+                new ParameterizedTypeReference<>() {},
+                null
+        );
+    }
+
     /**
      * Get the upgradeShop cards of the game.
      * @author Marcus Rémi Lemser Eychenne, s230985
@@ -197,73 +252,22 @@ public class ServerCommunication extends Subject {
         );
     }
 
+
+    // Delete
     /**
-     * Update the upgradeShop cards of the game.
+     * Delete a player from the database.
+     *
+     * @param player - The player to delete
      * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param upgradeShopCards - array of upgradeShop cards
-     * @param gameId - id of the game
      */
-    public void updateUpgradeShop(String[] upgradeShopCards, long gameId) {
+    public void deletePlayer(Player player) {
         sendRequest(
-                "/upgradeShop/" + gameId,
-                HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {},
-                upgradeShopCards
-        );
-    }
-
-    public void updateRegister(String[] commandCards, long playerId, int turn) {
-        sendRequest(
-                "/players/" + playerId + "/registers/" + turn,
-                HttpMethod.POST,
-                new ParameterizedTypeReference<>() {},
-                commandCards
-        );
-    }
-
-    public List<Register> getRegisters(long gameId) {
-        return sendRequest(
-                "/games/" + gameId + "/registers",
-                HttpMethod.GET,
+                "/players/" + player.getPlayerId(),
+                HttpMethod.DELETE,
                 new ParameterizedTypeReference<>() {},
                 null
         );
-    }
-
-    public void updateChoice(List<Choice> choices, long playerId){
-        sendRequest(
-                "/choices/" + playerId,
-                HttpMethod.POST,
-                new ParameterizedTypeReference<String>() {},
-                choices
-        );
-    }
-
-    public List<Choice> getChoices(long gameId, int turn, int movement) {
-        return sendRequest(
-                "/choices/" + gameId + "?turn=" + turn + "&movement=" + movement,
-                HttpMethod.GET,
-                new ParameterizedTypeReference<>() {},
-                null
-        );
-    }
-
-    public void setInteraction(Interaction interaction) {
-        sendRequest(
-                "/interactions/" + interaction.getPlayerId(),
-                HttpMethod.PUT,
-                new ParameterizedTypeReference<>() {},
-                interaction
-        );
-    }
-
-    public Interaction getInteraction(long playerId, int turn, int movement) {
-        return sendRequest(
-                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement, 
-                HttpMethod.GET,
-                new ParameterizedTypeReference<>() {},
-                null
-        );
+        isConnectedToServer = false;
     }
 
     /**

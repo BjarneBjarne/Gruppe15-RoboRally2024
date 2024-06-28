@@ -311,47 +311,47 @@ public class ServerDataManager extends Subject implements Observer {
     public void changeRobot(@NotNull String robotName) {
         if (!robotName.equals(localPlayer.getRobotName())) {
             localPlayer.setRobotName(robotName);
-            serverCommunication.updatePlayer(localPlayer);
+            serverCommunication.putPlayer(localPlayer);
         }
     }
     public void setReadyForPhase(@NotNull GamePhase nextPhase) {
         if (!nextPhase.equals(localPlayer.getReadyForPhase())) {
             localPlayer.setReadyForPhase(nextPhase);
-            serverCommunication.updatePlayer(localPlayer);
+            serverCommunication.putPlayer(localPlayer);
         }
     }
     public void changeCourse(@NotNull CC_CourseData selectedCourse) {
         if (!selectedCourse.getCourseName().equals(game.getCourseName())) {
             game.setCourseName(selectedCourse.getCourseName());
-            serverCommunication.updateGame(game);
+            serverCommunication.putGame(game);
         }
     }
     public void setGamePhase(@NotNull GamePhase gamePhase) {
         if (isHost && !gamePhase.equals(game.getPhase())) {
             game.setPhase(gamePhase);
-            serverCommunication.updateGame(game);
+            serverCommunication.putGame(game);
         }
     }
     // In game
     public void setPlayerRegister(@NotNull String[] programFieldNames, int turn) {
-        serverCommunication.updateRegister(programFieldNames, localPlayer.getPlayerId(), turn);
+        serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), turn);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
             localPlayer.setSpawnPoint(new int[]{space.x, space.y});
             localPlayer.setSpawnDirection(directionName);
-            serverCommunication.updatePlayer(localPlayer);
+            serverCommunication.putPlayer(localPlayer);
         }
     }
     public void setUpgradeShop(@NotNull String[] availableCards) {
         if (!Arrays.equals(upgradeShop, availableCards)) {
-            serverCommunication.updateUpgradeShop(availableCards, game.getGameId());
+            serverCommunication.putUpgradeShop(availableCards, game.getGameId());
         }
     }
     public void setPlayerUpgradeCards(@NotNull String[] permCards, @NotNull String[] tempCards) {
         localPlayer.setPermCards(permCards);
         localPlayer.setTempCards(tempCards);
-        serverCommunication.updatePlayer(localPlayer);
+        serverCommunication.putPlayer(localPlayer);
     }
 
     // Getters
@@ -412,7 +412,7 @@ public class ServerDataManager extends Subject implements Observer {
         if(usedUpgradeCards.isEmpty()) {
             usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), "No choice", turn, movement));
         }
-        serverCommunication.updateChoice(usedUpgradeCards, localPlayer.getPlayerId());
+        serverCommunication.postChoice(usedUpgradeCards, localPlayer.getPlayerId());
         usedUpgradeCards.clear();
     }
 
@@ -432,7 +432,7 @@ public class ServerDataManager extends Subject implements Observer {
 
     public void setInteraction(PlayerInteraction currentPlayerInteraction, String interaction, int turn, int movement) {
         if (currentPlayerInteraction.getPlayer().getPlayerId() != localPlayer.getPlayerId()) return;
-        serverCommunication.setInteraction(new Interaction(localPlayer.getPlayerId(), interaction, turn, movement));
+        serverCommunication.putInteraction(new Interaction(localPlayer.getPlayerId(), interaction, turn, movement));
     }
 
     public void updateInteraction(Runnable callback, long playerId, int turn, int movement) {

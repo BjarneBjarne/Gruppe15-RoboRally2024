@@ -113,7 +113,7 @@ public abstract class UpgradeCard extends Card {
         if (canBeActivated()) {
             this.currentUses--;
             owner.setEnergyCubes(owner.getEnergyCubes() - useCost);
-            gameController.addChoice(this.getEnum().name());
+            gameController.tryUseUpgradeCard(this.getEnum().name());
         }
     }
 
