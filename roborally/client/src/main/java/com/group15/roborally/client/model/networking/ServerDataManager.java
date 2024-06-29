@@ -157,18 +157,19 @@ public class ServerDataManager extends Subject implements Observer {
      */
     public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
         if (serverCommunication.isConnectedToServer()) {
-            if (infoMessage == null || infoMessage.isEmpty()) {
-                infoMessage = "Disconnected from server.";
-            }
-            String finalInfoMessage = infoMessage;
-            runActionAndCallback(new ActionWithDelay(() -> {
-                AppController.setInfoText(finalInfoMessage);
-                serverCommunication.deletePlayer(localPlayer);
-                isConnectedToGame = false;
-                notifyChange();
-                stopGameUpdateLoop();
-            }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
+            serverCommunication.deletePlayer(localPlayer);
         }
+
+        if (infoMessage == null || infoMessage.isEmpty()) {
+            infoMessage = "Disconnected from server.";
+        }
+        String finalInfoMessage = infoMessage;
+        runActionAndCallback(new ActionWithDelay(() -> {
+            AppController.setInfoText(finalInfoMessage);
+
+            notifyChange();
+            stopGameUpdateLoop();
+        }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
     }
 
     /**
@@ -298,7 +299,6 @@ public class ServerDataManager extends Subject implements Observer {
     private void connectionToServerTimedOut() {
         runActionAndCallback(new ActionWithDelay(() -> {
             AppController.setInfoText("Connection to server timed out.");
-            isConnectedToGame = false;
             notifyChange();
             stopGameUpdateLoop();
         }, 2000), () -> AppController.setInfoText(""));
@@ -389,7 +389,8 @@ public class ServerDataManager extends Subject implements Observer {
     public void update(Subject subject) {
         if (subject.equals(serverCommunication)) {
             // If the player was disconnected from the server.
-            if (!serverCommunication.isConnectedToServer()) {
+            isConnectedToGame = serverCommunication.isConnectedToServer();
+            if (!isConnectedToGame) {
                 connectionToServerTimedOut();
             }
         }
