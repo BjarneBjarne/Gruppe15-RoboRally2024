@@ -33,7 +33,6 @@ import com.group15.roborally.client.view.MainMenuView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.view.WinScreenView;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -42,10 +41,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -53,7 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -65,7 +61,7 @@ import java.util.Optional;
  *
  */
 public class RoboRally extends Application {
-    public GridPane directionOptionsPane;
+    private GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private Stage stage;
     private static Scene primaryScene;
@@ -105,7 +101,6 @@ public class RoboRally extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-        // TODO: Clean up this mess.
         stage = primaryStage;
         root = new BorderPane();
         root.setMaxHeight(Double.MAX_VALUE);
@@ -131,19 +126,25 @@ public class RoboRally extends Application {
 
         createMainMenu();
 
-        stage.setFullScreen(START_FULLSCREEN);
-        // Get screen bounds and calculate scale
-        if (!START_FULLSCREEN) { // Currently, only windowed is supported.
+        if (START_FULLSCREEN) {
+            stage.setFullScreen(true);
+            Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
+            primaryScene = new Scene(scalePane, primaryScreenBounds.getWidth(), primaryScreenBounds.getHeight());
+            primaryStage.setScene(primaryScene);
+        } else {
             stage.setResizable(false);
+
             Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
             double initialHeight = primaryScreenBounds.getHeight() * 0.75;
             double initialWidth = initialHeight * (16.0 / 9.0);
             primaryScene = new Scene(scalePane, initialWidth, initialHeight);
             primaryStage.setScene(primaryScene);
+
             URL stylesCSS = getClass().getResource("styles.css");
             if (stylesCSS != null) {
                 primaryScene.getStylesheets().add(stylesCSS.toExternalForm());
             }
+
             primaryStage.setWidth(initialWidth);
             primaryStage.setHeight(initialHeight);
             primaryStage.show();
@@ -153,19 +154,8 @@ public class RoboRally extends Application {
                 scaleRoot();
             });
             APP_SCALE = initialHeight / REFERENCE_HEIGHT;
-        }/* else {
-            primaryScene = new Scene(stackPane);
-            stage.setScene(primaryScene);
-            stage.setResizable(false);
-            stage.show();
-            APP_BOUNDS = Screen.getPrimary().getBounds();
-            APP_SCALE = (APP_BOUNDS.getHeight() / REFERENCE_HEIGHT);
-            // Show the stage
-            stage.show();
-            // Set stage dimensions
-            stage.setWidth(APP_BOUNDS.getWidth());
-            stage.setHeight(APP_BOUNDS.getHeight());
-        }*/
+        }
+
         scaleRoot();
 
         System.out.println("Window size: " + stage.getWidth() + "x" + stage.getHeight());
@@ -173,7 +163,7 @@ public class RoboRally extends Application {
         // Handling save option on close
         stage.setOnCloseRequest(e -> {
             e.consume();
-            closeGame();
+            exit();
         });
     }
 
@@ -195,80 +185,23 @@ public class RoboRally extends Application {
      *
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
-    public static void closeGame() {
+    public static void exit() {
         boolean isGameRunning = appController.isGameRunning();
         boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 
-        /*if (isGameRunning) {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Exit RoboRally?");
-            alert.setContentText("Are you sure you want to exit RoboRally?");
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.isEmpty() || result.get() != ButtonType.OK) {
-                return; // return without exiting the application
-            } else {
-                // If the user did not cancel, the RoboRally application will exit
-                // after the option to save the game
-
-                Dialog saveGameDialog = new Dialog();
-                saveGameDialog.setHeaderText("Do you want to save the game?");
-                saveGameDialog.setTitle("Save Game");
-                ButtonType saveButton = new ButtonType("Save");
-                ButtonType dontSaveButton = new ButtonType("Don't Save");
-                saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
-                Optional<ButtonType> saveGameResult = saveGameDialog.showAndWait();
-
-                // Method appController.saveGame() will return false if the game is not in the programming
-                // phase, and an error message will be shown to the user. Game will then continue to run.
-                if (saveGameResult.get() == saveButton){
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save Game");
-                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
-                    String userHome = System.getProperty("user.home");
-                    String relativePath = "\\RoboRally\\saves";
-                    String directoryPath = userHome + relativePath;
-
-                    File folderFile = new File(directoryPath);
-                    // Create saves folder if it doesn't exist
-                    if (!folderFile.exists()) {
-                        if (folderFile.mkdirs()) {
-                            System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
-                        } else {
-                            System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
-                        }
-                    }
-
-                    fileChooser.setInitialDirectory(new File(directoryPath));
-                    fileChooser.setInitialFileName("New save.json");
-                    File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
-
-                    if (saveFile != null) {
-                        if(!appController.saveGame(saveFile)){
-                            Alert errorAlert = new Alert(AlertType.ERROR);
-                            errorAlert.setHeaderText("Error saving game");
-                            errorAlert.setContentText("Game can only be saved during programming phase.");
-                            errorAlert.showAndWait();
-                            return;
-                        }
-                    }
-                }
-            }
-        }*/
-            if (isCourseCreatorRunning) {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
+        if (isGameRunning) {
+            appController.quitGame();
+        } else if (isCourseCreatorRunning) {
+            courseCreator.saveCourseDialog();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Exit RoboRally course creator?");
             alert.setContentText("Are you sure you want to exit the RoboRally course creator?");
             Optional<ButtonType> result = alert.showAndWait();
 
             if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
-            } else {
-                courseCreator.saveCourseDialog();
             }
         }
-        appController.disconnectFromServer("", 0);
-        Platform.exit();
     }
 
     public void createMainMenu() {

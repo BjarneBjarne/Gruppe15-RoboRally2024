@@ -261,13 +261,13 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
     public void deletePlayer(Player player) {
+        isConnectedToServer = false;
         sendRequest(
                 "/players/" + player.getPlayerId(),
                 HttpMethod.DELETE,
                 new ParameterizedTypeReference<>() {},
                 null
         );
-        isConnectedToServer = false;
     }
 
     /**
@@ -288,9 +288,11 @@ public class ServerCommunication extends Subject {
         try {
             ResponseEntity<R> response = new RestTemplate().exchange(request, responseType);
             evaluateTimeout(true);
+            notifyChange();
             return response.getBody();
         } catch (ResourceAccessException | HttpClientErrorException | HttpServerErrorException e) {
             evaluateTimeout(false);
+            notifyChange();
             return null;
         }
     }

@@ -84,7 +84,7 @@ public class MainMenuView {
 
     private void createExitButton() {
         mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
-        mainMenuButtonQuit.setOnAction(_ -> appController.quit());
+        mainMenuButtonQuit.setOnAction(_ -> appController.quitGame());
         buttons[2] = mainMenuButtonQuit;
 
         //exit.setGraphic(createButtonTextPane(exit.getText()));

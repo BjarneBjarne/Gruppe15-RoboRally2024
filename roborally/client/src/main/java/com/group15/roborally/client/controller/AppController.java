@@ -46,7 +46,6 @@ import com.group15.roborally.server.model.GamePhase;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 
@@ -226,26 +225,17 @@ public class AppController implements Observer {
         roboRally.goToWinScreen(gameController, winner);
     }
 
-    /**
-     * Stop playing the current game, giving the user the option to save
-     * the game or to cancel stopping the game. The method returns true
-     * if the game was successfully stopped (with or without saving the
-     * game); returns false, if the current game was not stopped. In case
-     * there is no current game, false is returned.
-     *
-     * @return true if the current game was stopped, false otherwise
-     */
-    public boolean stopGame() {
-        if (gameController != null) {
-            gameController = null;
-            roboRally.createBoardView(null);
-            return true;
-        }
-        return false;
-    }
+    public void quitGame() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exit RoboRally?");
+        alert.setContentText("Are you sure you want to exit RoboRally?");
+        Optional<ButtonType> result = alert.showAndWait();
 
-    public void quit() {
-        if (gameController != null) {
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            return; // return without exiting the application
+        }
+
+        /*if (isGameRunning) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Exit RoboRally?");
             alert.setContentText("Are you sure you want to exit RoboRally?");
@@ -253,14 +243,59 @@ public class AppController implements Observer {
 
             if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
-            }
-        }
+            } else {
+                // If the user did not cancel, the RoboRally application will exit
+                // after the option to save the game
 
-        // If the user did not cancel, the RoboRally application will exit
-        // after the option to save the game
-        if (gameController == null || stopGame()) {
-            Platform.exit();
-        }
+                Dialog saveGameDialog = new Dialog();
+                saveGameDialog.setHeaderText("Do you want to save the game?");
+                saveGameDialog.setTitle("Save Game");
+                ButtonType saveButton = new ButtonType("Save");
+                ButtonType dontSaveButton = new ButtonType("Don't Save");
+                saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
+                Optional<ButtonType> saveGameResult = saveGameDialog.showAndWait();
+
+                // Method appController.saveGame() will return false if the game is not in the programming
+                // phase, and an error message will be shown to the user. Game will then continue to run.
+                if (saveGameResult.get() == saveButton){
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Game");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
+                    String userHome = System.getProperty("user.home");
+                    String relativePath = "\\RoboRally\\saves";
+                    String directoryPath = userHome + relativePath;
+
+                    File folderFile = new File(directoryPath);
+                    // Create saves folder if it doesn't exist
+                    if (!folderFile.exists()) {
+                        if (folderFile.mkdirs()) {
+                            System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
+                        } else {
+                            System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
+                        }
+                    }
+
+                    fileChooser.setInitialDirectory(new File(directoryPath));
+                    fileChooser.setInitialFileName("New save.json");
+                    File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
+
+                    if (saveFile != null) {
+                        if(!appController.saveGame(saveFile)){
+                            Alert errorAlert = new Alert(AlertType.ERROR);
+                            errorAlert.setHeaderText("Error saving game");
+                            errorAlert.setContentText("Game can only be saved during programming phase.");
+                            errorAlert.showAndWait();
+                            return;
+                        }
+                    }
+                }
+            }
+        }*/
+
+
+
+        disconnectFromServer("", 0);
+        Platform.exit();
     }
 
     public boolean isGameRunning() {
@@ -299,7 +334,7 @@ public class AppController implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject.equals(SERVER_DATA_MANAGER)) {
-            if (!SERVER_DATA_MANAGER.isConnectedToGame()) {
+            if (!SERVER_DATA_MANAGER.isConnectedToGame() && isGameRunning()) {
                 roboRally.goToMainMenu();
             }
         }
