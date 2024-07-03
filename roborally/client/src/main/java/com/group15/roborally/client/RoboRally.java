@@ -21,11 +21,14 @@
  */
 package com.group15.roborally.client;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.util.ContextInitializer;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_Controller;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.client.view.InfoPaneView;
@@ -33,6 +36,9 @@ import com.group15.roborally.client.view.MainMenuView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.view.WinScreenView;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -42,7 +48,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -52,6 +62,7 @@ import static com.group15.roborally.client.ApplicationSettings.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -72,7 +83,18 @@ public class RoboRally extends Application {
     private static CC_Controller courseCreator;
     private static AppController appController;
 
-    public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Can be used to log to a file. Doesn't work currently.
+    public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Used to log to a file
+    static {
+        // System property for project root
+        System.setProperty("PROJECT_ROOT", Paths.get("").toAbsolutePath().toString());
+        // Reconfigured logback to pick up the new property
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        try {
+            new ContextInitializer(loggerContext).autoConfig();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     StackPane upgradeShopTitelPane;
@@ -102,6 +124,8 @@ public class RoboRally extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        AlertUtils.setPrimaryStage(stage);
+
         root = new BorderPane();
         root.setMaxHeight(Double.MAX_VALUE);
         root.setMaxWidth(Double.MAX_VALUE);
@@ -110,6 +134,7 @@ public class RoboRally extends Application {
         root.setMinHeight(Region.USE_COMPUTED_SIZE);
         root.setMinWidth(Region.USE_COMPUTED_SIZE);
         mainPane = new StackPane(root);
+
         InfoPaneView infoPane = new InfoPaneView();
         mainPane.getChildren().add(infoPane);
         scalePane = new StackPane(mainPane);
@@ -123,58 +148,70 @@ public class RoboRally extends Application {
 
         StackPane.setAlignment(root, Pos.CENTER);
         stage.setTitle("Robo Rally");
+        //stage.setResizable(false);
 
         createMainMenu();
 
-        if (START_FULLSCREEN) {
+        if (FULLSCREEN) {
             stage.setFullScreen(true);
-            Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
-            primaryScene = new Scene(scalePane, primaryScreenBounds.getWidth(), primaryScreenBounds.getHeight());
-            primaryStage.setScene(primaryScene);
-        } else {
-            stage.setResizable(false);
-
-            Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
-            double initialHeight = primaryScreenBounds.getHeight() * 0.75;
-            double initialWidth = initialHeight * (16.0 / 9.0);
-            primaryScene = new Scene(scalePane, initialWidth, initialHeight);
-            primaryStage.setScene(primaryScene);
-
-            URL stylesCSS = getClass().getResource("styles.css");
-            if (stylesCSS != null) {
-                primaryScene.getStylesheets().add(stylesCSS.toExternalForm());
-            }
-
-            primaryStage.setWidth(initialWidth);
-            primaryStage.setHeight(initialHeight);
-            primaryStage.show();
-
-            primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-                APP_SCALE = newVal.doubleValue() / REFERENCE_HEIGHT;
-                scaleRoot();
-            });
-            APP_SCALE = initialHeight / REFERENCE_HEIGHT;
         }
 
-        scaleRoot();
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
+
+        //double initialHeight = primaryScreenBounds.getHeight();
+        double initialWidth = primaryScreenBounds.getWidth();
+        if (!FULLSCREEN) {
+            initialWidth *= 0.65;
+        }
+        double initialHeight = initialWidth * (9.0 / 16.0);
+        primaryScene = new Scene(scalePane, initialWidth, initialHeight);
+        primaryScene.setFill(Color.BLACK);
+
+        stage.setScene(primaryScene);
+        stage.setWidth(initialWidth);
+        stage.setHeight(initialHeight);
+
+        stage.widthProperty().addListener((_, _, newVal) -> scaleRoot(newVal.doubleValue()));
+        APP_SCALE = initialWidth / REFERENCE_WIDTH;
+
+        URL stylesCSS = getClass().getResource("styles.css");
+        if (stylesCSS != null) {
+            primaryScene.getStylesheets().add(stylesCSS.toExternalForm());
+        }
+
+        scaleRoot(initialWidth);
 
         System.out.println("Window size: " + stage.getWidth() + "x" + stage.getHeight());
 
-        // Handling save option on close
+        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE && primaryStage.isFullScreen()) {
+                event.consume(); // Prevent default behavior of exiting fullscreen
+            }
+        });
+
+        stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.Q && event.isMetaDown()) {
+                event.consume();
+                closeRequest();
+            }
+        });
+
         stage.setOnCloseRequest(e -> {
             e.consume();
-            exit();
+            closeRequest();
         });
+
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+
+        stage.show();
     }
 
-    private void scaleRoot() {
+    private void scaleRoot(double newWidth) {
+        APP_SCALE = newWidth / REFERENCE_WIDTH;
         scalePane.setScaleX(APP_SCALE);
         scalePane.setScaleY(APP_SCALE);
         StackPane.setMargin(root, new Insets(0, 0, 0, 0));
-        //System.out.println(APP_SCALE);
         APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());
-        //root.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
-        //UpdateSizes();
     }
 
     /**
@@ -185,22 +222,26 @@ public class RoboRally extends Application {
      *
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
-    public static void exit() {
+    public static void closeRequest() {
+        System.out.println("close");
         boolean isGameRunning = appController.isGameRunning();
         boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 
         if (isGameRunning) {
-            appController.quitGame();
+            appController.quitGame(true);
         } else if (isCourseCreatorRunning) {
-            courseCreator.saveCourseDialog();
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Exit RoboRally course creator?");
-            alert.setContentText("Are you sure you want to exit the RoboRally course creator?");
-            Optional<ButtonType> result = alert.showAndWait();
+            Optional<ButtonType> result = AlertUtils.showConfirmationAlert(
+                    "Exit RoboRally course creator?",
+                    "Are you sure you want to exit the RoboRally course creator?"
+            );
 
-            if (result.isEmpty() || result.get() != ButtonType.OK) {
-                return; // return without exiting the application
-            }
+            if (result.isEmpty() || result.get() != ButtonType.OK) return; // return without exiting the application
+
+            courseCreator.saveCourseDialog();
+
+            appController.quitGame(false);
+        } else {
+            appController.quitGame(false);
         }
     }
 
@@ -225,6 +266,7 @@ public class RoboRally extends Application {
     public void goToMainMenu() {
         appController.disconnectFromServer("", 1000);
         resetMultiplayerMenu();
+        appController.resetGameController();
         root.getChildren().clear(); // If present, remove old BoardView
         root.setCenter(mainMenuPane);
         courseCreator = null;
@@ -341,5 +383,9 @@ public class RoboRally extends Application {
         }
 
         courseCreator.initializeExitButton(this::goToMainMenu);
+    }
+
+    public void exitApplication() {
+        Platform.runLater(() -> stage.close());
     }
 }

@@ -55,14 +55,14 @@ public class MainMenuView {
         try {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("MainMenu.fxml"));
             mainMenu = loader.load();
+            createMultiplayerButton();
+            //createJoinGameButton();
+            createCourseCreatorButton();
+            createExitButton();
+            setButtonEffect();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        createMultiplayerButton();
-        //createJoinGameButton();
-        createCourseCreatorButton();
-        createExitButton();
-        setButtonEffect();
         return this;
     }
 
@@ -84,7 +84,7 @@ public class MainMenuView {
 
     private void createExitButton() {
         mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
-        mainMenuButtonQuit.setOnAction(_ -> appController.quitGame());
+        mainMenuButtonQuit.setOnAction(_ -> appController.quitGame(false));
         buttons[2] = mainMenuButtonQuit;
 
         //exit.setGraphic(createButtonTextPane(exit.getText()));

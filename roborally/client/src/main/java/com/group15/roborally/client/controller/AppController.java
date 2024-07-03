@@ -27,6 +27,7 @@ import com.google.gson.GsonBuilder;
 import com.group15.observer.Observer;
 import com.group15.observer.Subject;
 import com.group15.roborally.client.model.networking.ServerDataManager;
+import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.view.InfoPaneView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.model.*;
@@ -52,6 +53,8 @@ import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -66,13 +69,14 @@ import static com.group15.roborally.client.BoardOptions.*;
  */
 public class AppController implements Observer {
     private static RoboRally roboRally;
+    private static final Logger logger = LoggerFactory.getLogger(AppController.class);
     public boolean isCourseCreatorOpen = false;
     @Setter
     private static GameController gameController;
     @Getter
     private static List<CC_CourseData> courses = new ArrayList<>();
 
-    private static final ServerDataManager SERVER_DATA_MANAGER = new ServerDataManager();
+    private static final ServerDataManager serverDataManager = new ServerDataManager();
 
     private MultiplayerMenuView multiplayerMenuView;
     private static InfoPaneView infoPane;
@@ -80,7 +84,7 @@ public class AppController implements Observer {
     public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
         AppController.roboRally = roboRally;
         AppController.infoPane = infoPane;
-        SERVER_DATA_MANAGER.attach(this);
+        serverDataManager.attach(this);
     }
 
     public static void setInfoText(String text) {
@@ -95,7 +99,7 @@ public class AppController implements Observer {
         infoPane.setInfoText("Setting up multiplayer...");
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView();
-            multiplayerMenuView.setControllers(SERVER_DATA_MANAGER);
+            multiplayerMenuView.setControllers(serverDataManager);
             roboRally.createMultiplayerMenu(multiplayerMenuView);
             multiplayerMenuView.setupMenuUI();
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
@@ -130,7 +134,7 @@ public class AppController implements Observer {
         }
 
         // GameController
-        gameController = new GameController(board, localClient, SERVER_DATA_MANAGER);
+        gameController = new GameController(board, localClient, serverDataManager);
         //board.setCurrentPlayer(board.getPlayer(0));
         roboRally.createBoardView(gameController);
     }
@@ -176,7 +180,7 @@ public class AppController implements Observer {
         }
 
         // GameController
-        gameController = new GameController(newBoard, null, SERVER_DATA_MANAGER);
+        gameController = new GameController(newBoard, null, serverDataManager);
         SaveAndLoadUtils.loadPlayers(boardTemplate, newBoard, gameController);
         //newBoard.setCurrentPhase(GamePhase.PROGRAMMING);
 
@@ -225,77 +229,20 @@ public class AppController implements Observer {
         roboRally.goToWinScreen(gameController, winner);
     }
 
-    public void quitGame() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Exit RoboRally?");
-        alert.setContentText("Are you sure you want to exit RoboRally?");
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
-            return; // return without exiting the application
-        }
-
-        /*if (isGameRunning) {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Exit RoboRally?");
-            alert.setContentText("Are you sure you want to exit RoboRally?");
-            Optional<ButtonType> result = alert.showAndWait();
+    public void quitGame(boolean withPrompt) {
+        if (withPrompt) {
+            Optional<ButtonType> result = AlertUtils.showConfirmationAlert(
+                    "Exit RoboRally?",
+                    "Are you sure you want to exit RoboRally?"
+            );
 
             if (result.isEmpty() || result.get() != ButtonType.OK) {
                 return; // return without exiting the application
-            } else {
-                // If the user did not cancel, the RoboRally application will exit
-                // after the option to save the game
-
-                Dialog saveGameDialog = new Dialog();
-                saveGameDialog.setHeaderText("Do you want to save the game?");
-                saveGameDialog.setTitle("Save Game");
-                ButtonType saveButton = new ButtonType("Save");
-                ButtonType dontSaveButton = new ButtonType("Don't Save");
-                saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
-                Optional<ButtonType> saveGameResult = saveGameDialog.showAndWait();
-
-                // Method appController.saveGame() will return false if the game is not in the programming
-                // phase, and an error message will be shown to the user. Game will then continue to run.
-                if (saveGameResult.get() == saveButton){
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save Game");
-                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files", "*.json"));
-                    String userHome = System.getProperty("user.home");
-                    String relativePath = "\\RoboRally\\saves";
-                    String directoryPath = userHome + relativePath;
-
-                    File folderFile = new File(directoryPath);
-                    // Create saves folder if it doesn't exist
-                    if (!folderFile.exists()) {
-                        if (folderFile.mkdirs()) {
-                            System.out.println("Directory created successfully: " + folderFile.getAbsolutePath());
-                        } else {
-                            System.err.println("Failed to create directory: " + folderFile.getAbsolutePath());
-                        }
-                    }
-
-                    fileChooser.setInitialDirectory(new File(directoryPath));
-                    fileChooser.setInitialFileName("New save.json");
-                    File saveFile = fileChooser.showSaveDialog(primaryScene.getWindow());
-
-                    if (saveFile != null) {
-                        if(!appController.saveGame(saveFile)){
-                            Alert errorAlert = new Alert(AlertType.ERROR);
-                            errorAlert.setHeaderText("Error saving game");
-                            errorAlert.setContentText("Game can only be saved during programming phase.");
-                            errorAlert.showAndWait();
-                            return;
-                        }
-                    }
-                }
             }
-        }*/
-
-
+        }
 
         disconnectFromServer("", 0);
-        Platform.exit();
+        roboRally.exitApplication();
     }
 
     public boolean isGameRunning() {
@@ -328,15 +275,19 @@ public class AppController implements Observer {
     }
 
     public void disconnectFromServer(String s, int i) {
-        SERVER_DATA_MANAGER.disconnectFromServer(s, i);
+        serverDataManager.disconnectFromServer(s, i);
     }
 
     @Override
     public void update(Subject subject) {
-        if (subject.equals(SERVER_DATA_MANAGER)) {
-            if (!SERVER_DATA_MANAGER.isConnectedToGame() && isGameRunning()) {
+        if (subject.equals(serverDataManager)) {
+            if (!serverDataManager.isConnectedToGame() && isGameRunning()) {
                 roboRally.goToMainMenu();
             }
         }
+    }
+
+    public void resetGameController() {
+        gameController = null;
     }
 }

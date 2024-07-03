@@ -40,7 +40,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -295,9 +294,6 @@ public class BoardView extends VBox implements ViewObserver {
         Text otherPlayerTurnText = new Text();
         otherPlayerTurnText.setFont(textFont);
         otherPlayerTurnText.setFill(Color.WHITE);
-        otherPlayerTurnText.setStroke(Color.BLACK);
-        otherPlayerTurnText.setStrokeWidth(2);
-        otherPlayerTurnText.setStrokeType(StrokeType.OUTSIDE);
         otherPlayerTurnText.setTextAlignment(TextAlignment.CENTER);
         return otherPlayerTurnText;
     }

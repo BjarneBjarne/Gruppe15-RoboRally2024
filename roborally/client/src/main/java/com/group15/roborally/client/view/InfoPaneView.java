@@ -8,7 +8,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -36,9 +35,6 @@ public class InfoPaneView extends StackPane implements ViewObserver {
         Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 90);
         infoText.setFont(textFont);
         infoText.setFill(Color.WHITE);
-        infoText.setStroke(Color.BLACK);
-        infoText.setStrokeWidth(3);
-        infoText.setStrokeType(StrokeType.OUTSIDE);
         infoText.setWrappingWidth(2560);
         infoText.setTextAlignment(TextAlignment.CENTER);
         StackPane.setMargin(infoText, new Insets(0, 0, 75, 0));

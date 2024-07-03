@@ -42,7 +42,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -61,7 +60,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
     // programs which can copy/paste Strings.
     final public static DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
 
-    final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
+    //final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
     final public static Background BG_DEFAULT = new Background(new BackgroundFill(Color.TRANSPARENT, null, null));
     final public static Background BG_DRAG = new Background(new BackgroundFill(new Color(122 / 255.0, 119 / 255.0, 110 / 255.0, .25), null, null));
@@ -98,9 +97,6 @@ public class CardFieldView extends StackPane implements ViewObserver {
         Text buttonText = new Text();
         buttonText.setFont(textFont);
         buttonText.setFill(Color.WHITE);
-        buttonText.setStroke(Color.BLACK);
-        buttonText.setStrokeWidth(1);
-        buttonText.setStrokeType(StrokeType.OUTSIDE);
         buttonText.setTextAlignment(TextAlignment.CENTER);
         buttonText.setText("Use");
         useButton.setGraphic(buttonText);

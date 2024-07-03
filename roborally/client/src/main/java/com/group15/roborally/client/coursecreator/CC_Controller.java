@@ -2,6 +2,7 @@ package com.group15.roborally.client.coursecreator;
 
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
+import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.view.ZoomableScrollPane;
 import javafx.application.Platform;
@@ -770,33 +771,27 @@ public class CC_Controller extends BorderPane {
     }
 
     public void saveCourseDialog() {
-        Dialog saveGameDialog = new Dialog();
-        saveGameDialog.setHeaderText("Do you want to save the course?");
-        saveGameDialog.setTitle("Save Course");
-        ButtonType saveButton = new ButtonType("Save");
-        ButtonType dontSaveButton = new ButtonType("Don't Save");
-        saveGameDialog.getDialogPane().getButtonTypes().addAll(saveButton, dontSaveButton);
-        Optional<ButtonType> saveCourseResult = saveGameDialog.showAndWait();
+        Optional<ButtonType> result = AlertUtils.showDialog(
+                "Save Course",
+                "Do you want to save the course?",
+                ButtonType.YES,
+                ButtonType.NO
+        );
 
-        // Method appController.saveGame() will return false if the game is not in the programming
-        // phase, and an error message will be shown to the user. Game will then continue to run.
-        if (saveCourseResult.get() == saveButton) {
+        if (result.isPresent() && result.get() == ButtonType.YES) {
             saveCourse();
         }
     }
 
     public void saveCourse() {
-        String playableMessage = CC_CourseData.getIsPlayable(subBoards);
+        String playableMessage = "Some conditions need to be met."; // Example message
+        Optional<ButtonType> result = AlertUtils.showErrorAlert(
+                "Course not playable",
+                "Course not playable",
+                "The course can be saved, but is not playable. To make the course playable, the following conditions need to be met:\n" + playableMessage + "\nSave anyways?"
+        );
 
-        if (!playableMessage.equals("playable")) {
-            Alert notPlayableAlert = new Alert(Alert.AlertType.ERROR);
-            notPlayableAlert.setHeaderText("Course not playable");
-            notPlayableAlert.setContentText("The course can be saved, but is not playable. To make the course playable, the following conditions need to be met:\n" + playableMessage + "\nSave anyways?");
-            Optional<ButtonType> notPlayableResult = notPlayableAlert.showAndWait();
-
-            boolean saveAnyways = notPlayableResult.isPresent() && notPlayableResult.get() == ButtonType.OK;
-            if (!saveAnyways) return;
-        }
+        if (result.isEmpty() || result.get() != ButtonType.OK) return;
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Course");
@@ -823,14 +818,14 @@ public class CC_Controller extends BorderPane {
 
         if (saveFile != null) {
             try {
-                Dialog<ButtonType> saveCourseImageDialog = new Dialog<>();
-                saveCourseImageDialog.setHeaderText("Do you also want to save the course image as its own file?");
-                saveCourseImageDialog.setTitle("Save course image as PNG");
-                ButtonType yesButton = new ButtonType("Save as PNG");
-                ButtonType noButton = new ButtonType("Don't Save");
-                saveCourseImageDialog.getDialogPane().getButtonTypes().addAll(yesButton, noButton);
-                Optional<ButtonType> saveGameResult = saveCourseImageDialog.showAndWait();
-                boolean saveImageAsPNG = saveGameResult.isPresent() && saveGameResult.get() == yesButton;
+                Optional<ButtonType> saveGameResult = AlertUtils.showDialog(
+                        "Save course image as PNG",
+                        "Do you also want to save the course image as its own file?",
+                        new ButtonType("Save as PNG"),
+                        new ButtonType("Don't Save")
+                );
+
+                boolean saveImageAsPNG = saveGameResult.isPresent() && saveGameResult.get().getText().equals("Save as PNG");
 
                 setLinesVisible(false);
                 CC_CourseData courseData = new CC_CourseData(

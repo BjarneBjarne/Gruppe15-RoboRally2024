@@ -4,10 +4,10 @@ import javafx.geometry.Rectangle2D;
 
 public class ApplicationSettings {
     // UI
-    public final static double REFERENCE_HEIGHT = 1440.0;
-    public final static double MIN_APP_WIDTH = 1280;
-    public final static double MIN_APP_HEIGHT = 720;
-    public final static boolean START_FULLSCREEN = false;
+    public final static double REFERENCE_WIDTH = 2560.0;
+    public final static double MIN_APP_WIDTH = 800;
+    public final static double MIN_APP_HEIGHT = 600;
+    public final static boolean FULLSCREEN = true;
     public static Rectangle2D APP_BOUNDS;
     public static double APP_SCALE;
     public static double SPACE_SIZE = 90;

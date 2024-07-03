@@ -24,12 +24,12 @@
          <children>
             <StackPane>
                <children>
-                  <Text fill="#ffffff00" scaleX="2.5" scaleY="2.5" stroke="#ffffffbf" strokeWidth="2.0" text="Game Over!">
+                  <Text fill="#ffffff00" scaleX="2.5" scaleY="2.5" text="Game Over!">
                      <font>
                         <Font name="OCR A Extended" size="72.0" />
                      </font>
                   </Text>
-                  <Text fill="#ffffff00" scaleX="2.5" scaleY="2.5" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="2.0" text="Game Over!">
+                  <Text fill="#ffffff00" scaleX="2.5" scaleY="2.5" text="Game Over!">
                      <font>
                         <Font name="OCR A Extended" size="72.0" />
                      </font>
@@ -50,12 +50,12 @@
                   </StackPane>
                   <StackPane mouseTransparent="true">
                      <children>
-                        <Text fx:id="winnerText1" fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Winner: ">
+                        <Text fx:id="winnerText1" fill="WHITE" scaleX="0.6" scaleY="0.6" text="Winner: ">
                            <font>
                               <Font name="OCR A Extended" size="96.0" />
                            </font>
                         </Text>
-                        <Text fx:id="winnerText2" fill="#ffffff00" scaleX="0.6" scaleY="0.6" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Winner: ">
+                        <Text fx:id="winnerText2" fill="#ffffff00" scaleX="0.6" scaleY="0.6" text="Winner: ">
                            <font>
                               <Font name="OCR A Extended" size="96.0" />
                            </font>
@@ -71,12 +71,12 @@
                <graphic>
                   <StackPane maxHeight="45.0" minHeight="45.0" mouseTransparent="true" prefHeight="45.0" prefWidth="608.0">
                      <children>
-                        <Text fill="WHITE" scaleX="0.6" scaleY="0.6" stroke="#ffffffbf" strokeWidth="3.0" text="Main Menu">
+                        <Text fill="WHITE" scaleX="0.6" scaleY="0.6" text="Main Menu">
                            <font>
                               <Font name="OCR A Extended" size="80.0" />
                            </font>
                         </Text>
-                        <Text fill="#ffffff00" scaleX="0.6" scaleY="0.6" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" text="Main Menu">
+                        <Text fill="#ffffff00" scaleX="0.6" scaleY="0.6" text="Main Menu">
                            <font>
                               <Font name="OCR A Extended" size="80.0" />
                            </font>

@@ -39,7 +39,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -189,9 +188,6 @@ public class PlayerView extends Tab implements ViewObserver {
         Text buttonText = new Text();
         buttonText.setFont(textFont);
         buttonText.setFill(Color.WHITE);
-        buttonText.setStroke(Color.BLACK);
-        buttonText.setStrokeWidth(2);
-        buttonText.setStrokeType(StrokeType.OUTSIDE);
         buttonText.setTextAlignment(TextAlignment.CENTER);
         buttonText.setText("Ready");
         readyButton.setGraphic(buttonText);

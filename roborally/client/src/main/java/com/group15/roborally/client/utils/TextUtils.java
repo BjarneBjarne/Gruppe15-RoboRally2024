@@ -2,7 +2,6 @@ package com.group15.roborally.client.utils;
 
 import com.group15.roborally.client.RoboRally;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -28,9 +27,6 @@ public class TextUtils {
         Text styledText = new Text(text);
         styledText.setFont(font);
         styledText.setFill(Color.WHITE);
-        styledText.setStroke(Color.BLACK);
-        styledText.setStrokeWidth(2);
-        styledText.setStrokeType(StrokeType.OUTSIDE);
 
         return styledText;
     }

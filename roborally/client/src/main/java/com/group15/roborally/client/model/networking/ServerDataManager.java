@@ -123,6 +123,7 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void connectedToGame(long gameId, Player localPlayer) {
+        this.game = null;
         isConnectedToGame = true;
         Game game = serverCommunication.getGame(gameId);
         List<Player> players = serverCommunication.getPlayers(gameId);
@@ -157,17 +158,16 @@ public class ServerDataManager extends Subject implements Observer {
      */
     public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
         if (serverCommunication.isConnectedToServer()) {
-            serverCommunication.deletePlayer(localPlayer);
-        }
-
-        if (infoMessage == null || infoMessage.isEmpty()) {
-            infoMessage = "Disconnected from server.";
+            if (infoMessage == null || infoMessage.isEmpty()) {
+                infoMessage = "Disconnected from server.";
+            }
         }
         String finalInfoMessage = infoMessage;
         runActionAndCallback(new ActionWithDelay(() -> {
             AppController.setInfoText(finalInfoMessage);
-
-            notifyChange();
+            if (serverCommunication.isConnectedToServer()) {
+                serverCommunication.deletePlayer(localPlayer);
+            }
             stopGameUpdateLoop();
         }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
     }
@@ -179,8 +179,12 @@ public class ServerDataManager extends Subject implements Observer {
     private void stopGameUpdateLoop() {
         if (gameUpdateScheduler != null) {
             gameUpdateScheduler.shutdownNow();
+            gameUpdateScheduler = null;
         }
-        gameUpdateScheduler = null;
+        if (serverPoller != null) {
+            serverPoller.shutdownNow();
+            serverPoller = null;
+        }
     }
 
     /**

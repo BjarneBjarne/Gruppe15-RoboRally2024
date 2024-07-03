@@ -21,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -339,9 +338,6 @@ public class MultiplayerMenuView implements Observer {
         Text courseNameText = new Text();
         courseNameText.setFont(textFont);
         courseNameText.setFill(Color.WHITE);
-        courseNameText.setStroke(Color.BLACK);
-        courseNameText.setStrokeWidth(2);
-        courseNameText.setStrokeType(StrokeType.OUTSIDE);
         courseNameText.setText(course.getCourseName().toUpperCase());
         courseNameText.setWrappingWidth(courseButtonSize);
         courseNameText.setTextAlignment(TextAlignment.CENTER);
