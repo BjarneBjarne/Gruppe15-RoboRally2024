@@ -2,8 +2,6 @@ module com.group15.roborally.client {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.swing;
-    requires org.slf4j;
-    requires ch.qos.logback.classic;
     requires com.google.common;
     requires com.google.gson;
     requires org.jetbrains.annotations;
@@ -15,4 +13,8 @@ module com.group15.roborally.client {
 
     exports com.group15.roborally.client;
     exports com.group15.roborally.client.utils;
+    exports com.group15.roborally.client.model to com.google.gson;
+
+    opens com.group15.roborally.client to javafx.fxml;
+    opens com.group15.roborally.client.view to javafx.fxml;
 }

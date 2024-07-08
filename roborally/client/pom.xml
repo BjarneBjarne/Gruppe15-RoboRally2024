@@ -63,11 +63,6 @@
       <version>2.0.5</version>
     </dependency>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.4.12</version>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.34</version>
@@ -128,11 +123,10 @@
 
   <build>
     <plugins>
-      <!-- Copy Lombok to target/dependency -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.7.1</version>
         <executions>
           <execution>
             <id>copy-dependencies</id>
@@ -141,14 +135,12 @@
               <goal>copy-dependencies</goal>
             </goals>
             <configuration>
-              <includeArtifactIds>lombok</includeArtifactIds>
               <outputDirectory>${project.build.directory}/dependency</outputDirectory>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Compile configuration -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -169,7 +161,6 @@
         </configuration>
       </plugin>
 
-      <!-- Execution plugin configuration -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -180,12 +171,11 @@
             <argument>--module-path</argument>
             <argument>${javafx-sdk.path};${project.build.directory}/dependency</argument>
             <argument>--add-modules</argument>
-            <argument>javafx.controls,javafx.fxml,com.group15.roborally.client</argument>
+            <argument>javafx.controls,javafx.fxml</argument>
           </arguments>
         </configuration>
       </plugin>
 
-      <!-- JavaFX Maven plugin configuration -->
       <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
@@ -194,7 +184,7 @@
           <mainClass>com.group15.roborally.client.StartRoboRally</mainClass>
           <options>
             <option>--add-modules</option>
-            <option>javafx.controls,javafx.fxml,com.group15.roborally.client</option>
+            <option>javafx.controls,javafx.fxml</option>
             <option>--module-path</option>
             <option>${javafx-sdk.path};${project.build.directory}/dependency</option>
           </options>

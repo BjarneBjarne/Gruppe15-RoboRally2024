@@ -52,13 +52,23 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.7.1</version>
+          <executions>
+            <execution>
+              <id>copy-dependencies</id>
+              <phase>package</phase>
+              <goals>
+                <goal>copy-dependencies</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -71,12 +81,22 @@
             </compilerArgs>
           </configuration>
         </plugin>
+
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
           <configuration>
             <skipTests>true</skipTests>
           </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
@@ -97,24 +117,6 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.1.2</version>
-          <executions>
-            <execution>
-              <id>copy-dependencies</id>
-              <phase>process-resources</phase>
-              <goals>
-                <goal>copy-dependencies</goal>
-              </goals>
-              <configuration>
-                <includeArtifactIds>lombok</includeArtifactIds>
-                <outputDirectory>${project.build.directory}/dependency</outputDirectory>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

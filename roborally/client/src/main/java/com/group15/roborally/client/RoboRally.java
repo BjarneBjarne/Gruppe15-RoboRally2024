@@ -21,8 +21,6 @@
  */
 package com.group15.roborally.client;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.util.ContextInitializer;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_Controller;
 import com.group15.roborally.client.controller.GameController;
@@ -55,8 +53,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
 
@@ -80,19 +76,6 @@ public class RoboRally extends Application {
 
     private static CC_Controller courseCreator;
     private static AppController appController;
-
-    public static final Logger logger = LoggerFactory.getLogger(RoboRally.class); // Used to log to a file
-    static {
-        // System property for project root
-        System.setProperty("PROJECT_ROOT", Paths.get("").toAbsolutePath().toString());
-        // Reconfigured logback to pick up the new property
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        try {
-            new ContextInitializer(loggerContext).autoConfig();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     StackPane upgradeShopTitelPane;
@@ -141,7 +124,7 @@ public class RoboRally extends Application {
         try {
             appController.loadCourses();
         } catch (NoCoursesException e) {
-            logger.info(e.getMessage());
+            System.out.println(e.getMessage());
         }
 
         StackPane.setAlignment(root, Pos.CENTER);

@@ -53,8 +53,6 @@ import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -79,8 +77,6 @@ public class AppController implements Observer {
 
     private MultiplayerMenuView multiplayerMenuView;
     private static InfoPaneView infoPane;
-
-    //private static final Logger logger = LoggerFactory.getLogger(AppController.class);
 
     public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
         AppController.roboRally = roboRally;

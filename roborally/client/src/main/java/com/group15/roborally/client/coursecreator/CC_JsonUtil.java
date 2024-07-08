@@ -10,8 +10,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-// import static group15.roborally.logger;
-
 public class CC_JsonUtil {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -56,7 +54,7 @@ public class CC_JsonUtil {
         try {
             courseFiles = IOUtil.loadJsonFilesFromResources(folderName);
         } catch (IOException | URISyntaxException e) {
-            // logger.error("Error loading JSON files from resources", e);
+            System.out.println("Error loading JSON files from resources. " + e);
             throw new RuntimeException(e);
         }
         List<CC_CourseData> courses = new ArrayList<>();
@@ -70,7 +68,7 @@ public class CC_JsonUtil {
                     System.out.println("Can't load course: \"" + courseData.getCourseName() + "\". The following conditions need to be met:\n" + playableMessage);
                 }
             } else {
-                // logger.warn("Failed to load course data from input stream");
+                System.out.println("Failed to load course data from input stream");
             }
         }
         return courses;
