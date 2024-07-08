@@ -9,15 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.group15.roborally.server.model.Choice;
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.GamePhase;
-import com.group15.roborally.server.model.Interaction;
+import com.group15.roborally.common.model.Game;
+import com.group15.roborally.common.model.GamePhase;
+import com.group15.roborally.common.model.Interaction;
 
-import static com.group15.roborally.server.model.GamePhase.*;
-import com.group15.roborally.server.model.UpgradeShop;
-import com.group15.roborally.server.model.Player;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.model.UpgradeShop;
+import com.group15.roborally.common.model.Player;
+import com.group15.roborally.common.model.Register;
 import com.group15.roborally.server.repository.ChoiceRepository;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.UpgradeShopRepository;

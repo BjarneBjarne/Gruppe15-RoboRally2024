@@ -1,22 +1,18 @@
 module com.group15.roborally.client {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.logging;
+    requires javafx.swing;
     requires org.slf4j;
     requires ch.qos.logback.classic;
-    requires org.jetbrains.annotations;
-    requires com.group15.roborally.server;
-    requires com.google.gson;
-    requires static lombok;
     requires com.google.common;
-    requires javafx.swing;
+    requires com.google.gson;
+    requires org.jetbrains.annotations;
+    requires lombok;
+    requires com.group15.roborally.common;
     requires spring.core;
     requires spring.web;
-    // Add other required modules here
+    requires java.desktop;
 
     exports com.group15.roborally.client;
-    opens com.group15.roborally.client to javafx.fxml;
-
-    exports com.group15.roborally.client.model;
-    opens com.group15.roborally.client.model to com.google.gson;
+    exports com.group15.roborally.client.utils;
 }

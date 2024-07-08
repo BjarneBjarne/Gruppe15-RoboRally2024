@@ -1,8 +1,8 @@
 package com.group15.roborally.server.controller;
 
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.Player;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.model.Game;
+import com.group15.roborally.common.model.Player;
+import com.group15.roborally.common.model.Register;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.PlayerRepository;
 import com.group15.roborally.server.repository.RegisterRepository;

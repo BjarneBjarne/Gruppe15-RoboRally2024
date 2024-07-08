@@ -5,7 +5,7 @@ import com.group15.roborally.client.model.Command;
 import com.group15.roborally.client.model.CommandCard;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 
 public class Card_RepeatRoutine extends UpgradeCardTemporary {
 

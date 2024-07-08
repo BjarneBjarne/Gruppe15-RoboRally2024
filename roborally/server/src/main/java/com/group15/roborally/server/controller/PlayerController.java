@@ -1,7 +1,7 @@
 package com.group15.roborally.server.controller;
 
-import com.group15.roborally.server.model.GamePhase;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.common.model.GamePhase;
+import com.group15.roborally.common.model.Player;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.PlayerRepository;
 import org.springframework.http.MediaType;

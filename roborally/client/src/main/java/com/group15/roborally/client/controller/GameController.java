@@ -21,8 +21,8 @@
  */
 package com.group15.roborally.client.controller;
 
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Observer;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
@@ -31,8 +31,8 @@ import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.view.BoardView;
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.model.Game;
+import com.group15.roborally.common.model.Register;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.*;
 
@@ -75,7 +75,7 @@ public class GameController implements Observer {
 
     // Latest data
     private Game latestGameData;
-    private HashMap<Long, com.group15.roborally.server.model.Player> latestPlayerData;
+    private HashMap<Long, com.group15.roborally.common.model.Player> latestPlayerData;
     private String[] latestUpgradeShopData;
     private List<Register> latestRegisterData;
 
@@ -777,7 +777,7 @@ public class GameController implements Observer {
 
             // Check if any player disconnected
             for (Player client : board.getPlayers()) {
-                com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
+                com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
                 if (updatedPlayer == null) {
                     // Player disconnected.
                     // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
@@ -844,7 +844,7 @@ public class GameController implements Observer {
     private void updateInitialization() {
         // Check if all players have set their spawn point
         for (Player client : board.getPlayers()) {
-            com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
+            com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null) continue; // Player disconnected.
             if (client.getSpawnPoint() != null) continue; // Client already has a spawn point
 
@@ -899,7 +899,7 @@ public class GameController implements Observer {
     private void updateUpgrading() {
         // Updating proxy players upgrade cards.
         for (Player client : board.getPlayers()) {
-            com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
+            com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer == null)
                 continue;
 
@@ -918,7 +918,7 @@ public class GameController implements Observer {
         int upgradeTurn = 0;
         for (int i = 0; i < board.getPriorityList().size(); i++) {
             Player client = board.getPriorityList().stream().toList().get(i);
-            com.group15.roborally.server.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
+            com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
             if (updatedPlayer.getReadyForPhase() == GamePhase.PROGRAMMING) {
                 upgradeTurn++;
             } else {

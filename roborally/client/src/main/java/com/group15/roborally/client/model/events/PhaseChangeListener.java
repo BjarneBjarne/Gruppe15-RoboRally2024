@@ -1,7 +1,7 @@
 package com.group15.roborally.client.model.events;
 
-import com.group15.roborally.server.model.GamePhase;
-import static com.group15.roborally.server.model.GamePhase.*;
+import com.group15.roborally.common.model.GamePhase;
+import static com.group15.roborally.common.model.GamePhase.*;
 
 @FunctionalInterface
 public interface PhaseChangeListener {

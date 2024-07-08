@@ -21,7 +21,7 @@
  */
 package com.group15.roborally.client.model;
 
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.boardelements.BE_Antenna;
 import com.group15.roborally.client.model.boardelements.BE_Checkpoint;
 import com.group15.roborally.client.model.boardelements.BE_PushPanel;

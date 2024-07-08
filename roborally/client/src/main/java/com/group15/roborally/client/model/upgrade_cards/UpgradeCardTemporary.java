@@ -1,7 +1,7 @@
 package com.group15.roborally.client.model.upgrade_cards;
 
 import com.group15.roborally.client.model.CardField;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 
 public abstract class UpgradeCardTemporary extends UpgradeCard {
 

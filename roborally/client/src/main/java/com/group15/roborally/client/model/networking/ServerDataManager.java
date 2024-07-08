@@ -1,19 +1,19 @@
 package com.group15.roborally.client.model.networking;
 
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Observer;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.model.ActionWithDelay;
 import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
-import com.group15.roborally.server.model.Choice;
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.GamePhase;
-import com.group15.roborally.server.model.Interaction;
-import com.group15.roborally.server.model.Player;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.model.Choice;
+import com.group15.roborally.common.model.Game;
+import com.group15.roborally.common.model.GamePhase;
+import com.group15.roborally.common.model.Interaction;
+import com.group15.roborally.common.model.Player;
+import com.group15.roborally.common.model.Register;
 import com.group15.roborally.client.utils.ServerCommunication;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;

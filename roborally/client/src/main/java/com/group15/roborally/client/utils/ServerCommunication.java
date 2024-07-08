@@ -6,12 +6,12 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-import com.group15.observer.Subject;
-import com.group15.roborally.server.model.Choice;
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.Interaction;
-import com.group15.roborally.server.model.Player;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.observer.Subject;
+import com.group15.roborally.common.model.Choice;
+import com.group15.roborally.common.model.Game;
+import com.group15.roborally.common.model.Interaction;
+import com.group15.roborally.common.model.Player;
+import com.group15.roborally.common.model.Register;
 
 import javafx.application.Platform;
 import lombok.Getter;

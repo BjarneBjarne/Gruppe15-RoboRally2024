@@ -21,8 +21,8 @@
  */
 package com.group15.roborally.client.view;
 
-import com.group15.observer.Subject;
-import com.group15.observer.ViewObserver;
+import com.group15.roborally.common.observer.Subject;
+import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.player_interaction.CommandOptionsInteraction;
@@ -48,7 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
-import static com.group15.roborally.server.model.GamePhase.*;
+import static com.group15.roborally.common.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
 
 /**

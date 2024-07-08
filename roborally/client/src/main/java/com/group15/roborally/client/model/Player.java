@@ -34,12 +34,12 @@ import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
 import com.group15.roborally.client.model.upgrade_cards.permanent.Card_Brakes;
 import com.group15.roborally.client.utils.ImageUtils;
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Subject;
 import javafx.scene.image.Image;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 
 import java.util.*;
 import java.util.stream.Collectors;

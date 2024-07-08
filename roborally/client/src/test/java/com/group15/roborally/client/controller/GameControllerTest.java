@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Queue;
 
-import static com.group15.roborally.server.model.GamePhase.*;
+import static com.group15.roborally.common.model.GamePhase.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

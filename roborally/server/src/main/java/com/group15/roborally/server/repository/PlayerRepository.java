@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.common.model.Player;
 
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     Optional<List<Player>> findAllByGameId(Long gameId);

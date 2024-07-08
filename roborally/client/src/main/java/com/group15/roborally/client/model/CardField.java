@@ -21,7 +21,7 @@
  */
 package com.group15.roborally.client.model;
 
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import lombok.Getter;
 

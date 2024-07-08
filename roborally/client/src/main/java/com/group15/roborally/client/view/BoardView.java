@@ -20,8 +20,8 @@
  */
 package com.group15.roborally.client.view;
 
-import com.group15.observer.Subject;
-import com.group15.observer.ViewObserver;
+import com.group15.roborally.common.observer.Subject;
+import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
@@ -47,8 +47,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
-import com.group15.roborally.server.model.GamePhase;
-import static com.group15.roborally.server.model.GamePhase.*;
+import com.group15.roborally.common.model.GamePhase;
+import static com.group15.roborally.common.model.GamePhase.*;
 
 import java.util.ArrayList;
 import java.util.List;

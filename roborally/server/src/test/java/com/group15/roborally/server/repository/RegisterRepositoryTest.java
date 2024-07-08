@@ -2,14 +2,14 @@ package com.group15.roborally.server.repository;
 
 import java.util.Arrays;
 
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.group15.roborally.server.model.Player;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.model.Player;
+import com.group15.roborally.common.model.Register;
 
 @DataJpaTest
 public class RegisterRepositoryTest {

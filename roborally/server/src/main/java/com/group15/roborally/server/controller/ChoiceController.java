@@ -5,7 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.group15.roborally.server.model.Choice;
+import com.group15.roborally.common.model.Choice;
 import com.group15.roborally.server.repository.ChoiceRepository;
 import com.group15.roborally.server.repository.GameRepository;
 

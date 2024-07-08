@@ -21,15 +21,15 @@
  */
 package com.group15.roborally.client.view;
 
-import com.group15.observer.Subject;
-import com.group15.observer.ViewObserver;
+import com.group15.roborally.common.observer.Subject;
+import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.utils.TextUtils;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;

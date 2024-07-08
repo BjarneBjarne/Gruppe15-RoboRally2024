@@ -1,6 +1,6 @@
 package com.group15.roborally.server.controller;
 
-import com.group15.roborally.server.model.UpgradeShop;
+import com.group15.roborally.common.model.UpgradeShop;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.UpgradeShopRepository;
 import com.group15.roborally.server.repository.PlayerRepository;

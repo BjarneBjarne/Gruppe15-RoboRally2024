@@ -3,7 +3,7 @@ package com.group15.roborally.client.model.upgrade_cards;
 import com.group15.roborally.client.model.CardField;
 import com.group15.roborally.client.model.EventHandler;
 import com.group15.roborally.client.model.events.EventListener;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 
 import java.util.ArrayList;
 import java.util.List;

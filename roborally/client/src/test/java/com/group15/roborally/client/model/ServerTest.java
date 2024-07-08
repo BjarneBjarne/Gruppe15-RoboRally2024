@@ -2,8 +2,8 @@
 
 // import java.util.List;
 
-// import com.group15.roborally.server.model.Player;
-// import com.group15.roborally.server.model.Register;
+// import com.group15.roborally.common.model.Player;
+// import com.group15.roborally.common.model.Register;
 // import com.group15.roborally.client.utils.ServerCommunication;
 
 // public class ServerTest {

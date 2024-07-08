@@ -1,7 +1,7 @@
 package com.group15.roborally.client.view;
 
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Observer;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
@@ -10,9 +10,9 @@ import com.group15.roborally.client.model.Robots;
 import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.lobby.LobbyPlayerSlot;
-import com.group15.roborally.server.model.Game;
-import com.group15.roborally.server.model.GamePhase;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.common.model.Game;
+import com.group15.roborally.common.model.GamePhase;
+import com.group15.roborally.common.model.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;

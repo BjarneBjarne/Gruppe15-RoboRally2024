@@ -75,8 +75,6 @@ public class RoboRally extends Application {
     private GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private Stage stage;
-    private static Scene primaryScene;
-    private BoardView boardView;
     private AnchorPane mainMenuPane;
     private AnchorPane multiplayerMenuPane;
 
@@ -164,7 +162,7 @@ public class RoboRally extends Application {
             initialWidth *= 0.65;
         }
         double initialHeight = initialWidth * (9.0 / 16.0);
-        primaryScene = new Scene(scalePane, initialWidth, initialHeight);
+        Scene primaryScene = new Scene(scalePane, initialWidth, initialHeight);
         primaryScene.setFill(Color.BLACK);
 
         stage.setScene(primaryScene);
@@ -335,7 +333,7 @@ public class RoboRally extends Application {
             }
 
             // Creating and adding view for new board
-            boardView = new BoardView(gameController, directionOptionsPane);
+            BoardView boardView = new BoardView(gameController, directionOptionsPane);
             boardView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
             boardView.getStyleClass().add("transparent-scroll-pane");
             StackPane boardViewStackPane = new StackPane(backgroundStackPane, boardView);

@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.google.gson.Gson;
-import com.group15.roborally.server.model.Register;
+import com.group15.roborally.common.model.Register;
 
 // A Spring Boot Test which tests the endpoints in the ProgController
 @SpringBootTest

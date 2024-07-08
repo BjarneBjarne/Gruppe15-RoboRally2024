@@ -3,7 +3,7 @@ package com.group15.roborally.server.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.GamePhase;
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.common.model.Player;
 
 // A Spring Boot Test which tests the endpoints in the GameController
 @SpringBootTest

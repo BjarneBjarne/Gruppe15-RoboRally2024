@@ -21,7 +21,7 @@
  */
 package com.group15.roborally.client.model;
 
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.damage.DamageType;
@@ -34,8 +34,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
-import com.group15.roborally.server.model.GamePhase;
-import static com.group15.roborally.server.model.GamePhase.*;
+import com.group15.roborally.common.model.GamePhase;
+import static com.group15.roborally.common.model.GamePhase.*;
 
 /**
  * ...

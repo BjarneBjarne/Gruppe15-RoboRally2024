@@ -24,8 +24,8 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import com.group15.observer.Observer;
-import com.group15.observer.Subject;
+import com.group15.roborally.common.observer.Observer;
+import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.view.InfoPaneView;
@@ -42,8 +42,8 @@ import com.group15.roborally.client.utils.SaveAndLoadUtils;
 import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
-import com.group15.roborally.server.model.Player;
-import com.group15.roborally.server.model.GamePhase;
+import com.group15.roborally.common.model.Player;
+import com.group15.roborally.common.model.GamePhase;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -69,7 +69,6 @@ import static com.group15.roborally.client.BoardOptions.*;
  */
 public class AppController implements Observer {
     private static RoboRally roboRally;
-    private static final Logger logger = LoggerFactory.getLogger(AppController.class);
     public boolean isCourseCreatorOpen = false;
     @Setter
     private static GameController gameController;
@@ -80,6 +79,8 @@ public class AppController implements Observer {
 
     private MultiplayerMenuView multiplayerMenuView;
     private static InfoPaneView infoPane;
+
+    //private static final Logger logger = LoggerFactory.getLogger(AppController.class);
 
     public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
         AppController.roboRally = roboRally;

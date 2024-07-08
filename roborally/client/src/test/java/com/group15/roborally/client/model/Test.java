@@ -1,8 +1,8 @@
 package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.utils.ServerCommunication;
-import com.group15.roborally.server.model.Interaction;
-import com.group15.roborally.server.model.Player;
+import com.group15.roborally.common.model.Interaction;
+import com.group15.roborally.common.model.Player;
 
 public class Test {
     public static void main(String[] args) {

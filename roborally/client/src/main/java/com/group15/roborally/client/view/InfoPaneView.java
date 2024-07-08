@@ -1,7 +1,7 @@
 package com.group15.roborally.client.view;
 
-import com.group15.observer.Subject;
-import com.group15.observer.ViewObserver;
+import com.group15.roborally.common.observer.Subject;
+import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.utils.TextUtils;
 
 import javafx.geometry.Insets;
