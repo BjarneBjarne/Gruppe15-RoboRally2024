@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Server" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="server" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.group15.roborally.server.StartServer" />
+    <option name="VM_PARAMETERS" value="--module-path &quot;${PATH_TO_FX}\lib;${PROJECT_ROOT}\roborally\server\target\classes;${PROJECT_ROOT}\roborally\common\target\classes;${PROJECT_ROOT}\roborally\server\target\dependency&quot; --add-modules com.group15.roborally.server " />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

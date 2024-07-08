@@ -768,9 +768,6 @@ public class GameController implements Observer {
             }
             if (changedData.contains(NetworkedDataTypes.REGISTERS)) {
                 latestRegisterData = serverDataManager.getUpdatedRegisters();
-                for (Register register : latestRegisterData) {
-                    System.out.println(register);
-                }
             }
 
             if (latestGameData == null || latestPlayerData == null) return;
