@@ -28,15 +28,10 @@ import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.utils.ImageUtils;
-import com.group15.roborally.client.view.BoardView;
-import com.group15.roborally.client.view.InfoPaneView;
-import com.group15.roborally.client.view.MainMenuView;
-import com.group15.roborally.client.view.MultiplayerMenuView;
-import com.group15.roborally.client.view.WinScreenView;
+import com.group15.roborally.client.view.*;
+import com.group15.roborally.client.view.GameView;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -58,7 +53,6 @@ import static com.group15.roborally.client.ApplicationSettings.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -248,9 +242,12 @@ public class RoboRally extends Application {
         appController.disconnectFromServer("", 1000);
         resetMultiplayerMenu();
         appController.resetGameController();
-        root.getChildren().clear(); // If present, remove old BoardView
+        root.getChildren().clear(); // If present, remove old GameView
         root.setCenter(mainMenuPane);
         courseCreator = null;
+        if (backgroundStackPane.getChildren().getFirst() instanceof ImageView background) {
+            background.setImage(ImageUtils.getImageFromName("Background_MainMenu.png"));
+        }
     }
 
     /**
@@ -275,7 +272,7 @@ public class RoboRally extends Application {
     }
 
     public void goToMultiplayerMenu() {
-        // if present, remove old BoardView
+        // if present, remove old GameView
         root.getChildren().clear();
         root.setCenter(multiplayerMenuPane);
     }
@@ -294,7 +291,7 @@ public class RoboRally extends Application {
     }
 
     public void createBoardView(GameController gameController) {
-        root.getChildren().clear(); // If present, remove old BoardView
+        root.getChildren().clear(); // If present, remove old GameView
 
         if (gameController != null) {
             // Loading UpgradeShop.fxml
@@ -316,14 +313,14 @@ public class RoboRally extends Application {
             }
 
             // Creating and adding view for new board
-            BoardView boardView = new BoardView(gameController, directionOptionsPane);
-            boardView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
-            boardView.getStyleClass().add("transparent-scroll-pane");
-            StackPane boardViewStackPane = new StackPane(backgroundStackPane, boardView);
+            GameView gameView = new GameView(gameController, directionOptionsPane);
+            gameView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
+            gameView.getStyleClass().add("transparent-scroll-pane");
+            StackPane boardViewStackPane = new StackPane(backgroundStackPane, gameView);
             root.setCenter(boardViewStackPane);
             //BorderPane.set
-            VBox.setVgrow(root, Priority.ALWAYS);
-            VBox.setVgrow(boardView, Priority.ALWAYS);
+            /*VBox.setVgrow(root, Priority.ALWAYS);
+            VBox.setVgrow(gameView, Priority.ALWAYS);*/
 
             if (backgroundStackPane.getChildren().getFirst() instanceof ImageView background) {
                 background.setImage(ImageUtils.getImageFromName("Background_SelectionMenu3.png"));

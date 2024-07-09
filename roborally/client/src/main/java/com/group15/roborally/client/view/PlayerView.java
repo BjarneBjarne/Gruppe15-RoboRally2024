@@ -57,7 +57,7 @@ import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class PlayerView extends Tab implements ViewObserver {
+public class PlayerView extends StackPane implements ViewObserver {
     @Getter
     private final Player player;
 
@@ -75,27 +75,13 @@ public class PlayerView extends Tab implements ViewObserver {
     private final Image[] energyCubeImages = new Image[Player.NO_OF_ENERGY_CUBES + 1];
     private final Image[] checkpointTokenImages;
 
-    public PlayerView(@NotNull GameController gameController, @NotNull Player player) {
+    public PlayerView(@NotNull GameController gameController) {
         super();
-        StackPane mainPlayerViewPane = new StackPane();
-        mainPlayerViewPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-        mainPlayerViewPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        mainPlayerViewPane.setMaxHeight(Region.USE_COMPUTED_SIZE);
-        mainPlayerViewPane.setAlignment(Pos.BOTTOM_CENTER);
-        StackPane.setMargin(mainPlayerViewPane, new Insets(-25, 0, 27, 0));
-        this.setContent(mainPlayerViewPane);
+        this.setAlignment(Pos.BOTTOM_CENTER);
+        //StackPane.setMargin(playerViewPane, new Insets(-25, 0, 27, 0));
+
         this.gameController = gameController;
-        this.player = player;
-        // Setting player name
-        Label playerNameLabel = new Label(player.getName());
-        playerNameLabel.setTextFill(Color.valueOf(player.getRobot().toString()));
-        playerNameLabel.setStyle(
-                        "-fx-font-size: 26;" +
-                        "-fx-font-weight: bold;"
-        );
-        DropShadow dropShadow = new DropShadow(2, 0, 1, Color.BLACK);
-        playerNameLabel.setEffect(dropShadow);
-        this.setGraphic(playerNameLabel);
+        this.player = gameController.getLocalPlayer();
 
         // Images
         for (int i = 0; i < energyCubeImages.length; i++) {
@@ -277,7 +263,8 @@ public class PlayerView extends Tab implements ViewObserver {
         hBox.setAlignment(Pos.BOTTOM_CENTER);
         hBox.getChildren().addAll(leftSideStackPane, playerMat, temporaryUpgradeCardsPane);
         hBox.setSpacing(100);
-        mainPlayerViewPane.getChildren().addAll(hBox);
+
+        this.getChildren().add(hBox);
 
         player.board.attach(this);
         update(player.board);

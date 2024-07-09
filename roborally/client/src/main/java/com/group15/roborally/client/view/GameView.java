@@ -60,13 +60,12 @@ import java.util.List;
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class BoardView extends VBox implements ViewObserver {
+public class GameView extends StackPane implements ViewObserver {
     private final GameController gameController;
     private final Board board;
 
     private final StackPane mainBoardPane;
     private final SpaceView[][] spaceViews;
-    private final PlayersView playersView;
     private final GridPane directionOptionsPane;
     private StackPane upgradeShopPane;
     private HBox upgradeShopCardsHBox;
@@ -75,12 +74,12 @@ public class BoardView extends VBox implements ViewObserver {
     //private final Label statusLabel;
 
     /**
-     * Constructor of BoardView.
+     * Constructor of GameView.
      * @param gameController The GameController.
      * @param directionOptionsPane The loaded directionOptionsPane from the DirectionArrows.fxml file.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public BoardView(@NotNull GameController gameController, GridPane directionOptionsPane) {
+    public GameView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         this.gameController = gameController;
         this.directionOptionsPane = directionOptionsPane;
         board = gameController.board;
@@ -113,7 +112,7 @@ public class BoardView extends VBox implements ViewObserver {
         zoomableScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         zoomableScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         mainBoardPane = new StackPane(zoomableScrollPane);
-        mainBoardPane.setAlignment(Pos.CENTER);
+        mainBoardPane.setAlignment(Pos.TOP_CENTER);
         interactablePane.getStyleClass().add("transparent-scroll-pane");
         zoomableScrollPane.getStyleClass().add("transparent-scroll-pane");
         mainBoardPane.getStyleClass().add("transparent-scroll-pane");
@@ -124,38 +123,59 @@ public class BoardView extends VBox implements ViewObserver {
         mainBoardPane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         interactablePane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        zoomableScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        mainBoardPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        StackPane.setMargin(zoomableScrollPane, new Insets(25, 0, 0, 0));
-        double width = boardTilesPane.getWidth() + 12000;
-        double height = width / 2.72;
-        interactablePane.setMinSize(width, height);
-        interactablePane.setPrefSize(width, height);
-        interactablePane.setMaxSize(width, height);
-        mainBoardPane.setPrefHeight(895);
+        zoomableScrollPane.setStyle(
+                "-fx-background: transparent; " +
+                        "-fx-background-color: transparent; " +
+                        //"-fx-border-color: yellow; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-radius: 5");
+        mainBoardPane.setStyle(
+                "-fx-background: transparent; " +
+                        "-fx-background-color: transparent; " +
+                        //"-fx-border-color: red; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-radius: 5");
+        //StackPane.setMargin(zoomableScrollPane, new Insets(25, 0, 0, 0));
+        double boardPaneWidth = boardTilesPane.getWidth() + 12000;
+        double boardPaneHeight = boardPaneWidth / 2.72;
+        interactablePane.setMinSize(boardPaneWidth, boardPaneHeight);
+        interactablePane.setPrefSize(boardPaneWidth, boardPaneHeight);
+        interactablePane.setMaxSize(boardPaneWidth, boardPaneHeight);
         zoomableScrollPane.setPannable(true);
+        double playerViewHeight = 500;
+        mainBoardPane.setPrefHeight(REFERENCE_WIDTH - playerViewHeight);
         //statusLabel = new Label("<no status>");
 
-        playersView = new PlayersView(gameController);
-        StackPane playersViewStackPane = new StackPane(playersView);
-        playersViewStackPane.setAlignment(Pos.CENTER);
-        playersViewStackPane.setPrefHeight(464);
+        this.setMinHeight(playerViewHeight);
+        this.setPrefHeight(playerViewHeight);
+        this.setMaxHeight(playerViewHeight);
+        PlayerView playerView = new PlayerView(gameController);
+
         //this.getChildren().add(statusLabel);
         this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playersViewStackPane);
+        this.getChildren().add(playerView);
         this.setAlignment(Pos.BOTTOM_CENTER);
-        this.setFillWidth(true);
 
-        VBox.setVgrow(mainBoardPane, Priority.ALWAYS);
-        VBox.setVgrow(playersViewStackPane, Priority.ALWAYS);
+        /*VBox.setVgrow(mainBoardPane, Priority.ALWAYS);
+        VBox.setVgrow(playerView, Priority.ALWAYS);*/
+        
+        mainBoardPane.setMinWidth(REFERENCE_WIDTH);
+        mainBoardPane.setPrefWidth(REFERENCE_WIDTH);
+        mainBoardPane.setMaxWidth(REFERENCE_WIDTH);
 
-        mainBoardPane.setMinWidth(APP_BOUNDS.getWidth());
-        mainBoardPane.setPrefWidth(APP_BOUNDS.getWidth());
-
-        playersView.setMinWidth(APP_BOUNDS.getWidth());
-        playersView.setPrefWidth(APP_BOUNDS.getWidth());
-
-        //StackPane.setMargin(playersView, new Insets(0, 0, 0, 0));
+        playerView.setMinWidth(REFERENCE_WIDTH);
+        playerView.setPrefWidth(REFERENCE_WIDTH);
+        playerView.setMaxWidth(REFERENCE_WIDTH);
+        playerView.setStyle(
+                        //"-fx-border-color: white; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-radius: 5"
+        );
+        this.setStyle(
+                "-fx-border-color: green; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-radius: 5"
+        );
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -177,16 +197,16 @@ public class BoardView extends VBox implements ViewObserver {
     /**
      * Sets the onMouseClicked up the arrow buttons on the direction panel, to call chooseDirection().
      * @param button The arrow button.
-     * @param boardView The boardView
+     * @param gameView The gameView
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeDirectionButton(Button button, BoardView boardView) {
+    public void initializeDirectionButton(Button button, GameView gameView) {
         Heading direction = Heading.valueOf(button.getId());
-        button.setOnMouseClicked(_ -> gameController.chooseDirection(direction, boardView));
+        button.setOnMouseClicked(_ -> gameController.chooseDirection(direction, gameView));
     }
 
     /**
-     * Method for initializing the upgrade shop. Should only be called once after creating a BoardView.
+     * Method for initializing the upgrade shop. Should only be called once after creating a GameView.
      * @param upgradeShopPane Root of the upgrade shop.
      * @param upgradeShopTitelPane The upper pane, containing the title.
      * @param upgradeShopMainPane The main pane containing the cards and finish button.
@@ -203,10 +223,10 @@ public class BoardView extends VBox implements ViewObserver {
         mainBoardPane.getChildren().add(upgradeShopPane);
 
         if (this.upgradeShopCardsHBox == null) {
-            System.out.println("upgradeShopCardsHBox not initialized in BoardView - setUpgradeShopFXML()");
+            System.out.println("upgradeShopCardsHBox not initialized in GameView - setUpgradeShopFXML()");
         }
         if (finishUpgradingButton == null) {
-            System.out.println("finishUpgradingButton not initialized in BoardView - setUpgradeShopFXML()");
+            System.out.println("finishUpgradingButton not initialized in GameView - setUpgradeShopFXML()");
         } else {
             finishUpgradingButton.setOnMouseClicked(_ -> {
                 gameController.setPlayerCards();
@@ -257,7 +277,7 @@ public class BoardView extends VBox implements ViewObserver {
                 case null -> {
                 }
                 default ->
-                        System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getDisplayName() + ". Check card and BoardView.setUpgradeShop().");
+                        System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getDisplayName() + ". Check card and GameView.setUpgradeShop().");
             }
             cardFieldView.setStyle(
                     "-fx-background-color: transparent; " +
@@ -309,7 +329,7 @@ public class BoardView extends VBox implements ViewObserver {
     }
 
     /**
-     * The method for getting all the SpaceViews on the BoardView, where the mouse position is within.
+     * The method for getting all the SpaceViews on the GameView, where the mouse position is within.
      * @param position The mouse position in the scene.
      * @return Returns a new list of SpaceViews at the mouse position.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
@@ -439,12 +459,12 @@ public class BoardView extends VBox implements ViewObserver {
                     if (board == gameController.board) {
                         if (event.isAltDown()) {
                             // Debugging
-                            if (DEBUG_ALLOW_MANUAL_PLAYER_POSITION) {
+                            /*if (DEBUG_ALLOW_MANUAL_PLAYER_POSITION) {
                                 if (board.getCurrentPhase() != INITIALIZATION && space.getPlayer() == null) {
                                     // Move the player to the hovered free space.
-                                    playersView.getSelectedPlayerView().getPlayer().setSpace(space);
+                                    playerView.getPlayer().setSpace(space);
                                 }
-                            }
+                            }*/
                         } else {
                             // Game input
                             gameController.spacePressed(space);

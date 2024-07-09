@@ -88,7 +88,7 @@ public class ZoomableScrollPane extends ScrollPane {
     private void configureZoomHandlers(VBox outerNode) {
         outerNode.addEventFilter(ScrollEvent.SCROLL, event -> {
             if (event.isControlDown()) {
-                double wheelDelta = event.getDeltaY() * BASE_MOUSE_ZOOM_SPEED * frameTimeDelta;
+                double wheelDelta = event.getDeltaY() * BASE_MOUSE_ZOOM_SPEED * ZOOM_SPEED * frameTimeDelta;
                 Point2D mousePoint = new Point2D(event.getX(), event.getY());
                 onScroll(wheelDelta, mousePoint);
                 event.consume();
@@ -97,7 +97,7 @@ public class ZoomableScrollPane extends ScrollPane {
 
         outerNode.addEventFilter(ZoomEvent.ZOOM, event -> {
             double zoomFactor = event.getZoomFactor();
-            double wheelDelta = Math.log(zoomFactor) * BASE_TOUCHPAD_ZOOM_SPEED * frameTimeDelta;
+            double wheelDelta = Math.log(zoomFactor) * BASE_TOUCHPAD_ZOOM_SPEED * ZOOM_SPEED * frameTimeDelta;
             Point2D mousePoint = new Point2D(event.getX(), event.getY());
             onScroll(wheelDelta, mousePoint);
             event.consume();

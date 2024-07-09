@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.controller;
 
+import com.group15.roborally.client.view.GameView;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
@@ -30,7 +31,6 @@ import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
-import com.group15.roborally.client.view.BoardView;
 import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.model.Register;
 import javafx.animation.PauseTransition;
@@ -659,8 +659,8 @@ public class GameController implements Observer {
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void chooseDirection(Heading direction, BoardView boardView) {
-        boardView.handleDirectionButtonClicked();
+    public void chooseDirection(Heading direction, GameView gameView) {
+        gameView.handleDirectionButtonClicked();
         directionOptionsSpace = null;
         if (board.getCurrentPhase() == GamePhase.INITIALIZATION) {
             localPlayer.setHeading(direction);
