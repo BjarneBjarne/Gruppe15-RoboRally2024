@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Client - Mac" type="Application" factoryName="Application" singleton="false">
+    <option name="MAIN_CLASS_NAME" value="com.group15.roborally.client.StartRoboRally" />
+    <module name="client" />
+    <selectedOptions>
+      <option name="environmentVariables" visible="false" />
+    </selectedOptions>
+    <option name="VM_PARAMETERS" value="--module-path &quot;${PATH_TO_FX}:${PROJECT_ROOT}/roborally/client/target/classes:${PROJECT_ROOT}/roborally/common/target/classes:${PROJECT_ROOT}/roborally/client/target/dependency&quot; --add-modules javafx.controls,javafx.fxml,com.group15.roborally.client" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
