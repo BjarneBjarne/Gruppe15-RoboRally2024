@@ -101,7 +101,6 @@ public class SpaceView extends StackPane implements ViewObserver {
                 energyCubeImageView.setFitWidth(ApplicationSettings.SPACE_SIZE);
                 energyCubeImageView.setFitHeight(SPACE_SIZE);
                 energyCubeImageView.setImage(ImageUtils.getImageFromName("Board_Pieces/energyCube.png"));
-                energyCubeImageView.xProperty();
                 energyCubeImageView.setLayoutY(10);
             }
         }

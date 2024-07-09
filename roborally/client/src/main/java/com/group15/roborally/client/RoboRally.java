@@ -35,12 +35,14 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
@@ -51,8 +53,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
-import static com.group15.roborally.client.ApplicationSettings.*;
+import javafx.stage.Window;
 
 import java.io.IOException;
 import java.net.URL;
@@ -83,12 +84,14 @@ public class RoboRally extends Application {
     @FXML
     Button finishUpgradingButton;
 
-    private StackPane scalePane;
-    private StackPane mainPane;
-    private BorderPane root;
-    private StackPane backgroundStackPane;
+    private Scene primaryScene;
+    private final StackPane root = new StackPane();
+    private final StackPane scalePane = new StackPane();
+    private final ImageView backgroundImageView = new ImageView();
+    private final StackPane backgroundStackPane = new StackPane(backgroundImageView);
 
-    private Label debugLabel = new Label();
+    private final InfoPaneView infoPane = new InfoPaneView();
+    private final Label debugLabel = new Label();
 
     @Override
     public void init() throws Exception {
@@ -98,19 +101,51 @@ public class RoboRally extends Application {
     /**
      * JavaFX call to start the application.
      * The method sets the stage and scene.
-     * @param stage Stage given from the JavaFX layer.
+     * @param primaryStage Stage given from the JavaFX layer.
      */
     @Override
-    public void start(Stage stage) {
-        this.stage = stage;
+    public void start(Stage primaryStage) {
+        this.stage = primaryStage;
+        stage.setTitle("Robo Rally");
         AlertUtils.setPrimaryStage(stage);
 
-        root = new BorderPane();
-        mainPane = new StackPane(root);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 36);
+        debugLabel.setFont(textFont);
+        debugLabel.setTextAlignment(TextAlignment.LEFT);
+        StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
 
-        InfoPaneView infoPane = new InfoPaneView();
-        mainPane.getChildren().add(infoPane);
-        scalePane = new StackPane(mainPane);
+        root.setMinSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+        root.setPrefSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+        root.setMaxSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+        root.getChildren().setAll(scalePane, debugLabel);
+
+        StackPane.setAlignment(scalePane, Pos.CENTER);
+        StackPane.setMargin(scalePane, new Insets(0, 0, 0, 0));
+        /*AnchorPane.setTopAnchor(scalePane, 0.0);
+        AnchorPane.setBottomAnchor(scalePane, 0.0);
+        AnchorPane.setRightAnchor(scalePane, 0.0);
+        AnchorPane.setLeftAnchor(scalePane, 0.0);*/
+
+        setBackgroundImage("Background_MainMenu2.png");
+
+        StackPane.setAlignment(infoPane, Pos.CENTER);
+        /*AnchorPane.setTopAnchor(debugLabel, 0.0);
+        AnchorPane.setLeftAnchor(debugLabel, 0.0);*/
+
+        scalePane.setStyle(
+                        "-fx-background: transparent; " +
+                        "-fx-background-color: transparent; " +
+                        "-fx-border-color: blue; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 5"
+        );
+        root.setStyle(
+                        "-fx-background: transparent; " +
+                        "-fx-background-color: transparent; "/* +
+                        "-fx-border-color: rgba(255,46,83,0.35); " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 5"*/
+        );
 
         appController = new AppController(this, infoPane);
         try {
@@ -119,65 +154,44 @@ public class RoboRally extends Application {
             System.out.println(e.getMessage());
         }
 
-        StackPane.setAlignment(root, Pos.CENTER);
-        stage.setTitle("Robo Rally");
-        // stage.setResizable(false);
-
-        createMainMenu();
-
-        if (FULLSCREEN) {
+        if (ApplicationSettings.FULLSCREEN) {
             stage.setFullScreen(true);
         }
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
 
         double initialWidth = primaryScreenBounds.getWidth();
-        if (!FULLSCREEN) {
+        if (!ApplicationSettings.FULLSCREEN) {
             initialWidth *= 0.65;
         }
         double initialHeight = initialWidth * (9.0 / 16.0);
-        Scene primaryScene = new Scene(scalePane, initialWidth, initialHeight);
+        primaryScene = new Scene(root, initialWidth, initialHeight);
         primaryScene.setFill(Color.BLACK);
 
+        stage.setScene(primaryScene);
+
         stage.setOnShown(_ -> {
-            double contentHeight = stage.getHeight();
-            double windowHeightIncludingTitleBar = stage.getScene().getWindow().getHeight();
+            //setViewableWindowSize(finalInitialWidth, initialHeight);
 
-            System.out.println("Content Height: " + contentHeight);
-            System.out.println("Stage Y Position: " + stage.getY());
+            Window window = stage.getScene().getWindow();
+            double windowHeightIncludingTitleBar = window.getHeight();
+
             System.out.println("Total Window Height (including title bar): " + windowHeightIncludingTitleBar);
-
-            // Print debug information for nodes
-            System.out.println("Root Pane Bounds: " + root.getBoundsInParent());
-            System.out.println("Main Pane Bounds: " + mainPane.getBoundsInParent());
-            System.out.println("Scale Pane Bounds: " + scalePane.getBoundsInParent());
-            System.out.println("Info Pane Bounds: " + infoPane.getBoundsInParent());
 
             // Layout bounds
             System.out.println("Root Pane Layout Bounds: " + root.getLayoutBounds());
-            System.out.println("Main Pane Layout Bounds: " + mainPane.getLayoutBounds());
             System.out.println("Scale Pane Layout Bounds: " + scalePane.getLayoutBounds());
             System.out.println("Info Pane Layout Bounds: " + infoPane.getLayoutBounds());
 
-            // Additional debug information for Scene's window bounds
-            System.out.println("Scene's Window Bounds Height: " + primaryScene.getWindow().getHeight());
+            scaleUI();
         });
 
-        stage.setScene(primaryScene);
-        stage.setWidth(initialWidth);
-        stage.setHeight(initialHeight);
-
-        stage.widthProperty().addListener((_, _, newVal) -> scaleRoot(newVal.doubleValue()));
-        APP_SCALE = initialWidth / REFERENCE_WIDTH;
+        //ApplicationSettings.APP_SCALE = initialWidth / ApplicationSettings.REFERENCE_WIDTH;
 
         URL stylesCSS = getClass().getResource("styles.css");
         if (stylesCSS != null) {
             primaryScene.getStylesheets().add(stylesCSS.toExternalForm());
         }
-
-        scaleRoot(initialWidth);
-
-        System.out.println("Stage size: " + stage.getWidth() + "x" + stage.getHeight());
 
         stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ESCAPE && stage.isFullScreen()) {
@@ -199,16 +213,71 @@ public class RoboRally extends Application {
 
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 
+        createMainMenu();
+
         stage.show();
+
+        primaryScene.widthProperty().addListener((_, _, _) -> scaleUI());
+        primaryScene.heightProperty().addListener((_, _, _) -> scaleUI());
     }
 
-    private void scaleRoot(double newWidth) {
-        APP_SCALE = newWidth / REFERENCE_WIDTH;
-        scalePane.setScaleX(APP_SCALE);
-        scalePane.setScaleY(APP_SCALE);
-        StackPane.setMargin(root, new Insets(0, 0, 0, 0));
-        APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());
-        debugLabel.setText("Window size: " + stage.getWidth() + "x" + stage.getHeight());
+    private void setBackgroundImage(String imageString) {
+        Image backgroundImage = ImageUtils.getImageFromName(imageString);
+        assert backgroundImage != null;
+        backgroundImageView.setFitWidth(backgroundImage.getWidth());
+        backgroundImageView.setFitHeight(backgroundImage.getHeight());
+    }
+
+    private void scaleUI() {
+        Platform.runLater(() -> {
+            double newWidth = primaryScene.widthProperty().doubleValue();
+            double newHeight = primaryScene.heightProperty().doubleValue();
+
+            ApplicationSettings.APP_SCALE = Math.min(newWidth / ApplicationSettings.REFERENCE_WIDTH, newHeight / ApplicationSettings.REFERENCE_HEIGHT);
+            scalePane.setScaleX(ApplicationSettings.APP_SCALE);
+            scalePane.setScaleY(ApplicationSettings.APP_SCALE);
+            scalePane.setTranslateX(0);
+            scalePane.setTranslateY(0);
+            scalePane.setMinSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+            scalePane.setPrefSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+            scalePane.setMaxSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+            ApplicationSettings.APP_BOUNDS = new Rectangle2D(ApplicationSettings.MIN_APP_WIDTH, ApplicationSettings.MIN_APP_HEIGHT, newWidth, newHeight);
+        });
+        updateDebug();
+    }
+
+    private void updateDebug() {
+        Platform.runLater(() -> {
+            Bounds scalePaneBounds = scalePane.getLayoutBounds();
+            debugLabel.setText(
+                    "App bounds: " + (int)ApplicationSettings.APP_BOUNDS.getWidth() + "x" + (int)ApplicationSettings.APP_BOUNDS.getHeight() + "\n" +
+                            "Scale: " + (int)ApplicationSettings.APP_SCALE + "\n" +
+                            "Stage size: " + stage.getWidth() + "x" + stage.getHeight() + "\n" +
+                            "Scale pane: " + scalePane.getWidth() + "x" + scalePane.getHeight() + " - " + scalePane.getLayoutX() + ", " + scalePane.getLayoutY() + "\n" +
+                            "Scale pane: " + scalePaneBounds.getWidth() + "x" + scalePaneBounds.getHeight() + " - " + scalePaneBounds.getMinX() + ", " + scalePaneBounds.getMaxY() + "\n" +
+                            "Scale pane scale: " + (int)scalePane.getScaleX() + ", " + (int)scalePane.getScaleY() + "\n" +
+                    "Root pane: " + root.getWidth() + "x" + root.getHeight() + " - " + root.getLayoutX() + ", " + root.getLayoutY() + "\n"
+            );
+            debugLabel.setTextFill(Color.DARKRED);
+        });
+    }
+
+    private void setMainPane(Pane mainPane) {
+        if (mainPane == null) return;
+        scalePane.getChildren().clear();
+
+        scalePane.getChildren().setAll(backgroundStackPane, mainPane, infoPane);
+    }
+
+    private void setViewableWindowSize(double width, double height) {
+        // Calculate the height of the window decorations (title bar)
+        double windowDecorationHeight = stage.getHeight() - stage.getScene().getHeight();
+        stage.setWidth(width);
+        stage.setHeight(height + windowDecorationHeight);
+        System.out.println("Setting stage size: " + width + "x" + height);
+        System.out.println("Size with title bar: " + width + "x" + height);
+        // Perform layout updates after setting the stage size
+        primaryScene.getWindow().sizeToScene();
     }
 
     /**
@@ -245,12 +314,6 @@ public class RoboRally extends Application {
     public void createMainMenu() {
         // create and add view for new board
         mainMenuPane = new MainMenuView().initialize(appController).getMainMenu();
-        for (Node child : mainMenuPane.getChildren()) {
-            if (child instanceof StackPane b) {
-                backgroundStackPane = b;
-                break;
-            }
-        }
         goToMainMenu();
     }
 
@@ -264,12 +327,8 @@ public class RoboRally extends Application {
         appController.disconnectFromServer("", 1000);
         resetMultiplayerMenu();
         appController.resetGameController();
-        root.getChildren().clear(); // If present, remove old GameView
-        root.setCenter(mainMenuPane);
+        setMainPane(mainMenuPane);
         courseCreator = null;
-        if (backgroundStackPane.getChildren().getFirst() instanceof ImageView background) {
-            background.setImage(ImageUtils.getImageFromName("Background_MainMenu.png"));
-        }
     }
 
     /**
@@ -294,9 +353,7 @@ public class RoboRally extends Application {
     }
 
     public void goToMultiplayerMenu() {
-        // if present, remove old GameView
-        root.getChildren().clear();
-        root.setCenter(multiplayerMenuPane);
+        setMainPane(multiplayerMenuPane);
     }
 
     /**
@@ -305,16 +362,12 @@ public class RoboRally extends Application {
      * @author Maximillian Bjørn Mortensen
      */
     public void goToWinScreen(GameController gameController, Player winner) {
-        root.getChildren().clear();
-
         AnchorPane w = new WinScreenView().initialize(gameController, appController, this, winner).getWinScreen();
 
-        root.setCenter(w);
+        setMainPane(w);
     }
 
     public void createBoardView(GameController gameController) {
-        root.getChildren().clear(); // If present, remove old GameView
-
         if (gameController != null) {
             // Loading UpgradeShop.fxml
             try {
@@ -338,24 +391,10 @@ public class RoboRally extends Application {
             GameView gameView = new GameView(gameController, directionOptionsPane);
             gameView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
             gameView.getStyleClass().add("transparent-scroll-pane");
-            Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 48);
-            debugLabel.setFont(textFont);
-            debugLabel.setTextFill(Color.WHITE);
-            debugLabel.setTextAlignment(TextAlignment.CENTER);
-            debugLabel.setTranslateX(100);
-            debugLabel.setTranslateY(100);
-            StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
-            StackPane boardViewStackPane = new StackPane(backgroundStackPane, gameView, debugLabel);
-            root.setCenter(boardViewStackPane);
-            //BorderPane.set
-            /*VBox.setVgrow(root, Priority.ALWAYS);
-            VBox.setVgrow(gameView, Priority.ALWAYS);*/
+            setMainPane(gameView);
 
-            if (backgroundStackPane.getChildren().getFirst() instanceof ImageView background) {
-                background.setImage(ImageUtils.getImageFromName("Background_SelectionMenu3.png"));
-            }
+            setBackgroundImage("Background_SelectionMenu3.png");
         }
-        //stage.sizeToScene();
     }
 
     @Override
@@ -373,8 +412,6 @@ public class RoboRally extends Application {
     }
 
     public void createCourseCreator(Scene primaryScene) {
-        root.getChildren().clear();
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("CourseCreator.fxml"));
 
         try {
@@ -383,8 +420,7 @@ public class RoboRally extends Application {
             courseCreator = loader.getController();
             courseCreator.setScene(primaryScene);
 
-            // Set the loaded courseCreator as the center of the root layout
-            root.setCenter(courseCreator);
+            setMainPane(courseCreator);
         } catch (IOException e) {
             e.printStackTrace();
         }
