@@ -109,6 +109,8 @@ public class RoboRally extends Application {
         stage.setTitle("Robo Rally");
         AlertUtils.setPrimaryStage(stage);
 
+        backgroundImageView.setPreserveRatio(true);
+
         Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 36);
         debugLabel.setFont(textFont);
         debugLabel.setTextAlignment(TextAlignment.LEFT);
@@ -117,7 +119,7 @@ public class RoboRally extends Application {
         root.setMinSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
         root.setPrefSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
         root.setMaxSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
-        root.getChildren().setAll(scalePane, debugLabel);
+        root.getChildren().setAll(backgroundStackPane, scalePane, debugLabel);
 
         StackPane.setAlignment(scalePane, Pos.CENTER);
         StackPane.setMargin(scalePane, new Insets(0, 0, 0, 0));
@@ -134,10 +136,10 @@ public class RoboRally extends Application {
 
         scalePane.setStyle(
                         "-fx-background: transparent; " +
-                        "-fx-background-color: transparent; " +
+                        "-fx-background-color: transparent; "/* +
                         "-fx-border-color: blue; " +
                         "-fx-border-width: 2px; " +
-                        "-fx-border-radius: 5"
+                        "-fx-border-radius: 5"*/
         );
         root.setStyle(
                         "-fx-background: transparent; " +
@@ -224,8 +226,8 @@ public class RoboRally extends Application {
     private void setBackgroundImage(String imageString) {
         Image backgroundImage = ImageUtils.getImageFromName(imageString);
         assert backgroundImage != null;
-        backgroundImageView.setFitWidth(backgroundImage.getWidth());
-        backgroundImageView.setFitHeight(backgroundImage.getHeight());
+        backgroundImageView.setImage(backgroundImage);
+        scaleUI();
     }
 
     private void scaleUI() {
@@ -233,7 +235,9 @@ public class RoboRally extends Application {
             double newWidth = primaryScene.widthProperty().doubleValue();
             double newHeight = primaryScene.heightProperty().doubleValue();
 
+            ApplicationSettings.APP_BOUNDS = new Rectangle2D(ApplicationSettings.MIN_APP_WIDTH, ApplicationSettings.MIN_APP_HEIGHT, newWidth, newHeight);
             ApplicationSettings.APP_SCALE = Math.min(newWidth / ApplicationSettings.REFERENCE_WIDTH, newHeight / ApplicationSettings.REFERENCE_HEIGHT);
+
             scalePane.setScaleX(ApplicationSettings.APP_SCALE);
             scalePane.setScaleY(ApplicationSettings.APP_SCALE);
             scalePane.setTranslateX(0);
@@ -241,9 +245,13 @@ public class RoboRally extends Application {
             scalePane.setMinSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
             scalePane.setPrefSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
             scalePane.setMaxSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
-            ApplicationSettings.APP_BOUNDS = new Rectangle2D(ApplicationSettings.MIN_APP_WIDTH, ApplicationSettings.MIN_APP_HEIGHT, newWidth, newHeight);
+
+            double backgroundImageSize = Math.max(root.getWidth(), root.getHeight() * 1.78);
+            backgroundImageView.setFitWidth(backgroundImageSize);
+            backgroundImageView.setFitHeight(backgroundImageSize);
+            backgroundStackPane.setPrefSize(backgroundImageSize, backgroundImageSize);
         });
-        updateDebug();
+        //updateDebug();
     }
 
     private void updateDebug() {
@@ -266,7 +274,7 @@ public class RoboRally extends Application {
         if (mainPane == null) return;
         scalePane.getChildren().clear();
 
-        scalePane.getChildren().setAll(backgroundStackPane, mainPane, infoPane);
+        scalePane.getChildren().setAll(mainPane, infoPane);
     }
 
     private void setViewableWindowSize(double width, double height) {
@@ -327,6 +335,7 @@ public class RoboRally extends Application {
         appController.disconnectFromServer("", 1000);
         resetMultiplayerMenu();
         appController.resetGameController();
+        setBackgroundImage("Background_MainMenu2.png");
         setMainPane(mainMenuPane);
         courseCreator = null;
     }
@@ -353,6 +362,7 @@ public class RoboRally extends Application {
     }
 
     public void goToMultiplayerMenu() {
+        setBackgroundImage("Background_SelectionMenu3.png");
         setMainPane(multiplayerMenuPane);
     }
 
@@ -420,6 +430,7 @@ public class RoboRally extends Application {
             courseCreator = loader.getController();
             courseCreator.setScene(primaryScene);
 
+            setBackgroundImage("Background_CourseCreatorUncropped.png");
             setMainPane(courseCreator);
         } catch (IOException e) {
             e.printStackTrace();

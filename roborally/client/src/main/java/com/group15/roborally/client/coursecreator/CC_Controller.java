@@ -58,7 +58,6 @@ public class CC_Controller extends BorderPane {
     private final StackPane centerPane;
     private final ZoomableScrollPane boardScrollPane;
     private final AnchorPane boardPane; // Course creator board pane
-    private final ImageView backgroundImageView;
 
     private Scene primaryScene;
 
@@ -116,9 +115,7 @@ public class CC_Controller extends BorderPane {
 
         boardScrollPane = new ZoomableScrollPane(interactablePane);
         boardScrollPane.setPannable(true);
-
-        backgroundImageView = new ImageView(ImageUtils.getImageFromName("Background_CourseCreator.png"));
-        centerPane = new StackPane(backgroundImageView, boardScrollPane);
+        centerPane = new StackPane(boardScrollPane);
         //centerPane.setStyle("-fx-border-width: 14px; -fx-border-color: RED");
 
         Platform.runLater(()-> {
@@ -127,11 +124,6 @@ public class CC_Controller extends BorderPane {
             interactablePane.setMinSize(interactablePaneWidth, interactablePaneHeight);
             interactablePane.setPrefSize(interactablePaneWidth, interactablePaneHeight);
             interactablePane.setMaxSize(interactablePaneWidth, interactablePaneHeight);
-
-            // Background
-            backgroundImageView.setFitWidth(boardScrollPane.getWidth());
-            backgroundImageView.setPreserveRatio(true);
-            //backgroundImageView.setFitHeight(boardScrollPane.getHeight());
         });
 
         boardScrollPane.getStyleClass().add("transparent-scroll-pane");

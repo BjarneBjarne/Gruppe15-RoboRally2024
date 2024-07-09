@@ -14,7 +14,9 @@ module com.group15.roborally.client {
     exports com.group15.roborally.client;
     exports com.group15.roborally.client.utils;
     exports com.group15.roborally.client.model to com.google.gson;
+    exports com.group15.roborally.client.coursecreator to javafx.fxml;
 
     opens com.group15.roborally.client to javafx.fxml;
     opens com.group15.roborally.client.view to javafx.fxml;
+    opens com.group15.roborally.client.coursecreator to javafx.fxml;
 }
