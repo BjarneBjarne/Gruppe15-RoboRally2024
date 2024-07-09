@@ -82,11 +82,26 @@ public class GameView extends StackPane implements ViewObserver {
     public GameView(@NotNull GameController gameController, GridPane directionOptionsPane) {
         this.gameController = gameController;
         this.directionOptionsPane = directionOptionsPane;
-        board = gameController.board;
-        board.initializeUpgradeShop();
-        spaceViews = new SpaceView[board.width][board.height];
-        this.directionOptionsPane.setPrefSize(ApplicationSettings.SPACE_SIZE * 3, SPACE_SIZE * 3);
+        this.board = gameController.board;
+        this.board.initializeUpgradeShop();
+        this.spaceViews = new SpaceView[board.width][board.height];
 
+        double playerViewHeight = 500;
+
+        // GameView
+        this.setAlignment(Pos.CENTER);
+        System.out.println("Reference size: " + REFERENCE_WIDTH + "x" + REFERENCE_HEIGHT);
+        this.setMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+        this.setPrefSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+        this.setMaxSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
+        this.setStyle(
+                "-fx-border-color: green; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-radius: 5"
+        );
+
+        // Direction options pane
+        this.directionOptionsPane.setPrefSize(ApplicationSettings.SPACE_SIZE * 3, SPACE_SIZE * 3);
         List<Node> children = this.directionOptionsPane.getChildren();
         for (Node child : children) {
             if (child instanceof Button button) {
@@ -102,81 +117,72 @@ public class GameView extends StackPane implements ViewObserver {
         this.directionOptionsPane.setDisable(true);
         this.directionOptionsPane.setVisible(false);
 
+        // Pane containing the actual board tiles
         GridPane boardTilesPane = new GridPane();
         boardTilesPane.setAlignment(Pos.CENTER);
-        AnchorPane anchorPane = new AnchorPane(directionOptionsPane);
-        StackPane interactablePane = new StackPane(boardTilesPane, anchorPane);
         StackPane.setAlignment(boardTilesPane, Pos.CENTER);
-        StackPane.setAlignment(anchorPane, Pos.CENTER);
+
+        // Anchor pane to position the directionOptionsPane
+        AnchorPane directionOptionsAnchorPane = new AnchorPane(directionOptionsPane);
+        StackPane.setAlignment(directionOptionsAnchorPane, Pos.CENTER);
+
+        // Interactable pane
+        StackPane interactablePane = new StackPane(boardTilesPane, directionOptionsAnchorPane);
+        interactablePane.getStyleClass().add("transparent-scroll-pane");
+        interactablePane.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        interactablePane.setStyle(
+                "-fx-background: transparent; " +
+                        "-fx-background-color: transparent; " +
+                        //"-fx-border-color: pink; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-radius: 5");
+
+        // ZoomableScrollPane
         ZoomableScrollPane zoomableScrollPane = new ZoomableScrollPane(interactablePane, 0.9);
         zoomableScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         zoomableScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        mainBoardPane = new StackPane(zoomableScrollPane);
-        mainBoardPane.setAlignment(Pos.TOP_CENTER);
-        interactablePane.getStyleClass().add("transparent-scroll-pane");
         zoomableScrollPane.getStyleClass().add("transparent-scroll-pane");
-        mainBoardPane.getStyleClass().add("transparent-scroll-pane");
-        interactablePane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         zoomableScrollPane.setBackground(new Background(new BackgroundFill(
                 Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        mainBoardPane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        interactablePane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         zoomableScrollPane.setStyle(
                 "-fx-background: transparent; " +
                         "-fx-background-color: transparent; " +
                         //"-fx-border-color: yellow; " +
                         "-fx-border-width: 1px; " +
                         "-fx-border-radius: 5");
+        zoomableScrollPane.setPannable(true);
+        //StackPane.setMargin(zoomableScrollPane, new Insets(25, 0, 0, 0));
+
+        // Main board pane
+        mainBoardPane = new StackPane(zoomableScrollPane);
+        mainBoardPane.setMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT - playerViewHeight);
+        mainBoardPane.setPrefSize(REFERENCE_WIDTH, REFERENCE_HEIGHT - playerViewHeight);
+        mainBoardPane.setMaxSize(REFERENCE_WIDTH, REFERENCE_HEIGHT - playerViewHeight);
+        mainBoardPane.setAlignment(Pos.TOP_CENTER);
+        mainBoardPane.getStyleClass().add("transparent-scroll-pane");
+        mainBoardPane.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         mainBoardPane.setStyle(
                 "-fx-background: transparent; " +
                         "-fx-background-color: transparent; " +
                         //"-fx-border-color: red; " +
                         "-fx-border-width: 1px; " +
                         "-fx-border-radius: 5");
-        //StackPane.setMargin(zoomableScrollPane, new Insets(25, 0, 0, 0));
-        double boardPaneWidth = boardTilesPane.getWidth() + 12000;
-        double boardPaneHeight = boardPaneWidth / 2.72;
-        interactablePane.setMinSize(boardPaneWidth, boardPaneHeight);
-        interactablePane.setPrefSize(boardPaneWidth, boardPaneHeight);
-        interactablePane.setMaxSize(boardPaneWidth, boardPaneHeight);
-        zoomableScrollPane.setPannable(true);
-        double playerViewHeight = 500;
-        mainBoardPane.setPrefHeight(REFERENCE_WIDTH - playerViewHeight);
-        //statusLabel = new Label("<no status>");
 
-        this.setMinHeight(playerViewHeight);
-        this.setPrefHeight(playerViewHeight);
-        this.setMaxHeight(playerViewHeight);
+        // PlayerView
         PlayerView playerView = new PlayerView(gameController);
-
-        //this.getChildren().add(statusLabel);
-        this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playerView);
-        this.setAlignment(Pos.BOTTOM_CENTER);
-
-        /*VBox.setVgrow(mainBoardPane, Priority.ALWAYS);
-        VBox.setVgrow(playerView, Priority.ALWAYS);*/
-        
-        mainBoardPane.setMinWidth(REFERENCE_WIDTH);
-        mainBoardPane.setPrefWidth(REFERENCE_WIDTH);
-        mainBoardPane.setMaxWidth(REFERENCE_WIDTH);
-
-        playerView.setMinWidth(REFERENCE_WIDTH);
-        playerView.setPrefWidth(REFERENCE_WIDTH);
-        playerView.setMaxWidth(REFERENCE_WIDTH);
+        playerView.setMinSize(REFERENCE_WIDTH, playerViewHeight);
+        playerView.setPrefSize(REFERENCE_WIDTH, playerViewHeight);
+        playerView.setMaxSize(REFERENCE_WIDTH, playerViewHeight);
+        playerView.setAlignment(Pos.BOTTOM_CENTER);
         playerView.setStyle(
                         //"-fx-border-color: white; " +
                         "-fx-border-width: 1px; " +
                         "-fx-border-radius: 5"
         );
-        this.setStyle(
-                "-fx-border-color: green; " +
-                        "-fx-border-width: 1px; " +
-                        "-fx-border-radius: 5"
-        );
 
+        // Space views
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
                 Space space = board.getSpace(x, y);
@@ -187,8 +193,23 @@ public class GameView extends StackPane implements ViewObserver {
             }
         }
 
+        // Size of draggable pane (interactablePane)
+        double boardPaneWidth = boardTilesPane.getWidth() + 12000;
+        double boardPaneHeight = boardPaneWidth / 2.72;
+        interactablePane.setMinSize(boardPaneWidth, boardPaneHeight);
+        interactablePane.setPrefSize(boardPaneWidth, boardPaneHeight);
+        interactablePane.setMaxSize(boardPaneWidth, boardPaneHeight);
+
+        // SpaceEventHandler
         SpaceEventHandler spaceEventHandler = new SpaceEventHandler(gameController);
         mainBoardPane.setOnMouseClicked(spaceEventHandler);
+
+        //statusLabel = new Label("<no status>");
+
+        // Adding panes to the game pane
+        //this.getChildren().add(statusLabel);
+        this.getChildren().add(mainBoardPane);
+        this.getChildren().add(playerView);
 
         board.attach(this);
         update(board);

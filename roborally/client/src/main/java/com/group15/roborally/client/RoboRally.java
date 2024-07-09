@@ -28,6 +28,7 @@ import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.utils.ImageUtils;
+import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.*;
 import com.group15.roborally.client.view.GameView;
 import javafx.application.Application;
@@ -46,6 +47,8 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -85,6 +88,8 @@ public class RoboRally extends Application {
     private BorderPane root;
     private StackPane backgroundStackPane;
 
+    private Label debugLabel = new Label();
+
     @Override
     public void init() throws Exception {
         super.init();
@@ -92,22 +97,15 @@ public class RoboRally extends Application {
 
     /**
      * JavaFX call to start the application.
-     * The method sets the stage and scene. GameVariable START_FULLSCREEN is set up for future, but fullscreen is -
-     *     currently not supported.
-     * @param primaryStage Stage given from the JavaFX layer.
+     * The method sets the stage and scene.
+     * @param stage Stage given from the JavaFX layer.
      */
     @Override
-    public void start(Stage primaryStage) {
-        stage = primaryStage;
+    public void start(Stage stage) {
+        this.stage = stage;
         AlertUtils.setPrimaryStage(stage);
 
         root = new BorderPane();
-        root.setMaxHeight(Double.MAX_VALUE);
-        root.setMaxWidth(Double.MAX_VALUE);
-        root.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        root.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        root.setMinHeight(Region.USE_COMPUTED_SIZE);
-        root.setMinWidth(Region.USE_COMPUTED_SIZE);
         mainPane = new StackPane(root);
 
         InfoPaneView infoPane = new InfoPaneView();
@@ -123,7 +121,7 @@ public class RoboRally extends Application {
 
         StackPane.setAlignment(root, Pos.CENTER);
         stage.setTitle("Robo Rally");
-        //stage.setResizable(false);
+        // stage.setResizable(false);
 
         createMainMenu();
 
@@ -133,7 +131,6 @@ public class RoboRally extends Application {
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
 
-        //double initialHeight = primaryScreenBounds.getHeight();
         double initialWidth = primaryScreenBounds.getWidth();
         if (!FULLSCREEN) {
             initialWidth *= 0.65;
@@ -141,6 +138,30 @@ public class RoboRally extends Application {
         double initialHeight = initialWidth * (9.0 / 16.0);
         Scene primaryScene = new Scene(scalePane, initialWidth, initialHeight);
         primaryScene.setFill(Color.BLACK);
+
+        stage.setOnShown(_ -> {
+            double contentHeight = stage.getHeight();
+            double windowHeightIncludingTitleBar = stage.getScene().getWindow().getHeight();
+
+            System.out.println("Content Height: " + contentHeight);
+            System.out.println("Stage Y Position: " + stage.getY());
+            System.out.println("Total Window Height (including title bar): " + windowHeightIncludingTitleBar);
+
+            // Print debug information for nodes
+            System.out.println("Root Pane Bounds: " + root.getBoundsInParent());
+            System.out.println("Main Pane Bounds: " + mainPane.getBoundsInParent());
+            System.out.println("Scale Pane Bounds: " + scalePane.getBoundsInParent());
+            System.out.println("Info Pane Bounds: " + infoPane.getBoundsInParent());
+
+            // Layout bounds
+            System.out.println("Root Pane Layout Bounds: " + root.getLayoutBounds());
+            System.out.println("Main Pane Layout Bounds: " + mainPane.getLayoutBounds());
+            System.out.println("Scale Pane Layout Bounds: " + scalePane.getLayoutBounds());
+            System.out.println("Info Pane Layout Bounds: " + infoPane.getLayoutBounds());
+
+            // Additional debug information for Scene's window bounds
+            System.out.println("Scene's Window Bounds Height: " + primaryScene.getWindow().getHeight());
+        });
 
         stage.setScene(primaryScene);
         stage.setWidth(initialWidth);
@@ -156,10 +177,10 @@ public class RoboRally extends Application {
 
         scaleRoot(initialWidth);
 
-        System.out.println("Window size: " + stage.getWidth() + "x" + stage.getHeight());
+        System.out.println("Stage size: " + stage.getWidth() + "x" + stage.getHeight());
 
         stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.ESCAPE && primaryStage.isFullScreen()) {
+            if (event.getCode() == KeyCode.ESCAPE && stage.isFullScreen()) {
                 event.consume(); // Prevent default behavior of exiting fullscreen
             }
         });
@@ -187,6 +208,7 @@ public class RoboRally extends Application {
         scalePane.setScaleY(APP_SCALE);
         StackPane.setMargin(root, new Insets(0, 0, 0, 0));
         APP_BOUNDS = new Rectangle2D(MIN_APP_WIDTH, MIN_APP_HEIGHT, stage.getWidth(), stage.getHeight());
+        debugLabel.setText("Window size: " + stage.getWidth() + "x" + stage.getHeight());
     }
 
     /**
@@ -316,7 +338,14 @@ public class RoboRally extends Application {
             GameView gameView = new GameView(gameController, directionOptionsPane);
             gameView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
             gameView.getStyleClass().add("transparent-scroll-pane");
-            StackPane boardViewStackPane = new StackPane(backgroundStackPane, gameView);
+            Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 48);
+            debugLabel.setFont(textFont);
+            debugLabel.setTextFill(Color.WHITE);
+            debugLabel.setTextAlignment(TextAlignment.CENTER);
+            debugLabel.setTranslateX(100);
+            debugLabel.setTranslateY(100);
+            StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
+            StackPane boardViewStackPane = new StackPane(backgroundStackPane, gameView, debugLabel);
             root.setCenter(boardViewStackPane);
             //BorderPane.set
             /*VBox.setVgrow(root, Priority.ALWAYS);

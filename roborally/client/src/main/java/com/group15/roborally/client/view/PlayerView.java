@@ -77,9 +77,7 @@ public class PlayerView extends StackPane implements ViewObserver {
 
     public PlayerView(@NotNull GameController gameController) {
         super();
-        this.setAlignment(Pos.BOTTOM_CENTER);
         //StackPane.setMargin(playerViewPane, new Insets(-25, 0, 27, 0));
-
         this.gameController = gameController;
         this.player = gameController.getLocalPlayer();
 
