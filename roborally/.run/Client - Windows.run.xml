@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Client" type="Application" factoryName="Application" singleton="false">
+  <configuration default="false" name="Client - Windows" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="com.group15.roborally.client.StartRoboRally" />
     <module name="client" />
     <selectedOptions>

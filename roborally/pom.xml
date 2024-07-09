@@ -28,7 +28,8 @@
     <maven.compiler.source>22</maven.compiler.source>
     <maven.compiler.target>22</maven.compiler.target>
     <javafx.version>22.0.1</javafx.version>
-    <javafx-sdk.path>C:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib</javafx-sdk.path>
+    <!--suppress UnresolvedMavenProperty -->
+    <javafx-sdk.path>${PATH_TO_FX}</javafx-sdk.path>
   </properties>
 
   <dependencyManagement>
@@ -121,4 +122,5 @@
       </plugins>
     </pluginManagement>
   </build>
+
 </project>
