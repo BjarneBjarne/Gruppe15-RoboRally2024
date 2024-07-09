@@ -6,6 +6,9 @@ module com.group15.roborally.server {
     requires spring.data.commons;
     requires spring.data.jpa;
     requires spring.web;
+    requires spring.core;
+    requires spring.beans;
+    requires spring.context;
 
     exports com.group15.roborally.server.controller to spring.beans, spring.web;
 

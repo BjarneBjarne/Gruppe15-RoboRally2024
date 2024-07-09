@@ -384,7 +384,7 @@ public class BoardView extends VBox implements ViewObserver {
                     Space playerSpace = player.getSpace();
                     if (playerSpace != null) {
                         boolean playerIsReady = gameController.getIsPlayerReady(player);
-                        spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady);
+                        spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady && board.getCurrentPhase().equals(PROGRAMMING));
                     }
                 }
             }

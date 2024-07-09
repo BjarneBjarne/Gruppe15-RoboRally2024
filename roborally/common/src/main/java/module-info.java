@@ -6,6 +6,8 @@ module com.group15.roborally.common {
     requires javafx.base;
     requires javafx.graphics;
     requires org.hibernate.orm.core;
+    requires spring.core;
+    requires com.google.gson;
 
     exports com.group15.roborally.common.model;
     exports com.group15.roborally.common.observer;
