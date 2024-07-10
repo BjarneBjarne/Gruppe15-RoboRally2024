@@ -19,6 +19,7 @@
 
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.RoboRally;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
@@ -88,10 +89,11 @@ public class ZoomableScrollPane extends ScrollPane {
     private void configureZoomHandlers(VBox outerNode) {
         outerNode.addEventFilter(ScrollEvent.SCROLL, event -> {
             if (event.isControlDown()) {
-                double wheelDelta = event.getDeltaY() * BASE_MOUSE_ZOOM_SPEED * ZOOM_SPEED * frameTimeDelta;
-                Point2D mousePoint = new Point2D(event.getX(), event.getY());
-                onScroll(wheelDelta, mousePoint);
                 event.consume();
+                double wheelDelta = event.getDeltaY() * BASE_MOUSE_ZOOM_SPEED * ZOOM_SPEED * 0.025;
+                Point2D mousePoint = new Point2D(event.getX(), event.getY());
+                //RoboRally.addDebugText("Scrolling with: " + String.format("%.3f", wheelDelta) + ". Else: " + String.format("%.3f", event.getDeltaY() * BASE_MOUSE_ZOOM_SPEED * ZOOM_SPEED * frameTimeDelta), 1);
+                onScroll(wheelDelta, mousePoint);
             }
         });
 

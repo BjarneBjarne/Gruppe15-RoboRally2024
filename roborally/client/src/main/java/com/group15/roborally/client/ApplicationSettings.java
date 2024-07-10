@@ -12,7 +12,7 @@ public class ApplicationSettings {
     public static Rectangle2D APP_BOUNDS;
     public static double APP_SCALE;
     public static double SPACE_SIZE = 90;
-    public static double CARDFIELD_SIZE = 168.75;
+    public static double CARDFIELD_SIZE = 185;
 
     // Controls
     public static double ZOOM_SPEED = 1;

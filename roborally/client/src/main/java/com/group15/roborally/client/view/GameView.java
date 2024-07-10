@@ -60,7 +60,7 @@ import java.util.List;
  * @author Ekkart Kindler, ekki@dtu.dk
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
-public class GameView extends StackPane implements ViewObserver {
+public class GameView extends AnchorPane implements ViewObserver {
     private final GameController gameController;
     private final Board board;
 
@@ -85,20 +85,6 @@ public class GameView extends StackPane implements ViewObserver {
         this.board = gameController.board;
         this.board.initializeUpgradeShop();
         this.spaceViews = new SpaceView[board.width][board.height];
-
-        double playerViewHeight = 500;
-
-        // GameView
-        this.setAlignment(Pos.CENTER);
-        System.out.println("Reference size: " + REFERENCE_WIDTH + "x" + REFERENCE_HEIGHT);
-        this.setMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-        this.setPrefSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-        this.setMaxSize(REFERENCE_WIDTH, REFERENCE_HEIGHT);
-        this.setStyle(
-                "-fx-border-color: green; " +
-                        "-fx-border-width: 1px; " +
-                        "-fx-border-radius: 5"
-        );
 
         // Direction options pane
         this.directionOptionsPane.setPrefSize(ApplicationSettings.SPACE_SIZE * 3, SPACE_SIZE * 3);
@@ -129,57 +115,50 @@ public class GameView extends StackPane implements ViewObserver {
         // Interactable pane
         StackPane interactablePane = new StackPane(boardTilesPane, directionOptionsAnchorPane);
         interactablePane.getStyleClass().add("transparent-scroll-pane");
-        interactablePane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        interactablePane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         interactablePane.setStyle(
                 "-fx-background: transparent; " +
-                        "-fx-background-color: transparent; " +
-                        //"-fx-border-color: pink; " +
-                        "-fx-border-width: 1px; " +
-                        "-fx-border-radius: 5");
+                "-fx-background-color: transparent; "
+        );
 
         // ZoomableScrollPane
         ZoomableScrollPane zoomableScrollPane = new ZoomableScrollPane(interactablePane, 0.9);
         zoomableScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         zoomableScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         zoomableScrollPane.getStyleClass().add("transparent-scroll-pane");
-        zoomableScrollPane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        zoomableScrollPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         zoomableScrollPane.setStyle(
                 "-fx-background: transparent; " +
-                        "-fx-background-color: transparent; " +
-                        //"-fx-border-color: yellow; " +
-                        "-fx-border-width: 1px; " +
-                        "-fx-border-radius: 5");
+                "-fx-background-color: transparent; "
+        );
         zoomableScrollPane.setPannable(true);
-        //StackPane.setMargin(zoomableScrollPane, new Insets(25, 0, 0, 0));
+
+        double playerViewHeight = 550;
 
         // Main board pane
         mainBoardPane = new StackPane(zoomableScrollPane);
-        mainBoardPane.setMinSize(REFERENCE_WIDTH, REFERENCE_HEIGHT - playerViewHeight);
-        mainBoardPane.setPrefSize(REFERENCE_WIDTH, REFERENCE_HEIGHT - playerViewHeight);
-        mainBoardPane.setMaxSize(REFERENCE_WIDTH, REFERENCE_HEIGHT - playerViewHeight);
+        this.heightProperty().addListener((_, _, _) -> {
+            mainBoardPane.setMinSize(REFERENCE_WIDTH, this.getHeight() - playerViewHeight - 1);
+            mainBoardPane.setPrefSize(REFERENCE_WIDTH, this.getHeight() - playerViewHeight - 1);
+            mainBoardPane.setMaxSize(REFERENCE_WIDTH, this.getHeight() - playerViewHeight - 1);
+        });
         mainBoardPane.setAlignment(Pos.TOP_CENTER);
         mainBoardPane.getStyleClass().add("transparent-scroll-pane");
-        mainBoardPane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        mainBoardPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         mainBoardPane.setStyle(
                 "-fx-background: transparent; " +
-                        "-fx-background-color: transparent; " +
-                        //"-fx-border-color: red; " +
-                        "-fx-border-width: 1px; " +
-                        "-fx-border-radius: 5");
+                "-fx-background-color: transparent; "
+        );
 
         // PlayerView
         PlayerView playerView = new PlayerView(gameController);
-        playerView.setMinSize(REFERENCE_WIDTH, playerViewHeight);
-        playerView.setPrefSize(REFERENCE_WIDTH, playerViewHeight);
-        playerView.setMaxSize(REFERENCE_WIDTH, playerViewHeight);
+        playerView.setMinHeight(playerViewHeight);
+        playerView.setPrefHeight(playerViewHeight);
+        playerView.setMaxHeight(playerViewHeight);
         playerView.setAlignment(Pos.BOTTOM_CENTER);
         playerView.setStyle(
-                        //"-fx-border-color: white; " +
-                        "-fx-border-width: 1px; " +
-                        "-fx-border-radius: 5"
+                "-fx-background: transparent; " +
+                "-fx-background-color: transparent; "
         );
 
         // Space views
@@ -207,9 +186,16 @@ public class GameView extends StackPane implements ViewObserver {
         //statusLabel = new Label("<no status>");
 
         // Adding panes to the game pane
+        this.getChildren().addAll(playerView, mainBoardPane);
         //this.getChildren().add(statusLabel);
-        this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playerView);
+
+        AnchorPane.setTopAnchor(mainBoardPane, 0.0);
+        AnchorPane.setLeftAnchor(mainBoardPane, 0.0);
+        AnchorPane.setRightAnchor(mainBoardPane, 0.0);
+
+        AnchorPane.setBottomAnchor(playerView, 0.0);
+        AnchorPane.setLeftAnchor(playerView, 0.0);
+        AnchorPane.setRightAnchor(playerView, 0.0);
 
         board.attach(this);
         update(board);
@@ -301,10 +287,7 @@ public class GameView extends StackPane implements ViewObserver {
                         System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getDisplayName() + ". Check card and GameView.setUpgradeShop().");
             }
             cardFieldView.setStyle(
-                    "-fx-background-color: transparent; " +
-                            //boarderColorString +
-                            "-fx-border-width: 2px 2px 2px 2px;" +
-                            "-fx-border-radius: 5"
+                    "-fx-background-color: transparent; "
             );
 
             if (!localPlayersTurn && playerUpgrading != null) {

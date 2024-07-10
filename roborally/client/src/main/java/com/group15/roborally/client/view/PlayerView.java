@@ -29,11 +29,10 @@ import com.group15.roborally.client.model.player_interaction.CommandOptionsInter
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.Player;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -75,6 +74,9 @@ public class PlayerView extends StackPane implements ViewObserver {
     private final Image[] energyCubeImages = new Image[Player.NO_OF_ENERGY_CUBES + 1];
     private final Image[] checkpointTokenImages;
 
+    public static final double temporaryCardSize = 1;
+    public static final double programCardSize = 0.8;
+
     public PlayerView(@NotNull GameController gameController) {
         super();
         //StackPane.setMargin(playerViewPane, new Insets(-25, 0, 27, 0));
@@ -98,12 +100,12 @@ public class PlayerView extends StackPane implements ViewObserver {
         for (int i = 0; i < NO_OF_CARDS_IN_HAND; i++) {
             CardField cardField = player.getCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 0.7, 1.4 * 0.7);
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * programCardSize, 1.4 * programCardSize);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
-                                "-fx-border-color: white; " +
-                                "-fx-border-width: 1px 1px 1px 1px;" +
-                                "-fx-border-radius: 5"
+                        "-fx-border-color: white; " +
+                        "-fx-border-width: 1px 1px 1px 1px;" +
+                        "-fx-border-radius: 5"
                 );
                 GridPane.setMargin(cardFieldView, new Insets(2, 2, 2, 2));
                 cardsPane.add(cardFieldView, i % (NO_OF_CARDS_IN_HAND / 2), i / (NO_OF_CARDS_IN_HAND / 2));
@@ -147,16 +149,17 @@ public class PlayerView extends StackPane implements ViewObserver {
         permanentUpgradeCardsPane.setAlignment(Pos.CENTER);
 
         GridPane temporaryUpgradeCardsPane = new GridPane();
+        temporaryUpgradeCardsPane.setHgap(10);
         for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
             CardField cardField = player.getTemporaryUpgradeCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.15, 1.6 * 1.15);
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * temporaryCardSize, 1.6 * temporaryCardSize);
                 cardFieldView.setAlignment(Pos.CENTER);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
-                                "-fx-border-color: #a62a24; " +
-                                "-fx-border-width: 2px 2px 2px 2px;" +
-                                "-fx-border-radius: 5"
+                        "-fx-border-color: #a62a24; " +
+                        "-fx-border-width: 2px 2px 2px 2px;" +
+                        "-fx-border-radius: 5"
                 );
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
                 temporaryUpgradeCardsPane.add(cardFieldView, i, 0);
@@ -164,13 +167,12 @@ public class PlayerView extends StackPane implements ViewObserver {
             }
         }
         temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
-        temporaryUpgradeCardsPane.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
 
         // Buttons
         readyButton = new Button();
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 48);
+        Font readyFont = TextUtils.loadFont("OCRAEXT.TTF", 64);
         Text buttonText = new Text();
-        buttonText.setFont(textFont);
+        buttonText.setFont(readyFont);
         buttonText.setFill(Color.WHITE);
         buttonText.setTextAlignment(TextAlignment.CENTER);
         buttonText.setText("Ready");
@@ -179,13 +181,14 @@ public class PlayerView extends StackPane implements ViewObserver {
         readyPanel = new HBox(readyButton);
         readyPanel.setAlignment(Pos.CENTER);
         readyPanel.setSpacing(3.0);
-        readyButton.setPadding(new Insets(5, 30, 5, 30));
         readyButton.setEffect(new DropShadow(3, 0, 0, Color.BLACK));
-        readyButton.setStyle("-fx-background-color: transparent;" +
+        readyButton.setStyle(
+                "-fx-background-color: transparent;" +
                 "-fx-background-radius: 10; " +
                 "-fx-border-radius: 10; " +
                 "-fx-border-color: ffffff; " +
-                "-fx-border-width: 1 ");
+                "-fx-border-width: 1 "
+        );
 
         playerOptionsPanel = new HBox();
         playerOptionsPanel.setAlignment(Pos.CENTER);
@@ -211,56 +214,76 @@ public class PlayerView extends StackPane implements ViewObserver {
         ImageView playerMatImageView = new ImageView();
         ImageView playerMatColorsImageView = new ImageView();
         ImageView playerMatCharacterImageView = new ImageView();
-        playerMat.getChildren().addAll(playerMatImageView, playerMatColorsImageView, playerMatCharacterImageView, playerMatCharacterNameAnchorPane, energyCubesImageView, checkpointTokenImageView, playerMatAnchorPane);
+        playerMat.getChildren().addAll(
+                playerMatImageView,
+                playerMatColorsImageView,
+                playerMatCharacterImageView,
+                playerMatCharacterNameAnchorPane,
+                energyCubesImageView,
+                checkpointTokenImageView,
+                playerMatAnchorPane
+        );
 
         playerMatImageView.setImage(ImageUtils.getImageFromName("Player_Mat/PlayerMat.png"));
-        playerMatImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
         playerMatImageView.setPreserveRatio(true);
         Image foregroundImage = ImageUtils.getImageFromName("Player_Mat/PlayerMatForeground.png");
         if (foregroundImage != null) {
             Color playerColor = Color.valueOf(player.getRobot().name());
             playerMatColorsImageView.setImage(ImageUtils.getImageColored(foregroundImage, playerColor, .75));
-            playerMatColorsImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
             playerMatColorsImageView.setPreserveRatio(true);
         }
         Image matCharacterImage = ImageUtils.getImageFromName("Player_Mat/PlayerMatCharacters/PlayerMat" + player.getRobot() + ".png");
         if (matCharacterImage != null) {
             playerMatCharacterImageView.setImage(matCharacterImage);
-            playerMatCharacterImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
             playerMatCharacterImageView.setPreserveRatio(true);
         }
-        AnchorPane.setLeftAnchor(playerMatCharacterText, 135.0);
-        AnchorPane.setTopAnchor(playerMatCharacterText, 43.0);
+        AnchorPane.setLeftAnchor(playerMatCharacterText, 195.0);
+        AnchorPane.setTopAnchor(playerMatCharacterText, 18.0);
+        Font characterFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
         playerMatCharacterText.setText(player.getRobot().getRobotName());
-        playerMatCharacterText.setFont(textFont);
-        playerMatCharacterText.setTextAlignment(TextAlignment.RIGHT);
+        playerMatCharacterText.setFont(characterFont);
+        playerMatCharacterText.setTextAlignment(TextAlignment.CENTER);
         playerMatCharacterText.setFill(Color.WHITE);
 
         energyCubesImageView.setImage(energyCubeImages[0]);
-        energyCubesImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
         energyCubesImageView.setPreserveRatio(true);
 
         checkpointTokenImageView.setImage(checkpointTokenImages[0]);
-        checkpointTokenImageView.setFitHeight(255.5 * CARDFIELD_SIZE * 0.01);
         checkpointTokenImageView.setPreserveRatio(true);
 
-        // Left side
+        // Player mat nodes size
+        Platform.runLater(() -> {
+            playerMatImageView.setFitHeight(this.getHeight());
+            playerMatColorsImageView.setFitHeight(this.getHeight());
+            playerMatCharacterImageView.setFitHeight(this.getHeight());
+            energyCubesImageView.setFitHeight(this.getHeight());
+            checkpointTokenImageView.setFitHeight(this.getHeight());
+        });
+
+        // Left pane
         VBox leftSideVBox = new VBox(cardsPane, interactionPane);
-        temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
         interactionPane.setAlignment(Pos.CENTER);
         leftSideVBox.setAlignment(Pos.CENTER);
         leftSideVBox.setSpacing(15);
-        StackPane leftSideStackPane = new StackPane(leftSideVBox);
-        leftSideStackPane.setAlignment(Pos.CENTER);
+        AnchorPane leftSidePane = new AnchorPane(leftSideVBox);
+        AnchorPane.setTopAnchor(leftSideVBox, 0.0);
+        AnchorPane.setBottomAnchor(leftSideVBox, 0.0);
+        AnchorPane.setRightAnchor(leftSideVBox, 0.0);
+        AnchorPane.setLeftAnchor(leftSideVBox, 0.0);
 
-        // Padding
-        HBox.setMargin(leftSideStackPane, new Insets(25, 0, 0, 150)); // Top, right, bottom, left
-        HBox.setMargin(temporaryUpgradeCardsPane, new Insets(40, 150, 10, 0)); // Top, right, bottom, left
+        // Right pane
+        temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
+        AnchorPane rightSidePane = new AnchorPane(temporaryUpgradeCardsPane);
+        AnchorPane.setTopAnchor(temporaryUpgradeCardsPane, 0.0);
+        AnchorPane.setBottomAnchor(temporaryUpgradeCardsPane, 0.0);
+        AnchorPane.setRightAnchor(temporaryUpgradeCardsPane, 0.0);
+        AnchorPane.setLeftAnchor(temporaryUpgradeCardsPane, 0.0);
 
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.BOTTOM_CENTER);
-        hBox.getChildren().addAll(leftSideStackPane, playerMat, temporaryUpgradeCardsPane);
-        hBox.setSpacing(100);
+        hBox.getChildren().addAll(leftSidePane, playerMat, rightSidePane);
+        HBox.setHgrow(leftSidePane, Priority.ALWAYS);
+        HBox.setHgrow(rightSidePane, Priority.ALWAYS);
 
         this.getChildren().add(hBox);
 

@@ -31,6 +31,7 @@ import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.*;
 import com.group15.roborally.client.view.GameView;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -92,6 +93,7 @@ public class RoboRally extends Application {
 
     private final InfoPaneView infoPane = new InfoPaneView();
     private final Label debugLabel = new Label();
+    private static final String[] debugTextArray = new String[16];
 
     @Override
     public void init() throws Exception {
@@ -115,6 +117,9 @@ public class RoboRally extends Application {
         debugLabel.setFont(textFont);
         debugLabel.setTextAlignment(TextAlignment.LEFT);
         StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
+        debugLabel.setTranslateX(25);
+        debugLabel.setTranslateY(25);
+        debugLabel.setMouseTransparent(true);
 
         root.setMinSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
         root.setPrefSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
@@ -123,30 +128,24 @@ public class RoboRally extends Application {
 
         StackPane.setAlignment(scalePane, Pos.CENTER);
         StackPane.setMargin(scalePane, new Insets(0, 0, 0, 0));
-        /*AnchorPane.setTopAnchor(scalePane, 0.0);
-        AnchorPane.setBottomAnchor(scalePane, 0.0);
-        AnchorPane.setRightAnchor(scalePane, 0.0);
-        AnchorPane.setLeftAnchor(scalePane, 0.0);*/
 
         setBackgroundImage("Background_MainMenu2.png");
 
         StackPane.setAlignment(infoPane, Pos.CENTER);
-        /*AnchorPane.setTopAnchor(debugLabel, 0.0);
-        AnchorPane.setLeftAnchor(debugLabel, 0.0);*/
 
         scalePane.setStyle(
                         "-fx-background: transparent; " +
-                        "-fx-background-color: transparent; "/* +
-                        "-fx-border-color: blue; " +
-                        "-fx-border-width: 2px; " +
-                        "-fx-border-radius: 5"*/
+                        "-fx-background-color: transparent; " +
+                                //"-fx-border-color: blue;" +
+                                "-fx-border-width: 2px;" +
+                                "-fx-border-radius: 5;"
         );
         root.setStyle(
                         "-fx-background: transparent; " +
-                        "-fx-background-color: transparent; "/* +
-                        "-fx-border-color: rgba(255,46,83,0.35); " +
-                        "-fx-border-width: 2px; " +
-                        "-fx-border-radius: 5"*/
+                        "-fx-background-color: transparent; " +
+                                //"-fx-border-color: red;" +
+                                "-fx-border-width: 2px;" +
+                                "-fx-border-radius: 5;"
         );
 
         appController = new AppController(this, infoPane);
@@ -171,22 +170,6 @@ public class RoboRally extends Application {
         primaryScene.setFill(Color.BLACK);
 
         stage.setScene(primaryScene);
-
-        stage.setOnShown(_ -> {
-            //setViewableWindowSize(finalInitialWidth, initialHeight);
-
-            Window window = stage.getScene().getWindow();
-            double windowHeightIncludingTitleBar = window.getHeight();
-
-            System.out.println("Total Window Height (including title bar): " + windowHeightIncludingTitleBar);
-
-            // Layout bounds
-            System.out.println("Root Pane Layout Bounds: " + root.getLayoutBounds());
-            System.out.println("Scale Pane Layout Bounds: " + scalePane.getLayoutBounds());
-            System.out.println("Info Pane Layout Bounds: " + infoPane.getLayoutBounds());
-
-            scaleUI();
-        });
 
         //ApplicationSettings.APP_SCALE = initialWidth / ApplicationSettings.REFERENCE_WIDTH;
 
@@ -217,10 +200,19 @@ public class RoboRally extends Application {
 
         createMainMenu();
 
+        stage.setOnShown(_ -> scaleUI());
         stage.show();
 
         primaryScene.widthProperty().addListener((_, _, _) -> scaleUI());
         primaryScene.heightProperty().addListener((_, _, _) -> scaleUI());
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                updateDebugText();
+            }
+        };
+        timer.start();
     }
 
     private void setBackgroundImage(String imageString) {
@@ -242,32 +234,36 @@ public class RoboRally extends Application {
             scalePane.setScaleY(ApplicationSettings.APP_SCALE);
             scalePane.setTranslateX(0);
             scalePane.setTranslateY(0);
-            scalePane.setMinSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
-            scalePane.setPrefSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
-            scalePane.setMaxSize(ApplicationSettings.REFERENCE_WIDTH, ApplicationSettings.REFERENCE_HEIGHT);
+
+            double widthMultiplier = 1 / (newWidth / ApplicationSettings.REFERENCE_WIDTH);
+            double heightMultiplier = 1 / (newHeight / ApplicationSettings.REFERENCE_HEIGHT);
+            double multiplier = Math.max(widthMultiplier, heightMultiplier);
+            scalePane.setMinSize(newWidth * multiplier, newHeight * multiplier);
+            scalePane.setPrefSize(newWidth * multiplier, newHeight * multiplier);
+            scalePane.setMaxSize(newWidth * multiplier, newHeight * multiplier);
 
             double backgroundImageSize = Math.max(root.getWidth(), root.getHeight() * 1.78);
             backgroundImageView.setFitWidth(backgroundImageSize);
             backgroundImageView.setFitHeight(backgroundImageSize);
             backgroundStackPane.setPrefSize(backgroundImageSize, backgroundImageSize);
+
+            //addDebugText("App bounds: " + (int)ApplicationSettings.APP_BOUNDS.getWidth() + "x" + (int)ApplicationSettings.APP_BOUNDS.getHeight(), 0);
         });
-        //updateDebug();
     }
 
-    private void updateDebug() {
-        Platform.runLater(() -> {
-            Bounds scalePaneBounds = scalePane.getLayoutBounds();
-            debugLabel.setText(
-                    "App bounds: " + (int)ApplicationSettings.APP_BOUNDS.getWidth() + "x" + (int)ApplicationSettings.APP_BOUNDS.getHeight() + "\n" +
-                            "Scale: " + (int)ApplicationSettings.APP_SCALE + "\n" +
-                            "Stage size: " + stage.getWidth() + "x" + stage.getHeight() + "\n" +
-                            "Scale pane: " + scalePane.getWidth() + "x" + scalePane.getHeight() + " - " + scalePane.getLayoutX() + ", " + scalePane.getLayoutY() + "\n" +
-                            "Scale pane: " + scalePaneBounds.getWidth() + "x" + scalePaneBounds.getHeight() + " - " + scalePaneBounds.getMinX() + ", " + scalePaneBounds.getMaxY() + "\n" +
-                            "Scale pane scale: " + (int)scalePane.getScaleX() + ", " + (int)scalePane.getScaleY() + "\n" +
-                    "Root pane: " + root.getWidth() + "x" + root.getHeight() + " - " + root.getLayoutX() + ", " + root.getLayoutY() + "\n"
-            );
-            debugLabel.setTextFill(Color.DARKRED);
-        });
+    public static void addDebugText(String text, int row) {
+        if (row >= 16) return;
+        debugTextArray[row] = text;
+    }
+
+    private void updateDebugText() {
+        StringBuilder debugText = new StringBuilder();
+        for (String s : debugTextArray) {
+            if (s == null) continue;
+            debugText.append(s).append("\n");
+        }
+        debugLabel.setText(debugText.toString());
+        debugLabel.setTextFill(Color.DARKRED);
     }
 
     private void setMainPane(Pane mainPane) {
