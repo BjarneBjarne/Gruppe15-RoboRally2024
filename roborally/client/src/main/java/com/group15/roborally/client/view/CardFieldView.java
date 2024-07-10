@@ -30,6 +30,7 @@ import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.common.model.GamePhase;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -80,13 +81,12 @@ public class CardFieldView extends StackPane implements ViewObserver {
     private final Button useButton = new Button();
 
     public CardFieldView(@NotNull GameController gameController, @NotNull CardField field, double cardWidthMultiplier, double cardHeightMultiplier) {
+        this.gameController = gameController;
+        this.field = field;
         this.setMouseTransparent(false);
         cardImageView.setMouseTransparent(true);
-        cardImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
-        cardImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
         cardForegroundImageView.setMouseTransparent(true);
-        cardForegroundImageView.setFitWidth((CARDFIELD_SIZE - 5) * cardWidthMultiplier);
-        cardForegroundImageView.setFitHeight((CARDFIELD_SIZE - 3) * cardHeightMultiplier);
+        updateCardSize(cardWidthMultiplier, cardHeightMultiplier);
 
         useButton.setOnAction(_ -> {
             field.activateCard();
@@ -110,23 +110,13 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 "-fx-border-color:  rgb(0,0,0);" +
                 "-fx-border-width: 1 ");
 
-        this.setPrefSize((CARDFIELD_SIZE - 5) * cardWidthMultiplier, (CARDFIELD_SIZE - 3) * cardHeightMultiplier);
+        //this.setPrefSize((CARDFIELD_SIZE - 5) * cardWidthMultiplier, (CARDFIELD_SIZE - 3) * cardHeightMultiplier);
         this.getChildren().addAll(cardImageView, cardForegroundImageView, useButton);
 
-        this.gameController = gameController;
-        this.field = field;
-
         this.setAlignment(Pos.CENTER);
-        this.setPadding(new Insets(5, 5, 5, 5));
+        //this.setPadding(new Insets(5, 5, 5, 5));
 
         this.setBackground(BG_DEFAULT);
-
-        this.setPrefWidth(CARDFIELD_SIZE * cardWidthMultiplier);
-        this.setPrefHeight(CARDFIELD_SIZE * cardHeightMultiplier);
-        this.setMinWidth(CARDFIELD_SIZE * cardWidthMultiplier);
-        this.setMinHeight(CARDFIELD_SIZE * cardHeightMultiplier);
-        this.setMaxWidth(CARDFIELD_SIZE * cardWidthMultiplier);
-        this.setMaxHeight(CARDFIELD_SIZE * cardHeightMultiplier);
 
         /*label = new Label();
         label.setWrapText(true);
@@ -142,6 +132,23 @@ public class CardFieldView extends StackPane implements ViewObserver {
 
         field.attach(this);
         update(field);
+    }
+
+    public void updateCardSize(double cardWidthMultiplier, double cardHeightMultiplier) {
+        Platform.runLater(() -> {
+            this.setMinSize(CARDFIELD_SIZE * cardWidthMultiplier, CARDFIELD_SIZE * cardHeightMultiplier);
+            this.setPrefSize(CARDFIELD_SIZE * cardWidthMultiplier, CARDFIELD_SIZE * cardHeightMultiplier);
+            this.setMaxSize(CARDFIELD_SIZE * cardWidthMultiplier, CARDFIELD_SIZE * cardHeightMultiplier);
+            cardImageView.setFitWidth((CARDFIELD_SIZE - 10) * cardWidthMultiplier);
+            cardImageView.setFitHeight((CARDFIELD_SIZE - 7) * cardHeightMultiplier);
+            cardForegroundImageView.setFitWidth((CARDFIELD_SIZE - 10) * cardWidthMultiplier);
+            cardForegroundImageView.setFitHeight((CARDFIELD_SIZE - 7) * cardHeightMultiplier);
+            double offset = this.getWidth() / 65;
+            cardImageView.setTranslateX(offset);
+            cardImageView.setTranslateY(offset);
+            cardForegroundImageView.setTranslateX(offset);
+            cardForegroundImageView.setTranslateY(offset);
+        });
     }
 
     public String cardFieldRepresentation(CardField cardField) {

@@ -151,7 +151,7 @@ public class GameView extends AnchorPane implements ViewObserver {
         );
 
         // PlayerView
-        PlayerView playerView = new PlayerView(gameController);
+        PlayerView playerView = new PlayerView(gameController, playerViewHeight);
         playerView.setMinHeight(playerViewHeight);
         playerView.setPrefHeight(playerViewHeight);
         playerView.setMaxHeight(playerViewHeight);

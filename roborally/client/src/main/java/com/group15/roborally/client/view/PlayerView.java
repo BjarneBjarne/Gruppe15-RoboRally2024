@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
@@ -31,13 +32,16 @@ import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.Player;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -46,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.group15.roborally.client.ApplicationSettings.ZOOM_SPEED;
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
 import static com.group15.roborally.common.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
@@ -75,11 +80,15 @@ public class PlayerView extends StackPane implements ViewObserver {
     private final Image[] checkpointTokenImages;
 
     public static final double temporaryCardSize = 1;
-    public static final double programCardSize = 0.8;
+    public static final double handCardSize = 0.8;
+    public static final double permanentCardSize = 1.1;
+    public static final double programCardSize = 1.165;
+    public static final double programPaneYPositionOffset = 33;
 
-    public PlayerView(@NotNull GameController gameController) {
+    public PlayerView(@NotNull GameController gameController, double height) {
         super();
         //StackPane.setMargin(playerViewPane, new Insets(-25, 0, 27, 0));
+        this.setHeight(height);
         this.gameController = gameController;
         this.player = gameController.getLocalPlayer();
 
@@ -93,55 +102,67 @@ public class PlayerView extends StackPane implements ViewObserver {
             checkpointTokenImages[i] = ImageUtils.getImageFromName("Player_Mat/CheckpointTokenPositions/" + i + ".png");
         }
 
-        double permanentUpgradeCardsPaneOffset = CARDFIELD_SIZE * 1.32;
+        double permanentUpgradeCardsPaneOffset = CARDFIELD_SIZE * 1.35;
         double programPaneOffset = CARDFIELD_SIZE * 1.12;
 
-        GridPane cardsPane = new GridPane();
+        GridPane handCardsPane = new GridPane();
         for (int i = 0; i < NO_OF_CARDS_IN_HAND; i++) {
             CardField cardField = player.getCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * programCardSize, 1.4 * programCardSize);
+                double cardScale = (this.getHeight() / 550) * handCardSize;
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * cardScale, 1.4 * cardScale);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
                         "-fx-border-color: white; " +
-                        "-fx-border-width: 1px 1px 1px 1px;" +
+                        "-fx-border-width: 2px;" +
                         "-fx-border-radius: 5"
                 );
                 GridPane.setMargin(cardFieldView, new Insets(2, 2, 2, 2));
-                cardsPane.add(cardFieldView, i % (NO_OF_CARDS_IN_HAND / 2), i / (NO_OF_CARDS_IN_HAND / 2));
+                handCardsPane.add(cardFieldView, i % (NO_OF_CARDS_IN_HAND / 2), i / (NO_OF_CARDS_IN_HAND / 2));
                 player.board.attach(cardFieldView);
             }
         }
-        cardsPane.setAlignment(Pos.CENTER);
+        handCardsPane.setAlignment(Pos.CENTER);
 
         GridPane programPane = new GridPane();
         programCardViews = new CardFieldView[Player.NO_OF_REGISTERS];
         for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
             CardField cardField = player.getProgramField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.4);
+                double cardScale = (this.getHeight() / 550) * programCardSize;
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * cardScale, 1.4 * cardScale);
                 programCardViews[i] = cardFieldView;
                 cardFieldView.setOnMouseEntered(_ -> cardFieldView.setTranslateY(-programPaneOffset));
                 cardFieldView.setOnMouseExited(_ -> cardFieldView.setTranslateY(0));
                 cardFieldView.setAlignment(Pos.CENTER);
-                cardFieldView.setStyle("-fx-background-color: transparent; ");
-                GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
+                cardFieldView.setStyle(
+                        "-fx-background-color: transparent; " +
+                        "-fx-border-color: white; " +
+                        "-fx-border-width: 2px;" +
+                        "-fx-border-radius: 5"
+                );
+                GridPane.setMargin(cardFieldView, new Insets(0, 3, 0, 5));
                 programPane.add(cardFieldView, i, 0);
                 player.board.attach(cardFieldView);
             }
         }
-        programPane.setAlignment(Pos.BOTTOM_CENTER);
 
         GridPane permanentUpgradeCardsPane = new GridPane();
         for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
             CardField cardField = player.getPermanentUpgradeCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1, 1.6);
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * permanentCardSize, 1.6 * permanentCardSize);
                 cardFieldView.setOnMouseEntered(_ -> cardFieldView.setTranslateY(permanentUpgradeCardsPaneOffset));
                 cardFieldView.setOnMouseExited(_ -> cardFieldView.setTranslateY(0));
                 cardFieldView.setAlignment(Pos.CENTER);
-                cardFieldView.setStyle("-fx-background-color: transparent; ");
-                GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
+                //cardFieldView.setStyle("-fx-background-color: transparent; ");
+                cardFieldView.setStyle(
+                        "-fx-background-color: transparent;" +
+                                "-fx-border-radius: 5; " +
+                                "-fx-border-color: orange; " +
+                                "-fx-border-width: 2px "
+                );
+                GridPane.setMargin(cardFieldView, new Insets(0, 5, 0, 5));
                 permanentUpgradeCardsPane.add(cardFieldView, i, 0);
                 player.board.attach(cardFieldView);
             }
@@ -158,7 +179,7 @@ public class PlayerView extends StackPane implements ViewObserver {
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
                         "-fx-border-color: #a62a24; " +
-                        "-fx-border-width: 2px 2px 2px 2px;" +
+                        "-fx-border-width: 2px;" +
                         "-fx-border-radius: 5"
                 );
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
@@ -187,7 +208,7 @@ public class PlayerView extends StackPane implements ViewObserver {
                 "-fx-background-radius: 10; " +
                 "-fx-border-radius: 10; " +
                 "-fx-border-color: ffffff; " +
-                "-fx-border-width: 1 "
+                "-fx-border-width: 2 "
         );
 
         playerOptionsPanel = new HBox();
@@ -198,13 +219,13 @@ public class PlayerView extends StackPane implements ViewObserver {
         // Player mat
         AnchorPane playerMatAnchorPane = new AnchorPane(permanentUpgradeCardsPane, programPane);
 
-        AnchorPane.setTopAnchor(permanentUpgradeCardsPane, -permanentUpgradeCardsPaneOffset + 30);
-        AnchorPane.setRightAnchor(permanentUpgradeCardsPane, 0.0);
+        AnchorPane.setTopAnchor(permanentUpgradeCardsPane, -permanentUpgradeCardsPaneOffset - 10);
+        AnchorPane.setRightAnchor(permanentUpgradeCardsPane, 17.0);
 
-        programPane.setAlignment(Pos.BOTTOM_CENTER);
-        AnchorPane.setBottomAnchor(programPane, -programPaneOffset);
+        programPane.setAlignment(Pos.TOP_CENTER);
+        AnchorPane.setBottomAnchor(programPane, -programPaneOffset - programPaneYPositionOffset);
         AnchorPane.setLeftAnchor(programPane, 0.0);
-        AnchorPane.setRightAnchor(programPane, 0.0);
+        AnchorPane.setRightAnchor(programPane, 1.0);
 
         Text playerMatCharacterText = new Text();
         AnchorPane playerMatCharacterNameAnchorPane = new AnchorPane(playerMatCharacterText);
@@ -261,7 +282,7 @@ public class PlayerView extends StackPane implements ViewObserver {
         });
 
         // Left pane
-        VBox leftSideVBox = new VBox(cardsPane, interactionPane);
+        VBox leftSideVBox = new VBox(handCardsPane, interactionPane);
         interactionPane.setAlignment(Pos.CENTER);
         leftSideVBox.setAlignment(Pos.CENTER);
         leftSideVBox.setSpacing(15);
@@ -284,6 +305,11 @@ public class PlayerView extends StackPane implements ViewObserver {
         hBox.getChildren().addAll(leftSidePane, playerMat, rightSidePane);
         HBox.setHgrow(leftSidePane, Priority.ALWAYS);
         HBox.setHgrow(rightSidePane, Priority.ALWAYS);
+
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(this.widthProperty());
+        clip.heightProperty().bind(this.heightProperty());
+        this.setClip(clip);
 
         this.getChildren().add(hBox);
 
