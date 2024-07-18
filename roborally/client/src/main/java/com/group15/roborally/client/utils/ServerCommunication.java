@@ -6,12 +6,9 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
+import com.group15.roborally.client.RoboRally;
+import com.group15.roborally.common.model.*;
 import com.group15.roborally.common.observer.Subject;
-import com.group15.roborally.common.model.Choice;
-import com.group15.roborally.common.model.Game;
-import com.group15.roborally.common.model.Interaction;
-import com.group15.roborally.common.model.Player;
-import com.group15.roborally.common.model.Register;
 
 import javafx.application.Platform;
 import lombok.Getter;
@@ -21,6 +18,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+
+import static com.group15.roborally.client.ApplicationSettings.TIME_BEFORE_TIMEOUT_SECONDS;
 
 /**
  * @author Michael Sylvest Bendtsen, s214954@dtu.dk
@@ -35,7 +34,7 @@ public class ServerCommunication extends Subject {
     @Getter
     private boolean isConnectedToServer = false;
     @Getter
-    private long timeSinceConnectionLost;
+    private Duration timeSinceConnectionLost;
 
     public ServerCommunication() {
         headers = new HttpHeaders();
@@ -81,7 +80,7 @@ public class ServerCommunication extends Subject {
                     new ParameterizedTypeReference<>() {},
                     playerName
             );
-            isConnectedToServer = true;
+            setIsConnectedToServer(true);
         } catch (HttpClientErrorException e) {
             //System.out.println(e.getStatusCode());
         }
@@ -135,12 +134,21 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public void putInteraction(Interaction interaction) {
+    public void putInteraction(InteractionDTO interaction) {
         sendRequest(
-                "/interactions/" + interaction.getPlayerId(),
+                "/interactions",
                 HttpMethod.PUT,
                 new ParameterizedTypeReference<>() {},
                 interaction
+        );
+    }
+
+    public void putChoice(ChoiceDTO choice) {
+        sendRequest(
+                "/choices",
+                HttpMethod.PUT,
+                new ParameterizedTypeReference<String>() {},
+                choice
         );
     }
 
@@ -152,15 +160,6 @@ public class ServerCommunication extends Subject {
                 HttpMethod.POST,
                 new ParameterizedTypeReference<>() {},
                 commandCards
-        );
-    }
-
-    public void postChoice(List<Choice> choices, long playerId){
-        sendRequest(
-                "/choices/" + playerId,
-                HttpMethod.POST,
-                new ParameterizedTypeReference<String>() {},
-                choices
         );
     }
 
@@ -204,9 +203,9 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public List<Choice> getChoices(long gameId, int turn, int movement) {
+    public List<Choice> getChoices(long gameId, int turn) {
         return sendRequest(
-                "/choices/" + gameId + "?turn=" + turn + "&movement=" + movement,
+                "/choices/" + gameId + "?turn=" + turn,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -261,7 +260,7 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
     public void deletePlayer(Player player) {
-        isConnectedToServer = false;
+        setIsConnectedToServer(false);
         sendRequest(
                 "/players/" + player.getPlayerId(),
                 HttpMethod.DELETE,
@@ -292,6 +291,7 @@ public class ServerCommunication extends Subject {
             return response.getBody();
         } catch (ResourceAccessException | HttpClientErrorException | HttpServerErrorException e) {
             evaluateTimeout(false);
+            System.err.println("Server communication error: URI: " + uriSt + ". Body: " + body + ". \n" + e.getMessage());
             notifyChange();
             return null;
         }
@@ -302,24 +302,27 @@ public class ServerCommunication extends Subject {
             if (couldConnect) {
                 // Reset timeout.
                 if (startTimeOfConnectionLost != null) {
+                    startTimeOfConnectionLost = null;
                     System.out.println("Reestablished connection to server.");
+                    RoboRally.setDebugText("", 0);
                 }
-                startTimeOfConnectionLost = null;
             } else if (startTimeOfConnectionLost == null) {
                 // Start timeout "timer".
                 startTimeOfConnectionLost = Instant.now();
                 System.out.println("Server not responding. Trying to reestablish connection to server...");
             } else {
                 // Evaluate timeout
-                timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now()).getSeconds();
-                long timeBeforeTimeOutInSeconds = 10;
-                if (timeSinceConnectionLost >= timeBeforeTimeOutInSeconds) {
-                    isConnectedToServer = false;
-                    notifyChange();
+                timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now());
+                RoboRally.setDebugText("Server not responding. " + String.format("%.2f", (double)(timeSinceConnectionLost.toMillis() / 1000.0)), 0);
+                if (timeSinceConnectionLost.toSeconds() >= TIME_BEFORE_TIMEOUT_SECONDS) {
+                    setIsConnectedToServer(false);
                 }
             }
         });
     }
 
-    
+    private void setIsConnectedToServer(boolean isConnectedToServer) {
+        this.isConnectedToServer = isConnectedToServer;
+        notifyChange();
+    }
 }

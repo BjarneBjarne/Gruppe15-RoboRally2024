@@ -9,13 +9,9 @@ public abstract class UpgradeCardTemporary extends UpgradeCard {
         super(title, purchaseCost, useCost, maxUses, refreshedOn, activatableOn);
     }
 
-    public UpgradeCardTemporary(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
-    }
 
     @Override
-    public void tryActivate() {
-        super.tryActivate();
+    public void onActivated() {
         // Remove card on use
         if (refreshedOn == null && this.currentUses <= 0) {
             unInitialize();

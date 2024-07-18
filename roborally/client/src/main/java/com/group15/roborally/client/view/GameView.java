@@ -25,7 +25,6 @@ import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
-import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
 import com.group15.roborally.client.utils.ImageUtils;
@@ -48,7 +47,6 @@ import org.jetbrains.annotations.NotNull;
 import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 import com.group15.roborally.common.model.GamePhase;
-import static com.group15.roborally.common.model.GamePhase.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,6 +226,7 @@ public class GameView extends AnchorPane implements ViewObserver {
         this.finishUpgradingButton = finishUpgradingButton;
 
         mainBoardPane.getChildren().add(upgradeShopPane);
+        StackPane.setAlignment(upgradeShopPane, Pos.CENTER);
 
         if (this.upgradeShopCardsHBox == null) {
             System.out.println("upgradeShopCardsHBox not initialized in GameView - setUpgradeShopFXML()");
@@ -257,7 +256,7 @@ public class GameView extends AnchorPane implements ViewObserver {
                 "-fx-background-color: rgba(0,0,0,.5); " +
                         "-fx-background-radius: 15px"
         );
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 48);
         otherPlayerTurnText = getOtherPlayerTurnText(textFont);
         this.upgradeShopPane.getChildren().add(otherPlayerTurnText);
         otherPlayerTurnText.setMouseTransparent(true);
@@ -299,15 +298,10 @@ public class GameView extends AnchorPane implements ViewObserver {
             upgradeShopCardsHBox.setDisable(!localPlayersTurn);
             cardFieldView.getCardImageView().setDisable(!localPlayersTurn);
             cardFieldView.getCardForegroundImageView().setDisable(!localPlayersTurn);
-            if (playerUpgrading != null && ServerDataManager.getLocalPlayer().getReadyForPhase() == UPGRADE) {
-                finishUpgradingButton.setVisible(localPlayersTurn);
-                finishUpgradingButton.setDisable(!localPlayersTurn);
-                finishUpgradingButton.setMouseTransparent(!localPlayersTurn);
-            } else {
-                finishUpgradingButton.setVisible(false);
-                finishUpgradingButton.setDisable(true);
-                finishUpgradingButton.setMouseTransparent(true);
-            }
+
+            finishUpgradingButton.setVisible(localPlayersTurn && !gameController.getIsLocalPlayerReadyForNextPhase());
+            finishUpgradingButton.setDisable(!localPlayersTurn || gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty());
+            finishUpgradingButton.setMouseTransparent(!localPlayersTurn);
 
             GridPane.setHalignment(cardFieldView, HPos.CENTER);
             GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
@@ -393,7 +387,7 @@ public class GameView extends AnchorPane implements ViewObserver {
                 directionOptionsPane.setVisible(false);
             }
 
-            if (board.getCurrentPhase() == INITIALIZATION) {
+            if (board.getCurrentPhase().equals(GamePhase.INITIALIZATION)) {
                 for (Player player : board.getPlayers()) {
                     Space playerSpace = player.getSpace();
                     if (playerSpace != null) {
@@ -402,22 +396,20 @@ public class GameView extends AnchorPane implements ViewObserver {
                 }
             }
 
-            if (board.getCurrentPhase().equals(PROGRAMMING) || board.getCurrentPhase().equals(PLAYER_ACTIVATION)) {
-                System.out.println();
-                for (Player player : board.getPlayers()) {
-                    Space playerSpace = player.getSpace();
-                    if (playerSpace != null) {
-                        boolean playerIsReady = gameController.getIsPlayerReady(player);
-                        spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady && board.getCurrentPhase().equals(PROGRAMMING));
-                    }
+            boolean isPhaseWithReadyCheck = board.getCurrentPhase().equals(GamePhase.PROGRAMMING) || board.getCurrentPhase().equals(GamePhase.INITIALIZATION);
+            for (Player player : board.getPlayers()) {
+                Space playerSpace = player.getSpace();
+                if (playerSpace != null) {
+                    boolean playerIsReady = gameController.getIsPlayerReadyForNextPhase(player);
+                    spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady && isPhaseWithReadyCheck);
                 }
             }
 
             Platform.runLater(() -> {
-                if (board.getCurrentPhase() == GamePhase.UPGRADE) {
+                if (board.getCurrentPhase().equals(GamePhase.UPGRADE) && !gameController.isStartingNextPhase()) {
                     upgradeShopPane.setVisible(true);
                     upgradeShopPane.setMouseTransparent(false);
-                    finishUpgradingButton.setVisible(gameController.getPlayerUpgrading() != null && ServerDataManager.getLocalPlayer().getReadyForPhase() == UPGRADE);
+                    finishUpgradingButton.setVisible(gameController.getPlayerUpgrading() != null && !gameController.getIsLocalPlayerReadyForNextPhase());
                     updateUpgradeShop();
                 } else {
                     if (upgradeShopPane != null) {
@@ -464,7 +456,7 @@ public class GameView extends AnchorPane implements ViewObserver {
                         if (event.isAltDown()) {
                             // Debugging
                             /*if (DEBUG_ALLOW_MANUAL_PLAYER_POSITION) {
-                                if (board.getCurrentPhase() != INITIALIZATION && space.getPlayer() == null) {
+                                if (board.getCurrentPhase() != GamePhase.INITIALIZATION && space.getPlayer() == null) {
                                     // Move the player to the hovered free space.
                                     playerView.getPlayer().setSpace(space);
                                 }

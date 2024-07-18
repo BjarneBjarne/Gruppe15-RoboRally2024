@@ -47,7 +47,7 @@ public class Card_DeflectorShield extends UpgradeCardPermanent {
 
     @Override
     public void onActivated() {
-        super.onActivated();
+        
         activated = true;
     }
 }

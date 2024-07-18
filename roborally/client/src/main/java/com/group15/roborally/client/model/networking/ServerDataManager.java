@@ -1,5 +1,6 @@
 package com.group15.roborally.client.model.networking;
 
+import com.group15.roborally.common.model.*;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.AppController;
@@ -8,19 +9,13 @@ import com.group15.roborally.client.model.ActionWithDelay;
 import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
-import com.group15.roborally.common.model.Choice;
-import com.group15.roborally.common.model.Game;
-import com.group15.roborally.common.model.GamePhase;
-import com.group15.roborally.common.model.Interaction;
-import com.group15.roborally.common.model.Player;
-import com.group15.roborally.common.model.Register;
 import com.group15.roborally.client.utils.ServerCommunication;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
 import lombok.Getter;
-import lombok.Setter;
 
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -42,31 +37,27 @@ public class ServerDataManager extends Subject implements Observer {
     private ScheduledExecutorService gameUpdateScheduler;
     private ScheduledExecutorService serverPoller;
 
-    @Getter
-    boolean isConnectedToGame = false;
-
     private final Random random = new Random();
 
     @Getter
-    private static Player localPlayer;
+    private Player localPlayer;
     @Getter
     private boolean isHost = false;
-    @Setter
-    private List<Choice> usedUpgradeCards = new ArrayList<>();
-    private List<Choice> othersUsedUpgradeCards = new ArrayList<>();
+
+    @Getter
     private Interaction interaction;
+    @Setter
+    private int currentTurn, currentMovement = 0;
 
     // Updated Game data
     private Game game;
-    private final HashMap<Long, Player> playerMap = new HashMap<>();
+    private HashMap<Long, Player> playerMap;
     private String[] upgradeShop;
     private List<Register> registers;
     @Getter
+    private List<Choice> choices;
+    @Getter
     private final static List<NetworkedDataTypes> changedData = new ArrayList<>();
-
-    public ServerDataManager() {
-        serverCommunication.attach(this);
-    }
 
     // Server queries.
     /**
@@ -123,17 +114,19 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void connectedToGame(long gameId, Player localPlayer) {
-        this.game = null;
-        isConnectedToGame = true;
-        Game game = serverCommunication.getGame(gameId);
-        List<Player> players = serverCommunication.getPlayers(gameId);
-        ServerDataManager.localPlayer = localPlayer;
-        setReadyForPhase(GamePhase.LOBBY);
+        this.playerMap = new HashMap<>();
+        this.upgradeShop = null;
+        this.registers = null;
+        this.game = serverCommunication.getGame(gameId);
+        this.localPlayer = localPlayer;
         this.isHost = localPlayer.getPlayerId() == game.getHostId();
-        notifyChange(); // Notify multiplayer menu that we have connected to the game.
-        loadDataAndNotify(game, players, null, null);
-        updateGameFromServerData();
+        List<Player> players = serverCommunication.getPlayers(gameId);
+        serverCommunication.attach(this);
+        setReadyForPhase(GamePhase.LOBBY);
+        loadServerData(game, players);
         startUpdateGameLoop();
+        notifyChange();
+        System.out.println("Player name: " + localPlayer.getPlayerName());
     }
 
     /**
@@ -142,14 +135,13 @@ public class ServerDataManager extends Subject implements Observer {
      */
     private void startUpdateGameLoop() {
         Runnable lobbyUpdate = () -> {
-            Game currentGameData = this.game;
             if (serverCommunication.isConnectedToServer()) {
-                if (currentGameData == null) return;
+                if (this.game == null) return;
                 updateGameFromServerData();
             }
         };
         gameUpdateScheduler = Executors.newScheduledThreadPool(1);
-        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 250, TimeUnit.MILLISECONDS);
+        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -193,13 +185,13 @@ public class ServerDataManager extends Subject implements Observer {
      */
     private void updateGameFromServerData() {
         // Get updated game data.
-        Game updatedGame = serverCommunication.getGame(this.game.getGameId());
+        Game updatedGame = serverCommunication.getGame(game.getGameId());
         if (updatedGame == null) return;
-        List<Player> updatedPlayers = serverCommunication.getPlayers(this.game.getGameId());
+        List<Player> updatedPlayers = serverCommunication.getPlayers(game.getGameId());
         if (updatedPlayers == null) return;
         String[] updatedUpgradeShop;
         if (updatedGame.getPhase() == GamePhase.UPGRADE) {
-            updatedUpgradeShop = serverCommunication.getUpgradeShop(this.game.getGameId());
+            updatedUpgradeShop = serverCommunication.getUpgradeShop(game.getGameId());
         } else {
             updatedUpgradeShop = null;
         }
@@ -209,7 +201,7 @@ public class ServerDataManager extends Subject implements Observer {
         } else {
             updatedRegisters = null;
         }
-
+        List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentTurn);
 
         // Check if the host has disconnected
         boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
@@ -219,16 +211,14 @@ public class ServerDataManager extends Subject implements Observer {
         }
 
         // Update the game in the JavaFX application thread.
-        Platform.runLater(() -> {
-            loadDataAndNotify(updatedGame, updatedPlayers, updatedUpgradeShop, updatedRegisters);
-        });
+        Platform.runLater(() -> loadServerDataAndNotify(updatedGame, updatedPlayers, updatedUpgradeShop, updatedRegisters, updatedChoices));
     }
 
     /**
      * Loads the data received from the server and notifies listeners if any data has changed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void loadDataAndNotify(Game updatedGame, List<Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters) {
+    private void loadServerDataAndNotify(Game updatedGame, List<Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters, List<Choice> updatedChoices) {
         boolean hasChanges = false;
         // Update any data that has changed.
         if (updatedGame.hasChanges(this.game)) {
@@ -254,11 +244,19 @@ public class ServerDataManager extends Subject implements Observer {
                 hasChanges = true;
             }
         }
-        // Notify if there have been changes.
+        if (updatedChoices != null) {
+            if (!Choice.areListsEqual(this.choices, updatedChoices)) {
+                updateChoiceData(updatedChoices);
+                hasChanges = true;
+            }
+        }
         if (hasChanges) {
-            //System.out.println("Had changes");
             notifyChange();
         }
+    }
+    private void loadServerData(Game updatedGame, List<Player> updatedPlayers) {
+        updateGameData(updatedGame);
+        updatePlayerData(updatedPlayers);
     }
 
     private void updateGameData(@NotNull Game updatedGameData) {
@@ -285,6 +283,11 @@ public class ServerDataManager extends Subject implements Observer {
         changedData.add(NetworkedDataTypes.REGISTERS);
     }
 
+    private void updateChoiceData(@NotNull List<Choice> updatedChoices) {
+        this.choices = updatedChoices;
+        changedData.add(NetworkedDataTypes.CHOICES);
+    }
+
     /**
      * Runs the ActionWithDelay runnable, followed by the delay pause, then calls the callback runnable.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
@@ -302,6 +305,7 @@ public class ServerDataManager extends Subject implements Observer {
      */
     private void connectionToServerTimedOut() {
         runActionAndCallback(new ActionWithDelay(() -> {
+            serverCommunication.detach(this);
             AppController.setInfoText("Connection to server timed out.");
             notifyChange();
             stopGameUpdateLoop();
@@ -358,17 +362,59 @@ public class ServerDataManager extends Subject implements Observer {
         serverCommunication.putPlayer(localPlayer);
     }
 
-    // Getters
-    public Register getRegistersFromPlayer(long playerId) {
-        if (this.registers != null) {
-            Register register = this.registers.stream().filter(r -> (r.getPlayerId() == playerId)).findFirst().orElse(null);
-            if (register != null) {
-                return register;
+
+
+    // Upgrade cards
+    public void setChoice(ChoiceDTO choiceDTO) {
+        serverCommunication.putChoice(choiceDTO);
+        notifyChange();
+    }
+    public void setReadyChoice(int turn, int movement) {
+        ChoiceDTO emptyChoiceDTO = new ChoiceDTO(game.getGameId(), localPlayer.getPlayerId(), Choice.EMPTY_CHOICE, turn, Choice.ResolveStatus.NONE.name());
+        serverCommunication.putChoice(emptyChoiceDTO);
+    }
+    public void waitForChoicesAndCallback(Runnable callback, int turn) {
+        Runnable poll = () -> {
+            List<Choice> choices = serverCommunication.getChoices(game.getGameId(), turn);
+            Set<Long> choicePlayerIds = choices.stream()
+                    .filter(c -> c.getCode().equals(Choice.EMPTY_CHOICE))
+                    .map(Choice::getPlayerId)
+                    .collect(Collectors.toSet());
+
+            boolean hasAChoiceFromAllPlayers = choicePlayerIds.containsAll(playerMap.keySet());
+
+            if (hasAChoiceFromAllPlayers) {
+                this.choices = choices;
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
             }
-        }
-        return null;
+        };
+        serverPoller = Executors.newScheduledThreadPool(1);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 
+    // Player interactions
+    public void setInteraction(PlayerInteraction currentPlayerInteraction, String interaction, int turn, int movement) {
+        if (currentPlayerInteraction.getPlayer().getPlayerId() != localPlayer.getPlayerId()) return;
+        InteractionDTO interactionDTO = new InteractionDTO(localPlayer.getPlayerId(), interaction, turn, movement);
+        serverCommunication.putInteraction(interactionDTO);
+    }
+    public void waitForInteractionAndCallback(Runnable callback, long playerId, int turn, int movement) {
+        interaction = null;
+        Runnable poll = () -> {
+            interaction = serverCommunication.getInteraction(playerId, turn, movement);
+            if (interaction != null) {
+                serverPoller.shutdownNow();
+                Platform.runLater(callback);
+            }
+        };
+        serverPoller = Executors.newScheduledThreadPool(1);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+    }
+
+
+
+    // Getters
     public Game getUpdatedGame() {
         changedData.remove(NetworkedDataTypes.GAME);
         return game;
@@ -385,7 +431,10 @@ public class ServerDataManager extends Subject implements Observer {
         changedData.remove(NetworkedDataTypes.REGISTERS);
         return registers;
     }
-
+    public List<Choice> getUpdatedChoices() {
+        changedData.remove(NetworkedDataTypes.CHOICES);
+        return choices;
+    }
 
 
 
@@ -393,67 +442,13 @@ public class ServerDataManager extends Subject implements Observer {
     public void update(Subject subject) {
         if (subject.equals(serverCommunication)) {
             // If the player was disconnected from the server.
-            isConnectedToGame = serverCommunication.isConnectedToServer();
-            if (!isConnectedToGame) {
+            if (!isConnectedToServer()) {
                 connectionToServerTimedOut();
             }
         }
     }
 
-    public void updateChoices(Runnable callback, int move, int turn) {
-        this.othersUsedUpgradeCards = null;
-        Runnable poll = () -> {
-            this.othersUsedUpgradeCards = serverCommunication.getChoices(game.getGameId(), turn, move);
-            if (this.othersUsedUpgradeCards != null) {
-                serverPoller.shutdownNow();
-                Platform.runLater(callback);
-            }
-        };
-        serverPoller = Executors.newScheduledThreadPool(1);
-        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
-    }
-
-    public void setChoices(int movement, int turn) {
-        if(usedUpgradeCards.isEmpty()) {
-            usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), "No choice", turn, movement));
-        }
-        serverCommunication.postChoice(usedUpgradeCards, localPlayer.getPlayerId());
-        usedUpgradeCards.clear();
-    }
-
-    public void addUsedUpgradeCard(String cardName, int move, int turn) {
-        usedUpgradeCards.add(new Choice(localPlayer.getPlayerId(), cardName, turn, move));
-    }
-
-    public List<String> getUsedUpgrades(String playerName) {
-        List<String> usedUpgrades = new ArrayList<>();
-        for (Choice choice : othersUsedUpgradeCards) {
-            if (playerName.equals(playerMap.get(choice.getPlayerId()).getPlayerName())) {
-                usedUpgrades.add(choice.getChoice());
-            }
-        }
-        return usedUpgrades;
-    }
-
-    public void setInteraction(PlayerInteraction currentPlayerInteraction, String interaction, int turn, int movement) {
-        if (currentPlayerInteraction.getPlayer().getPlayerId() != localPlayer.getPlayerId()) return;
-        serverCommunication.putInteraction(new Interaction(localPlayer.getPlayerId(), interaction, turn, movement));
-    }
-
-    public void updateInteraction(Runnable callback, long playerId, int turn, int movement) {
-        interaction = null;
-        Runnable poll = () -> {
-            interaction = serverCommunication.getInteraction(playerId, turn, movement);
-            if (interaction != null) {
-                serverPoller.shutdownNow();
-                Platform.runLater(callback);
-            }
-        };
-        serverPoller = Executors.newScheduledThreadPool(1);
-        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
-    }
-
-    public String getInteraction() {
-        return interaction.getChoice();
+    public boolean isConnectedToServer() {
+        return serverCommunication.isConnectedToServer();
     }
 }

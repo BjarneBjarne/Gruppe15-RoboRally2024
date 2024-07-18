@@ -425,7 +425,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
         }
     }
 
-    private class OnDragDoneHandler implements EventHandler<DragEvent> {
+    private static class OnDragDoneHandler implements EventHandler<DragEvent> {
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();

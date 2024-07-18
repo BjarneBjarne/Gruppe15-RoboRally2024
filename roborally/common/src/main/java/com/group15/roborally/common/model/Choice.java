@@ -1,6 +1,5 @@
 package com.group15.roborally.common.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -9,38 +8,71 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.*;
 
 @Entity
 @Table(name = "choices")
-// @IdClass(ChoiceId.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Choice {
-    public Choice(long playerId, String choice, int turn, int movement) {
-        this.playerId = playerId;
-        this.choice = choice;
-        this.turn = turn;
-        this.movement = movement;
-    }
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long choiceId;
-
-    long playerId;
-    
-    String choice;
-    
-    int turn;
-    
-    int movement;
+    private long gameId;
+    private long playerId;
+    private String code;
+    private int turn;
+    private String resolveStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playerId", referencedColumnName = "playerId", insertable = false, updatable = false)
     @JsonIgnore
     private Player player;
 
+    public Choice(long gameId, long playerId, String code, int turn, String resolveStatus) {
+        this.gameId = gameId;
+        this.playerId = playerId;
+        this.code = code;
+        this.turn = turn;
+        this.resolveStatus = resolveStatus;
+    }
+
+    public static final String EMPTY_CHOICE = "EMPTY_CHOICE";
+
+    public enum ResolveStatus {
+        NONE,
+        UNRESOLVED
+    }
+
+    public boolean isResolved() {
+        return !(resolveStatus.equals(ResolveStatus.NONE.name()) || resolveStatus.equals(ResolveStatus.UNRESOLVED.name()));
+    }
+
+    /**
+     * Method for comparing two lists of this class. Two lists are equal, if they contain the same objects, defined
+     * by their id, regardless of the order of the objects.
+     * @return Whether the two lists contain the same objects.
+     */
+    public static boolean areListsEqual(List<Choice> list1, List<Choice> list2) {
+        if (list1 == null || list2 == null) return list1 == list2;
+        if (list1.size() != list2.size()) return false;
+        Set<Choice> set1 = new HashSet<>(list1);
+        Set<Choice> set2 = new HashSet<>(list2);
+        return set1.equals(set2);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Choice choice = (Choice) o;
+        return choiceId == choice.choiceId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(choiceId);
+    }
 }

@@ -17,7 +17,7 @@ public abstract class PlayerInteraction {
     }
 
     public void initializeInteraction() {
-        gameController.getServerDataManager().updateInteraction(
+        gameController.getServerDataManager().waitForInteractionAndCallback(
                 gameController::continueFromInteraction,
                 gameController.getCurrentPlayerInteraction().getPlayer().getPlayerId(),
                 gameController.getTurnCounter(),

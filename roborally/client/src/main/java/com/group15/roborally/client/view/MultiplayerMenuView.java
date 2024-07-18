@@ -38,6 +38,7 @@ import static com.group15.roborally.client.BoardOptions.*;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class MultiplayerMenuView implements Observer {
+    private AppController appController;
     private ServerDataManager serverDataManager;
 
     @FXML
@@ -93,8 +94,10 @@ public class MultiplayerMenuView implements Observer {
 
     private boolean hasBeenSetup = false;
 
-    public void setControllers(ServerDataManager serverDataManager) {
+    public void setControllers(AppController appController, ServerDataManager serverDataManager) {
+        this.appController = appController;
         this.serverDataManager = serverDataManager;
+        this.serverDataManager.attach(this);
     }
 
     /**
@@ -107,12 +110,10 @@ public class MultiplayerMenuView implements Observer {
 
         hasStartedGameLocally = false;
         selectedCourse = null;
-        this.serverDataManager.attach(this);
     }
 
     private void setupLobby() {
         hasBeenSetup =  true;
-
         initializeCourses();
         initializeLobby();
     }
@@ -153,7 +154,7 @@ public class MultiplayerMenuView implements Observer {
             int slotIndex = 1;
             for (Player player : updatedPlayers.values()) {
                 LobbyPlayerSlot playerSlot = playerSlots[slotIndex];
-                boolean isLocalPlayer = player.getPlayerId() == ServerDataManager.getLocalPlayer().getPlayerId();
+                boolean isLocalPlayer = player.getPlayerId() == serverDataManager.getLocalPlayer().getPlayerId();
                 if (isLocalPlayer) {
                     playerSlot = playerSlots[0];
                 }
@@ -377,7 +378,7 @@ public class MultiplayerMenuView implements Observer {
                     startGame();
                 } else {
                     // Toggling whether the player is ready.
-                    GamePhase gamePhase = ServerDataManager.getLocalPlayer().getReadyForPhase() != GamePhase.INITIALIZATION ? GamePhase.INITIALIZATION : GamePhase.LOBBY;
+                    GamePhase gamePhase = serverDataManager.getLocalPlayer().getReadyForPhase() != GamePhase.INITIALIZATION ? GamePhase.INITIALIZATION : GamePhase.LOBBY;
                     serverDataManager.setReadyForPhase(gamePhase);
                 }
             }
@@ -421,18 +422,17 @@ public class MultiplayerMenuView implements Observer {
      * @author Maximillian Bjørn Mortensen
      */
     private boolean canReadyOrStart() {
-        if (ServerDataManager.getLocalPlayer().getPlayerName() == null || ServerDataManager.getLocalPlayer().getRobotName() == null || ServerDataManager.getLocalPlayer().getPlayerName().isBlank() || ServerDataManager.getLocalPlayer().getRobotName().isBlank() || Robots.getRobotByName(ServerDataManager.getLocalPlayer().getRobotName()) == null) return false;
+        if (serverDataManager.getLocalPlayer().getPlayerName() == null || serverDataManager.getLocalPlayer().getRobotName() == null || serverDataManager.getLocalPlayer().getPlayerName().isBlank() || serverDataManager.getLocalPlayer().getRobotName().isBlank() || Robots.getRobotByName(serverDataManager.getLocalPlayer().getRobotName()) == null) return false;
+        if (selectedCourse == null) return false;
         for (Player player : this.players.values()) {
-            if (player.getPlayerId() != ServerDataManager.getLocalPlayer().getPlayerId()) {
-                if (ServerDataManager.getLocalPlayer().getPlayerName().equals(player.getPlayerName())) return false;
-                if (ServerDataManager.getLocalPlayer().getRobotName().equals(player.getRobotName())) return false;
+            if (player.getPlayerId() != serverDataManager.getLocalPlayer().getPlayerId()) {
+                if (serverDataManager.getLocalPlayer().getPlayerName().equals(player.getPlayerName())) return false;
+                if (serverDataManager.getLocalPlayer().getRobotName().equals(player.getRobotName())) return false;
             }
         }
         if (serverDataManager.isHost()) {
-            if (courses.isEmpty()) return false;
-            if (selectedCourse == null) return false;
             for (Player player : this.players.values()) {
-                if (player.getPlayerId() != ServerDataManager.getLocalPlayer().getPlayerId()) {
+                if (player.getPlayerId() != serverDataManager.getLocalPlayer().getPlayerId()) {
                     if (player.getReadyForPhase() != GamePhase.INITIALIZATION) {
                         return false;
                     }
@@ -463,7 +463,8 @@ public class MultiplayerMenuView implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject == serverDataManager) {
-            if (serverDataManager.isConnectedToGame()) {
+            if (appController.isGameRunning()) return;
+            if (serverDataManager.isConnectedToServer()) {
                 // Setting up the lobby
                 if (!hasBeenSetup) {
                     setupLobby();
@@ -501,8 +502,7 @@ public class MultiplayerMenuView implements Observer {
         Platform.runLater(() -> {
             if (!hasStartedGameLocally) {
                 hasStartedGameLocally = true;
-                this.serverDataManager.detach(this);
-                AppController.startGame(selectedCourse, this.players, ServerDataManager.getLocalPlayer().getPlayerId());
+                AppController.startGame(selectedCourse, this.players, serverDataManager.getLocalPlayer().getPlayerId());
             }
         });
     }

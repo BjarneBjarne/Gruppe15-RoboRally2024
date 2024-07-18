@@ -21,7 +21,6 @@
  */
 package com.group15.roborally.client.view;
 
-import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
@@ -32,13 +31,11 @@ import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.model.Player;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -50,7 +47,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.group15.roborally.client.ApplicationSettings.ZOOM_SPEED;
 import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
 import static com.group15.roborally.common.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
@@ -344,7 +340,8 @@ public class PlayerView extends StackPane implements ViewObserver {
                     interactionPane.getChildren().add(readyPanel);
                 }
                 if (board.getCurrentPhase() == PROGRAMMING) {
-                    readyButton.setDisable(gameController.isFinishedProgramming());
+                    boolean disableReadyButton = gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty();
+                    readyButton.setDisable(disableReadyButton);
                 } else {
                     readyButton.setDisable(true);
                 }

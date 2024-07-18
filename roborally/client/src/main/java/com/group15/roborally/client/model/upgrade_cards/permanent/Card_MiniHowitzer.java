@@ -68,7 +68,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
 
     @Override
     public void onActivated() {
-        super.onActivated();
+        
         owner.addTemporaryBonusDamage(new Damage(2, 0, 0, 0));
         activated = true;
     }

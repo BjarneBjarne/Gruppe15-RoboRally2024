@@ -134,15 +134,6 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(spaceCoords);
         }
 
-        if (space.getBoardElement() instanceof BE_ConveyorBelt conveyorBelt) {
-            debugText.setTextAlignment(TextAlignment.CENTER);
-            debugText.setText("");
-            debugText.setFill(new Color(1, .1, .1, 1));
-            debugText.setStyle("-fx-font-size: 8px; ");
-            debugText.setWrappingWidth(ApplicationSettings.SPACE_SIZE * 0.9);
-            this.getChildren().add(debugText);
-        }
-
         // This space view should listen to changes of the space
         space.attach(this);
         update(space);

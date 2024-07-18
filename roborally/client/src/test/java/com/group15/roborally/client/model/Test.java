@@ -2,6 +2,7 @@ package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.utils.ServerCommunication;
 import com.group15.roborally.common.model.Interaction;
+import com.group15.roborally.common.model.InteractionDTO;
 import com.group15.roborally.common.model.Player;
 
 public class Test {
@@ -19,7 +20,7 @@ public class Test {
 
         // Host game
         System.out.println("Creating game");
-        Long gameId = sc.createGame("http://localhost:8080");
+        long gameId = sc.createGame("http://localhost:8080");
         System.out.println("Game created with ID " + gameId);
         System.out.println();
 
@@ -39,22 +40,22 @@ public class Test {
         System.out.println();
 
         // Update interaction
-        Interaction interaction = new Interaction(p1.getPlayerId(), "RebootInteraction", 5, 2);
+        InteractionDTO interactionDTO = new InteractionDTO(p1.getPlayerId(), "RebootInteraction", 5, 2);
 
         Interaction received = sc.getInteraction(p1.getPlayerId(),5,2);
         if(received == null) {
             System.out.println("No interaction found");
         } else {
-            System.out.println("Interaction found: " + received.getChoice());
+            System.out.println("Interaction found: " + received.getCode());
         }
 
-        sc.putInteraction(interaction);
+        sc.putInteraction(interactionDTO);
         
         received = sc.getInteraction(p1.getPlayerId(),5,2);
         if(received == null) {
             System.out.println("No interaction found");
         } else {
-            System.out.println("Interaction found: " + received.getChoice());
+            System.out.println("Interaction found: " + received.getCode());
         }
 
         // // Update choices
@@ -73,7 +74,7 @@ public class Test {
         // }
         // sc.updateChoice(p2Choices, p2.getPlayerId());
 
-        // System.out.println("Attempting to print choice mid-update");
+        // System.out.println("Attempting to print code mid-update");
         // List<Choice> choices = sc.getChoices(gameId, 5, 2);
         // if (choices == null) {
         //     System.out.println("No choices found");
