@@ -12,11 +12,11 @@ import java.util.*;
 import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
 
 /**
- * The UpgradeShop handles transactions of UpgradeCards for EnergyCubes.
+ * The UpgradeShop handles transactions of Types for EnergyCubes.
    ---
- * UpgradeCards cycle between 4 lists/places:
+ * Types cycle between 4 lists/places:
  * 1: They are created and placed into UpgradeShop.upgradeCardsDeck.
- * 2: When the GamePhase.UPGRADE starts, a number of UpgradeCards are placed in UpgradeShop.availableCardsFields.card.
+ * 2: When the GamePhase.UPGRADE starts, a number of Types are placed in UpgradeShop.availableCardsFields.card.
  * 3: When bought, they are moved to Player.permanentUpgradeCardFields or Player.temporaryUpgradeCardFields.
  * 4: When players discard an UpgradeCard or no cards were bought the previous round, card are placed in upgradeCardsDiscardDeck.
    ---

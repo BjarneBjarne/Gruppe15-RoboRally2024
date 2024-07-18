@@ -239,7 +239,9 @@ public class EventHandler {
             // Set players new position
             Space nextSpace = playerToPush.getSpace().getSpaceNextTo(pushDirection, spaces);
             playerToPush.setSpace(nextSpace);
-            nextSpace.updateSpace();
+            if (nextSpace != null) {
+                nextSpace.updateSpace();
+            }
 
             // If the player is still moving, we remember that they pushed playerToPush.
             if (Math.abs(playerPushing.getVelocity().forward) + Math.abs(playerPushing.getVelocity().right) > 0) {

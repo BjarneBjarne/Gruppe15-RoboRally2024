@@ -4,6 +4,8 @@ import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.upgrade_cards.permanent.*;
+import com.group15.roborally.client.model.upgrade_cards.temporary.*;
 import com.group15.roborally.common.model.GamePhase;
 import lombok.Getter;
 
@@ -31,6 +33,7 @@ public abstract class UpgradeCard extends Card {
     // Activating
     protected final List<GamePhase> activatableOn;
     private boolean enabled = false;
+    private boolean queuedForActivation = false;
 
     protected Player owner;
     transient protected GameController gameController;
@@ -53,12 +56,63 @@ public abstract class UpgradeCard extends Card {
         this.activatableOn = Collections.unmodifiableList(Arrays.asList(activatableOn));
     }
 
-    protected abstract void onEnabled();
-    protected abstract void onDisabled();
-    public void onActivated() {
-        printUsage();
+    public enum Types {
+        // Permanent upgrade cards
+        ADMIN_PRIVILEGE(Card_AdminPrivilege.class),
+        BLUE_SCREEN_OF_DEATH(Card_BlueScreenOfDeath.class),
+        BRAKES(Card_Brakes.class),
+        CRAB_LEGS(Card_CrabLegs.class),
+        DEFLECTOR_SHIELD(Card_DeflectorShield.class),
+        DOUBLE_BARREL_LASER(Card_DoubleBarrelLaser.class),
+        FIREWALL(Card_Firewall.class),
+        HOVER_UNIT(Card_HoverUnit.class),
+        MEMORY_STICK(Card_MemoryStick.class),
+        MINI_HOWITZER(Card_MiniHowitzer.class),
+        PRESSOR_BEAM(Card_PressorBeam.class),
+        RAIL_GUN(Card_RailGun.class),
+        RAMMING_GEAR(Card_RammingGear.class),
+        REAR_LASER(Card_RearLaser.class),
+        //SCRAMBLER(Card_Scrambler.class),
+        TRACTOR_BEAM(Card_TractorBeam.class),
+        TROJAN_NEEDLER(Card_TrojanNeedler.class),
+        VIRUS_MODULE(Card_VirusModule.class),
+
+        // Temporary upgrade cards
+        ENERGY_ROUTINE(Card_EnergyRoutine.class),
+        HACK(Card_Hack.class),
+        MANUAL_SORT(Card_ManualSort.class),
+        REBOOT(Card_Reboot.class),
+        RECHARGE(Card_Recharge.class),
+        RECOMPILE(Card_Recompile.class),
+        REPEAT_ROUTINE(Card_RepeatRoutine.class),
+        SANDBOX_ROUTINE(Card_SandboxRoutine.class),
+        SPAM_BLOCKER(Card_SpamBlocker.class),
+        SPAM_FOLDER_ROUTINE(Card_SpamFolderRoutine.class),
+        SPEED_ROUTINE(Card_SpeedRoutine.class),
+        WEASEL_ROUTINE(Card_WeaselRoutine.class);
+
+        public final Class<? extends UpgradeCard> upgradeCardClass;
+        Types(Class<? extends UpgradeCard> upgradeCardClass) {
+            this.upgradeCardClass = upgradeCardClass;
+        }
     }
 
+    protected abstract void onEnabled();
+    protected abstract void onDisabled();
+    protected abstract void onActivated();
+
+    public void activate() {
+        if (!getIsActivatable()) {
+            System.err.println("Trying to activate upgrade card + \"" + title + "\" which is not activatable");
+            return;
+        }
+
+        queuedForActivation = false;
+        currentUses--;
+        owner.setEnergyCubes(owner.getEnergyCubes() - useCost);
+        printUsage();
+        onActivated();
+    }
 
     /**
      * Cards must override this method.
@@ -111,17 +165,15 @@ public abstract class UpgradeCard extends Card {
      */
     public void tryActivate() {
         if (canBeActivated()) {
-            this.currentUses--;
-            owner.setEnergyCubes(owner.getEnergyCubes() - useCost);
-            gameController.tryUseUpgradeCard(this.getEnum().name());
+            queuedForActivation = true;
+            gameController.tryUseUpgradeCard(this);
         }
     }
-
     public boolean canBeActivated() {
-        return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost;
+        return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost && !gameController.getIsLocalPlayerReadyForNextPhase() && !queuedForActivation;
     }
 
-    public boolean getHasActivateButton() {
+    public boolean getIsActivatable() {
         return activatableOn != null && !activatableOn.isEmpty();
     }
 
@@ -148,8 +200,8 @@ public abstract class UpgradeCard extends Card {
         return newUpgradeCard;
     }
 
-    public UpgradeCards getEnum() {
+    public Types getEnum() {
         String enumName = title.toUpperCase().replace(' ', '_');;
-        return UpgradeCards.valueOf(enumName);
+        return Types.valueOf(enumName);
     }
 }

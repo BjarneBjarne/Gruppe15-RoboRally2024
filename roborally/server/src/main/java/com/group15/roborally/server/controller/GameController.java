@@ -78,7 +78,7 @@ public class GameController {
      * 
      * @return ResponseEntity<Long> - the generated id of the player created
      */
-    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE) // TODO: change to post to players instead of join?
+    @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
 
         Game game = gameRepository.findById(gameId).orElse(null);
@@ -105,9 +105,6 @@ public class GameController {
         register.setTurn(0);
         registerRepository.save(register);
 
-        Interaction interaction = new Interaction(player.getPlayerId(), null, -1, -1);
-        interactionController.updateInteraction(interaction);
-
         return ResponseEntity.ok().body(player);
     }
 
@@ -126,14 +123,13 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        //todo fix crash
        List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
         if (players == null) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(players);
-        }
+    }
 
     /**
      * Endpoint to get a game by its id

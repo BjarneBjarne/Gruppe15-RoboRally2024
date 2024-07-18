@@ -44,10 +44,11 @@ public class InfoPaneView extends StackPane implements ViewObserver {
     }
 
     public void setInfoText(String text) {
-        if (text.isEmpty()) {
+        if (text == null || text.isBlank()) {
             disable();
             return;
         }
+        System.out.println(text);
         infoText.setText(text);
         enable();
     }

@@ -21,9 +21,10 @@
  */
 package com.group15.roborally.client.controller;
 
+import com.group15.roborally.client.ApplicationSettings;
+import com.group15.roborally.client.RoboRally;
+import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.view.GameView;
-import com.group15.roborally.common.observer.Observer;
-import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
@@ -31,17 +32,18 @@ import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.model.player_interaction.*;
 import com.group15.roborally.client.model.upgrade_cards.*;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
-import com.group15.roborally.common.model.Game;
-import com.group15.roborally.common.model.Register;
+import com.group15.roborally.common.model.*;
+import com.group15.roborally.common.observer.Observer;
+import com.group15.roborally.common.observer.Subject;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
-import com.group15.roborally.common.model.GamePhase;
 import static com.group15.roborally.client.ApplicationSettings.*;
 import static com.group15.roborally.client.BoardOptions.*;
 
@@ -55,29 +57,31 @@ public class GameController implements Observer {
     private final Player localPlayer;
     @Getter
     private final ServerDataManager serverDataManager;
-
     @Getter
     private Space directionOptionsSpace;
+    @Getter
+    private int turnCounter, movementCounter = 0;
+    @Getter
+    private Player playerUpgrading;
+    @Getter
+    private boolean startingNextPhase = false;
 
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
     @Getter
     private PlayerInteraction currentPlayerInteraction = null;
 
+    // Choices
+    private final List<Choice> executedChoices = new ArrayList<>();
     @Getter
-    private int turnCounter;
-    @Getter
-    private int movementCounter;
-    @Getter
-    private Player playerUpgrading;
-    @Getter
-    boolean finishedProgramming = false;
+    private final List<ChoiceDTO> unresolvedLocalChoices = new ArrayList<>();
 
     // Latest data
     private Game latestGameData;
     private HashMap<Long, com.group15.roborally.common.model.Player> latestPlayerData;
     private String[] latestUpgradeShopData;
     private List<Register> latestRegisterData;
+    private List<Choice> latestChoiceData;
 
     /**
      * Constructor method for GameController.
@@ -88,13 +92,27 @@ public class GameController implements Observer {
         this.localPlayer = localPlayer;
         this.serverDataManager = serverDataManager;
         this.serverDataManager.attach(this);
-        this.turnCounter = 0;
-        this.movementCounter = 0;
         latestGameData = serverDataManager.getUpdatedGame();
         latestPlayerData = serverDataManager.getUpdatedPlayerMap();
         latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
         latestRegisterData = serverDataManager.getUpdatedRegisters();
-        setReadyForPhase(GamePhase.INITIALIZATION);
+        board.setStepMode(false);
+    }
+
+    private void incrementTurnCounter() {
+        turnCounter++;
+        resetMovementCounter();
+        serverDataManager.setCurrentTurn(turnCounter);
+        RoboRally.setDebugText("Turn: " + turnCounter + ", movement: " + movementCounter, 4);
+    }
+    private void incrementMovementCounter() {
+        movementCounter++;
+        serverDataManager.setCurrentMovement(movementCounter);
+        RoboRally.setDebugText("Turn: " + turnCounter + ", movement: " + movementCounter, 4);
+    }
+    private void resetMovementCounter() {
+        movementCounter = 0;
+        serverDataManager.setCurrentMovement(movementCounter);
     }
 
     /**
@@ -121,8 +139,8 @@ public class GameController implements Observer {
      * Method for starting the programming phase. This is needed for resetting some parameters in order to prepare for the programming phase.
      */
     public void startProgrammingPhase() {
+        incrementTurnCounter();
         latestRegisterData = null;
-        turnCounter++;
         board.setCurrentRegister(0);
         board.updatePriorityList();
         board.setCurrentPlayer(board.getPriorityList().peek());
@@ -152,86 +170,65 @@ public class GameController implements Observer {
      * Method for when the local player is done choosing their program and has pressed "ready".
      */
     public void finishedProgramming() {
-        if (!finishedProgramming) {
-            finishedProgramming = true;
-            localPlayer.fillRestOfRegisters();
-            serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), turnCounter);
-            board.updateBoard();
-        }
+        if (!unresolvedLocalChoices.isEmpty()) return;
+        if (getIsLocalPlayerReadyForNextPhase()) return;
+        setReadyForNextPhase();
+        localPlayer.fillRestOfRegisters();
+        serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), turnCounter);
+        board.updateBoard();
     }
 
     private void startPlayerActivationPhase() {
-        finishedProgramming = false;
-        movementCounter = 0;
+        if (checkForRegisterIssues()) return;
+
         for (Player player : board.getPlayers()) {
             if (player.equals(localPlayer)) {
                 continue;
             }
-            Register registers = serverDataManager.getRegistersFromPlayer(player.getPlayerId());
-            player.setRegisters(registers.getMoves()); // Convert String to CardField
+
+            Register registers = latestRegisterData.stream().filter(r -> (r.getPlayerId() == player.getPlayerId())).findFirst().orElse(null);
+            if (registers != null) {
+                player.setRegisters(registers.getMoves()); // Convert String to CardField
+            } else {
+                System.err.println("Player " + player.getPlayerId() + " has no registers!");
+            }
         }
 
-        board.setStepMode(false);
-        waitForPossibleCardUse();
+        nextPlayerRegister();
     }
+
+    private boolean checkForRegisterIssues() {
+        if (latestRegisterData == null) {
+            System.err.println("Latest register data is null!");
+            return true;
+        }
+        if (latestRegisterData.size() != NO_OF_PLAYERS) {
+            System.err.println("Latest register data contains " + latestRegisterData.size() + " registers!");
+            return true;
+        }
+        for (Register register : latestRegisterData) {
+            if (register.hasNull()) {
+                System.err.println("Register " + register + " has null value!");
+                return true;
+            }
+            if (register.getMoves().length != Player.NO_OF_REGISTERS) {
+                System.err.println("Register " + register + " has " + register.getMoves().length + " moves!");
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 
     /*
      *    ### These methods are the main flow of the activation phases. ###
      */
-    private void waitForPossibleCardUse() {
-        System.out.println();
-
-        // Delay before assessing card usages.
-        board.getBoardActionQueue().add(new ActionWithDelay(() -> {}, 1000));
-
-        // After delay, set and get card usages.
-        runActionsAndCallback(() -> setAndUpdateChoices(this::executeUsedUpgradeCards));
-    }
-
-    public void tryUseUpgradeCard(String choice) {
-        switch (board.getCurrentPhase()) {
-            case GamePhase.PROGRAMMING -> {
-                if (!finishedProgramming) {
-                    serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
-                }
-            }
-            case GamePhase.PLAYER_ACTIVATION, GamePhase.BOARD_ACTIVATION -> serverDataManager.addUsedUpgradeCard(choice, movementCounter, turnCounter);
-            default -> {}
-        }
-    }
-
-    private void setAndUpdateChoices(Runnable callback) {
-        serverDataManager.setChoices(movementCounter, turnCounter);
-        serverDataManager.updateChoices(callback, movementCounter, turnCounter);
-    }
-
-    private void executeUsedUpgradeCards() {
-        for (Player player : board.getPlayers()) {
-            List<String> usedCards = serverDataManager.getUsedUpgrades(player.getName());
-            for (String card : usedCards){
-                for (CardField field : player.getPermanentUpgradeCardFields()) {
-                    if (field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)) {
-                        ((UpgradeCard) field.getCard()).onActivated();
-                        usedCards.remove(card);
-                    }
-                }
-                for (CardField field : player.getTemporaryUpgradeCardFields()) {
-                    if (field.getCard() != null && ((UpgradeCard) field.getCard()).getEnum().name().equals(card)) {
-                        ((UpgradeCard) field.getCard()).onActivated();
-                        usedCards.remove(card);
-                    }
-                }
-            }
-        }
-        startNextPlayerRegister();
-    }
-
     /**
      * Gets the next player in the priority queue, queues that player's command card and executes it.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void startNextPlayerRegister() {
+    private void nextPlayerRegister() {
         board.setCurrentPlayer(board.getPriorityList().poll());
         Player currentPlayer = board.getCurrentPlayer();
         if (!currentPlayer.getIsRebooting()) {
@@ -239,14 +236,14 @@ public class GameController implements Observer {
             queuePlayerCommandFromCommandCard(currentPlayer);
         }
         // Begin handling the actions.
-        handlePlayerRegister();
+        handlePlayerActivation();
     }
 
     /**
-     * This method splits up handlePlayerRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
+     * This method splits up the player activation phase, in order to resume this phase, if it was interrupted.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void handlePlayerRegister() {
+    private void handlePlayerActivation() {
         // Run through the queue and execute the player command.
         runActionsAndCallback(this::handleEndOfPlayerTurn);
     }
@@ -259,34 +256,29 @@ public class GameController implements Observer {
         if (getIsPlayerInteracting()) { // Return and wait for player interaction.
             return;
         }
-        nextMovement();
-    }
-
-    private void nextMovement() {
         if (!board.getPriorityList().isEmpty()) {
-            waitForPossibleCardUse(); // There are more players in the priorityList. Continue to next player.
+            nextPlayerRegister(); // There are more players in the priorityList. Continue to next player.
         } else {
-            setReadyForPhase(GamePhase.BOARD_ACTIVATION); // PriorityList is empty, therefore we are ready to end the register.
+            setReadyForNextPhase(); // PriorityList is empty, therefore we are ready to end the register.
         }
     }
 
     /**
      * Handles the end of a register.
-     * Here we queue board elements and player lasers, then execute them.
-     * Afterwards, we set the next register, calling handleNextPlayerTurn() again.
+     * Board elements and player lasers are queued and then executed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void startBoardActivationPhase() {
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
-        handleBoardElementActions();
+        handleBoardActivation();
     }
 
     /**
-     * This method splits up handleEndOfRegister(), in order to call this again, if the action queue was interrupted by a PlayerInteraction.
+     * This method splits up the board activation phase, in order to resume this phase, if it was interrupted.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void handleBoardElementActions() {
+    private void handleBoardActivation() {
         // Execute board elements and player lasers. When actions have taken place, we go to the next register.
         runActionsAndCallback(this::nextRegister);
     }
@@ -309,7 +301,7 @@ public class GameController implements Observer {
         // If there are more registers, set the currentRegister and continue to the next player.
         if (currentRegister < Player.NO_OF_REGISTERS) {
             if (!board.isStepMode()) {
-                setReadyForPhase(GamePhase.PLAYER_ACTIVATION);
+                setReadyForNextPhase();
             }
         } else {
             handleEndOfRound();
@@ -328,40 +320,37 @@ public class GameController implements Observer {
                 player.stopRebooting();
                 player.getSpace().updateSpace();
             }
-            setReadyForPhase(GamePhase.UPGRADE);
+            setReadyForNextPhase();
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
     }
 
     /**
-     * This method exhausts the action queue by removing the first action, executing it, waits for the action delay, then calls itself again.
-     * Is interrupted if the action queue is empty or if there is a player action.
+     * This method exhausts the action queue by removing the first action, executing it, waits for the action delay, then call itself again to execute the next action in the queue.
+     * When the action queue is empty, the callback method is called.
+     * If there is a player action, this is interrupted and continued after the player action is handled.
      * @param callback The method to call back to, when the action queue is exhausted.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void runActionsAndCallback(Runnable callback) {
         if (playerInteractionQueue.isEmpty()) {
-            if (board.getCurrentPhase() == GamePhase.PLAYER_ACTIVATION || board.getCurrentPhase() == GamePhase.BOARD_ACTIVATION) {
-                LinkedList<ActionWithDelay> actionQueue = board.getBoardActionQueue();
-                if (!actionQueue.isEmpty()) { // As long as there are more actions.
-                    movementCounter++;
-                    // Handle the next action
-                    ActionWithDelay nextAction = actionQueue.removeFirst();
-                    nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
-                    int delayInMillis = nextAction.getDelayInMillis();
-                    PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
-                    pause.setOnFinished(_ -> {
-                        EventHandler.event_EndOfAction(this);
-                        runActionsAndCallback(callback);
-                    }); // Continue actions
-                    if (WITH_ACTION_DELAY) {
-                        pause.play();
-                    }
-                } else { // When we have exhausted the actions, call the callback method.
-                    callback.run();
+            LinkedList<ActionWithDelay> actionQueue = board.getBoardActionQueue();
+            if (!actionQueue.isEmpty()) { // As long as there are more actions.
+                // Handle the next action
+                ActionWithDelay nextAction = actionQueue.removeFirst();
+                nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
+                incrementMovementCounter();
+                int delayInMillis = nextAction.getDelayInMillis();
+                PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
+                pause.setOnFinished(_ -> {
+                    EventHandler.event_EndOfAction(this);
+                    runActionsAndCallback(callback);
+                }); // Continue actions
+                if (WITH_ACTION_DELAY) {
+                    pause.play();
                 }
-            } else {
-                System.out.println("Possible error? GamePhase is: \"" + board.getCurrentPhase() + "\", but currently running actions.");
+            } else { // When we have exhausted the actions, call the callback method.
+                callback.run();
             }
         } else {
             handleNextInteraction();
@@ -398,34 +387,32 @@ public class GameController implements Observer {
         if (playerInteractionQueue.isEmpty()) {
             // If not, continue
             try {
-                continueActions();
+                continueCurrentPhase();
             } catch (UnhandledPhaseInteractionException e) {
                 System.out.println(e.getMessage());
             }
         } else {
             currentPlayerInteraction = playerInteractionQueue.poll();
+            RoboRally.setDebugText(currentPlayerInteraction.toString(), 5);
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
         }
     }
 
     /**
-     * Handles what method to go to, after the player interaction queue is empty.
+     * Handles what method to go to, if the phase was interrupted.
      * @throws UnhandledPhaseInteractionException If it is not specified what method to go to after player interactions at the current phase.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void continueActions() throws UnhandledPhaseInteractionException {
-        if (board.getCurrentPhase() == GamePhase.PLAYER_ACTIVATION) {
-            currentPlayerInteraction = null;
-            handlePlayerRegister();
-        } else if (board.getCurrentPhase() == GamePhase.BOARD_ACTIVATION) {
-            currentPlayerInteraction = null;
-            handleBoardElementActions();
-        } else if (board.getCurrentPhase() == GamePhase.PROGRAMMING) {
-            currentPlayerInteraction = null;
-            board.getCurrentPlayer().stopRebooting();
-        } else {
-            throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), currentPlayerInteraction);
+    private void continueCurrentPhase() throws UnhandledPhaseInteractionException {
+        PlayerInteraction finalInteraction = currentPlayerInteraction;
+        currentPlayerInteraction = null;
+        RoboRally.setDebugText("", 5);
+        switch (board.getCurrentPhase()) {
+            case GamePhase.PLAYER_ACTIVATION -> handlePlayerActivation();
+            case GamePhase.BOARD_ACTIVATION -> handleBoardActivation();
+            case GamePhase.PROGRAMMING -> board.getCurrentPlayer().stopRebooting();
+            default -> throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), finalInteraction);
         }
     }
 
@@ -459,7 +446,7 @@ public class GameController implements Observer {
     }
 
     /**
-     * Queues all the board elements in the board.
+     * Queues all the board elements on the board, as well as player lasers.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void queueBoardElementsAndRobotLasers() {
@@ -495,14 +482,6 @@ public class GameController implements Observer {
         AppController.gameOver(winner);
     }
 
-    public boolean getIsPlayerReady(Player player) {
-        return latestRegisterData != null && latestRegisterData.stream().anyMatch(register ->
-                register.getPlayerId() == player.getPlayerId() &&
-                !register.hasNull() &&
-                register.getTurn() == turnCounter &&
-                register.getMoves().length == Player.NO_OF_REGISTERS);
-    }
-
     /**
      * Method for checking if a card is allowed to be dragged.
      * @param sourceField The CardField to drag.
@@ -519,13 +498,14 @@ public class GameController implements Observer {
 
         // Drag from player
         if (sourceField.cardFieldType != UPGRADE_CARD_SHOP_FIELD) {
-            // Limited card movement when not programming
-            if (sourceField.player == null) return false;
-            List<CardField> playerProgramField = Arrays.stream(sourceField.player.getProgramFields()).toList();
+            if (!sourceField.player.equals(localPlayer)) return false;
+
             if (board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) {
-                return !finishedProgramming;
+                return !getIsLocalPlayerReadyForNextPhase();
             } else {
-                return !playerProgramField.contains(sourceField);
+                // Can't drag from register when not programming
+                List<CardField> playerProgramFields = Arrays.stream(sourceField.player.getProgramFields()).toList();
+                return !playerProgramFields.contains(sourceField);
             }
         }
 
@@ -662,11 +642,11 @@ public class GameController implements Observer {
     public void chooseDirection(Heading direction, GameView gameView) {
         gameView.handleDirectionButtonClicked();
         directionOptionsSpace = null;
-        if (board.getCurrentPhase() == GamePhase.INITIALIZATION) {
+        if (board.getCurrentPhase().equals(GamePhase.INITIALIZATION)) {
             localPlayer.setHeading(direction);
             localPlayer.setSpawn(localPlayer.getSpace());
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
-            setReadyForPhase(GamePhase.PROGRAMMING);
+            setReadyForNextPhase();
         } else {
             serverDataManager.setInteraction(currentPlayerInteraction, direction.name(), turnCounter, movementCounter);
         }
@@ -680,11 +660,11 @@ public class GameController implements Observer {
         if (currentPlayerInteraction == null) return;
         switch (currentPlayerInteraction) {
             case RebootInteraction _ -> {
-                Heading direction = Heading.valueOf(serverDataManager.getInteraction());
+                Heading direction = Heading.valueOf(serverDataManager.getInteraction().getCode());
                 currentPlayerInteraction.getPlayer().setHeading(direction);
             }
             case CommandOptionsInteraction _ -> {
-                Command command = Command.valueOf(serverDataManager.getInteraction());
+                Command command = Command.valueOf(serverDataManager.getInteraction().getCode());
                 executeCommandOptionAndContinue(command);
             }
             default -> {}
@@ -694,10 +674,12 @@ public class GameController implements Observer {
 
     /**
      * Sets the local player to be ready for the next phase, and sends it to the server.
-     * @param nextPhase The next GamePhase, that the player is ready for.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setReadyForPhase(GamePhase nextPhase) {
+    private void setReadyForNextPhase() {
+        GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
+        if (getIsLocalPlayerReadyForNextPhase()) return;
+
         serverDataManager.setReadyForPhase(nextPhase);
         updateGameWithLatestData();
     }
@@ -737,8 +719,18 @@ public class GameController implements Observer {
         }
         serverDataManager.setPlayerUpgradeCards(permCards, tempCards);
         serverDataManager.setUpgradeShop(availableCards);
-        setReadyForPhase(GamePhase.PROGRAMMING);
+        setReadyForNextPhase();
     }
+
+    public void tryUseUpgradeCard(UpgradeCard upgradeCard) {
+        String resolveStatus = board.getCurrentPhase().equals(GamePhase.PLAYER_ACTIVATION) || board.getCurrentPhase().equals(GamePhase.BOARD_ACTIVATION) ?
+                Choice.ResolveStatus.NONE.name() : Choice.ResolveStatus.UNRESOLVED.name();
+        ChoiceDTO choiceDTO = new ChoiceDTO(latestGameData.getGameId(), localPlayer.getPlayerId(), upgradeCard.getEnum().name(), turnCounter, resolveStatus);
+        unresolvedLocalChoices.add(choiceDTO);
+        board.updateBoard();
+        serverDataManager.setChoice(choiceDTO);
+    }
+
 
 
 
@@ -769,6 +761,28 @@ public class GameController implements Observer {
             if (changedData.contains(NetworkedDataTypes.REGISTERS)) {
                 latestRegisterData = serverDataManager.getUpdatedRegisters();
             }
+            if (changedData.contains(NetworkedDataTypes.CHOICES)) {
+                latestChoiceData = serverDataManager.getUpdatedChoices();
+                executeUnhandledUpgradeCards();
+
+                if (!unresolvedLocalChoices.isEmpty()) {
+                    unresolvedLocalChoices.removeIf(unresolvedChoice -> {
+                        try {
+                            Set<Long> choicePlayerIds = latestChoiceData.stream()
+                                    .filter(c ->
+                                            c.isResolved() && // Received choice is resolved.
+                                            c.getCode().equals(unresolvedChoice.code()) && c.getPlayerId() == unresolvedChoice.playerId()) // Received choice matches the locally unresolved choice.
+                                    .map(c -> Long.parseLong(c.getResolveStatus()))
+                                    .collect(Collectors.toSet());
+                            choicePlayerIds.add(localPlayer.getPlayerId());
+                            return choicePlayerIds.containsAll(latestPlayerData.keySet());
+                        } catch (NumberFormatException e) {
+                            System.err.println("Error parsing playerId of choice: \n" + unresolvedChoice.toString());
+                            return false;
+                        }
+                    });
+                }
+            }
 
             if (latestGameData == null || latestPlayerData == null) return;
 
@@ -790,54 +804,112 @@ public class GameController implements Observer {
         updateCurrentGamePhase();
 
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
+        if (canStartNextPhase()) {
+            waitForPossibleCardUse();
+        }
+    }
+
+    private boolean canStartNextPhase() {
+        if (startingNextPhase) return false;
+        if (currentPlayerInteraction != null || !playerInteractionQueue.isEmpty()) return false;
         GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
-        if (allReadyForNextPhase(nextPhase)) {
-            startNextPhase(nextPhase);
+        boolean allAreReady = latestPlayerData.values().stream().allMatch(player -> player.getReadyForPhase().equals(nextPhase));
+        if (board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) {
+            boolean receivedAllRegisters = latestRegisterData != null && latestRegisterData.size() == NO_OF_PLAYERS && latestRegisterData.stream().noneMatch(Register::hasNull);
+            return allAreReady && receivedAllRegisters;
+        }
+        return allAreReady;
+    }
+
+    private void waitForPossibleCardUse() {
+        startingNextPhase = true;
+        System.out.println();
+
+        // Delay before assessing card usages.
+        RoboRally.setDebugText("Waiting for card use", 1);
+        board.getBoardActionQueue().add(new ActionWithDelay(() -> {}, ApplicationSettings.CARD_USAGE_DELAY_MILLIS));
+
+        // After delay, set and get card usages.
+        runActionsAndCallback(this::setAndUpdateChoices);
+    }
+
+    private void setAndUpdateChoices() {
+        serverDataManager.setReadyChoice(turnCounter, movementCounter);
+        serverDataManager.waitForChoicesAndCallback(this::startNextPhase, turnCounter);
+    }
+
+    private void startNextPhase() {
+        GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
+        board.setCurrentPhase(nextPhase);
+        RoboRally.setDebugText("GamePhase: " + board.getCurrentPhase(), 2);
+        RoboRally.setDebugText("Register: " + board.getCurrentRegister(), 3);
+        if (serverDataManager.isHost()) {
+            serverDataManager.setGamePhase(board.getCurrentPhase());
+        }
+        startingNextPhase = false;
+        updateCurrentGamePhase();
+        executeUnhandledUpgradeCards();
+
+        switch (board.getCurrentPhase()) {
+            case GamePhase.PROGRAMMING -> startProgrammingPhase();
+            case GamePhase.PLAYER_ACTIVATION -> startPlayerActivationPhase();
+            case GamePhase.BOARD_ACTIVATION -> startBoardActivationPhase();
+            case GamePhase.UPGRADE -> startUpgradingPhase();
         }
     }
 
-    private boolean allReadyForNextPhase(GamePhase nextPhase) {
-        return latestPlayerData.values().stream().allMatch(player -> player.getReadyForPhase().equals(nextPhase));
-    }
+    private void executeUnhandledUpgradeCards() {
+        RoboRally.setDebugText(null, 1);
 
-    private void startNextPhase(GamePhase phaseToStart) {
-        if (board.getCurrentPhase() != phaseToStart) {
-            //System.out.println("STARTING PHASE: " + phaseToStart);
-            board.setCurrentPhase(phaseToStart);
-            if (serverDataManager.isHost()) {
-                serverDataManager.setGamePhase(phaseToStart);
+        latestChoiceData = serverDataManager.getUpdatedChoices();
+        List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
+        unhandledChoices.removeAll(executedChoices);
+
+        for (Choice choice : unhandledChoices) {
+            executedChoices.add(choice);
+            if (choice.getCode().equals(Choice.EMPTY_CHOICE)) continue;
+            if (choice.isResolved()) continue;
+
+            Player player = board.getPlayers().stream().filter(p -> p.getPlayerId() == choice.getPlayerId()).findFirst().orElse(null);
+            if (player == null) {
+                System.err.println("Player with playerId " + choice.getPlayerId() + " can not be found for code " + choice.getCode() + "!");
+                continue;
             }
-            switch (phaseToStart) {
-                case GamePhase.PROGRAMMING -> startProgrammingPhase();
-                case GamePhase.PLAYER_ACTIVATION -> {
-                    if (board.getCurrentRegister() == 0) {
-                        startPlayerActivationPhase();
-                    } else {
-                        waitForPossibleCardUse();
-                    }
+
+            // If it's another player's unresolved code, we resolve it by sending it back with this player's ID.
+            if (choice.getPlayerId() != localPlayer.getPlayerId() && choice.getResolveStatus().equals(Choice.ResolveStatus.UNRESOLVED.name())) {
+                ChoiceDTO resolvedChoiceDTO = new ChoiceDTO(
+                        choice.getGameId(),
+                        choice.getPlayerId(),
+                        choice.getCode(),
+                        choice.getTurn(),
+                        String.valueOf(localPlayer.getPlayerId())
+                );
+                serverDataManager.setChoice(resolvedChoiceDTO);
+            }
+
+            for (UpgradeCard upgradeCard : player.getUpgradeCards()) {
+                if (upgradeCard.getEnum().name().equals(choice.getCode())) {
+                    upgradeCard.activate();
+                    break;
                 }
-                case GamePhase.BOARD_ACTIVATION -> startBoardActivationPhase();
-                case GamePhase.UPGRADE -> startUpgradingPhase();
             }
-            updateCurrentGamePhase();
         }
     }
+
+
 
     /**
-     * Update logic for the current local GamePhase.
+     * Redirection of update logic for the current local GamePhase.
      */
     private void updateCurrentGamePhase() {
         switch (board.getCurrentPhase()) {
             case GamePhase.INITIALIZATION -> updateInitialization();
-            case GamePhase.PROGRAMMING -> updateProgramming();
             case GamePhase.UPGRADE -> updateUpgrading();
         }
         board.updateBoard();
     }
 
-    /**
-     *
-     */
     private void updateInitialization() {
         // Check if all players have set their spawn point
         for (Player client : board.getPlayers()) {
@@ -853,7 +925,7 @@ public class GameController implements Observer {
 
             // Local player
             if (client.equals(localPlayer)) {
-                if (ServerDataManager.getLocalPlayer().getReadyForPhase() == GamePhase.PROGRAMMING) continue; // Local player has already sat their spawn point.
+                if (getIsLocalPlayerReadyForNextPhase()) continue; // Local player has already sat their spawn point.
                 // Local player direction option
                 setDirectionOptionsPane(client, clientSpawnPosition);
             }
@@ -871,20 +943,6 @@ public class GameController implements Observer {
             client.setHeading(clientHeading);
             client.setSpawn(clientSpawnPosition);
         }
-    }
-
-    private void updateProgramming() {
-        // Check if all players have submitted their registers
-        if (latestRegisterData == null) return;
-        if (latestRegisterData.size() != NO_OF_PLAYERS) return;
-        for (Register register : latestRegisterData) {
-            if (register.hasNull()) return;
-            if (register.getMoves().length != Player.NO_OF_REGISTERS) return;
-        }
-        if (!finishedProgramming) return;
-        if (ServerDataManager.getLocalPlayer().getReadyForPhase().equals(GamePhase.PLAYER_ACTIVATION)) return;
-
-        setReadyForPhase(GamePhase.PLAYER_ACTIVATION);
     }
 
     /**
@@ -935,5 +993,15 @@ public class GameController implements Observer {
             }
             board.updateBoard();
         }
+    }
+
+    public boolean getIsLocalPlayerReadyForNextPhase() {
+        GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
+        return serverDataManager.getLocalPlayer().getReadyForPhase().equals(nextPhase);
+    }
+
+    public boolean getIsPlayerReadyForNextPhase(Player player) {
+        GamePhase nextPhase = GamePhase.getNextPhase(board.getCurrentPhase(), board.getCurrentRegister());
+        return latestPlayerData.get(player.getPlayerId()).getReadyForPhase().equals(nextPhase);
     }
 }

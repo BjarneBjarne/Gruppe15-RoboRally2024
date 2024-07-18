@@ -74,7 +74,6 @@ public class Player extends Subject {
     @Getter
     private Space temporarySpace = null;
     @Getter
-    @Setter
     private Heading heading = SOUTH;
 
     @Getter
@@ -592,10 +591,24 @@ public class Player extends Subject {
     }
 
     public void fillRestOfRegisters() {
-        for (CardField programField : programFields) {
-            if ((DRAW_ON_EMPTY_REGISTER && programField.getCard() == null) || ((CommandCard)programField.getCard()).getCommand().drawsTopCard()) {
+        for (int i = 0; i < programFields.length; i++) {
+            CardField programField = programFields[i];
+            boolean drawCard = (DRAW_ON_EMPTY_REGISTER && programField.getCard() == null) || (((CommandCard)programField.getCard()).getCommand().drawsTopCard());
+            if (!drawCard) continue;
+
+            if (i == 0) {
+                programField.setCard(drawCardFromDeckForFirstRegister());
+            } else {
                 programField.setCard(drawFromDeck());
             }
+        }
+    }
+    private CommandCard drawCardFromDeckForFirstRegister() {
+        CommandCard card = drawFromDeck();
+        if (card.getCommand().isAgainType()) {
+            return drawCardFromDeckForFirstRegister();
+        } else {
+            return card;
         }
     }
 
@@ -608,7 +621,7 @@ public class Player extends Subject {
 
     /**
      * * sets the players action from the command
-     * @param notifyUpgradeCards Set to true, is the player is executing a programming card. If the player is executing an interaction option, we don't want to notify the UpgradeCards (again).
+     * @param notifyUpgradeCards Set to true, is the player is executing a programming card. If the player is executing an interaction option, we don't want to notify the Types (again).
      * @author Maximillian Bjørn Mortensen
      */
     public void queueCommand(Command command, boolean notifyUpgradeCards, GameController gameController) {

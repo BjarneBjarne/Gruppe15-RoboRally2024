@@ -20,7 +20,6 @@ public class BE_Checkpoint extends BoardElement {
     /**
      * Constructor for the checkpoint
      * @param number the number of the checkpoint
-     * @param total the total number of checkpoints on the board
      */
     public BE_Checkpoint(int number) {
         super(number + ".png");

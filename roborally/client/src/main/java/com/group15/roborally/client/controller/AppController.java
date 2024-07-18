@@ -46,7 +46,6 @@ import com.group15.roborally.common.model.Player;
 import com.group15.roborally.common.model.GamePhase;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 
@@ -96,7 +95,7 @@ public class AppController implements Observer {
         infoPane.setInfoText("Setting up multiplayer...");
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView();
-            multiplayerMenuView.setControllers(serverDataManager);
+            multiplayerMenuView.setControllers(this, serverDataManager);
             roboRally.createMultiplayerMenu(multiplayerMenuView);
             multiplayerMenuView.setupMenuUI();
             multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
@@ -112,7 +111,6 @@ public class AppController implements Observer {
         System.out.println("Starting game...");
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
-
         com.group15.roborally.client.model.Player localClient = null;
 
         // Adding players
@@ -278,7 +276,8 @@ public class AppController implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject.equals(serverDataManager)) {
-            if (!serverDataManager.isConnectedToGame() && isGameRunning()) {
+            if (!serverDataManager.isConnectedToServer() && isGameRunning()) {
+                System.out.println("Disconnected from server, going to main menu.");
                 roboRally.goToMainMenu();
             }
         }

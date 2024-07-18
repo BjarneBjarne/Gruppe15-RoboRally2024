@@ -54,12 +54,12 @@ public enum Command {
     SPAM_FOLDER("Spam Folder", true),
     REPEAT_ROUTINE("Repeat Routine"),
 
-    // Utility commands for UpgradeCards
+    // Utility commands for Types
     MOVE_0("Move 0"), // Do nothing
     MOVE_RIGHT("Move Right"),
     MOVE_LEFT("Move Left"),
 
-    // UpgradeCards commands
+    // Types commands
     BRAKES("Brakes", MOVE_0, MOVE_1),
 
 
@@ -114,5 +114,9 @@ public enum Command {
 
     public boolean drawsTopCard() {
         return this == SPAM || this == TROJAN_HORSE || this == VIRUS;
+    }
+
+    public boolean isAgainType() {
+        return this == AGAIN || this == REPEAT_ROUTINE;
     }
 }

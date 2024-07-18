@@ -4,5 +4,6 @@ public enum NetworkedDataTypes {
     GAME,
     PLAYERS,
     UPGRADE_SHOP,
-    REGISTERS
+    REGISTERS,
+    CHOICES
 }

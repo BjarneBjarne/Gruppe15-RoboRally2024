@@ -36,11 +36,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -54,17 +52,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 
 /**
- * ...
- *
  * @author Ekkart Kindler, ekki@dtu.dk
- *
  */
 public class RoboRally extends Application {
     private GridPane directionOptionsPane;
@@ -113,7 +107,7 @@ public class RoboRally extends Application {
 
         backgroundImageView.setPreserveRatio(true);
 
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 36);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 30);
         debugLabel.setFont(textFont);
         debugLabel.setTextAlignment(TextAlignment.LEFT);
         StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
@@ -136,16 +130,16 @@ public class RoboRally extends Application {
         scalePane.setStyle(
                         "-fx-background: transparent; " +
                         "-fx-background-color: transparent; " +
-                                //"-fx-border-color: blue;" +
-                                "-fx-border-width: 2px;" +
-                                "-fx-border-radius: 5;"
+                        //"-fx-border-color: blue;" +
+                        "-fx-border-width: 2px;" +
+                        "-fx-border-radius: 5;"
         );
         root.setStyle(
                         "-fx-background: transparent; " +
                         "-fx-background-color: transparent; " +
-                                //"-fx-border-color: red;" +
-                                "-fx-border-width: 2px;" +
-                                "-fx-border-radius: 5;"
+                        //"-fx-border-color: red;" +
+                        "-fx-border-width: 2px;" +
+                        "-fx-border-radius: 5;"
         );
 
         appController = new AppController(this, infoPane);
@@ -170,8 +164,6 @@ public class RoboRally extends Application {
         primaryScene.setFill(Color.BLACK);
 
         stage.setScene(primaryScene);
-
-        //ApplicationSettings.APP_SCALE = initialWidth / ApplicationSettings.REFERENCE_WIDTH;
 
         URL stylesCSS = getClass().getResource("styles.css");
         if (stylesCSS != null) {
@@ -224,11 +216,17 @@ public class RoboRally extends Application {
 
     private void scaleUI() {
         Platform.runLater(() -> {
+            if (ApplicationSettings.FULLSCREEN) {
+                stage.setFullScreen(true);
+            }
             double newWidth = primaryScene.widthProperty().doubleValue();
             double newHeight = primaryScene.heightProperty().doubleValue();
 
             ApplicationSettings.APP_BOUNDS = new Rectangle2D(ApplicationSettings.MIN_APP_WIDTH, ApplicationSettings.MIN_APP_HEIGHT, newWidth, newHeight);
             ApplicationSettings.APP_SCALE = Math.min(newWidth / ApplicationSettings.REFERENCE_WIDTH, newHeight / ApplicationSettings.REFERENCE_HEIGHT);
+
+            stage.setMinWidth(ApplicationSettings.APP_BOUNDS.getMinX());
+            stage.setMinHeight(ApplicationSettings.APP_BOUNDS.getMinY());
 
             scalePane.setScaleX(ApplicationSettings.APP_SCALE);
             scalePane.setScaleY(ApplicationSettings.APP_SCALE);
@@ -251,7 +249,7 @@ public class RoboRally extends Application {
         });
     }
 
-    public static void addDebugText(String text, int row) {
+    public static void setDebugText(String text, int row) {
         if (row >= 16) return;
         debugTextArray[row] = text;
     }
@@ -259,8 +257,11 @@ public class RoboRally extends Application {
     private void updateDebugText() {
         StringBuilder debugText = new StringBuilder();
         for (String s : debugTextArray) {
-            if (s == null) continue;
-            debugText.append(s).append("\n");
+            //if (s == null) continue;
+            if (s != null) {
+                debugText.append(s);
+            }
+            debugText.append("\n");
         }
         debugLabel.setText(debugText.toString());
         debugLabel.setTextFill(Color.DARKRED);

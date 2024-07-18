@@ -142,7 +142,7 @@ public class PlayerTest {
         int before = player.getEnergyCubes();
         player.queueCommand(Command.POWER_UP, null);
         int after = player.getEnergyCubes();
-        Assertions.assertTrue(before+1 == after);
+        Assertions.assertEquals(before + 1, after);
     }
 
     private int getCommandNr(Command cmd){

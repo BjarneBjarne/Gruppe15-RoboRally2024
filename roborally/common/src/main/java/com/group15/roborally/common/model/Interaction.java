@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @Table(name = "interactions")
 @Getter
@@ -19,21 +18,20 @@ public class Interaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long interactionId;
+    private long playerId;
+    private String code;
+    private int turn;
+    private int movement;
 
-    long playerId;
-    String choice;
-    int turn;
-    int movement;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "playerId", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "playerId", referencedColumnName = "playerId", insertable = false, updatable = false)
     @JsonIgnore
     private Player player;
 
-    public Interaction(long playerId, String choice, int turn, int movement) {
+    public Interaction(long playerId, String code, int turn, int movement) {
         this.playerId = playerId;
-        this.choice = choice;
-        this.movement = movement;
+        this.code = code;
         this.turn = turn;
+        this.movement = movement;
     }
 }
