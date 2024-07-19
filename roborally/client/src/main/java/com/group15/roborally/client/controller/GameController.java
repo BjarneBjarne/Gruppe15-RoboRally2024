@@ -825,9 +825,13 @@ public class GameController implements Observer {
         startingNextPhase = true;
         System.out.println();
 
-        // Delay before assessing card usages.
-        RoboRally.setDebugText("Waiting for card use", 1);
-        board.getBoardActionQueue().add(new ActionWithDelay(() -> {}, ApplicationSettings.CARD_USAGE_DELAY_MILLIS));
+        // Check if a player has an activatable card.
+        boolean waitForPossibleActivation = board.getPlayers().stream().anyMatch(player -> player.getUpgradeCards().stream().anyMatch(UpgradeCard::getHasActive));
+        if (waitForPossibleActivation) {
+            // Delay before assessing card usages.
+            RoboRally.setDebugText("Waiting for card use", 1);
+            board.getBoardActionQueue().add(new ActionWithDelay(() -> {}, ApplicationSettings.CARD_USAGE_DELAY_MILLIS));
+        }
 
         // After delay, set and get card usages.
         runActionsAndCallback(this::setAndUpdateChoices);

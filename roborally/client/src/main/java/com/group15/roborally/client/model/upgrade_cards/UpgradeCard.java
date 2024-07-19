@@ -102,7 +102,7 @@ public abstract class UpgradeCard extends Card {
     protected abstract void onActivated();
 
     public void activate() {
-        if (!getIsActivatable()) {
+        if (!getHasActive()) {
             System.err.println("Trying to activate upgrade card + \"" + title + "\" which is not activatable");
             return;
         }
@@ -173,7 +173,7 @@ public abstract class UpgradeCard extends Card {
         return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost && !gameController.getIsLocalPlayerReadyForNextPhase() && !queuedForActivation;
     }
 
-    public boolean getIsActivatable() {
+    public boolean getHasActive() {
         return activatableOn != null && !activatableOn.isEmpty();
     }
 

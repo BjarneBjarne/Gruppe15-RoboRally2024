@@ -492,12 +492,11 @@ public class Board extends Subject {
         updatePriorityList();
         while (!priorityList.isEmpty()) {
             Player player = priorityList.poll();
-
-            // First we make an action that lasts 150ms.
+            // Queue clearing previous lasers.
+            boardActionQueue.addLast(new ActionWithDelay(this::queueClearLasers, 0, ""));
+            // Queue player laser
             boardActionQueue.addLast(new ActionWithDelay(() -> {
-                // When the player is about to shoot, we immediately queue to clear the lasers as the next action, ensuring the lasers are cleared in between player lasers.
-                boardActionQueue.addFirst(new ActionWithDelay(this::queueClearLasers, 0, ""));
-                // Tell the EventHandler that we want to shoot.
+                // Tell the EventHandler to make the player shoot.
                 EventHandler.event_PlayerShootStart(player);
             }, 150, "Player: \"" + player.getName() + "\" laser"));
         }

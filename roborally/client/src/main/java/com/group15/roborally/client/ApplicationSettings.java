@@ -20,7 +20,7 @@ public class ApplicationSettings {
     // Action delay
     public static final int NEXT_REGISTER_DELAY = 500; // In milliseconds.
     public static final boolean WITH_ACTION_DELAY = true;
-    public static final int CARD_USAGE_DELAY_MILLIS = 500;
+    public static final int CARD_USAGE_DELAY_MILLIS = 1500;
 
     // Controls
     public static double ZOOM_SPEED = 1;

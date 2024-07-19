@@ -10,6 +10,9 @@ public abstract class UpgradeCardTemporary extends UpgradeCard {
     }
 
 
+    /**
+     * Must be implemented by card extending temporary upgrade cards.
+     */
     @Override
     public void onActivated() {
         // Remove card on use

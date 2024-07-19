@@ -81,10 +81,10 @@ public class PlayerView extends StackPane implements ViewObserver {
     public static final double programCardSize = 1.165;
     public static final double programPaneYPositionOffset = 33;
 
-    public PlayerView(@NotNull GameController gameController, double height) {
+    public PlayerView(@NotNull GameController gameController, double playerViewHeight) {
         super();
         //StackPane.setMargin(playerViewPane, new Insets(-25, 0, 27, 0));
-        this.setHeight(height);
+        this.setHeight(playerViewHeight);
         this.gameController = gameController;
         this.player = gameController.getLocalPlayer();
 
@@ -147,20 +147,42 @@ public class PlayerView extends StackPane implements ViewObserver {
         for (int i = 0; i < Player.NO_OF_PERMANENT_UPGRADE_CARDS; i++) {
             CardField cardField = player.getPermanentUpgradeCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * permanentCardSize, 1.6 * permanentCardSize);
-                cardFieldView.setOnMouseEntered(_ -> cardFieldView.setTranslateY(permanentUpgradeCardsPaneOffset));
-                cardFieldView.setOnMouseExited(_ -> cardFieldView.setTranslateY(0));
-                cardFieldView.setAlignment(Pos.CENTER);
-                //cardFieldView.setStyle("-fx-background-color: transparent; ");
+                double width = 1 * permanentCardSize;
+                double height = 1.6 * permanentCardSize;
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, width, height);
+                CardFieldView cardFieldShowcaseView = new CardFieldView(gameController, cardField, width * 2, height * 2);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent;" +
                                 "-fx-border-radius: 5; " +
                                 "-fx-border-color: orange; " +
                                 "-fx-border-width: 2px "
                 );
+                cardFieldShowcaseView.setStyle(
+                        "-fx-background-color: transparent;" +
+                                "-fx-border-radius: 5; " +
+                                "-fx-border-color: orange; " +
+                                "-fx-border-width: 2px "
+                );
+                player.board.attach(cardFieldView);
+                player.board.attach(cardFieldShowcaseView);
+
+                cardFieldView.setAlignment(Pos.CENTER);
                 GridPane.setMargin(cardFieldView, new Insets(0, 5, 0, 5));
                 permanentUpgradeCardsPane.add(cardFieldView, i, 0);
-                player.board.attach(cardFieldView);
+
+                cardFieldShowcaseView.setVisible(false);
+                cardFieldShowcaseView.setMouseTransparent(true);
+                this.getChildren().add(cardFieldShowcaseView);
+
+                // Hovering the cardg
+                cardFieldView.setOnMouseEntered(_ -> {
+                    cardFieldView.setVisible(false);
+                    cardFieldShowcaseView.setVisible(true);
+                });
+                cardFieldView.setOnMouseExited(_ -> {
+                    cardFieldView.setVisible(true);
+                    cardFieldShowcaseView.setVisible(false);
+                });
             }
         }
         permanentUpgradeCardsPane.setAlignment(Pos.CENTER);

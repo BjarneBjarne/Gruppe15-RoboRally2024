@@ -108,7 +108,7 @@ public class CardField extends Subject {
             return false;
         }
         if (card instanceof UpgradeCard upgradeCard) {
-            return upgradeCard.getIsActivatable();
+            return upgradeCard.getHasActive();
         }
         return false;
     }
