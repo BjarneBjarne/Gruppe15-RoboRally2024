@@ -18,9 +18,10 @@ public class ApplicationSettings {
     public static boolean FULLSCREEN = false;
 
     // Action delay
-    public static final int NEXT_REGISTER_DELAY = 500; // In milliseconds.
+    public static final int NEXT_REGISTER_DELAY = 0; // In milliseconds.
+    public static final int NEXT_PLAYER_REGISTER_DELAY = 2000;
+    public static final int PRE_PHASE_USAGE_DELAY_MILLIS = 2000;
     public static final boolean WITH_ACTION_DELAY = true;
-    public static final int CARD_USAGE_DELAY_MILLIS = 1500;
 
     // Controls
     public static double ZOOM_SPEED = 1;
@@ -28,6 +29,7 @@ public class ApplicationSettings {
     public static double MAX_ZOOM = 10;
 
     // Debug
+    public static final boolean DEBUG_SHOW_DEBUG_UI = true;
     public static final boolean DEBUG_SHOW_COORDINATES = false;
     public static final boolean DEBUG_WITH_ACTION_MESSAGE = true;
     public static final boolean DEBUG_SHOW_UPGRADE_CARD_USAGE = true;

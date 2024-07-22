@@ -9,6 +9,7 @@ import com.group15.roborally.server.repository.RegisterRepository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ProgController {
 
-    private GameRepository gameRepository;
-    private PlayerRepository playerRepository;
-    private RegisterRepository registerRepository;
+    private final GameRepository gameRepository;
+    private final PlayerRepository playerRepository;
+    private final RegisterRepository registerRepository;
 
     public ProgController(GameRepository gameRepository, PlayerRepository playerRepository, RegisterRepository registerRepository) {
         this.gameRepository = gameRepository;
@@ -43,64 +44,54 @@ public class ProgController {
      */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
-        Register register = registerRepository.findById(playerId).orElse(null);
-        if (!(register == null)) {
-            register.setMoves(moves);
-            register.setTurn(turn);
-            if (!register.hasNull()) {
-                registerRepository.save(register);
-                Game game = gameRepository.findById(playerRepository.findById(playerId).orElse(null).getGameId()).orElse(null);
-                if (game.getTurnId() < turn) {
-                    game.setTurnId(turn);
-                    gameRepository.save(game);
-                }
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(422).build();
-            }
+        Optional<Register> optionalRegister = registerRepository.findById(playerId);
+        Optional<Player> optionalPlayer = playerRepository.findById(playerId);
+
+        if (optionalRegister.isEmpty()) {
+            System.err.println("Register not found");
         }
-        return ResponseEntity.status(404).build();
-        /*
-         * TO FIX
-         */
-        // if (playerId <= 0L || turn <= 0 || player.getGameId() != register.getGameId()) {
-        //     return ResponseEntity.status(422).build();
-        // }
+
+        if (optionalPlayer.isEmpty()) {
+            System.err.println("Player not found");
+        }
+
+        if (optionalRegister.isEmpty() || optionalPlayer.isEmpty()) return ResponseEntity.status(404).build();
+
+        Register register = optionalRegister.get();
+        register.setMoves(moves);
+        register.setTurn(turn);
+        if (register.hasNull()) return ResponseEntity.status(422).build();
+
+        Game game = gameRepository.findByGameId(optionalPlayer.get().getGameId());
+        if (game.getTurnId() < turn) {
+            game.setTurnId(turn);
+            gameRepository.save(game);
+        }
+
+        System.out.println("Inserted register " + register);
+
+        registerRepository.save(register);
+        return ResponseEntity.ok().build();
     }
 
     /**
-     * Endpoint to get all registers for a game
-     * 
+     * Endpoint to get all registers for a game that has been posted this turn
+     *
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
-     * 
+     *
      * @param gameId
-     * @return ResponseEntity<Register[]> 
+     * @return ResponseEntity<List<Register>>
      */
     @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") long gameId) {
-        if (!gameRepository.existsById(gameId)) {
-            return ResponseEntity.status(404).build();
-        }
-        int currentTurn = Objects.requireNonNull(gameRepository.findById(gameId).orElse(null)).getTurnId();
-        List<Register> registers = registerRepository.findAllByGameId(gameId);
-        registers.removeIf(register -> register.getTurn() != currentTurn);
+        System.out.println("Finding registers for game " + gameId);
+        if (!gameRepository.existsById(gameId)) return ResponseEntity.status(404).build();
+
+        int currentTurn = gameRepository.findByGameId(gameId).getTurnId();
+        List<Register> registers = registerRepository.findAllByGameIdAndTurn(gameId, currentTurn);
+
+        System.out.println("Found " + registers.size() + " registers");
+
         return ResponseEntity.ok(registers);
-        // List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
-        // if (players == null) {
-        //     return ResponseEntity.status(404).build();
-        // }
-        // Register[] registers = new Register[players.size()];
-        // for (int i = 0; i < players.size(); i++) {
-        //     Player player = players.get(i);
-        //     Register register = registerRepository.findById(player.getPlayerId()).orElse(null);
-        //     if (register.getTurn() != currentTurn) {
-        //         return ResponseEntity.ok(null);
-        //     }
-        //     registers[i] = register;
-        // }
-        /*
-         * TO FIX
-         */
-        // Register[] registers = registerRepository.findByGameId(gameId);
     }
 }

@@ -4,11 +4,9 @@ import com.group15.roborally.client.model.CardField;
 import com.group15.roborally.common.model.GamePhase;
 
 public abstract class UpgradeCardTemporary extends UpgradeCard {
-
-    public UpgradeCardTemporary(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, GamePhase... activatableOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn, activatableOn);
+    public UpgradeCardTemporary(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, boolean onlyActivatableOnPlayerTurn, GamePhase... activatableOn) {
+        super(title, purchaseCost, useCost, maxUses, refreshedOn, onlyActivatableOnPlayerTurn, activatableOn);
     }
-
 
     /**
      * Must be implemented by card extending temporary upgrade cards.

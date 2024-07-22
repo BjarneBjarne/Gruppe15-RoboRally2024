@@ -18,14 +18,11 @@ public class UpgradeShop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long upgradeShopId;
-
     private long gameId;
-
     private String[] cards;
-
     private int turn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
     private Game game;
 }

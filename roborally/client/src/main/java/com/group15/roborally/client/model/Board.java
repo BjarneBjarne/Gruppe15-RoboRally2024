@@ -25,7 +25,6 @@ import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.damage.DamageType;
-import com.group15.roborally.client.model.events.PhaseChangeListener;
 import javafx.util.Pair;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -152,11 +151,6 @@ public class Board extends Subject {
         notifyChange();
     }
 
-    List<PhaseChangeListener> phaseChangeListeners = new ArrayList<>();
-    public void setOnPhaseChange(PhaseChangeListener listener) {
-        phaseChangeListeners.add(listener);
-    }
-
     /**
      * Sets the current game phase locally.
      * Should *only* be called from the GameController, in order to sync with the server.
@@ -165,7 +159,6 @@ public class Board extends Subject {
     public void setCurrentPhase(GamePhase phase) {
         if (phase != this.currentPhase) {
             this.currentPhase = phase;
-            phaseChangeListeners.forEach(listener -> listener.onPhaseChange(phase));
             notifyChange();
         }
     }
@@ -391,6 +384,7 @@ public class Board extends Subject {
             priorityList.add(player);
             //System.out.println("Player \"" + player.getName() + "\": " + i + ". Calculated priority: " + newPriorityList.get(i).getKey());
         }
+        notifyChange();
     }
 
     /**
@@ -573,5 +567,9 @@ public class Board extends Subject {
             }
         }
         return false;  // If push chain was stopped by wall
+    }
+
+    public GamePhase getNextPhase() {
+        return GamePhase.getNextPhase(currentPhase, currentRegister);
     }
 }

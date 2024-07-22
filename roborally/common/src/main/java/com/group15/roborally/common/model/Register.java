@@ -21,12 +21,8 @@ import java.util.Arrays;
 public class Register {
     @Id
     private long playerId;
-
     private int turn;
-
-    private String[] moves;
-
-    private String[] deck;
+    private String[] moves = null;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playerId", insertable = false, updatable = false)
@@ -35,6 +31,7 @@ public class Register {
 
     @Override
     public boolean equals(Object o) {
+        if (!o.getClass().equals(this.getClass())) return false;
         Register other = (Register) o;
         return playerId == other.playerId
                 && turn == other.turn

@@ -87,10 +87,10 @@ public class RegisterRepositoryTest {
      */
     @Test
     public void findByPlayerIdTest() {
-        Register[] registers = registerRepository.findByPlayerId(1L);
-        assert (Arrays.asList(registers).contains(register1));
-        assert (!Arrays.asList(registers).contains(register2));
-        assert (!Arrays.asList(registers).contains(register3));
+        Register register = registerRepository.findByPlayerId(1L);
+        assert (register.equals(register1));
+        assert (!register.equals(register2));
+        assert (!register.equals(register3));
     }
 
     /**

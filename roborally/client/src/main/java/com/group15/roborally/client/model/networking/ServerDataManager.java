@@ -47,7 +47,7 @@ public class ServerDataManager extends Subject implements Observer {
     @Getter
     private Interaction interaction;
     @Setter
-    private int currentTurn, currentMovement = 0;
+    private int currentTurnCount, currentPhaseCount = 0;
 
     // Updated Game data
     private Game game;
@@ -136,8 +136,15 @@ public class ServerDataManager extends Subject implements Observer {
     private void startUpdateGameLoop() {
         Runnable lobbyUpdate = () -> {
             if (serverCommunication.isConnectedToServer()) {
-                if (this.game == null) return;
-                updateGameFromServerData();
+                if (this.game == null) {
+                    System.err.println("THIS.GAME IS NULL");
+                    return;
+                }
+                try {
+                    updateGameFromServerData();
+                } catch (Exception e) {
+                    System.err.println("Error in updateGameFromServerData loop. Exception message: " + e.getMessage());
+                }
             }
         };
         gameUpdateScheduler = Executors.newScheduledThreadPool(1);
@@ -186,22 +193,28 @@ public class ServerDataManager extends Subject implements Observer {
     private void updateGameFromServerData() {
         // Get updated game data.
         Game updatedGame = serverCommunication.getGame(game.getGameId());
-        if (updatedGame == null) return;
+        if (updatedGame == null) {
+            System.err.println("GAME IS NULL");
+            return;
+        }
         List<Player> updatedPlayers = serverCommunication.getPlayers(game.getGameId());
-        if (updatedPlayers == null) return;
+        if (updatedPlayers == null) {
+            System.err.println("PLAYER LIST IS NULL");
+            return;
+        }
         String[] updatedUpgradeShop;
-        if (updatedGame.getPhase() == GamePhase.UPGRADE) {
+        if (updatedGame.getPhase().equals(GamePhase.UPGRADE)) {
             updatedUpgradeShop = serverCommunication.getUpgradeShop(game.getGameId());
         } else {
             updatedUpgradeShop = null;
         }
         List<Register> updatedRegisters;
-        if (updatedGame.getPhase() == GamePhase.PROGRAMMING) {
+        if (updatedGame.getPhase().equals(GamePhase.PROGRAMMING)) {
             updatedRegisters = serverCommunication.getRegisters(game.getGameId());
         } else {
             updatedRegisters = null;
         }
-        List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentTurn);
+        List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentTurnCount);
 
         // Check if the host has disconnected
         boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
@@ -336,12 +349,18 @@ public class ServerDataManager extends Subject implements Observer {
     }
     public void setGamePhase(@NotNull GamePhase gamePhase) {
         if (isHost && !gamePhase.equals(game.getPhase())) {
+            System.out.println("UPDATING GAME PHASE TO: " + gamePhase);
             game.setPhase(gamePhase);
             serverCommunication.putGame(game);
         }
     }
     // In game
     public void setPlayerRegister(@NotNull String[] programFieldNames, int turn) {
+        System.out.println("Sending registers:");
+        for (String string : programFieldNames) {
+            System.out.println("Command: " + string);
+        }
+        System.out.println("For turn: " + turn);
         serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), turn);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
@@ -369,15 +388,15 @@ public class ServerDataManager extends Subject implements Observer {
         serverCommunication.putChoice(choiceDTO);
         notifyChange();
     }
-    public void setReadyChoice(int turn, int movement) {
-        ChoiceDTO emptyChoiceDTO = new ChoiceDTO(game.getGameId(), localPlayer.getPlayerId(), Choice.EMPTY_CHOICE, turn, Choice.ResolveStatus.NONE.name());
+    public void setReadyChoice(int turn) {
+        ChoiceDTO emptyChoiceDTO = new ChoiceDTO(game.getGameId(), localPlayer.getPlayerId(), Choice.READY_CHOICE, turn, Choice.ResolveStatus.NONE.name());
         serverCommunication.putChoice(emptyChoiceDTO);
     }
     public void waitForChoicesAndCallback(Runnable callback, int turn) {
         Runnable poll = () -> {
             List<Choice> choices = serverCommunication.getChoices(game.getGameId(), turn);
             Set<Long> choicePlayerIds = choices.stream()
-                    .filter(c -> c.getCode().equals(Choice.EMPTY_CHOICE))
+                    .filter(c -> c.getCode().equals(Choice.READY_CHOICE))
                     .map(Choice::getPlayerId)
                     .collect(Collectors.toSet());
 

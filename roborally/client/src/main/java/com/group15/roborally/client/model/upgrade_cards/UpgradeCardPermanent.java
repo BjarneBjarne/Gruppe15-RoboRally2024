@@ -11,17 +11,17 @@ import java.util.List;
 public abstract class UpgradeCardPermanent extends UpgradeCard {
     protected final List<EventListener> eventListeners = new ArrayList<>();
 
-    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, GamePhase... activatableOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn, activatableOn);
+    public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, boolean onlyActivatableOnPlayerTurn, GamePhase... activatableOn) {
+        super(title, purchaseCost, useCost, maxUses, refreshedOn, onlyActivatableOnPlayerTurn, activatableOn);
     }
     public UpgradeCardPermanent(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn) {
-        super(title, purchaseCost, useCost, maxUses, refreshedOn);
+        super(title, purchaseCost, useCost, maxUses, refreshedOn, false);
     }
     public UpgradeCardPermanent(String title, int purchaseCost, int useCost) {
-        super(title, purchaseCost, useCost, 0, null);
+        super(title, purchaseCost, useCost, 0, null, false);
     }
     public UpgradeCardPermanent(String title, int purchaseCost) {
-        super(title, purchaseCost, 0, 0, null);
+        super(title, purchaseCost, 0, 0, null, false);
     }
 
  

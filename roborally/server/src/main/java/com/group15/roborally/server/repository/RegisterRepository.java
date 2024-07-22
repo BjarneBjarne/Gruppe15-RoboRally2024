@@ -9,10 +9,10 @@ import org.springframework.data.repository.query.Param;
 import com.group15.roborally.common.model.Register;
 
 public interface RegisterRepository extends JpaRepository<Register, Long> {
-    Register[] findByPlayerId(Long playerId);
+    Register findByPlayerId(Long playerId);
 
-    @Query("SELECT r FROM Register r WHERE r.player.gameId = :gameId")
-    List<Register> findAllByGameId(@Param("gameId") long gameId);
+    @Query("SELECT r FROM Register r WHERE r.player.gameId = :gameId AND r.turn = :turn")
+    List<Register> findAllByGameIdAndTurn(@Param("gameId") long gameId, @Param("turn") int turn);
 
     boolean existsByPlayerIdAndTurn(Long playerId, int turn);
 }

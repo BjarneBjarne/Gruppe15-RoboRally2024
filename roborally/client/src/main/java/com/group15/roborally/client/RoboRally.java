@@ -255,6 +255,8 @@ public class RoboRally extends Application {
     }
 
     private void updateDebugText() {
+        if (!ApplicationSettings.DEBUG_SHOW_DEBUG_UI) return;
+
         StringBuilder debugText = new StringBuilder();
         for (String s : debugTextArray) {
             //if (s == null) continue;
@@ -294,7 +296,6 @@ public class RoboRally extends Application {
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
     public static void closeRequest() {
-        System.out.println("close");
         boolean isGameRunning = appController.isGameRunning();
         boolean isCourseCreatorRunning = appController.isCourseCreatorOpen;
 

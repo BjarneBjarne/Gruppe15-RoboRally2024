@@ -8,7 +8,7 @@ import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.common.model.GamePhase;
 
 public class Card_DeflectorShield extends UpgradeCardPermanent {
-    private boolean activated = true;
+    private boolean activated = false;
 
     public Card_DeflectorShield() {
         super("Deflector Shield", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, GamePhase.PLAYER_ACTIVATION);

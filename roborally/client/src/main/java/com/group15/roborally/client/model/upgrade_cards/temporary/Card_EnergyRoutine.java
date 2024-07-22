@@ -8,7 +8,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_EnergyRoutine extends UpgradeCardTemporary {
 
     public Card_EnergyRoutine() {
-        super("Energy Routine", 3, 0, 1, null, GamePhase.PROGRAMMING);
+        super("Energy Routine", 3, 0, 1, null, false, GamePhase.PROGRAMMING);
     }
 
     @Override

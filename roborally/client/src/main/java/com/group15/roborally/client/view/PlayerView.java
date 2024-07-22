@@ -81,7 +81,7 @@ public class PlayerView extends StackPane implements ViewObserver {
     public static final double programCardSize = 1.165;
     public static final double programPaneYPositionOffset = 33;
 
-    public PlayerView(@NotNull GameController gameController, double playerViewHeight) {
+    public PlayerView(ImageView cardShowcaseImageView, @NotNull GameController gameController, double playerViewHeight) {
         super();
         //StackPane.setMargin(playerViewPane, new Insets(-25, 0, 27, 0));
         this.setHeight(playerViewHeight);
@@ -150,39 +150,24 @@ public class PlayerView extends StackPane implements ViewObserver {
                 double width = 1 * permanentCardSize;
                 double height = 1.6 * permanentCardSize;
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, width, height);
-                CardFieldView cardFieldShowcaseView = new CardFieldView(gameController, cardField, width * 2, height * 2);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent;" +
                                 "-fx-border-radius: 5; " +
                                 "-fx-border-color: orange; " +
                                 "-fx-border-width: 2px "
                 );
-                cardFieldShowcaseView.setStyle(
-                        "-fx-background-color: transparent;" +
-                                "-fx-border-radius: 5; " +
-                                "-fx-border-color: orange; " +
-                                "-fx-border-width: 2px "
-                );
                 player.board.attach(cardFieldView);
-                player.board.attach(cardFieldShowcaseView);
 
                 cardFieldView.setAlignment(Pos.CENTER);
                 GridPane.setMargin(cardFieldView, new Insets(0, 5, 0, 5));
                 permanentUpgradeCardsPane.add(cardFieldView, i, 0);
 
-                cardFieldShowcaseView.setVisible(false);
-                cardFieldShowcaseView.setMouseTransparent(true);
-                this.getChildren().add(cardFieldShowcaseView);
-
-                // Hovering the cardg
+                // Hovering the card
                 cardFieldView.setOnMouseEntered(_ -> {
-                    cardFieldView.setVisible(false);
-                    cardFieldShowcaseView.setVisible(true);
+                    cardShowcaseImageView.setImage(cardFieldView.getCardImageView().getImage());
+                    cardShowcaseImageView.setVisible(true);
                 });
-                cardFieldView.setOnMouseExited(_ -> {
-                    cardFieldView.setVisible(true);
-                    cardFieldShowcaseView.setVisible(false);
-                });
+                cardFieldView.setOnMouseExited(_ -> cardShowcaseImageView.setVisible(false));
             }
         }
         permanentUpgradeCardsPane.setAlignment(Pos.CENTER);
@@ -192,7 +177,9 @@ public class PlayerView extends StackPane implements ViewObserver {
         for (int i = 0; i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS; i++) {
             CardField cardField = player.getTemporaryUpgradeCardField(i);
             if (cardField != null) {
-                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * temporaryCardSize, 1.6 * temporaryCardSize);
+                double width = 1 * temporaryCardSize;
+                double height = 1.6 * temporaryCardSize;
+                CardFieldView cardFieldView = new CardFieldView(gameController, cardField, width, height);
                 cardFieldView.setAlignment(Pos.CENTER);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
@@ -203,6 +190,13 @@ public class PlayerView extends StackPane implements ViewObserver {
                 GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
                 temporaryUpgradeCardsPane.add(cardFieldView, i, 0);
                 player.board.attach(cardFieldView);
+
+                // Hovering the card
+                cardFieldView.setOnMouseEntered(_ -> {
+                    cardShowcaseImageView.setImage(cardFieldView.getCardImageView().getImage());
+                    cardShowcaseImageView.setVisible(true);
+                });
+                cardFieldView.setOnMouseExited(_ -> cardShowcaseImageView.setVisible(false));
             }
         }
         temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
@@ -342,16 +336,16 @@ public class PlayerView extends StackPane implements ViewObserver {
             for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardFieldView cardFieldView = programCardViews[i];
                 if (cardFieldView != null) {
-                    if (board.getCurrentPhase() == PLAYER_ACTIVATION) {
+                    if (board.getCurrentPhase().equals(PLAYER_ACTIVATION) || board.getCurrentPhase().equals(BOARD_ACTIVATION)) {
                         if (i < board.getCurrentRegister()) {
-                            cardFieldView.setBackground(CardFieldView.BG_DONE);
+                            cardFieldView.setCardBackground(CardFieldView.BG_DONE);
                         } else if (i == board.getCurrentRegister()) {
-                            cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
+                            cardFieldView.setCardBackground(CardFieldView.BG_ACTIVE);
                         } else {
-                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                            cardFieldView.setCardBackground(CardFieldView.BG_DEFAULT);
                         }
                     } else {
-                        cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                        cardFieldView.setCardBackground(CardFieldView.BG_DEFAULT);
                     }
                 }
             }

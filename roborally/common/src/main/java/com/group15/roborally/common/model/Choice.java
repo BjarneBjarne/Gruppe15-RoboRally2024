@@ -39,7 +39,7 @@ public class Choice {
         this.resolveStatus = resolveStatus;
     }
 
-    public static final String EMPTY_CHOICE = "EMPTY_CHOICE";
+    public static final String READY_CHOICE = "READY_CHOICE";
 
     public enum ResolveStatus {
         NONE,

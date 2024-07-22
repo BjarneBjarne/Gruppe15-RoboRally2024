@@ -131,4 +131,8 @@ public class CardField extends Subject {
             upgradeCard.tryActivate();
         }
     }
+
+    public void updateCardField() {
+        notifyChange();
+    }
 }

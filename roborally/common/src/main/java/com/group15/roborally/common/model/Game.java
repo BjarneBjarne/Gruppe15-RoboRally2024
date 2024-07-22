@@ -22,15 +22,10 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long gameId;
-
     private int turnId = 0;
-
     private long hostId;
-
     private int nrOfPlayers = 0;
-    
     private GamePhase phase = GamePhase.LOBBY;
-
     private String courseName;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)

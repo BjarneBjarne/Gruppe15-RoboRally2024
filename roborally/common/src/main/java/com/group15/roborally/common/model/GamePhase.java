@@ -17,4 +17,8 @@ public enum GamePhase {
             case BOARD_ACTIVATION -> register <= 4 ? PLAYER_ACTIVATION : UPGRADE;
         };
     }
+
+    public boolean isPhaseToWaitBefore() {
+        return this.equals(PLAYER_ACTIVATION);
+    }
 }

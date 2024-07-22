@@ -7,6 +7,8 @@ import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.upgrade_cards.permanent.*;
 import com.group15.roborally.client.model.upgrade_cards.temporary.*;
 import com.group15.roborally.common.model.GamePhase;
+import com.group15.roborally.common.observer.Observer;
+import com.group15.roborally.common.observer.Subject;
 import lombok.Getter;
 
 import java.lang.reflect.Constructor;
@@ -19,7 +21,7 @@ import java.util.List;
  * Players will initialize the upgrade cards with themselves as owner, whenever they purchase a card.
  * This way, any player will invoke events, but the card will only trigger, if the player invoking the event, is also the initializing owner of the card.
  */
-public abstract class UpgradeCard extends Card {
+public abstract class UpgradeCard extends Card implements Observer {
     protected final String title;
     @Getter
     protected final int purchaseCost;
@@ -31,7 +33,9 @@ public abstract class UpgradeCard extends Card {
     protected final GamePhase refreshedOn;
 
     // Activating
+    @Getter
     protected final List<GamePhase> activatableOn;
+    protected final boolean onlyActivatableOnPlayerTurn;
     private boolean enabled = false;
     private boolean queuedForActivation = false;
 
@@ -47,13 +51,31 @@ public abstract class UpgradeCard extends Card {
      * @param refreshedOn The GamePhase that the card is refreshed.
      * @param activatableOn Leave as NULL if the card can't be activated. If it can, it will have a "Use"-button that can be clicked to activate the card on the activatableOn phase(s).
      */
-    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, GamePhase... activatableOn) {
+    public UpgradeCard(String title, int purchaseCost, int useCost, int maxUses, GamePhase refreshedOn, boolean onlyActivatableOnPlayerTurn, GamePhase... activatableOn) {
         this.title = title;
         this.purchaseCost = purchaseCost;
         this.useCost = useCost;
         this.maxUses = maxUses;
         this.refreshedOn = refreshedOn;
+        this.onlyActivatableOnPlayerTurn = onlyActivatableOnPlayerTurn;
         this.activatableOn = Collections.unmodifiableList(Arrays.asList(activatableOn));
+    }
+
+    private GamePhase lastPhase = null;
+    @Override
+    public void update(Subject subject) {
+        if (subject.equals(owner.board)) {
+            GamePhase currentPhase = owner.board.getCurrentPhase();
+            if (currentPhase != lastPhase) {
+                lastPhase = currentPhase;
+                if (currentPhase.equals(refreshedOn)) {
+                    refresh();
+                }
+                // Enables and disables on corresponding phases
+                setEnabled(activatableOn.contains(currentPhase));
+                //System.out.println("GamePhase: " + owner.board.getCurrentPhase() + ". Handling pre phase?: " + gameController.isHandlingPrePhase() + ". Enabled?: " + enabled + ". Activatable?: " + canBeActivated() + ". gameController.canUseUpgradeCards?:" + gameController.canUseUpgradeCards());
+            }
+        }
     }
 
     public enum Types {
@@ -121,17 +143,12 @@ public abstract class UpgradeCard extends Card {
     public void initialize(Player owner, GameController gameController) {
         this.owner = owner;
         this.gameController = gameController;
-        owner.board.setOnPhaseChange(phase -> {
-            if (phase == refreshedOn) {
-                refresh();
-            }
-            // Enables and disables on corresponding phases
-            setEnabled(activatableOn.contains(phase));
-        });
+        owner.board.attach(this);
         refresh();
     }
 
     public void unInitialize() {
+        this.owner.board.detach(this);
         this.owner = null;
     }
 
@@ -170,7 +187,7 @@ public abstract class UpgradeCard extends Card {
         }
     }
     public boolean canBeActivated() {
-        return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost && !gameController.getIsLocalPlayerReadyForNextPhase() && !queuedForActivation;
+        return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost && gameController.canUseUpgradeCards() && !queuedForActivation && owner.equals(owner.board.getCurrentPlayer());
     }
 
     public boolean getHasActive() {

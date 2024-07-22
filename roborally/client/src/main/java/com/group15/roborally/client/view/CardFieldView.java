@@ -57,40 +57,42 @@ import static com.group15.roborally.client.ApplicationSettings.*;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class CardFieldView extends StackPane implements ViewObserver {
-    // This data format helps avoiding transfers of e.g. Strings from other
-    // programs which can copy/paste Strings.
+    // This data format helps avoiding transfers of e.g. Strings from other programs which can copy/paste Strings.
     final public static DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
 
     //final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
     final public static Background BG_DEFAULT = new Background(new BackgroundFill(Color.TRANSPARENT, null, null));
-    final public static Background BG_DRAG = new Background(new BackgroundFill(new Color(122 / 255.0, 119 / 255.0, 110 / 255.0, .25), null, null));
+    final public static Background BG_DRAG = new Background(new BackgroundFill(new Color(122 / 255.0, 119 / 255.0, 110 / 255.0, 1), null, null));
     final public static Background BG_DROP = new Background(new BackgroundFill(new Color(198 / 255.0, 194 / 255.0, 179 / 255.0, .5), null, null));
 
     final public static Background BG_ACTIVE = new Background(new BackgroundFill(new Color(234 / 255.0, 209 / 255.0, 87 / 255.0, .5), null, null));
     final public static Background BG_DONE = new Background(new BackgroundFill(new Color(120 / 255.0, 209 / 255.0, 87 / 255.0, .5),  null, null));
 
-    private final CardField field;
+    private final CardField cardField;
 
     private final GameController gameController;
-
     @Getter
     private final ImageView cardImageView = new ImageView();
     @Getter
     private final ImageView cardForegroundImageView = new ImageView();
     private final Button useButton = new Button();
+    private double cardWidthMultiplier;
+    private double cardHeightMultiplier;
+    private Background currentBackground;
 
-    public CardFieldView(@NotNull GameController gameController, @NotNull CardField field, double cardWidthMultiplier, double cardHeightMultiplier) {
+    public CardFieldView(@NotNull GameController gameController, @NotNull CardField cardField, double cardWidthMultiplier, double cardHeightMultiplier) {
         this.gameController = gameController;
-        this.field = field;
+        this.cardField = cardField;
         this.setMouseTransparent(false);
         cardImageView.setMouseTransparent(true);
         cardForegroundImageView.setMouseTransparent(true);
-        updateCardSize(cardWidthMultiplier, cardHeightMultiplier);
+        this.cardWidthMultiplier = cardWidthMultiplier;
+        this.cardHeightMultiplier = cardHeightMultiplier;
+        this.setCardBackground(BG_DEFAULT);
+        updateCardSize();
 
-        useButton.setOnAction(_ -> {
-            field.activateCard();
-        });
+        useButton.setOnAction(_ -> cardField.activateCard());
         useButton.setDisable(true);
         useButton.setVisible(false);
         Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 28);
@@ -116,13 +118,6 @@ public class CardFieldView extends StackPane implements ViewObserver {
         this.setAlignment(Pos.CENTER);
         //this.setPadding(new Insets(5, 5, 5, 5));
 
-        this.setBackground(BG_DEFAULT);
-
-        /*label = new Label();
-        label.setWrapText(true);
-        label.setMouseTransparent(true);
-        this.add(label, 0, 0);*/
-
         this.setOnDragDetected(new OnDragDetectedHandler());
         this.setOnDragOver(new OnDragOverHandler());
         this.setOnDragEntered(new OnDragEnteredHandler());
@@ -130,11 +125,16 @@ public class CardFieldView extends StackPane implements ViewObserver {
         this.setOnDragDropped(new OnDragDroppedHandler());
         this.setOnDragDone(new OnDragDoneHandler());
 
-        field.attach(this);
-        update(field);
+        cardField.attach(this);
+        update(cardField);
     }
 
-    public void updateCardSize(double cardWidthMultiplier, double cardHeightMultiplier) {
+    public void setSizeMultipliers(double cardWidthMultiplier, double cardHeightMultiplier) {
+        this.cardWidthMultiplier = cardWidthMultiplier;
+        this.cardHeightMultiplier = cardHeightMultiplier;
+    }
+
+    private void updateCardSize() {
         Platform.runLater(() -> {
             this.setMinSize(CARDFIELD_SIZE * cardWidthMultiplier, CARDFIELD_SIZE * cardHeightMultiplier);
             this.setPrefSize(CARDFIELD_SIZE * cardWidthMultiplier, CARDFIELD_SIZE * cardHeightMultiplier);
@@ -199,26 +199,26 @@ public class CardFieldView extends StackPane implements ViewObserver {
             String[] strings = rep.split(",");
             if (strings.length == 2) {
                 int i = Integer.parseInt(strings[1]);
-                if (field.player != null) {
+                if (cardField.player != null) {
                     switch (strings[0]) {
                         case "P" -> {
                             if (i < Player.NO_OF_REGISTERS) {
-                                return field.player.getProgramField(i);
+                                return cardField.player.getProgramField(i);
                             }
                         }
                         case "C" -> {
                             if (i < NO_OF_CARDS_IN_HAND) {
-                                return field.player.getCardField(i);
+                                return cardField.player.getCardField(i);
                             }
                         }
                         case "U" -> {
                             if (i < Player.NO_OF_PERMANENT_UPGRADE_CARDS) {
-                                return field.player.getPermanentUpgradeCardField(i);
+                                return cardField.player.getPermanentUpgradeCardField(i);
                             }
                         }
                         case "T" -> {
                             if (i < Player.NO_OF_TEMPORARY_UPGRADE_CARDS) {
-                                return field.player.getTemporaryUpgradeCardField(i);
+                                return cardField.player.getTemporaryUpgradeCardField(i);
                             }
                         }
                     }
@@ -232,6 +232,54 @@ public class CardFieldView extends StackPane implements ViewObserver {
             }
         }
         return null;
+    }
+
+    @Override
+    public void updateView(Subject subject) {
+        if ((subject == cardField || subject == cardField.player.board) && subject != null) {
+            Card card = cardField.getCard();
+            useButton.setDisable(true);
+            useButton.setVisible(false);
+            if (card != null && cardField.isVisible()) {
+                useButton.setDisable(!cardField.getCanBeActivated());
+                useButton.setVisible(cardField.getHasActivateButton());
+
+                String cardName = card.getDisplayName();
+                String cardImageName;
+                String cardFolderPath = "";
+                if (card instanceof CommandCard commandCard) {
+                    cardImageName = cardName + ".png";
+                    cardFolderPath = "Cards/Programming_Cards/";
+                    if (commandCard.command.isNormalProgramCommand()) {
+                        Image cardForegroundImage = ImageUtils.getImageFromName(cardFolderPath + "Foregrounds/" + cardImageName);
+                        if (cardForegroundImage != null && cardField.player != null) {
+                            Color playerColor = Color.valueOf(cardField.player.getRobot().name());
+                            Image playerColoredImage = ImageUtils.getImageColored(cardForegroundImage, playerColor, .75);
+                            Color backgroundColor = (Color)(currentBackground.getFills().getFirst().getFill());
+                            if (backgroundColor.equals(Color.TRANSPARENT)) backgroundColor = Color.WHITE;
+                            Image imageWithBackgroundColor = ImageUtils.getImageColored(playerColoredImage, backgroundColor, 1);
+                            cardForegroundImageView.setImage(imageWithBackgroundColor);
+                        }
+                    }
+                } else if (card instanceof UpgradeCard) {
+                    cardImageName =  cardName.toUpperCase() + ".png";
+                    cardFolderPath = "Cards/Upgrade_Cards/";
+                } else {
+                    cardImageName = "Card_Error.png";
+                }
+                Image currentImage = ImageUtils.getImageFromName(cardFolderPath + cardImageName);
+                if (currentImage != null) {
+                    Color backgroundColor = (Color)(currentBackground.getFills().getFirst().getFill());
+                    if (backgroundColor.equals(Color.TRANSPARENT)) backgroundColor = Color.WHITE;
+                    Image imageWithBackgroundColor = ImageUtils.getImageColored(currentImage, backgroundColor, 1);
+                    cardImageView.setImage(imageWithBackgroundColor);
+                }
+
+            } else {
+                cardImageView.setImage(null);
+                cardForegroundImageView.setImage(null);
+            }
+        }
     }
 
     private Pair<CardField, CardFieldView> getCardFieldsFromDragEvent(DragEvent event) {
@@ -255,60 +303,21 @@ public class CardFieldView extends StackPane implements ViewObserver {
         return new Pair<>(sourceField, targetFieldView);
     }
 
-    @Override
-    public void updateView(Subject subject) {
-        if ((subject == field || subject == field.player.board) && subject != null) {
-            Card card = field.getCard();
-            useButton.setDisable(true);
-            useButton.setVisible(false);
-            if (card != null && field.isVisible()) {
-                useButton.setDisable(!field.getCanBeActivated());
-                useButton.setVisible(field.getHasActivateButton());
-
-                String cardName = card.getDisplayName();
-                String cardImageName;
-                String cardFolderPath = "";
-                if (card instanceof CommandCard commandCard) {
-                    cardImageName = cardName + ".png";
-                    cardFolderPath = "Cards/Programming_Cards/";
-                    if (commandCard.command.isNormalProgramCommand()) {
-                        Image cardForegroundImage = ImageUtils.getImageFromName(cardFolderPath + "Foregrounds/" + cardImageName);
-                        if (cardForegroundImage != null && field.player != null) {
-                            Color playerColor = Color.valueOf(field.player.getRobot().name());
-                            cardForegroundImageView.setImage(ImageUtils.getImageColored(cardForegroundImage, playerColor, .75));
-                        }
-                    }
-                } else if (card instanceof UpgradeCard) {
-                    cardImageName =  cardName.toUpperCase() + ".png";
-                    cardFolderPath = "Cards/Upgrade_Cards/";
-                } else {
-                    cardImageName = "Card_Error.png";
-                }
-                Image cardImage = ImageUtils.getImageFromName(cardFolderPath + cardImageName);
-                if (cardImage != null) {
-                    cardImageView.setImage(cardImage);
-                }
-            } else {
-                cardImageView.setImage(null);
-                cardForegroundImageView.setImage(null);
-            }
-        }
-    }
-
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent event) {
             Object t = event.getTarget();
             if (t instanceof CardFieldView source) {
-                CardField sourceField = source.field;
+                CardField sourceField = source.cardField;
                 if (gameController.canDragCard(sourceField)) {
                     // Getting resized image of the CardField
                     SnapshotParameters params = new SnapshotParameters();
                     params.setFill(Color.TRANSPARENT);
                     Image originalImage = source.snapshot(params, null);
                     ImageView imageView = new ImageView(originalImage);
-                    imageView.setFitWidth(source.cardImageView.getFitWidth() * APP_SCALE);
-                    imageView.setFitHeight(source.cardImageView.getFitHeight() * APP_SCALE);
+                    Bounds boundsInScene = source.cardImageView.localToScene(source.cardImageView.getBoundsInLocal());
+                    imageView.setFitWidth(boundsInScene.getWidth());
+                    imageView.setFitHeight(boundsInScene.getHeight());
                     Image resizedImage = imageView.snapshot(params, null);
 
                     // Setting image to the Dragboard
@@ -316,14 +325,19 @@ public class CardFieldView extends StackPane implements ViewObserver {
                     dragboard.setDragView(resizedImage);
 
                     // Getting offset from CardField to mouse
-                    double scaleX = resizedImage.getWidth() / originalImage.getWidth();
+                    double offsetX = (event.getSceneX() - boundsInScene.getMinX());
+                    double offsetY = (event.getSceneY() - boundsInScene.getMinY());
+                    dragboard.setDragViewOffsetX(offsetX);
+                    dragboard.setDragViewOffsetY(offsetY);
+
+                    /*double scaleX = resizedImage.getWidth() / originalImage.getWidth();
                     double scaleY = resizedImage.getHeight() / originalImage.getHeight();
                     Bounds localBounds = source.getBoundsInLocal();
                     Bounds sceneBounds = source.localToScene(localBounds);
                     double offsetX = (event.getSceneX() - sceneBounds.getMinX()) * scaleX;
                     double offsetY = (event.getSceneY() - sceneBounds.getMinY()) * scaleY;
                     dragboard.setDragViewOffsetX(offsetX);
-                    dragboard.setDragViewOffsetY(offsetY);
+                    dragboard.setDragViewOffsetY(offsetY);*/
 
                     // Saving representation from card in the Dragboard
                     ClipboardContent content = new ClipboardContent();
@@ -333,7 +347,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
 
                     dragboard.setContent(content);
 
-                    source.setBackground(BG_DRAG);
+                    source.setCardBackground(BG_DRAG);
                 }
             }
             event.consume();
@@ -350,7 +364,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
             //System.out.println(sourceField);
 
             if (targetFieldView != null) {
-                if (gameController.canDropCard(sourceField, targetFieldView.field)) {
+                if (gameController.canDropCard(sourceField, targetFieldView.cardField)) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
             }
@@ -367,8 +381,8 @@ public class CardFieldView extends StackPane implements ViewObserver {
             CardField sourceField = sourceAndTargetCardFields.getKey();
 
             if (targetFieldView != null) {
-                if (gameController.canDropCard(sourceField, targetFieldView.field)) {
-                    targetFieldView.setBackground(BG_DROP);
+                if (gameController.canDropCard(sourceField, targetFieldView.cardField)) {
+                    targetFieldView.setCardBackground(BG_DROP);
                 }
             }
 
@@ -383,7 +397,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
             CardFieldView targetFieldView = sourceAndTargetCardFields.getValue();
 
             if (targetFieldView != null) {
-                targetFieldView.setBackground(BG_DEFAULT);
+                targetFieldView.setCardBackground(BG_DEFAULT);
             }
 
             event.consume();
@@ -398,7 +412,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
             CardField sourceField = sourceAndTargetCardFields.getKey();
 
             if (targetFieldView != null) {
-                CardField targetField = targetFieldView.field;
+                CardField targetField = targetFieldView.cardField;
 
                 boolean success = false;
                 if (gameController.canDropCard(sourceField, targetField)) {
@@ -406,16 +420,14 @@ public class CardFieldView extends StackPane implements ViewObserver {
                     success = true;
                 }
                 event.setDropCompleted(success);
-                targetFieldView.setBackground(BG_DEFAULT);
+                targetFieldView.setCardBackground(BG_DEFAULT);
 
                 if (sourceField.cardFieldType == CardField.CardFieldTypes.UPGRADE_CARD_SHOP_FIELD) {
                     if (event.getGestureSource() instanceof CardFieldView sourceCardFieldView) {
                         //System.out.println("Editing source: " + sourceCardFieldView.field.index);
                         sourceCardFieldView.setStyle(
                                 "-fx-background-color: transparent; " +
-                                "-fx-border-color: transparent; " +
-                                "-fx-border-width: 2px 2px 2px 2px;" +
-                                "-fx-border-radius: 5"
+                                "-fx-border-color: transparent; "
                         );
                     }
                 }
@@ -430,9 +442,15 @@ public class CardFieldView extends StackPane implements ViewObserver {
         public void handle(DragEvent event) {
             Object t = event.getTarget();
             if (t instanceof CardFieldView source) {
-                source.setBackground(BG_DEFAULT);
+                source.setCardBackground(BG_DEFAULT);
             }
             event.consume();
         }
+    }
+
+    public void setCardBackground(Background background) {
+        this.setBackground(background);
+        currentBackground = background;
+        cardField.updateCardField();
     }
 }
