@@ -10,8 +10,6 @@ module com.group15.roborally.client {
     requires spring.core;
     requires spring.web;
     requires java.desktop;
-    requires jakarta.interceptor;
-    requires jakarta.transaction;
 
     exports com.group15.roborally.client;
     exports com.group15.roborally.client.utils;

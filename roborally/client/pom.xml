@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://www.maven.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -16,10 +16,6 @@
   <name>client</name>
   <url>https://github.com/BjarneBjarne/Gruppe15-RoboRally2024/tree/main/roborally/client</url>
 
-  <properties>
-    <app.main.class>com.group15.roborally.client.StartRoboRally</app.main.class>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.group15.roborally</groupId>
@@ -28,17 +24,12 @@
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>${javafx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
       <version>${javafx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-swing</artifactId>
+      <artifactId>javafx-controls</artifactId>
       <version>${javafx.version}</version>
     </dependency>
     <dependency>
@@ -50,6 +41,11 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>${javafx.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -118,32 +114,10 @@
       <version>4.0.16-alpha</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>jakarta.transaction</groupId>
-      <artifactId>jakarta.transaction-api</artifactId>
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.interceptor</groupId>
-      <artifactId>jakarta.interceptor-api</artifactId>
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.enterprise</groupId>
-      <artifactId>jakarta.enterprise.cdi-api</artifactId>
-      <version>4.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-antrun-plugin</artifactId>
-      <version>3.1.0</version>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -180,133 +154,34 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
-        <executions>
-          <execution>
-            <id>shade-jar-with-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>${app.main.class}</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <mainClass>com.group15.roborally.client.StartRoboRally</mainClass>
+          <arguments>
+            <argument>--module-path</argument>
+            <argument>${javafx-sdk.path};${project.build.directory}/dependency</argument>
+            <argument>--add-modules</argument>
+            <argument>javafx.controls,javafx.fxml</argument>
+          </arguments>
+        </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <!-- Run jdeps to list dependencies -->
-          <execution>
-            <id>run-jdeps</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>sh</executable>
-              <arguments>
-                <argument>-c</argument>
-                <argument>
-                  mkdir -p ${project.build.directory} &amp;&amp; \
-                  ${java.home}/bin/jdeps --module-path ${project.build.directory}/classes:${project.build.directory}/dependency --list-deps --multi-release ${maven.compiler.target} --ignore-missing-deps ${project.build.directory}/classes > ${project.build.directory}/jdeps-output.txt
-                </argument>
-              </arguments>
-            </configuration>
-          </execution>
-
-          <!-- Filter jdeps output to list required modules -->
-          <execution>
-            <id>filter-jdeps</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>sh</executable>
-              <arguments>
-                <argument>-c</argument>
-                <argument>
-                  if [ -f ${project.build.directory}/jdeps-output.txt ]; then \
-                  grep '->' ${project.build.directory}/jdeps-output.txt | \
-                  awk '{{print $$1}}' | \
-                  sort | \
-                  uniq > ${project.build.directory}/jdeps-modules.txt; \
-                  else \
-                  echo "jdeps-output.txt not found"; \
-                  exit 1; \
-                  fi
-                </argument>
-              </arguments>
-            </configuration>
-          </execution>
-
-          <!-- Create a runtime image with jlink -->
-          <execution>
-            <id>jlink</id>
-            <phase>package</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>${java.home}/bin/jlink</executable>
-              <arguments>
-                <argument>--module-path</argument>
-                <argument>${project.build.directory}/dependency:${java.home}/jmods</argument>
-                <argument>--add-modules</argument>
-                <argument>@${project.build.directory}/jdeps-modules.txt</argument>
-                <argument>--output</argument>
-                <argument>${project.build.directory}/image</argument>
-                <argument>--compress</argument>
-                <argument>2</argument>
-                <argument>--strip-debug</argument>
-                <argument>--no-header-files</argument>
-                <argument>--no-man-pages</argument>
-              </arguments>
-            </configuration>
-          </execution>
-
-          <!-- Package the application with jpackage -->
-          <execution>
-            <id>jpackage</id>
-            <phase>package</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>${java.home}/bin/jpackage</executable>
-              <arguments>
-                <argument>--input</argument>
-                <argument>${project.build.directory}/image</argument>
-                <argument>--dest</argument>
-                <argument>${project.build.directory}/installer</argument>
-                <argument>--name</argument>
-                <argument>RoboRally</argument>
-                <argument>--main-class</argument>
-                <argument>${app.main.class}</argument>
-                <argument>--main-jar</argument>
-                <argument>${project.build.finalName}-shaded.jar</argument>
-                <argument>--type</argument>
-                <argument>app-image</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>com.group15.roborally.client.StartRoboRally</mainClass>
+          <options>
+            <option>--add-modules</option>
+            <option>javafx.controls,javafx.fxml</option>
+            <option>--module-path</option>
+            <option>${javafx-sdk.path};${project.build.directory}/dependency</option>
+          </options>
+        </configuration>
       </plugin>
-
-
     </plugins>
   </build>
-
 </project>
