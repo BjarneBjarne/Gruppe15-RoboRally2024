@@ -1,5 +1,6 @@
 package com.group15.roborally.client.model.networking;
 
+import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.common.model.*;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
@@ -322,7 +323,10 @@ public class ServerDataManager extends Subject implements Observer {
             AppController.setInfoText("Connection to server timed out.");
             notifyChange();
             stopGameUpdateLoop();
-        }, 2000), () -> AppController.setInfoText(""));
+        }, 2000), () -> {
+            AppController.setInfoText("");
+            RoboRally.setDebugText("", 0);
+        });
     }
 
 

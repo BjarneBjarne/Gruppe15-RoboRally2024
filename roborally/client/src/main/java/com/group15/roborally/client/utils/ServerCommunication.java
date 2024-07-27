@@ -287,38 +287,36 @@ public class ServerCommunication extends Subject {
         try {
             ResponseEntity<R> response = new RestTemplate().exchange(request, responseType);
             evaluateTimeout(true);
-            notifyChange();
             return response.getBody();
-        } catch (ResourceAccessException | HttpClientErrorException | HttpServerErrorException e) {
+        } catch (ResourceAccessException e1) {
             evaluateTimeout(false);
-            System.err.println("Server communication error: URI: " + uriSt + ". Body: " + body + ". \n" + e.getMessage());
-            notifyChange();
+            return null;
+        } catch (HttpClientErrorException | HttpServerErrorException e2) {
+            System.err.println("Server communication error: URI: " + uriSt + ". Body: " + body + ". \n" + e2.getMessage());
             return null;
         }
     }
 
     private void evaluateTimeout(boolean couldConnect) {
-        Platform.runLater(() -> {
-            if (couldConnect) {
-                // Reset timeout.
-                if (startTimeOfConnectionLost != null) {
-                    startTimeOfConnectionLost = null;
-                    System.out.println("Reestablished connection to server.");
-                    RoboRally.setDebugText("", 0);
-                }
-            } else if (startTimeOfConnectionLost == null) {
-                // Start timeout "timer".
-                startTimeOfConnectionLost = Instant.now();
-                System.out.println("Server not responding. Trying to reestablish connection to server...");
-            } else {
-                // Evaluate timeout
-                timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now());
-                RoboRally.setDebugText("Server not responding. " + String.format("%.2f", (double)(timeSinceConnectionLost.toMillis() / 1000.0)), 0);
-                if (timeSinceConnectionLost.toSeconds() >= TIME_BEFORE_TIMEOUT_SECONDS) {
-                    setIsConnectedToServer(false);
-                }
+        if (couldConnect) {
+            // Reset timeout.
+            if (startTimeOfConnectionLost != null) {
+                startTimeOfConnectionLost = null;
+                System.out.println("Reestablished connection to server.");
+                RoboRally.setDebugText("", 0);
             }
-        });
+        } else if (startTimeOfConnectionLost == null) {
+            // Start timeout "timer".
+            startTimeOfConnectionLost = Instant.now();
+            System.out.println("Server not responding. Trying to reestablish connection to server...");
+        } else {
+            // Evaluate timeout
+            timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now());
+            RoboRally.setDebugText("Server not responding. " + String.format("%.1f", timeSinceConnectionLost.toMillis() / 1000.0), 0);
+            if (timeSinceConnectionLost.toSeconds() >= TIME_BEFORE_TIMEOUT_SECONDS) {
+                setIsConnectedToServer(false);
+            }
+        }
     }
 
     private void setIsConnectedToServer(boolean isConnectedToServer) {

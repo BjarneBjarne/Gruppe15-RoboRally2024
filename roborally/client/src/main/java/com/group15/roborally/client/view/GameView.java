@@ -453,19 +453,17 @@ public class GameView extends AnchorPane implements ViewObserver {
             countdownLabel.setText(countdownText);
             countdownLabel.setTextFill(Color.GOLD);
 
-            Platform.runLater(() -> {
-                if (board.getCurrentPhase().equals(GamePhase.UPGRADE) && !gameController.isHandlingPrePhase() && gameController.getLatestUpgradeShopData() != null) {
-                    upgradeShopParentPane.setVisible(true);
-                    upgradeShopParentPane.setMouseTransparent(false);
-                    finishUpgradingButton.setVisible(gameController.getPlayerUpgrading() != null && !gameController.getIsLocalPlayerReadyForNextPhase());
-                    updateUpgradeShop();
-                } else {
-                    if (upgradeShopParentPane != null) {
-                        upgradeShopParentPane.setVisible(false);
-                        upgradeShopParentPane.setMouseTransparent(true);
-                    }
+            if (board.getCurrentPhase().equals(GamePhase.UPGRADE) && !gameController.isHandlingPrePhase() && gameController.getLatestUpgradeShopData() != null) {
+                upgradeShopParentPane.setVisible(true);
+                upgradeShopParentPane.setMouseTransparent(false);
+                finishUpgradingButton.setVisible(gameController.getPlayerUpgrading() != null && !gameController.getIsLocalPlayerReadyForNextPhase());
+                updateUpgradeShop();
+            } else {
+                if (upgradeShopParentPane != null) {
+                    upgradeShopParentPane.setVisible(false);
+                    upgradeShopParentPane.setMouseTransparent(true);
                 }
-            });
+            }
         }
     }
 

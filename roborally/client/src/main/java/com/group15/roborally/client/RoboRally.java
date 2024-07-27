@@ -257,7 +257,7 @@ public class RoboRally extends Application {
     private void updateDebugText() {
         StringBuilder debugText = new StringBuilder();
         for (int i = 0; i < debugTextArray.length; i++) {
-            if (i > 0 && !ApplicationSettings.DEBUG_SHOW_DEBUG_UI) return;
+            if (i > 0 && !ApplicationSettings.DEBUG_SHOW_DEBUG_UI) continue;
 
             String s = debugTextArray[i];
             if (s != null) {
