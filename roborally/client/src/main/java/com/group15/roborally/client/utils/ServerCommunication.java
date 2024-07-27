@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.common.model.*;
@@ -185,7 +186,7 @@ public class ServerCommunication extends Subject {
      * @param gameId - id of the game
      * @return List of players in the game
      */
-    public List<Player> getPlayers(long gameId) {
+    public Map<Long, Player> getPlayers(long gameId) {
         return sendRequest(
                 "/games/" + gameId + "/players",
                 HttpMethod.GET,

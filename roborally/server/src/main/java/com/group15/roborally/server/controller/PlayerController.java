@@ -79,13 +79,9 @@ public class PlayerController {
         gameRepository.findById(player.getGameId()).ifPresent(game -> {
             // When not in lobby
             if (!game.getPhase().equals(GamePhase.LOBBY)) {
-                players.get().forEach(p -> {
-                    if (p.getPlayerId() == playerId)
-                        return;
-                    if (Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint())) {
-                        illegalPlayerProperty.set(true);
-                    }
-                });
+                if (players.get().stream().anyMatch(p -> p.getPlayerId() != playerId && Arrays.equals(p.getSpawnPoint(), player.getSpawnPoint()))) {
+                    illegalPlayerProperty.set(true);
+                }
             }
         });
 

@@ -80,7 +80,7 @@ public class GameController implements Observer {
 
     // Latest data
     private Game latestGameData;
-    private HashMap<Long, com.group15.roborally.common.model.Player> latestPlayerData;
+    private Map<Long, com.group15.roborally.common.model.Player> latestPlayerData;
     @Getter
     private String[] latestUpgradeShopData;
     private List<Register> latestRegisterData;

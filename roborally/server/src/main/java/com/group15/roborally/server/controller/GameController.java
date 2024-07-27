@@ -1,6 +1,9 @@
 package com.group15.roborally.server.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.group15.roborally.server.repository.PlayerRepository;
 import com.group15.roborally.server.repository.RegisterRepository;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.model.GamePhase;
-import com.group15.roborally.common.model.Interaction;
 
 import com.group15.roborally.common.model.UpgradeShop;
 import com.group15.roborally.common.model.Player;
@@ -118,18 +120,23 @@ public class GameController {
      * @return ResponseEntity<List<Player>> - a response entity with the list of players in the game
      */
     @GetMapping(value = "/{gameId}/players")
-    public ResponseEntity<List<Player>> getLobby(@PathVariable("gameId") Long gameId){
+    public ResponseEntity<Map<Long, Player>> getLobby(@PathVariable("gameId") Long gameId) {
         if (!gameRepository.existsById(gameId)) {
             return ResponseEntity.notFound().build();
         }
 
-       List<Player> players = playerRepository.findAllByGameId(gameId).orElse(null);
-        if (players == null) {
-            return ResponseEntity.notFound().build();
-        }
+        Optional<List<Player>> o_players = playerRepository.findAllByGameId(gameId);
 
-        return ResponseEntity.ok(players);
+        Optional<Map<Long, Player>> o_playerMap = o_players.map(players -> players.stream()
+                .collect(Collectors.toMap(Player::getPlayerId, player -> player)));
+
+        return o_playerMap.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+        // Convert the list to a map
+        /*Map<Long, Player> playerMap = players.stream()
+                .collect(Collectors.toMap(Player::getPlayerId, player -> player));*/
     }
+
 
     /**
      * Endpoint to get a game by its id
@@ -142,7 +149,6 @@ public class GameController {
      */
     @GetMapping(value = "/{gameId}")
     public ResponseEntity<Game> getGame(@PathVariable("gameId") Long gameId){
-        
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.notFound().build();
@@ -184,12 +190,20 @@ public class GameController {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void updateNoOfPlayersByGame(Game game) {
-        int newNoOfPlayers = playerRepository.findAllByGameId(game.getGameId()).get().size();
-        if (newNoOfPlayers == 0) { // Evt. også hvis "game.phase == GamePhase.LOBBY", hvis vi skal gemme spillere under spillet.
+        Optional<List<Player>> o_players = playerRepository.findAllByGameId(game.getGameId());
+        boolean playersExist = true;
+        if (o_players.isPresent()) {
+            int newNoOfPlayers = o_players.get().size();
+            if (newNoOfPlayers == 0) { // Evt. også hvis "game.phase == GamePhase.LOBBY", hvis vi skal gemme spillere under spillet.
+                playersExist = false;
+            } else {
+                game.setNrOfPlayers(newNoOfPlayers);
+                gameRepository.save(game);
+            }
+        }
+
+        if (!playersExist) {
             gameRepository.delete(game);
-        } else {
-            game.setNrOfPlayers(newNoOfPlayers);
-            gameRepository.save(game);
         }
     }
 }

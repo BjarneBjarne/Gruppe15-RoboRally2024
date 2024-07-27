@@ -28,7 +28,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import static com.group15.roborally.client.BoardOptions.*;
@@ -86,7 +86,7 @@ public class MultiplayerMenuView implements Observer {
     private final List<CC_CourseData> courses = new ArrayList<>();
     private final LobbyPlayerSlot[] playerSlots = new LobbyPlayerSlot[6];
     private Game game;
-    private HashMap<Long, Player> players;
+    private Map<Long, Player> players;
 
     private boolean hasStartedGameLocally = false; // Condition to keep the application from starting the game more than once per lobby.
     @Getter
@@ -121,7 +121,7 @@ public class MultiplayerMenuView implements Observer {
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void updateLobby(Game updatedGame, HashMap<Long, Player> updatedPlayers) {
+    public void updateLobby(Game updatedGame, Map<Long, Player> updatedPlayers) {
         // Game
         if (updatedGame != null) {
             // GameId
@@ -471,7 +471,7 @@ public class MultiplayerMenuView implements Observer {
                 }
                 // Updating data
                 Game updatedGame = null;
-                HashMap<Long, Player> updatedPlayers = null;
+                Map<Long, Player> updatedPlayers = null;
                 if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.GAME)) {
                     updatedGame = serverDataManager.getUpdatedGame();
                 }

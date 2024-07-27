@@ -54,7 +54,7 @@ public class ServerDataManager extends Subject implements Observer {
 
     // Updated Game data
     private Game game;
-    private HashMap<Long, Player> playerMap;
+    private Map<Long, Player> playerMap;
     private String[] upgradeShop;
     private List<Register> registers;
     @Getter
@@ -120,13 +120,12 @@ public class ServerDataManager extends Subject implements Observer {
         this.playerMap = new HashMap<>();
         this.upgradeShop = null;
         this.registers = null;
-        this.game = serverCommunication.getGame(gameId);
+        updateGameData(serverCommunication.getGame(gameId));
         this.localPlayer = localPlayer;
         this.isHost = localPlayer.getPlayerId() == game.getHostId();
-        List<Player> players = serverCommunication.getPlayers(gameId);
+        updatePlayerData(serverCommunication.getPlayers(gameId));
         serverCommunication.attach(this);
         setReadyForPhase(GamePhase.LOBBY);
-        loadServerData(game, players);
         startUpdateGameLoop();
         notifyChange();
         System.out.println("Player name: " + localPlayer.getPlayerName());
@@ -200,7 +199,7 @@ public class ServerDataManager extends Subject implements Observer {
             System.err.println("GAME IS NULL");
             return;
         }
-        List<Player> updatedPlayers = serverCommunication.getPlayers(game.getGameId());
+        Map<Long, Player> updatedPlayers = serverCommunication.getPlayers(game.getGameId());
         if (updatedPlayers == null) {
             System.err.println("PLAYER LIST IS NULL");
             return;
@@ -220,7 +219,7 @@ public class ServerDataManager extends Subject implements Observer {
         List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentPhaseCount);
 
         // Check if the host has disconnected
-        boolean hostHasDisconnected = updatedPlayers.stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
+        boolean hostHasDisconnected = updatedPlayers.values().stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
         if (hostHasDisconnected) {
             disconnectFromServer("The host left the game.", 3000);
             return;
@@ -234,7 +233,7 @@ public class ServerDataManager extends Subject implements Observer {
      * Loads the data received from the server and notifies listeners if any data has changed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void loadServerDataAndNotify(Game updatedGame, List<Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters, List<Choice> updatedChoices) {
+    private void loadServerDataAndNotify(Game updatedGame, Map<Long, Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters, List<Choice> updatedChoices) {
         boolean hasChanges = false;
         // Update any data that has changed.
         if (updatedGame.hasChanges(this.game)) {
@@ -242,7 +241,7 @@ public class ServerDataManager extends Subject implements Observer {
             hasChanges = true;
         }
         if (this.game.getNrOfPlayers() != updatedGame.getNrOfPlayers() ||
-                updatedPlayers.stream().anyMatch(updatedPlayer -> updatedPlayer.hasChanges(playerMap.get(updatedPlayer.getPlayerId())))) {
+                updatedPlayers.values().stream().anyMatch(updatedPlayer -> updatedPlayer.hasChanges(playerMap.get(updatedPlayer.getPlayerId())))) {
             updatePlayerData(updatedPlayers);
             hasChanges = true;
         }
@@ -268,10 +267,6 @@ public class ServerDataManager extends Subject implements Observer {
             notifyChange();
         }
     }
-    private void loadServerData(Game updatedGame, List<Player> updatedPlayers) {
-        updateGameData(updatedGame);
-        updatePlayerData(updatedPlayers);
-    }
 
     private void updateGameData(@NotNull Game updatedGameData) {
         this.game = updatedGameData;
@@ -279,11 +274,8 @@ public class ServerDataManager extends Subject implements Observer {
         changedData.add(NetworkedDataTypes.GAME);
     }
 
-    private void updatePlayerData(@NotNull List<Player> updatedPlayerData) {
-        Map<Long, Player> updatedPlayerMap = updatedPlayerData.stream()
-                .collect(Collectors.toMap(Player::getPlayerId, player -> player));
-        this.playerMap.clear();
-        this.playerMap.putAll(updatedPlayerMap);
+    private void updatePlayerData(@NotNull Map<Long, Player> updatedPlayerData) {
+        this.playerMap = updatedPlayerData;
         changedData.add(NetworkedDataTypes.PLAYERS);
     }
 
@@ -436,7 +428,7 @@ public class ServerDataManager extends Subject implements Observer {
         changedData.remove(NetworkedDataTypes.GAME);
         return game;
     }
-    public HashMap<Long, Player> getUpdatedPlayerMap() {
+    public Map<Long, Player> getUpdatedPlayerMap() {
         changedData.remove(NetworkedDataTypes.PLAYERS);
         return playerMap;
     }
