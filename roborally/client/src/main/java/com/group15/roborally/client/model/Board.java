@@ -173,7 +173,7 @@ public class Board extends Subject {
     public void setCurrentRegister(int currentRegister) {
         if (currentRegister != this.currentRegister) {
             this.currentRegister = currentRegister;
-            RoboRally.setDebugText("Current register: " + currentRegister, 3);
+            RoboRally.setDebugText(3, "Current register: " + currentRegister);
             notifyChange();
         }
     }

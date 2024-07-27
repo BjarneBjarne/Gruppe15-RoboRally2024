@@ -154,26 +154,6 @@ public class ServerDataManager extends Subject implements Observer {
     }
 
     /**
-     * Method for manually leaving the server and game.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
-        if (serverCommunication.isConnectedToServer()) {
-            if (infoMessage == null || infoMessage.isEmpty()) {
-                infoMessage = "Disconnected from server.";
-            }
-        }
-        String finalInfoMessage = infoMessage;
-        runActionAndCallback(new ActionWithDelay(() -> {
-            AppController.setInfoText(finalInfoMessage);
-            if (serverCommunication.isConnectedToServer()) {
-                serverCommunication.deletePlayer(localPlayer);
-            }
-            stopGameUpdateLoop();
-        }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
-    }
-
-    /**
      * Stops the loop of updating the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
@@ -236,13 +216,13 @@ public class ServerDataManager extends Subject implements Observer {
     private void loadServerDataAndNotify(Game updatedGame, Map<Long, Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters, List<Choice> updatedChoices) {
         boolean hasChanges = false;
         // Update any data that has changed.
-        if (updatedGame.hasChanges(this.game)) {
-            updateGameData(updatedGame);
-            hasChanges = true;
-        }
         if (this.game.getNrOfPlayers() != updatedGame.getNrOfPlayers() ||
                 updatedPlayers.values().stream().anyMatch(updatedPlayer -> updatedPlayer.hasChanges(playerMap.get(updatedPlayer.getPlayerId())))) {
             updatePlayerData(updatedPlayers);
+            hasChanges = true;
+        }
+        if (updatedGame.hasChanges(this.game)) {
+            updateGameData(updatedGame);
             hasChanges = true;
         }
         if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
@@ -305,21 +285,6 @@ public class ServerDataManager extends Subject implements Observer {
         pause.play();
     }
 
-    /**
-     * Method for when the connection to the server was lost, and the reconnection timed out.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void connectionToServerTimedOut() {
-        runActionAndCallback(new ActionWithDelay(() -> {
-            serverCommunication.detach(this);
-            AppController.setInfoText("Connection to server timed out.");
-            notifyChange();
-            stopGameUpdateLoop();
-        }, 2000), () -> {
-            AppController.setInfoText("");
-            RoboRally.setDebugText("", 0);
-        });
-    }
 
 
 
@@ -447,11 +412,49 @@ public class ServerDataManager extends Subject implements Observer {
 
 
 
+    /**
+     * Method for manually leaving the server and game.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
+        if (!serverCommunication.isConnectedToServer()) {
+            return;
+        }
+        if (infoMessage == null || infoMessage.isEmpty()) {
+            infoMessage = "Disconnected from server.";
+        }
+        AppController.setInfoText(infoMessage);
+        if (serverCommunication.isConnectedToServer()) {
+            serverCommunication.deletePlayer(localPlayer);
+        }
+        stopGameUpdateLoop();
+        notifyChange();
+        runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
+    }
+
+    /**
+     * Method for when the connection to the server was lost, and the reconnection timed out.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    private void connectionToServerTimedOut() {
+        runActionAndCallback(new ActionWithDelay(() -> {
+            serverCommunication.detach(this);
+            AppController.setInfoText("Connection to server timed out.");
+            stopGameUpdateLoop();
+            notifyChange();
+        }, 2000), () -> {
+            AppController.setInfoText("");
+            //RoboRally.setDebugText("", 0);
+        });
+    }
+
+
+
     @Override
     public void update(Subject subject) {
         if (subject.equals(serverCommunication)) {
             // If the player was disconnected from the server.
-            if (!isConnectedToServer()) {
+            if (serverCommunication.getHasTimedOut()) {
                 connectionToServerTimedOut();
             }
         }

@@ -277,7 +277,6 @@ public class AppController implements Observer {
     public void update(Subject subject) {
         if (subject.equals(serverDataManager)) {
             if (!serverDataManager.isConnectedToServer() && isGameRunning()) {
-                System.out.println("Disconnected from server, going to main menu.");
                 roboRally.goToMainMenu();
             }
         }

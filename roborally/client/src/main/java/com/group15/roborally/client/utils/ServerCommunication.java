@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.RoboRally;
+import com.group15.roborally.client.controller.AppController;
 import com.group15.roborally.common.model.*;
 import com.group15.roborally.common.observer.Subject;
 
@@ -34,6 +36,7 @@ public class ServerCommunication extends Subject {
     private Instant startTimeOfConnectionLost = null;
     @Getter
     private boolean isConnectedToServer = false;
+    private boolean hasTimedOut = false;
     @Getter
     private Duration timeSinceConnectionLost;
 
@@ -304,7 +307,7 @@ public class ServerCommunication extends Subject {
             if (startTimeOfConnectionLost != null) {
                 startTimeOfConnectionLost = null;
                 System.out.println("Reestablished connection to server.");
-                RoboRally.setDebugText("", 0);
+                //RoboRally.setDebugText("", 0);
             }
         } else if (startTimeOfConnectionLost == null) {
             // Start timeout "timer".
@@ -313,8 +316,11 @@ public class ServerCommunication extends Subject {
         } else {
             // Evaluate timeout
             timeSinceConnectionLost = Duration.between(startTimeOfConnectionLost, Instant.now());
-            RoboRally.setDebugText("Server not responding. " + String.format("%.1f", timeSinceConnectionLost.toMillis() / 1000.0), 0);
+            String notRespondingMsg = "Server not responding. " + String.format("%.1f", timeSinceConnectionLost.toMillis() / 1000.0);
+            AppController.setInfoText(notRespondingMsg);
+            //RoboRally.setDebugText(notRespondingMsg, 0);
             if (timeSinceConnectionLost.toSeconds() >= TIME_BEFORE_TIMEOUT_SECONDS) {
+                hasTimedOut = true;
                 setIsConnectedToServer(false);
             }
         }
@@ -323,5 +329,14 @@ public class ServerCommunication extends Subject {
     private void setIsConnectedToServer(boolean isConnectedToServer) {
         this.isConnectedToServer = isConnectedToServer;
         notifyChange();
+    }
+
+    public boolean getHasTimedOut() {
+        if (hasTimedOut) {
+            hasTimedOut = false;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

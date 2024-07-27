@@ -249,7 +249,7 @@ public class RoboRally extends Application {
         });
     }
 
-    public static void setDebugText(String text, int row) {
+    public static void setDebugText(int row, String text) {
         if (row >= 16) return;
         debugTextArray[row] = text;
     }

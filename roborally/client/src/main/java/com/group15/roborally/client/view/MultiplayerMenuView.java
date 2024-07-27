@@ -113,9 +113,13 @@ public class MultiplayerMenuView implements Observer {
     }
 
     private void setupLobby() {
+        this.game = serverDataManager.getUpdatedGame();
+        this.players = serverDataManager.getUpdatedPlayerMap();
+
         hasBeenSetup =  true;
         initializeCourses();
         initializeLobby();
+        updateLobby(this.game, this.players);
     }
 
     /**

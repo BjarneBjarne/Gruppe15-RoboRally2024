@@ -128,7 +128,7 @@ public class GameController implements Observer {
     }
 
     private void updateDebuggingOfCounters() {
-        RoboRally.setDebugText("Turn: " + turnCounter + ", phase: " + phaseCounter + ", movement: " + movementCounter, 4);
+        RoboRally.setDebugText(4, "Turn: " + turnCounter + ", phase: " + phaseCounter + ", movement: " + movementCounter);
     }
 
     /**
@@ -263,9 +263,9 @@ public class GameController implements Observer {
     private void setWaitingForCardUse(boolean waitingForCardUse) {
         this.waitingForCardUse = waitingForCardUse;
         if (waitingForCardUse) {
-            RoboRally.setDebugText("Waiting for card use", 1);
+            RoboRally.setDebugText(1, "Waiting for card use");
         } else {
-            RoboRally.setDebugText(null, 1);
+            RoboRally.setDebugText(1, "");
         }
 
         board.updateBoard();
@@ -437,7 +437,7 @@ public class GameController implements Observer {
             }
         } else {
             currentPlayerInteraction = playerInteractionQueue.poll();
-            RoboRally.setDebugText(currentPlayerInteraction.toString(), 5);
+            RoboRally.setDebugText(5, currentPlayerInteraction.toString());
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
         }
@@ -451,7 +451,7 @@ public class GameController implements Observer {
     private void continueCurrentPhase() throws UnhandledPhaseInteractionException {
         PlayerInteraction finalInteraction = currentPlayerInteraction;
         currentPlayerInteraction = null;
-        RoboRally.setDebugText("", 5);
+        RoboRally.setDebugText(5, "");
         switch (board.getCurrentPhase()) {
             case GamePhase.PLAYER_ACTIVATION -> handlePlayerActivation();
             case GamePhase.BOARD_ACTIVATION -> handleBoardActivation();
@@ -803,7 +803,9 @@ public class GameController implements Observer {
                 if (updatedPlayer == null) {
                     // Player disconnected.
                     // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
+                    serverDataManager.detach(this);
                     serverDataManager.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
+                    return;
                 }
             }
 
@@ -852,7 +854,7 @@ public class GameController implements Observer {
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
         if (canStartNextPhase()) {
             handlingPrePhase = true;
-            RoboRally.setDebugText("handlingPrePhase: " + handlingPrePhase, 6);
+            RoboRally.setDebugText(6, "handlingPrePhase: " + handlingPrePhase);
             handlePrePhase();
         }
     }
@@ -880,7 +882,7 @@ public class GameController implements Observer {
         incrementPhaseCounter();
         board.setCurrentPhase(newPhase);
         serverDataManager.setCurrentPhase(newPhase);
-        RoboRally.setDebugText("GamePhase: " + newPhase, 2);
+        RoboRally.setDebugText(2, "GamePhase: " + newPhase);
 
         startNextPhase();
     }
@@ -893,7 +895,7 @@ public class GameController implements Observer {
 
     private void startNextPhase() {
         handlingPrePhase = false;
-        RoboRally.setDebugText("handlingPrePhase: " + handlingPrePhase, 6);
+        RoboRally.setDebugText(6, "handlingPrePhase: " + handlingPrePhase);
 
         switch (board.getCurrentPhase()) {
             case GamePhase.PROGRAMMING -> startProgrammingPhase();
