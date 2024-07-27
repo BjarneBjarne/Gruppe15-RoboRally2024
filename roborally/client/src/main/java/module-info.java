@@ -10,9 +10,12 @@ module com.group15.roborally.client {
     requires spring.core;
     requires spring.web;
     requires java.desktop;
+    requires jakarta.interceptor;
+    requires jakarta.transaction;
 
     exports com.group15.roborally.client;
     exports com.group15.roborally.client.utils;
+    exports com.group15.roborally.client.model.upgrade_cards;
     exports com.group15.roborally.client.model to com.google.gson;
     exports com.group15.roborally.client.coursecreator to javafx.fxml;
 

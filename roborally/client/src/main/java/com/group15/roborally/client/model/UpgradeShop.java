@@ -3,7 +3,6 @@ package com.group15.roborally.client.model;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
-import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +55,7 @@ public class UpgradeShop implements Observer {
         for (int i = 0; i < availableCardsFields.length; i++) {
             UpgradeCard upgradeCard = null;
             if (upgradeCards != null && upgradeCards[i] != null) {
-                upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(upgradeCards[i]).upgradeCardClass);
+                upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCard.Types.valueOf(upgradeCards[i]).upgradeCardClass);
             }
             availableCardsFields[i].setCard(upgradeCard);
         }
@@ -218,7 +217,7 @@ public class UpgradeShop implements Observer {
      * Method for adding one of each UpgradeCard to the main deck.
      */
     private void addAllUpgradeCardsShuffled() {
-        for (UpgradeCards upgradeCard : UpgradeCards.values()) {
+        for (UpgradeCard.Types upgradeCard : UpgradeCard.Types.values()) {
             upgradeCardsDeck.add(UpgradeCard.getUpgradeCardFromClass(upgradeCard.upgradeCardClass));
         }
         Collections.shuffle(upgradeCardsDeck);

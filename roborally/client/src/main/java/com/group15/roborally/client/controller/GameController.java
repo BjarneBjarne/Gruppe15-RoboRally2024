@@ -24,7 +24,6 @@ package com.group15.roborally.client.controller;
 import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.model.Player;
-import com.group15.roborally.client.model.upgrade_cards.temporary.Card_Hack;
 import com.group15.roborally.client.view.GameView;
 import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
@@ -36,11 +35,13 @@ import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.common.model.*;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
+import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,6 @@ public class GameController implements Observer {
     private Player playerUpgrading;
     @Getter
     private boolean handlingPrePhase = false;
-    private boolean waitingForCardUse = false;
 
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
@@ -81,9 +81,13 @@ public class GameController implements Observer {
     // Latest data
     private Game latestGameData;
     private HashMap<Long, com.group15.roborally.common.model.Player> latestPlayerData;
+    @Getter
     private String[] latestUpgradeShopData;
     private List<Register> latestRegisterData;
     private List<Choice> latestChoiceData;
+    private AnimationTimer countdownTimer = null;
+    private int countdownTimeLeft = -1;
+    private boolean waitingForCardUse = false;
 
     /**
      * Constructor method for GameController.
@@ -100,24 +104,26 @@ public class GameController implements Observer {
         latestRegisterData = serverDataManager.getUpdatedRegisters();
         board.setStepMode(false);
 
-        localPlayer.tryAddFreeUpgradeCard(UpgradeCard.getUpgradeCardFromClass(Card_Hack.class), this, 0);
+        //localPlayer.tryAddFreeUpgradeCard(UpgradeCard.getUpgradeCardFromClass(Card_Hack.class), this, 0);
     }
 
     private void incrementTurnCounter() {
         turnCounter++;
         movementCounter = 0;
         phaseCounter = 0;
-        serverDataManager.setCurrentPhaseCount(movementCounter);
         serverDataManager.setCurrentTurnCount(turnCounter);
+        serverDataManager.setCurrentPhaseCount(phaseCounter);
+        serverDataManager.setCurrentMovementCount(movementCounter);
         updateDebuggingOfCounters();
     }
     private void incrementMovementCounter() {
         movementCounter++;
+        serverDataManager.setCurrentMovementCount(movementCounter);
         updateDebuggingOfCounters();
     }
     private void incrementPhaseCounter() {
         phaseCounter++;
-        serverDataManager.setCurrentPhaseCount(movementCounter);
+        serverDataManager.setCurrentPhaseCount(phaseCounter);
         updateDebuggingOfCounters();
     }
 
@@ -141,8 +147,6 @@ public class GameController implements Observer {
             }
             serverDataManager.setUpgradeShop(availableCards);
         }
-        updateCurrentGamePhase();
-        board.updateBoard();
     }
 
     /**
@@ -150,8 +154,13 @@ public class GameController implements Observer {
      */
     public void startProgrammingPhase() {
         incrementTurnCounter();
+        playerUpgrading = null;
+        if (serverDataManager.isHost()) {
+            serverDataManager.setUpgradeShop(null);
+        }
+        latestUpgradeShopData = null;
         latestRegisterData = null;
-        board.setCurrentRegister(0);
+        board.setCurrentRegister(-1);
         board.updatePriorityList();
         board.setCurrentPlayer(board.getPriorityList().peek());
 
@@ -174,6 +183,7 @@ public class GameController implements Observer {
                 }
             }
         }
+        board.updateBoard();
     }
 
     /**
@@ -182,15 +192,21 @@ public class GameController implements Observer {
     public void finishedProgramming() {
         if (!unresolvedLocalChoices.isEmpty()) return;
         if (getIsLocalPlayerReadyForNextPhase()) return;
-        setReadyForNextPhase();
         localPlayer.fillRestOfRegisters();
-        serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames(), turnCounter);
+        serverDataManager.setPlayerRegister(localPlayer.getProgramFieldNames());
+        setReadyForNextPhase();
+
         board.updateBoard();
     }
 
     private void startPlayerActivationPhase() {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+            countdownTimer = null;
+        }
         if (checkForRegisterIssues()) return;
 
+        board.setCurrentRegister(board.getCurrentRegister() + 1);
         board.updatePriorityList();
 
         for (Player player : board.getPlayers()) {
@@ -237,12 +253,21 @@ public class GameController implements Observer {
      *    ### These methods are the main flow of the activation phases. ###
      */
     private void waitBeforeNextPlayerRegister() {
-        board.getBoardActionQueue().addLast(new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.NEXT_PLAYER_REGISTER_DELAY));
-        runActionsAndCallback(this::nextPlayerRegister);
+        if (shouldDelayForPossibleCardUse()) {
+            // Delay before assessing card usages.
+            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.NEXT_PLAYER_REGISTER_DELAY));
+        }
+        runActionsAndCallback(() -> setAndUpdateChoices(this::nextPlayerRegister));
     }
 
     private void setWaitingForCardUse(boolean waitingForCardUse) {
         this.waitingForCardUse = waitingForCardUse;
+        if (waitingForCardUse) {
+            RoboRally.setDebugText("Waiting for card use", 1);
+        } else {
+            RoboRally.setDebugText(null, 1);
+        }
+
         board.updateBoard();
     }
 
@@ -317,11 +342,8 @@ public class GameController implements Observer {
             return;
         }
         int currentRegister = board.getCurrentRegister();
-        // Set next register
-        currentRegister++;
         // If there are more registers, set the currentRegister and continue to the next player.
-        if (currentRegister < Player.NO_OF_REGISTERS) {
-            board.setCurrentRegister(currentRegister);
+        if (currentRegister < Player.NO_OF_REGISTERS - 1) {
             if (!board.isStepMode()) {
                 setReadyForNextPhase();
             }
@@ -337,7 +359,7 @@ public class GameController implements Observer {
     private void handleEndOfRound() {
         // If all registers are done
         PauseTransition pause = new PauseTransition(Duration.millis(NEXT_REGISTER_DELAY));
-        pause.setOnFinished(_ -> {
+        pause.setOnFinished(a -> {
             for (Player player : board.getPlayers()) {
                 player.stopRebooting();
                 player.getSpace().updateSpace();
@@ -364,7 +386,7 @@ public class GameController implements Observer {
                 incrementMovementCounter();
                 int delayInMillis = nextAction.getDelayInMillis();
                 PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
-                pause.setOnFinished(_ -> {
+                pause.setOnFinished(a -> {
                     EventHandler.event_EndOfAction(this);
                     runActionsAndCallback(callback);
                 }); // Continue actions
@@ -411,7 +433,7 @@ public class GameController implements Observer {
             try {
                 continueCurrentPhase();
             } catch (UnhandledPhaseInteractionException e) {
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         } else {
             currentPlayerInteraction = playerInteractionQueue.poll();
@@ -461,8 +483,8 @@ public class GameController implements Observer {
             commandToQueue = card.command;
             currentPlayer.queueCommand(commandToQueue, this);
         } catch (Exception e) {
-            System.out.println("ERROR - Something went wrong when trying to get command: \"" + commandToQueue + "\" from CommandCard.");
-            System.out.println(e.getMessage());
+            System.err.println("ERROR - Something went wrong when trying to get command: \"" + commandToQueue + "\" from CommandCard.");
+            System.err.println(e.getMessage());
         }
         assert false;
     }
@@ -669,22 +691,22 @@ public class GameController implements Observer {
             serverDataManager.setPlayerSpawn(localPlayer.getSpace(), direction.name());
             setReadyForNextPhase();
         } else {
-            serverDataManager.setInteraction(currentPlayerInteraction, direction.name(), turnCounter, movementCounter);
+            serverDataManager.setInteraction(currentPlayerInteraction, direction.name());
         }
     }
 
     public void chooseCommandOption(Command command) {
-        serverDataManager.setInteraction(currentPlayerInteraction, command.name(), turnCounter, movementCounter);
+        serverDataManager.setInteraction(currentPlayerInteraction, command.name());
     }
 
     public void continueFromInteraction() {
         if (currentPlayerInteraction == null) return;
         switch (currentPlayerInteraction) {
-            case RebootInteraction _ -> {
+            case RebootInteraction ignored1 -> {
                 Heading direction = Heading.valueOf(serverDataManager.getInteraction().getCode());
                 currentPlayerInteraction.getPlayer().setHeading(direction);
             }
-            case CommandOptionsInteraction _ -> {
+            case CommandOptionsInteraction ignored2 -> {
                 Command command = Command.valueOf(serverDataManager.getInteraction().getCode());
                 executeCommandOptionAndContinue(command);
             }
@@ -700,7 +722,6 @@ public class GameController implements Observer {
     private void setReadyForNextPhase() {
         GamePhase nextPhase = board.getNextPhase();
         if (getIsLocalPlayerReadyForNextPhase()) return;
-
         serverDataManager.setReadyForPhase(nextPhase);
     }
 
@@ -745,7 +766,7 @@ public class GameController implements Observer {
     public void tryUseUpgradeCard(UpgradeCard upgradeCard) {
         String resolveStatus = board.getCurrentPhase().equals(GamePhase.PLAYER_ACTIVATION) || board.getCurrentPhase().equals(GamePhase.BOARD_ACTIVATION) ?
                 Choice.ResolveStatus.NONE.name() : Choice.ResolveStatus.UNRESOLVED.name();
-        ChoiceDTO choiceDTO = new ChoiceDTO(latestGameData.getGameId(), localPlayer.getPlayerId(), upgradeCard.getEnum().name(), turnCounter, resolveStatus);
+        ChoiceDTO choiceDTO = new ChoiceDTO(latestGameData.getGameId(), localPlayer.getPlayerId(), upgradeCard.getEnum().name(), phaseCounter, resolveStatus);
         unresolvedLocalChoices.add(choiceDTO);
         board.updateBoard();
         serverDataManager.setChoice(choiceDTO);
@@ -765,18 +786,27 @@ public class GameController implements Observer {
         if (subject.equals(serverDataManager)) {
             // Updating data
             List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
-
-            System.out.println();
-            System.out.println("||| Changed data: " + changedData + " |||");
-
+            /*System.out.println();
+            System.out.println("||| Changed data: " + changedData + " |||");*/
             if (changedData.contains(NetworkedDataTypes.GAME)) {
                 latestGameData = serverDataManager.getUpdatedGame();
-                System.out.println("*** Updated game phase from server: " + latestGameData.getPhase() + " ***");
             }
             if (changedData.contains(NetworkedDataTypes.PLAYERS)) {
                 latestPlayerData = serverDataManager.getUpdatedPlayerMap();
             }
+
             if (latestGameData == null || latestPlayerData == null) return;
+
+            // Check if any player disconnected
+            for (Player client : board.getPlayers()) {
+                com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
+                if (updatedPlayer == null) {
+                    // Player disconnected.
+                    // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
+                    serverDataManager.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
+                }
+            }
+
             if (changedData.contains(NetworkedDataTypes.UPGRADE_SHOP)) {
                 latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
             }
@@ -791,15 +821,6 @@ public class GameController implements Observer {
                 removeResolvedChoices();
             }
 
-            // Check if any player disconnected
-            for (Player client : board.getPlayers()) {
-                com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
-                if (updatedPlayer == null) {
-                    // Player disconnected.
-                    // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
-                    serverDataManager.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
-                }
-            }
             updateGameWithLatestData();
         }
     }
@@ -842,7 +863,8 @@ public class GameController implements Observer {
         GamePhase nextPhase = board.getNextPhase();
         boolean allAreReady = latestPlayerData.values().stream().allMatch(player -> player.getReadyForPhase().equals(nextPhase));
         if (board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) {
-            boolean receivedAllRegisters = latestRegisterData != null && latestRegisterData.size() == NO_OF_PLAYERS && latestRegisterData.stream().noneMatch(Register::hasNull);
+            if (latestRegisterData == null) return false;
+            boolean receivedAllRegisters = latestRegisterData.size() == NO_OF_PLAYERS && latestRegisterData.stream().noneMatch(Register::hasNull);
             return allAreReady && receivedAllRegisters;
         }
         return allAreReady;
@@ -857,29 +879,16 @@ public class GameController implements Observer {
         }
         incrementPhaseCounter();
         board.setCurrentPhase(newPhase);
+        serverDataManager.setCurrentPhase(newPhase);
+        RoboRally.setDebugText("GamePhase: " + newPhase, 2);
 
-        RoboRally.setDebugText("GamePhase: " + board.getCurrentPhase(), 2);
-        RoboRally.setDebugText("Register: " + board.getCurrentRegister(), 3);
-
-        // Check if we should wait for a player that has an activatable card.
-        boolean phaseToWaitBefore = newPhase.isPhaseToWaitBefore();
-        boolean useCardPresent = board.getPlayers().stream().anyMatch(player -> player.getUpgradeCards().stream().anyMatch(c ->
-                c.getHasActive() && (c.getActivatableOn().contains(newPhase))));
-        boolean waitForPossibleActivation = phaseToWaitBefore && useCardPresent;
-        if (waitForPossibleActivation) {
-            // Delay before assessing card usages.
-            RoboRally.setDebugText("Waiting for card use", 1);
-            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.PRE_PHASE_USAGE_DELAY_MILLIS));
-        }
-
-        // After delay, set and get card usages.
-        runActionsAndCallback(this::setAndUpdateChoices);
+        startNextPhase();
     }
 
-    private void setAndUpdateChoices() {
+    private void setAndUpdateChoices(Runnable callback) {
         setWaitingForCardUse(false);
-        serverDataManager.setReadyChoice(turnCounter);
-        serverDataManager.waitForChoicesAndCallback(this::startNextPhase, turnCounter);
+        serverDataManager.setReadyChoice();
+        serverDataManager.waitForChoicesAndCallback(callback);
     }
 
     private void startNextPhase() {
@@ -895,8 +904,6 @@ public class GameController implements Observer {
     }
 
     private void executeUnhandledUpgradeCards() {
-        RoboRally.setDebugText(null, 1);
-
         latestChoiceData = serverDataManager.getUpdatedChoices();
         List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
         unhandledChoices.removeAll(executedChoices);
@@ -918,7 +925,7 @@ public class GameController implements Observer {
                         choice.getGameId(),
                         choice.getPlayerId(),
                         choice.getCode(),
-                        choice.getTurn(),
+                        choice.getPhaseCount(),
                         String.valueOf(localPlayer.getPlayerId())
                 );
                 serverDataManager.setChoice(resolvedChoiceDTO);
@@ -939,8 +946,11 @@ public class GameController implements Observer {
      * Redirection of update logic for the current local GamePhase.
      */
     private void updateCurrentGamePhase() {
+        if (handlingPrePhase) return;
+
         switch (board.getCurrentPhase()) {
             case GamePhase.INITIALIZATION -> updateInitialization();
+            case GamePhase.PROGRAMMING -> updateProgramming();
             case GamePhase.UPGRADE -> updateUpgrading();
         }
         board.updateBoard();
@@ -981,6 +991,29 @@ public class GameController implements Observer {
         }
     }
 
+    private void updateProgramming() {
+        if (latestRegisterData == null) return;
+        if (latestRegisterData.isEmpty()) return;
+
+        if (latestRegisterData.stream().anyMatch(r -> !r.hasNull())) {
+            if (countdownTimer != null) return;
+
+            Instant startTimeOfCountdown = Instant.now();
+            countdownTimer = new AnimationTimer() {
+                @Override
+                public void handle(long now) {
+                    int newCountdownTimeLeft = Math.clamp(30 - (int)java.time.Duration.between(startTimeOfCountdown, Instant.now()).toSeconds(), 0, 30);
+                    if (newCountdownTimeLeft != countdownTimeLeft) {
+                        countdownTimeLeft = newCountdownTimeLeft;
+                        board.updateBoard();
+                        if (countdownTimeLeft <= 0) finishedProgramming();
+                    }
+                }
+            };
+            countdownTimer.start();
+        }
+    }
+
     /**
      * Updates proxy players' upgrade cards and sets the available card in the upgrade shop with the data from the server.
      * 
@@ -1002,10 +1035,12 @@ public class GameController implements Observer {
             }
         }
 
+        if (latestUpgradeShopData == null) return;
+
         // Set available cards locally
         board.getUpgradeShop().setAvailableCards(latestUpgradeShopData);
 
-        // Finding whose turn it is to upgrade.
+        // Finding whose phaseCount it is to upgrade.
         int upgradeTurn = 0;
         for (int i = 0; i < board.getPriorityList().size(); i++) {
             Player client = board.getPriorityList().stream().toList().get(i);
@@ -1043,5 +1078,17 @@ public class GameController implements Observer {
     public boolean canUseUpgradeCards() {
         return (!board.getCurrentPhase().equals(GamePhase.PLAYER_ACTIVATION) && !board.getCurrentPhase().equals(GamePhase.BOARD_ACTIVATION) && !getIsLocalPlayerReadyForNextPhase()) ||
                 (board.getCurrentPhase().isPhaseToWaitBefore() && handlingPrePhase);
+    }
+
+    public boolean shouldDelayForPossibleCardUse() {
+        boolean phaseToWaitBefore = board.getCurrentPhase().isPhaseToWaitBefore();
+        boolean useCardPresent = board.getPlayers().stream().anyMatch(player -> player.getUpgradeCards().stream().anyMatch(c ->
+                c.getHasActive() && (c.getActivatableOn().contains(board.getCurrentPhase()))));
+        return phaseToWaitBefore && useCardPresent;
+    }
+
+    public int getCountdownTime() {
+        if (countdownTimer == null) return -1;
+        return countdownTimeLeft;
     }
 }

@@ -128,8 +128,8 @@ public class PlayerView extends StackPane implements ViewObserver {
                 double cardScale = (this.getHeight() / 550) * programCardSize;
                 CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * cardScale, 1.4 * cardScale);
                 programCardViews[i] = cardFieldView;
-                cardFieldView.setOnMouseEntered(_ -> cardFieldView.setTranslateY(-programPaneOffset));
-                cardFieldView.setOnMouseExited(_ -> cardFieldView.setTranslateY(0));
+                cardFieldView.setOnMouseEntered(a -> cardFieldView.setTranslateY(-programPaneOffset));
+                cardFieldView.setOnMouseExited(a -> cardFieldView.setTranslateY(0));
                 cardFieldView.setAlignment(Pos.CENTER);
                 cardFieldView.setStyle(
                         "-fx-background-color: transparent; " +
@@ -163,11 +163,11 @@ public class PlayerView extends StackPane implements ViewObserver {
                 permanentUpgradeCardsPane.add(cardFieldView, i, 0);
 
                 // Hovering the card
-                cardFieldView.setOnMouseEntered(_ -> {
+                cardFieldView.setOnMouseEntered(a -> {
                     cardShowcaseImageView.setImage(cardFieldView.getCardImageView().getImage());
                     cardShowcaseImageView.setVisible(true);
                 });
-                cardFieldView.setOnMouseExited(_ -> cardShowcaseImageView.setVisible(false));
+                cardFieldView.setOnMouseExited(a -> cardShowcaseImageView.setVisible(false));
             }
         }
         permanentUpgradeCardsPane.setAlignment(Pos.CENTER);
@@ -192,11 +192,11 @@ public class PlayerView extends StackPane implements ViewObserver {
                 player.board.attach(cardFieldView);
 
                 // Hovering the card
-                cardFieldView.setOnMouseEntered(_ -> {
+                cardFieldView.setOnMouseEntered(a -> {
                     cardShowcaseImageView.setImage(cardFieldView.getCardImageView().getImage());
                     cardShowcaseImageView.setVisible(true);
                 });
-                cardFieldView.setOnMouseExited(_ -> cardShowcaseImageView.setVisible(false));
+                cardFieldView.setOnMouseExited(a -> cardShowcaseImageView.setVisible(false));
             }
         }
         temporaryUpgradeCardsPane.setAlignment(Pos.CENTER);
@@ -210,7 +210,7 @@ public class PlayerView extends StackPane implements ViewObserver {
         buttonText.setTextAlignment(TextAlignment.CENTER);
         buttonText.setText("Ready");
         readyButton.setGraphic(buttonText);
-        readyButton.setOnAction(_ -> gameController.finishedProgramming());
+        readyButton.setOnAction(a -> gameController.finishedProgramming());
         readyPanel = new HBox(readyButton);
         readyPanel.setAlignment(Pos.CENTER);
         readyPanel.setSpacing(3.0);
@@ -372,7 +372,7 @@ public class PlayerView extends StackPane implements ViewObserver {
                     List<Command> options = commandOptionsInteraction.getOptions();
                     for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(_ -> gameController.chooseCommandOption(command));
+                        optionButton.setOnAction(a -> gameController.chooseCommandOption(command));
                         optionButton.setDisable(false);
                         playerOptionsPanel.getChildren().add(optionButton);
                     }

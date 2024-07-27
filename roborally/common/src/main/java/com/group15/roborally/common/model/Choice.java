@@ -23,7 +23,7 @@ public class Choice {
     private long gameId;
     private long playerId;
     private String code;
-    private int turn;
+    private int phaseCount;
     private String resolveStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,11 +31,11 @@ public class Choice {
     @JsonIgnore
     private Player player;
 
-    public Choice(long gameId, long playerId, String code, int turn, String resolveStatus) {
+    public Choice(long gameId, long playerId, String code, int phaseCount, String resolveStatus) {
         this.gameId = gameId;
         this.playerId = playerId;
         this.code = code;
-        this.turn = turn;
+        this.phaseCount = phaseCount;
         this.resolveStatus = resolveStatus;
     }
 

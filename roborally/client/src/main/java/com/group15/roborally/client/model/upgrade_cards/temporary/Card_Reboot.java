@@ -9,7 +9,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_Reboot extends UpgradeCardTemporary {
 
     public Card_Reboot() {
-        super("Reboot", 1, 0, 1, null, GamePhase.PLAYER_ACTIVATION, GamePhase.BOARD_ACTIVATION, GamePhase.PROGRAMMING);
+        super("Reboot", 1, 0, 1, null, false, GamePhase.PLAYER_ACTIVATION, GamePhase.BOARD_ACTIVATION, GamePhase.PROGRAMMING);
     }
 
     @Override

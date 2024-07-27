@@ -31,7 +31,6 @@ public class InteractionController {
 
     @GetMapping(value = "/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Interaction> getInteraction(@PathVariable("playerId") long playerId, @RequestParam("turn") int turn, @RequestParam("movement") int movement) {
-        System.out.println("Received request!");
         if (!interactionRepository.existsByPlayerIdAndTurnAndMovement(playerId, turn, movement)) {
             return ResponseEntity.ok(null);
         }

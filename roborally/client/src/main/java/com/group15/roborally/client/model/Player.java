@@ -31,8 +31,6 @@ import com.group15.roborally.client.model.player_interaction.RebootInteraction;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardPermanent;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCardTemporary;
-import com.group15.roborally.client.model.upgrade_cards.UpgradeCards;
-import com.group15.roborally.client.model.upgrade_cards.permanent.Card_Brakes;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.common.observer.Subject;
 import javafx.scene.image.Image;
@@ -255,7 +253,9 @@ public class Player extends Subject {
         space.updateSpace();
     }
     public void stopRebooting() {
+        System.out.println(name + " stopped rebooting.");
         this.rebooting = false;
+        space.updateSpace();
     }
     public boolean getIsRebooting() {
         return this.rebooting;
@@ -333,7 +333,7 @@ public class Player extends Subject {
             if (cardStr == null) continue;
             if (upgradeCards.stream().noneMatch(upgradeCard -> upgradeCard.getEnum().name().equals(cardStr))) {
                 // Adding and initializing upgrade card
-                UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCards.valueOf(cardStr).upgradeCardClass);
+                UpgradeCard upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCard.Types.valueOf(cardStr).upgradeCardClass);
                 addUpgradeCard(upgradeCard, gameController);
                 System.out.println("Added " + upgradeCard.getDisplayName() + " to player: \"" + name + "\".");
             }

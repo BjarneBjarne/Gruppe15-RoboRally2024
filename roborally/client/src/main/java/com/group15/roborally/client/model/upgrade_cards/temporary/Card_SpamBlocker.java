@@ -8,7 +8,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_SpamBlocker extends UpgradeCardTemporary {
 
     public Card_SpamBlocker() {
-        super("Spam Blocker", 3, 0, 1, null, GamePhase.PROGRAMMING);
+        super("Spam Blocker", 3, 0, 1, null, false, GamePhase.PROGRAMMING);
     }
 
     @Override

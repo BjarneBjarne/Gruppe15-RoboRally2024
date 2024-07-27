@@ -92,7 +92,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
         this.setCardBackground(BG_DEFAULT);
         updateCardSize();
 
-        useButton.setOnAction(_ -> cardField.activateCard());
+        useButton.setOnAction(a -> cardField.activateCard());
         useButton.setDisable(true);
         useButton.setVisible(false);
         Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 28);

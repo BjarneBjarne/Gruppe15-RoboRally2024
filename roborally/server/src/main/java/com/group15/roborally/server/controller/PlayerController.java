@@ -108,16 +108,16 @@ public class PlayerController {
 
     @DeleteMapping(value = "/{playerId}")
     public ResponseEntity<String> deletePlayer(@PathVariable("playerId") Long playerId) {
-        if (!playerRepository.existsById(playerId)) {
+        Optional<Player> o_player = playerRepository.findByPlayerId(playerId);
+        if (o_player.isPresent()) {
+            Player player = o_player.get();
+            long gameId = player.getGameId();
+            playerRepository.deleteById(playerId);
+            //Update the number of players in the game
+            gameRepository.findById(gameId).ifPresent(gameController::updateNoOfPlayersByGame);
+            return ResponseEntity.ok().build();
+        } else {
             return ResponseEntity.badRequest().build();
         }
-        long gameId = playerRepository.findByPlayerId(playerId).get().getGameId();
-        if (playerRepository.findById(playerId).isPresent()) {
-            playerRepository.deleteById(playerId);
-        }
-
-        //Update the number of players in the game
-        gameRepository.findById(gameId).ifPresent(gameController::updateNoOfPlayersByGame);
-        return ResponseEntity.ok().build();
     }
 }

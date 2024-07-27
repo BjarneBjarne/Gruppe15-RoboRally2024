@@ -10,7 +10,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_SpamFolderRoutine extends UpgradeCardTemporary {
 
     public Card_SpamFolderRoutine() {
-        super("Spam Folder Routine", 2, 0, 1, null, GamePhase.PROGRAMMING);
+        super("Spam Folder Routine", 2, 0, 1, null, false, GamePhase.PROGRAMMING);
     }
 
     @Override

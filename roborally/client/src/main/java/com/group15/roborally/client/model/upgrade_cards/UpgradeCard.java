@@ -61,23 +61,6 @@ public abstract class UpgradeCard extends Card implements Observer {
         this.activatableOn = Collections.unmodifiableList(Arrays.asList(activatableOn));
     }
 
-    private GamePhase lastPhase = null;
-    @Override
-    public void update(Subject subject) {
-        if (subject.equals(owner.board)) {
-            GamePhase currentPhase = owner.board.getCurrentPhase();
-            if (currentPhase != lastPhase) {
-                lastPhase = currentPhase;
-                if (currentPhase.equals(refreshedOn)) {
-                    refresh();
-                }
-                // Enables and disables on corresponding phases
-                setEnabled(activatableOn.contains(currentPhase));
-                //System.out.println("GamePhase: " + owner.board.getCurrentPhase() + ". Handling pre phase?: " + gameController.isHandlingPrePhase() + ". Enabled?: " + enabled + ". Activatable?: " + canBeActivated() + ". gameController.canUseUpgradeCards?:" + gameController.canUseUpgradeCards());
-            }
-        }
-    }
-
     public enum Types {
         // Permanent upgrade cards
         ADMIN_PRIVILEGE(Card_AdminPrivilege.class),
@@ -119,6 +102,23 @@ public abstract class UpgradeCard extends Card implements Observer {
         }
     }
 
+    private GamePhase lastPhase = null;
+    @Override
+    public void update(Subject subject) {
+        if (subject.equals(owner.board)) {
+            GamePhase currentPhase = owner.board.getCurrentPhase();
+            if (currentPhase != lastPhase) {
+                lastPhase = currentPhase;
+                if (currentPhase.equals(refreshedOn)) {
+                    refresh();
+                }
+                // Enables and disables on corresponding phases
+                setEnabled(activatableOn.contains(currentPhase));
+                //System.out.println("GamePhase: " + owner.board.getCurrentPhase() + ". Handling pre phase?: " + gameController.isHandlingPrePhase() + ". Enabled?: " + enabled + ". Activatable?: " + canBeActivated() + ". gameController.canUseUpgradeCards?:" + gameController.canUseUpgradeCards());
+            }
+        }
+    }
+
     protected abstract void onEnabled();
     protected abstract void onDisabled();
     protected abstract void onActivated();
@@ -148,7 +148,10 @@ public abstract class UpgradeCard extends Card implements Observer {
     }
 
     public void unInitialize() {
+        if (this.owner == null) return;
+
         this.owner.board.detach(this);
+        this.owner.removeUpgradeCard(this);
         this.owner = null;
     }
 

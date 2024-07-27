@@ -11,7 +11,7 @@ public class Card_DeflectorShield extends UpgradeCardPermanent {
     private boolean activated = false;
 
     public Card_DeflectorShield() {
-        super("Deflector Shield", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, GamePhase.PLAYER_ACTIVATION);
+        super("Deflector Shield", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, false, GamePhase.PLAYER_ACTIVATION);
     }
 
     @Override

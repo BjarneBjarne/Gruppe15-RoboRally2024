@@ -203,9 +203,9 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public List<Choice> getChoices(long gameId, int turn) {
+    public List<Choice> getChoices(long gameId, int phaseCount) {
         return sendRequest(
-                "/choices/" + gameId + "?turn=" + turn,
+                "/choices/" + gameId + "?phaseCount=" + phaseCount,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -214,7 +214,7 @@ public class ServerCommunication extends Subject {
 
     public Interaction getInteraction(long playerId, int turn, int movement) {
         return sendRequest(
-                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement, 
+                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -237,14 +237,14 @@ public class ServerCommunication extends Subject {
     }
 
     /**
-     * Get the current turn of the game during the upgrade phase.
+     * Get the current phaseCount of the game during the upgrade phase.
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @param gameId - id of the game
-     * @return turn - current turn of the game
+     * @return phaseCount - current phaseCount of the game
      */
     public Integer getUpgradeTurn(long gameId) {
         return sendRequest(
-                "/upgradeShop/" + gameId + "/turn",
+                "/upgradeShop/" + gameId + "/phaseCount",
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null

@@ -8,7 +8,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_Recompile extends UpgradeCardTemporary {
 
     public Card_Recompile() {
-        super("Recompile", 1, 0, 1, null, GamePhase.PROGRAMMING);
+        super("Recompile", 1, 0, 1, null, false, GamePhase.PROGRAMMING);
     }
 
     @Override

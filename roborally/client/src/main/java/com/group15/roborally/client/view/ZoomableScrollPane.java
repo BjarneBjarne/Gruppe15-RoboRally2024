@@ -69,7 +69,7 @@ public class ZoomableScrollPane extends ScrollPane {
         configureScrollPaneProperties();
 
         updateScale();
-        this.layoutBoundsProperty().addListener((_, _, _) -> Platform.runLater(this::centerContent));
+        this.layoutBoundsProperty().addListener((a, b, c) -> Platform.runLater(this::centerContent));
 
         // Animation timer to calculate the frame time delta
         AnimationTimer timer = new AnimationTimer() {

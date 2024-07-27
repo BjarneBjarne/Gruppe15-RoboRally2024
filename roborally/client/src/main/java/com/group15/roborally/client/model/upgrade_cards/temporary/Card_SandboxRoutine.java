@@ -10,7 +10,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_SandboxRoutine extends UpgradeCardTemporary {
 
     public Card_SandboxRoutine() {
-        super("Sandbox Routine", 5, 0, 1, null, GamePhase.PROGRAMMING);
+        super("Sandbox Routine", 5, 0, 1, null, false, GamePhase.PROGRAMMING);
     }
 
     @Override

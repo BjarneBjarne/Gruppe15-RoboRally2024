@@ -8,7 +8,6 @@ import com.group15.roborally.server.repository.PlayerRepository;
 import com.group15.roborally.server.repository.RegisterRepository;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.http.MediaType;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ProgController {
-
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final RegisterRepository registerRepository;
@@ -34,13 +32,13 @@ public class ProgController {
 
     /**
      * Endpoint to post a register for a player in a game
-     * 
+     *
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      *
      * @param moves
      * @param playerId
      * @param turn
-     * @return ResponseEntity<String> 
+     * @return ResponseEntity<String>
      */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
@@ -68,14 +66,14 @@ public class ProgController {
             gameRepository.save(game);
         }
 
-        System.out.println("Inserted register " + register);
+        //System.out.println("Inserted register " + register);
 
         registerRepository.save(register);
         return ResponseEntity.ok().build();
     }
 
     /**
-     * Endpoint to get all registers for a game that has been posted this turn
+     * Endpoint to get all registers for a game that has been posted this phaseCount
      *
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      *
@@ -84,13 +82,13 @@ public class ProgController {
      */
     @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") long gameId) {
-        System.out.println("Finding registers for game " + gameId);
+        //System.out.println("Finding registers for game " + gameId);
         if (!gameRepository.existsById(gameId)) return ResponseEntity.status(404).build();
 
         int currentTurn = gameRepository.findByGameId(gameId).getTurnId();
         List<Register> registers = registerRepository.findAllByGameIdAndTurn(gameId, currentTurn);
 
-        System.out.println("Found " + registers.size() + " registers");
+        //System.out.println("Found " + registers.size() + " registers");
 
         return ResponseEntity.ok(registers);
     }

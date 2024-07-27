@@ -21,6 +21,8 @@
  */
 package com.group15.roborally.client.model;
 
+import com.group15.roborally.client.RoboRally;
+import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.boardelements.*;
@@ -159,6 +161,11 @@ public class Board extends Subject {
     public void setCurrentPhase(GamePhase phase) {
         if (phase != this.currentPhase) {
             this.currentPhase = phase;
+            switch (phase) {
+                case PROGRAMMING -> this.currentRegister = 0;
+                case PLAYER_ACTIVATION, BOARD_ACTIVATION -> {}
+                default -> this.currentRegister = -1;
+            }
             notifyChange();
         }
     }
@@ -166,6 +173,7 @@ public class Board extends Subject {
     public void setCurrentRegister(int currentRegister) {
         if (currentRegister != this.currentRegister) {
             this.currentRegister = currentRegister;
+            RoboRally.setDebugText("Current register: " + currentRegister, 3);
             notifyChange();
         }
     }
@@ -343,7 +351,7 @@ public class Board extends Subject {
         Map<Integer, List<Player>> distanceMap = new HashMap<>();
         for (Player player : players) {
             int playerDistance = getPlayerDistance(player, antennaSpace);
-            distanceMap.computeIfAbsent(playerDistance, _ -> new ArrayList<>()).add(player);
+            distanceMap.computeIfAbsent(playerDistance, a -> new ArrayList<>()).add(player);
         }
 
         // Determining distance tie-breakers
@@ -487,7 +495,7 @@ public class Board extends Subject {
         while (!priorityList.isEmpty()) {
             Player player = priorityList.poll();
             // Queue clearing previous lasers.
-            boardActionQueue.addLast(new ActionWithDelay(this::queueClearLasers, 0, ""));
+            queueClearLasers();
             // Queue player laser
             boardActionQueue.addLast(new ActionWithDelay(() -> {
                 // Tell the EventHandler to make the player shoot.

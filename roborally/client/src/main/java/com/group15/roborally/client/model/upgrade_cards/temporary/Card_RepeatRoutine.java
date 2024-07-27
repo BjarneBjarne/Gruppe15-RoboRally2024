@@ -10,7 +10,7 @@ import com.group15.roborally.common.model.GamePhase;
 public class Card_RepeatRoutine extends UpgradeCardTemporary {
 
     public Card_RepeatRoutine() {
-        super("Repeat Routine", 3, 0, 1, null, GamePhase.PROGRAMMING);
+        super("Repeat Routine", 3, 0, 1, null, false, GamePhase.PROGRAMMING);
     }
 
     @Override

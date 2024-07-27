@@ -14,7 +14,7 @@ public enum GamePhase {
             case INITIALIZATION, UPGRADE -> PROGRAMMING;
             case PROGRAMMING -> PLAYER_ACTIVATION;
             case PLAYER_ACTIVATION -> BOARD_ACTIVATION;
-            case BOARD_ACTIVATION -> register <= 4 ? PLAYER_ACTIVATION : UPGRADE;
+            case BOARD_ACTIVATION -> register < 4 ? PLAYER_ACTIVATION : UPGRADE;
         };
     }
 

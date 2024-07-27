@@ -202,7 +202,7 @@ public class MultiplayerMenuView implements Observer {
                 .map(Robots::getRobotName)
                 .toList();
         localPlayerRobotComboBox.getItems().addAll(robotNames);
-        localPlayerRobotComboBox.valueProperty().addListener((_, _, _) -> {
+        localPlayerRobotComboBox.valueProperty().addListener((a, b, c) -> {
             String localRobotName = localPlayerRobotComboBox.getSelectionModel().getSelectedItem();
             playerSlots[0].setRobotByRobotName(localRobotName);
             serverDataManager.changeRobot(localRobotName);
@@ -220,7 +220,7 @@ public class MultiplayerMenuView implements Observer {
         // Keep hand
         lobbySettingsKeepHand.getItems().addAll(OPTIONS_KEEP_HAND);
         lobbySettingsKeepHand.getSelectionModel().select(1);
-        lobbySettingsKeepHand.setOnAction(_ -> {
+        lobbySettingsKeepHand.setOnAction(a -> {
             String keepHandString = lobbySettingsKeepHand.getSelectionModel().getSelectedItem();
             KEEP_HAND = keepHandString.equals("Yes");
             updateUI();
@@ -229,7 +229,7 @@ public class MultiplayerMenuView implements Observer {
         // Draw on empty register
         lobbySettingsDrawOnEmpty.getItems().addAll(OPTIONS_DRAW_ON_EMPTY_REGISTER);
         lobbySettingsDrawOnEmpty.getSelectionModel().select(0);
-        lobbySettingsDrawOnEmpty.setOnAction(_ -> {
+        lobbySettingsDrawOnEmpty.setOnAction(a -> {
             String keepHandString = lobbySettingsDrawOnEmpty.getSelectionModel().getSelectedItem();
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI();
@@ -314,7 +314,7 @@ public class MultiplayerMenuView implements Observer {
                     newCourseVBox.setAlignment(Pos.CENTER);
 
                     // Course buttons OnMouseClicked
-                    courseButton.setOnMouseClicked(_ -> {
+                    courseButton.setOnMouseClicked(a -> {
                         if (serverDataManager.isHost()) {
                             serverDataManager.changeCourse(course);
                             this.selectedCourse = course;
@@ -356,21 +356,21 @@ public class MultiplayerMenuView implements Observer {
         }));
 
         // Join button
-        multiplayerMenuButtonJoin.setOnMouseClicked(_ -> {
+        multiplayerMenuButtonJoin.setOnMouseClicked(a -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank() && !multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
                 serverDataManager.tryJoinGameWithGameID(multiplayerMenuTextFieldServerURL.getText(), Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Host button
-        multiplayerMenuButtonHost.setOnMouseClicked(_ -> {
+        multiplayerMenuButtonHost.setOnMouseClicked(a -> {
             if (!multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
                 serverDataManager.tryCreateAndJoinGame(multiplayerMenuTextFieldServerURL.getText(), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Ready/Start button
-        lobbyButtonStart.setOnMouseClicked(_ -> {
+        lobbyButtonStart.setOnMouseClicked(a -> {
             if (canReadyOrStart()) {
                 if (serverDataManager.isHost()) {
                     serverDataManager.setReadyForPhase(GamePhase.INITIALIZATION);
@@ -390,7 +390,7 @@ public class MultiplayerMenuView implements Observer {
      */
     public void setupBackButton(Runnable backMethod) {
         // Back button
-        multiplayerMenuButtonBack.setOnMouseClicked(_ -> backMethod.run());
+        multiplayerMenuButtonBack.setOnMouseClicked(a -> backMethod.run());
     }
 
     /**

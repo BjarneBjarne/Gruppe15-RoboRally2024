@@ -68,7 +68,7 @@ public class MainMenuView {
 
     private void createMultiplayerButton() {
         mainMenuButtonMultiplayer = (Button) mainMenu.lookup("#mainMenuButtonMultiplayer");
-        mainMenuButtonMultiplayer.setOnAction(_ -> appController.initializeMultiplayerMenu());
+        mainMenuButtonMultiplayer.setOnAction(a -> appController.initializeMultiplayerMenu());
         buttons[0] = mainMenuButtonMultiplayer;
 
         //newGame.setGraphic(createButtonTextPane(newGame.getText()));
@@ -84,7 +84,7 @@ public class MainMenuView {
 
     private void createExitButton() {
         mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
-        mainMenuButtonQuit.setOnAction(_ -> appController.quitGame(false));
+        mainMenuButtonQuit.setOnAction(a -> appController.quitGame(false));
         buttons[2] = mainMenuButtonQuit;
 
         //exit.setGraphic(createButtonTextPane(exit.getText()));

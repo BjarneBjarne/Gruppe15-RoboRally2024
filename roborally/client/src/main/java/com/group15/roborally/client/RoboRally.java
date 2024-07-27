@@ -107,8 +107,8 @@ public class RoboRally extends Application {
 
         backgroundImageView.setPreserveRatio(true);
 
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 30);
-        debugLabel.setFont(textFont);
+        Font debugTextFont = TextUtils.loadFont("OCRAEXT.TTF", 30);
+        debugLabel.setFont(debugTextFont);
         debugLabel.setTextAlignment(TextAlignment.LEFT);
         StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
         debugLabel.setTranslateX(25);
@@ -192,11 +192,11 @@ public class RoboRally extends Application {
 
         createMainMenu();
 
-        stage.setOnShown(_ -> scaleUI());
+        stage.setOnShown(a -> scaleUI());
         stage.show();
 
-        primaryScene.widthProperty().addListener((_, _, _) -> scaleUI());
-        primaryScene.heightProperty().addListener((_, _, _) -> scaleUI());
+        primaryScene.widthProperty().addListener((a, b, c) -> scaleUI());
+        primaryScene.heightProperty().addListener((a, b, c) -> scaleUI());
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -255,13 +255,15 @@ public class RoboRally extends Application {
     }
 
     private void updateDebugText() {
-        if (!ApplicationSettings.DEBUG_SHOW_DEBUG_UI) return;
-
         StringBuilder debugText = new StringBuilder();
-        for (String s : debugTextArray) {
-            //if (s == null) continue;
+        for (int i = 0; i < debugTextArray.length; i++) {
+            if (i > 0 && !ApplicationSettings.DEBUG_SHOW_DEBUG_UI) return;
+
+            String s = debugTextArray[i];
             if (s != null) {
                 debugText.append(s);
+            } else {
+                //debugText.append(i);
             }
             debugText.append("\n");
         }
