@@ -296,7 +296,8 @@ public class ServerCommunication extends Subject {
             evaluateTimeout(false);
             return null;
         } catch (HttpClientErrorException | HttpServerErrorException e2) {
-            System.err.println("Server communication error: URI: " + uriSt + ". Body: " + body + ". \n" + e2.getMessage());
+            System.err.println("Server communication error:\nURI: " + uriSt + ". Method: " + method.name() + ". Response type: " + responseType.getType() + ". Body: " + body +  ". \n" + e2.getMessage());
+            e2.printStackTrace();
             return null;
         }
     }

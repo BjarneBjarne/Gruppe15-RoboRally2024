@@ -71,6 +71,8 @@ public class UpgradeController {
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postUpgradeShop(@RequestBody String[] upgradeShopCards, @PathVariable("gameId") long gameId) {
         UpgradeShop upgradeShop = upgradeShopRepository.findById(gameId).orElse(null);
+        if (upgradeShop == null) return ResponseEntity.notFound().build();
+
         upgradeShop.setCards(upgradeShopCards); 
         upgradeShopRepository.save(upgradeShop);
         return ResponseEntity.ok().build();

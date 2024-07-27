@@ -156,7 +156,7 @@ public class GameController implements Observer {
         incrementTurnCounter();
         playerUpgrading = null;
         if (serverDataManager.isHost()) {
-            serverDataManager.setUpgradeShop(null);
+            serverDataManager.setUpgradeShop(new String[3]);
         }
         latestUpgradeShopData = null;
         latestRegisterData = null;
