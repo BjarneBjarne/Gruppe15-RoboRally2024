@@ -245,11 +245,9 @@ public class ServerDataManager extends Subject implements Observer {
             updatePlayerData(updatedPlayers);
             hasChanges = true;
         }
-        if (updatedUpgradeShop != null) {
-            if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
-                updateUpgradeShopData(updatedUpgradeShop);
-                hasChanges = true;
-            }
+        if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
+            updateUpgradeShopData(updatedUpgradeShop);
+            hasChanges = true;
         }
         if (updatedRegisters != null) {
             if (this.registers == null ||

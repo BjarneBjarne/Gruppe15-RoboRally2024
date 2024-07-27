@@ -19,7 +19,7 @@ public class UpgradeShop {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long upgradeShopId;
     private long gameId;
-    private String[] cards;
+    private String[] cards = null;
     private int turn;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -53,6 +53,8 @@ public class UpgradeController {
     @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String[]> getUpgradeShop(@PathVariable("gameId") long gameId) {
         UpgradeShop upgradeShop = upgradeShopRepository.findById(gameId).orElse(null);
+        if (upgradeShop == null) return ResponseEntity.status(422).build();
+
         String[] upgradeShopCards = upgradeShop.getCards();
         return ResponseEntity.ok().body(upgradeShopCards);
     }
