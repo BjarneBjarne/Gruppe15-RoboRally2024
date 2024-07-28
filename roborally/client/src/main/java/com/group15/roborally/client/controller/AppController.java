@@ -57,7 +57,7 @@ import java.io.IOException;
 import java.util.*;
 import java.io.File;
 
-import static com.group15.roborally.client.BoardOptions.*;
+import static com.group15.roborally.client.LobbySettings.*;
 
 /**
  *

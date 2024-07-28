@@ -513,7 +513,7 @@
                <children>
                   <StackPane mouseTransparent="true">
                      <children>
-                        <Text fx:id="lobbySelectedCourseText" fill="WHITE" text="Selected course" textAlignment="CENTER">
+                        <Text fx:id="lobbySelectedCourseText" fill="WHITE" text="Selected course" textAlignment="CENTER" wrappingWidth="430.0">
                            <font>
                               <Font name="OCR A Extended" size="48.0" />
                            </font>

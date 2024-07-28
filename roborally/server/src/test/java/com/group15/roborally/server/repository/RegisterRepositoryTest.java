@@ -46,26 +46,26 @@ public class RegisterRepositoryTest {
         testPlayer1.setPlayerName("Player Name");
         testPlayer1.setRobotName("Robot Name");
         testPlayer1.setReadyForPhase(GamePhase.LOBBY);
-        testPlayer1.setGameId(1L);
+        testPlayer1.setGameId("1");
         playerRepository.save(testPlayer1);
 
         testPlayer2 = new Player();
         testPlayer2.setPlayerName("Player Name 2");
         testPlayer2.setRobotName("Robot Name 2");
         testPlayer2.setReadyForPhase(GamePhase.LOBBY);
-        testPlayer2.setGameId(1L);
+        testPlayer2.setGameId("1");
         playerRepository.save(testPlayer2);
 
         register1 = new Register();
         register1.setPlayerId(1L);
-        // register1.setGameId(1L);
+        // register1.setGameId("1");
         register1.setTurn(0);
         register1.setMoves(new String[]{"card53", "card2", "card32", "card21", "card75"});
         registerRepository.save(register1);
 
         register2 = new Register();
         register2.setPlayerId(2L);
-        // register2.setGameId(1L);
+        // register2.setGameId("1");
         register2.setTurn(1);
         register2.setMoves(new String[]{"card85", "card17", "card36", "card21", "card23"});
         registerRepository.save(register2);

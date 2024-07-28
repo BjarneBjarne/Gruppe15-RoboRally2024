@@ -2,9 +2,11 @@ package com.group15.roborally.server.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.group15.roborally.common.model.*;
 import com.group15.roborally.server.repository.PlayerRepository;
 import com.group15.roborally.server.repository.RegisterRepository;
 
@@ -12,36 +14,23 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.group15.roborally.common.model.Game;
-import com.group15.roborally.common.model.GamePhase;
-
-import com.group15.roborally.common.model.UpgradeShop;
-import com.group15.roborally.common.model.Player;
-import com.group15.roborally.common.model.Register;
-import com.group15.roborally.server.repository.ChoiceRepository;
 import com.group15.roborally.server.repository.GameRepository;
 import com.group15.roborally.server.repository.UpgradeShopRepository;
 
 @RestController
 @RequestMapping("/games")
-
 public class GameController {
-    PlayerRepository playerRepository;
-    GameRepository gameRepository;
-    UpgradeShopRepository upgradeShopRepository;
-    RegisterRepository registerRepository;
-    ChoiceRepository choiceRepository;
-    InteractionController interactionController;
+    private final PlayerRepository playerRepository;
+    private final GameRepository gameRepository;
+    private final UpgradeShopRepository upgradeShopRepository;
+    private final RegisterRepository registerRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, 
-                UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository, 
-                ChoiceRepository choiceRepository, InteractionController interactionController) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository,
+                          UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.upgradeShopRepository = upgradeShopRepository;
         this.registerRepository = registerRepository;
-        this.choiceRepository = choiceRepository;
-        this.interactionController = interactionController;
     }
 
     /**
@@ -50,11 +39,19 @@ public class GameController {
      * @author  Marcus Rémi Lemser Eychenne, s230985
      *          Tobias Nicolai Frederiksen, s235086@dtu.dk
      * 
-     * @return ResponseEntity<Long> - the generated id of the game created
+     * @return ResponseEntity<String> - the generated id of the game created
      */
     @PostMapping
-    public ResponseEntity<Long> createGame() {
+    public ResponseEntity<String> createGame() {
         Game game = new Game();
+        boolean idAssigned = false;
+        while (!idAssigned) {
+            String generatedId = Game.GameIdGenerator.generateGameId();
+            if (!gameRepository.existsById(generatedId)) {
+                game.setGameId(generatedId);
+                idAssigned = true;
+            }
+        }
         game.setNrOfPlayers(0);
         game.setPhase(GamePhase.LOBBY);
 
@@ -65,7 +62,7 @@ public class GameController {
         upgradeShop.setTurn(0);
         upgradeShopRepository.save(upgradeShop);
 
-        return ResponseEntity.ok().body(game.getGameId());
+        return ResponseEntity.ok(game.getGameId());
     }
 
     /**
@@ -78,11 +75,10 @@ public class GameController {
      * @param playerName - the name of the player joining the game
      * @param gameId - the id of the game to be joined
      * 
-     * @return ResponseEntity<Long> - the generated id of the player created
+     * @return ResponseEntity<Player> - the player created
      */
     @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") Long gameId){
-
+    public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") String gameId){
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             return ResponseEntity.notFound().build();
@@ -101,13 +97,13 @@ public class GameController {
             game.setHostId(player.getPlayerId());
         }
         gameRepository.findById(gameId).ifPresent(this::updateNoOfPlayersByGame);
-        
+
         Register register = new Register();
         register.setPlayerId(player.getPlayerId());
         register.setTurn(0);
         registerRepository.save(register);
 
-        return ResponseEntity.ok().body(player);
+        return ResponseEntity.ok(player);
     }
 
     /**
@@ -120,21 +116,16 @@ public class GameController {
      * @return ResponseEntity<List<Player>> - a response entity with the list of players in the game
      */
     @GetMapping(value = "/{gameId}/players")
-    public ResponseEntity<Map<Long, Player>> getLobby(@PathVariable("gameId") Long gameId) {
+    public ResponseEntity<Map<Long, Player>> getLobby(@PathVariable("gameId") String gameId) {
         if (!gameRepository.existsById(gameId)) {
             return ResponseEntity.notFound().build();
         }
 
         Optional<List<Player>> o_players = playerRepository.findAllByGameId(gameId);
-
         Optional<Map<Long, Player>> o_playerMap = o_players.map(players -> players.stream()
                 .collect(Collectors.toMap(Player::getPlayerId, player -> player)));
 
         return o_playerMap.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-
-        // Convert the list to a map
-        /*Map<Long, Player> playerMap = players.stream()
-                .collect(Collectors.toMap(Player::getPlayerId, player -> player));*/
     }
 
 
@@ -148,8 +139,8 @@ public class GameController {
      * @return ResponseEntity<Game> - a response entity with the game
      */
     @GetMapping(value = "/{gameId}")
-    public ResponseEntity<Game> getGame(@PathVariable("gameId") Long gameId){
-        Game game = gameRepository.findById(gameId).orElse(null);
+    public ResponseEntity<Game> getGame(@PathVariable("gameId") String gameId) {
+        Game game = gameRepository.findByGameId(gameId);
         if (game == null) {
             return ResponseEntity.notFound().build();
         }
@@ -158,8 +149,8 @@ public class GameController {
     }
 
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateGame(@RequestBody Game game, @PathVariable("gameId") Long gameId) {
-        if (!gameRepository.existsById(gameId)) {
+    public ResponseEntity<String> updateGame(@RequestBody Game game, @PathVariable("gameId") String gameId) {
+        if (!Objects.equals(game.getGameId(), gameId) || !gameRepository.existsById(gameId)) {
             return ResponseEntity.badRequest().build();
         }
         gameRepository.save(game);
@@ -175,9 +166,8 @@ public class GameController {
      * @return ResponseEntity<String>
      */
     @DeleteMapping(value = "/{gameId}")
-    public ResponseEntity<String> deleteGame(@PathVariable("gameId") Long gameId) {
-        boolean gameExists = gameRepository.existsById(gameId);
-        if (!gameExists) {
+    public ResponseEntity<String> deleteGame(@PathVariable("gameId") String gameId) {
+        if (!gameRepository.existsById(gameId)) {
             return ResponseEntity.badRequest().build();
         }
         gameRepository.deleteById(gameId);
@@ -191,18 +181,15 @@ public class GameController {
      */
     public void updateNoOfPlayersByGame(Game game) {
         Optional<List<Player>> o_players = playerRepository.findAllByGameId(game.getGameId());
-        boolean playersExist = true;
         if (o_players.isPresent()) {
             int newNoOfPlayers = o_players.get().size();
-            if (newNoOfPlayers == 0) { // Evt. også hvis "game.phase == GamePhase.LOBBY", hvis vi skal gemme spillere under spillet.
-                playersExist = false;
+            if (newNoOfPlayers == 0) {
+                gameRepository.delete(game);
             } else {
                 game.setNrOfPlayers(newNoOfPlayers);
                 gameRepository.save(game);
             }
-        }
-
-        if (!playersExist) {
+        } else {
             gameRepository.delete(game);
         }
     }

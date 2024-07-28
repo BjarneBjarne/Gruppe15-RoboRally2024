@@ -107,7 +107,7 @@ public class PlayerController {
         Optional<Player> o_player = playerRepository.findByPlayerId(playerId);
         if (o_player.isPresent()) {
             Player player = o_player.get();
-            long gameId = player.getGameId();
+            String gameId = player.getGameId();
             playerRepository.deleteById(playerId);
             //Update the number of players in the game
             gameRepository.findById(gameId).ifPresent(gameController::updateNoOfPlayersByGame);

@@ -1,15 +1,14 @@
 package com.group15.roborally.common.model;
 
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -20,21 +19,52 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @AllArgsConstructor
 public class Game {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long gameId;
+    private String gameId;
     private int turnId = 0;
     private long hostId;
     private int nrOfPlayers = 0;
     private GamePhase phase = GamePhase.LOBBY;
     private String courseName;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Player> players;
-    
-    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private UpgradeShop upgradeShop;
+
+    public static class GameIdGenerator {
+        @JsonIgnore
+        final static String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        @JsonIgnore
+        final static int ID_LENGTH = 4;
+        @JsonIgnore
+        final static SecureRandom random = new SecureRandom();
+
+        @JsonIgnore
+        public static String generateGameId() {
+            StringBuilder sb = new StringBuilder(ID_LENGTH);
+            for (int i = 0; i < ID_LENGTH; i++) {
+                sb.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
+            }
+            return sb.toString();
+        }
+    }
+
+    @JsonIgnore
+    public Game getGameCopy() {
+        Game gameTemp = new Game();
+        gameTemp.setGameId(this.getGameId());
+        gameTemp.setPhase(this.getPhase());
+        gameTemp.setUpgradeShop(this.getUpgradeShop());
+        gameTemp.setPlayers(this.getPlayers());
+        gameTemp.setHostId(this.getHostId());
+        gameTemp.setTurnId(this.getTurnId());
+        gameTemp.setNrOfPlayers(this.getNrOfPlayers());
+        gameTemp.setCourseName(this.getCourseName());
+        return gameTemp;
+    }
 
     /**
      * Compares whether the game has had variables changed between "this" and the argument game.
@@ -43,17 +73,18 @@ public class Game {
      * @throws IllegalArgumentException If the argument game has another gameId than this.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
+    @JsonIgnore
     public boolean hasChanges(Game otherGameState) throws IllegalArgumentException {
         if (otherGameState == null) {
             return true;
         }
-        if (this.gameId != otherGameState.gameId) {
+        if (!this.gameId.equals(otherGameState.gameId)) {
             throw new IllegalArgumentException("This gameId is: \"" + this.gameId + "\". Argument game has gameId: \"" + otherGameState.gameId + "\". Can't compare two different games.");
         }
         return  this.turnId != otherGameState.turnId ||
                 this.hostId != otherGameState.hostId ||
                 this.nrOfPlayers != otherGameState.nrOfPlayers ||
                 this.phase != otherGameState.phase ||
-                ((this.courseName != null || otherGameState.courseName != null) && !Objects.equals(this.courseName, otherGameState.courseName));
+                !Objects.equals(this.courseName, otherGameState.courseName);
     }
 }

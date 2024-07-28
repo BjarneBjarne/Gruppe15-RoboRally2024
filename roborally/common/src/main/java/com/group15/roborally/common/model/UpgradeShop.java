@@ -1,5 +1,6 @@
 package com.group15.roborally.common.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,17 +13,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class UpgradeShop {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long upgradeShopId;
-    private long gameId;
+    private String gameId;
     private String[] cards = null;
     private int turn;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "games_gameId", insertable = false, updatable = false)
+    @JsonIgnore
     private Game game;
 }

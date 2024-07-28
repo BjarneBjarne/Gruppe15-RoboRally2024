@@ -12,7 +12,7 @@ public interface RegisterRepository extends JpaRepository<Register, Long> {
     Register findByPlayerId(Long playerId);
 
     @Query("SELECT r FROM Register r WHERE r.player.gameId = :gameId AND r.turn = :turn")
-    List<Register> findAllByGameIdAndTurn(@Param("gameId") long gameId, @Param("turn") int turn);
+    List<Register> findAllByGameIdAndTurn(@Param("gameId") String gameId, @Param("turn") int turn);
 
     boolean existsByPlayerIdAndTurn(Long playerId, int turn);
 }

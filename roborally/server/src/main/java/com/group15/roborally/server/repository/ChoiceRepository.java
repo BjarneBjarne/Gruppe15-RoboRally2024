@@ -11,8 +11,8 @@ import com.group15.roborally.common.model.Choice;
 
 public interface ChoiceRepository extends JpaRepository<Choice, Long> {
 
-    List<Choice> findAllByGameIdAndPhaseCount(long gameId, int phaseCount, Sort sort);
+    List<Choice> findAllByGameIdAndWaitCount(String gameId, int waitCount, Sort sort);
 
-    @Query("SELECT COUNT(DISTINCT c.playerId) FROM Choice c WHERE c.player.gameId = :gameId AND c.phaseCount = :phaseCount")
-    int countDistinctByGameIdAndTurnAndMovement(@Param("gameId") long gameId, @Param("phaseCount") int phaseCount);
+    @Query("SELECT COUNT(DISTINCT c.playerId) FROM Choice c WHERE c.player.gameId = :gameId AND c.waitCount = :waitCount")
+    int countDistinctByGameIdAndTurnAndMovement(@Param("gameId") String gameId, @Param("waitCount") int waitCount);
 }

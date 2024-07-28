@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.group15.roborally.client.BoardOptions.STANDARD_DAMAGE;
+import static com.group15.roborally.client.LobbySettings.STANDARD_DAMAGE;
 
 /**
  * This class represents a board laser on the board and when a player is hit by

@@ -1,17 +1,14 @@
 package com.group15.roborally.common.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -20,12 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Player/*  implements Serializable */ {
+public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long playerId;
 
-    private long gameId;
+    private String gameId;
     private String robotName;
     private String playerName;
     private int[] spawnPoint;
@@ -40,14 +37,13 @@ public class Player/*  implements Serializable */ {
     @JsonIgnore
     private Game game;
 
-    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Register registers;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Choice> choices = new ArrayList<>();
-    
 
     /**
      * Compares two player objects.
@@ -55,13 +51,14 @@ public class Player/*  implements Serializable */ {
      * @return Whether the player has had any variables changed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
+    @JsonIgnore
     public boolean hasChanges(Player otherPlayerState) {
         return  otherPlayerState == null ||
                 this.playerId != otherPlayerState.playerId ||
-                ((this.robotName != null || otherPlayerState.robotName != null) && !Objects.equals(this.robotName, otherPlayerState.robotName)) ||
-                ((this.playerName != null || otherPlayerState.playerName != null) && !Objects.equals(this.playerName, otherPlayerState.playerName)) ||
-                 this.readyForPhase != otherPlayerState.readyForPhase ||
-                 !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint) ||
-                ((this.spawnDirection != null || otherPlayerState.spawnDirection != null) && !Objects.equals(this.spawnDirection, otherPlayerState.spawnDirection));
+                !Objects.equals(this.robotName, otherPlayerState.robotName) ||
+                !Objects.equals(this.playerName, otherPlayerState.playerName) ||
+                this.readyForPhase != otherPlayerState.readyForPhase ||
+                !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint) ||
+                !Objects.equals(this.spawnDirection, otherPlayerState.spawnDirection);
     }
 }

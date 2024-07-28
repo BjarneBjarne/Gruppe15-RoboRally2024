@@ -47,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
+import static com.group15.roborally.client.LobbySettings.NO_OF_CARDS_IN_HAND;
 import static com.group15.roborally.common.model.GamePhase.*;
 import static com.group15.roborally.client.ApplicationSettings.CARDFIELD_SIZE;
 
@@ -156,11 +156,10 @@ public class PlayerView extends StackPane implements ViewObserver {
                                 "-fx-border-color: orange; " +
                                 "-fx-border-width: 2px "
                 );
-                player.board.attach(cardFieldView);
-
                 cardFieldView.setAlignment(Pos.CENTER);
                 GridPane.setMargin(cardFieldView, new Insets(0, 5, 0, 5));
                 permanentUpgradeCardsPane.add(cardFieldView, i, 0);
+                player.board.attach(cardFieldView);
 
                 // Hovering the card
                 cardFieldView.setOnMouseEntered(a -> {

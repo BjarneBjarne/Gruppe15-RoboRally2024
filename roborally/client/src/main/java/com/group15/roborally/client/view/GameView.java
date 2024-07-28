@@ -20,6 +20,7 @@
  */
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.ApplicationSettings;
@@ -46,7 +47,7 @@ import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import static com.group15.roborally.client.ApplicationSettings.*;
-import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
+
 import com.group15.roborally.common.model.GamePhase;
 
 import java.util.ArrayList;
@@ -65,12 +66,17 @@ public class GameView extends AnchorPane implements ViewObserver {
 
     private final StackPane mainBoardPane;
     private final SpaceView[][] spaceViews;
+
+    private final AnchorPane freeMoveAnchorPane;
     private final GridPane directionOptionsPane;
+    private final Label hoveredPlayerName;
+
+    private final StackPane upgradeShopParentPane;
     private StackPane upgradeShopPane;
     private HBox upgradeShopCardsHBox;
-    private Text otherPlayerTurnText;
     private Button finishUpgradingButton;
-    private final StackPane upgradeShopParentPane;
+    private Text otherPlayerTurnText;
+
     private final ImageView cardShowcaseImageView;
     //private final Label statusLabel;
     private final Label countdownLabel = new Label();
@@ -87,6 +93,7 @@ public class GameView extends AnchorPane implements ViewObserver {
         this.board = gameController.board;
         this.board.initializeUpgradeShop();
         this.spaceViews = new SpaceView[board.width][board.height];
+
 
         // Direction options pane
         this.directionOptionsPane.setPrefSize(ApplicationSettings.SPACE_SIZE * 3, SPACE_SIZE * 3);
@@ -110,12 +117,20 @@ public class GameView extends AnchorPane implements ViewObserver {
         boardTilesPane.setAlignment(Pos.CENTER);
         StackPane.setAlignment(boardTilesPane, Pos.CENTER);
 
-        // Anchor pane to position the directionOptionsPane
-        AnchorPane directionOptionsAnchorPane = new AnchorPane(directionOptionsPane);
-        StackPane.setAlignment(directionOptionsAnchorPane, Pos.CENTER);
+        // Text to display the name of the hovered player
+        this.hoveredPlayerName = new Label();
+        Font hoveredPlayerNameTextFont = TextUtils.loadFont("OCRAEXT.TTF", 70);
+        hoveredPlayerName.setFont(hoveredPlayerNameTextFont);
+        hoveredPlayerName.setTextAlignment(TextAlignment.CENTER);
+        hoveredPlayerName.setMouseTransparent(true);
+        hoveredPlayerName.setVisible(false);
+
+        // Anchor pane to position free moving nodes
+        freeMoveAnchorPane = new AnchorPane(directionOptionsPane, hoveredPlayerName);
+        StackPane.setAlignment(freeMoveAnchorPane, Pos.CENTER);
 
         // Interactable pane
-        StackPane interactablePane = new StackPane(boardTilesPane, directionOptionsAnchorPane);
+        StackPane interactablePane = new StackPane(boardTilesPane, freeMoveAnchorPane);
         interactablePane.getStyleClass().add("transparent-scroll-pane");
         interactablePane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
         interactablePane.setStyle(
@@ -138,9 +153,9 @@ public class GameView extends AnchorPane implements ViewObserver {
         // Upgrade card showcase
         cardShowcaseImageView = new ImageView();
         cardShowcaseImageView.setVisible(false);
-        cardShowcaseImageView.setOpacity(0.9);
+        cardShowcaseImageView.setOpacity(0.85);
         cardShowcaseImageView.setMouseTransparent(true);
-        double cardShowcaseWidth = 400;
+        double cardShowcaseWidth = 500;
         cardShowcaseImageView.setFitWidth(cardShowcaseWidth);
         cardShowcaseImageView.setFitHeight(cardShowcaseWidth * 1.6);
         StackPane cardShowcaseStackPane = new StackPane(cardShowcaseImageView);
@@ -154,8 +169,6 @@ public class GameView extends AnchorPane implements ViewObserver {
         countdownLabel.setFont(countdownTextFont);
         countdownLabel.setTextAlignment(TextAlignment.CENTER);
         StackPane.setAlignment(countdownLabel, Pos.CENTER);
-        //countdownLabel.setTranslateX(0);
-        //countdownLabel.setTranslateY(25);
         countdownLabel.setMouseTransparent(true);
 
         // Main board pane
@@ -203,8 +216,9 @@ public class GameView extends AnchorPane implements ViewObserver {
         interactablePane.setMaxSize(boardPaneWidth, boardPaneHeight);
 
         // SpaceEventHandler
-        SpaceEventHandler spaceEventHandler = new SpaceEventHandler(gameController);
+        SpaceEventHandler spaceEventHandler = new SpaceEventHandler(this, gameController);
         mainBoardPane.setOnMouseClicked(spaceEventHandler);
+        mainBoardPane.setOnMouseMoved(spaceEventHandler);
 
         //statusLabel = new Label("<no status>");
 
@@ -224,6 +238,9 @@ public class GameView extends AnchorPane implements ViewObserver {
         AnchorPane.setBottomAnchor(cardShowcaseStackPane, 100.0);
         AnchorPane.setLeftAnchor(cardShowcaseStackPane, 0.0);
         AnchorPane.setRightAnchor(cardShowcaseStackPane, 0.0);
+
+        this.applyCss();
+        this.layout();
 
         board.attach(this);
         update(board);
@@ -250,7 +267,7 @@ public class GameView extends AnchorPane implements ViewObserver {
      *
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void setUpgradeShopFXML(StackPane upgradeShopPane, StackPane upgradeShopTitelPane, StackPane upgradeShopMainPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
+    public void initializeUpgradeShopUI(StackPane upgradeShopPane, StackPane upgradeShopTitelPane, StackPane upgradeShopMainPane, HBox upgradeShopCardsHBox, Button finishUpgradingButton) {
         this.upgradeShopPane = upgradeShopPane;
         this.upgradeShopCardsHBox = upgradeShopCardsHBox;
         this.finishUpgradingButton = finishUpgradingButton;
@@ -273,9 +290,21 @@ public class GameView extends AnchorPane implements ViewObserver {
 
             // Button text
             Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 42);
-            Text buttonText = getOtherPlayerTurnText(textFont);
+            Text buttonText = getStyledText(textFont);
             buttonText.setText("Finish Upgrading");
             this.finishUpgradingButton.setGraphic(buttonText);
+
+            finishUpgradingButton.disabledProperty().addListener((ignored1, ignored2, isDisabled) -> {
+                Color darkGray = new Color(0.23, 0.23, 0.23, 1);
+                buttonText.setFill(isDisabled ? darkGray : Color.WHITE);
+                String styleColor = isDisabled ? "#3b3b3b" : "white";
+                finishUpgradingButton.setStyle(
+                        "-fx-background-color: transparent; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-color: " + styleColor + "; " +
+                        "-fx-border-radius: 5px; "
+                );
+            });
         }
 
         upgradeShopTitelPane.setStyle(
@@ -286,18 +315,32 @@ public class GameView extends AnchorPane implements ViewObserver {
                 "-fx-background-color: rgba(0,0,0,.5); " +
                         "-fx-background-radius: 15px"
         );
-        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 64);
-        otherPlayerTurnText = getOtherPlayerTurnText(textFont);
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 100);
+        otherPlayerTurnText = getStyledText(textFont);
         this.upgradeShopPane.getChildren().add(otherPlayerTurnText);
-        otherPlayerTurnText.setMouseTransparent(true);
-
-        /*double height = 800 * 0.75;
-        this.upgradeShopPane.setMinHeight(height);
-        this.upgradeShopPane.setPrefHeight(height);
-        this.upgradeShopPane.setMaxHeight(height);*/
         this.upgradeShopPane.setScaleX(0.75);
         this.upgradeShopPane.setScaleY(0.75);
-        this.upgradeShopParentPane.setMouseTransparent(true);
+
+        otherPlayerTurnText.setMouseTransparent(true);
+
+        // Initialize upgrade shop card field views
+        for (CardField cardField : board.getUpgradeShop().getAvailableCardsFields()) {
+            CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
+            cardFieldView.setAlignment(Pos.CENTER);
+            cardFieldView.setStyle("-fx-background-color: transparent; ");
+            // Hovering the card
+            cardFieldView.setOnMouseEntered(a -> {
+                cardShowcaseImageView.setImage(cardFieldView.getCardImageView().getImage());
+                cardShowcaseImageView.setVisible(true);
+            });
+            cardFieldView.setOnMouseExited(a -> cardShowcaseImageView.setVisible(false));
+            GridPane.setHalignment(cardFieldView, HPos.CENTER);
+            GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
+            upgradeShopCardsHBox.getChildren().add(cardFieldView);
+        }
+
+        upgradeShopParentPane.setMouseTransparent(true);
+        upgradeShopParentPane.setVisible(false);
     }
 
     /**
@@ -305,53 +348,38 @@ public class GameView extends AnchorPane implements ViewObserver {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void updateUpgradeShop() {
-        upgradeShopCardsHBox.getChildren().clear();
-        UpgradeShop upgradeShop = board.getUpgradeShop();
         Player playerUpgrading = gameController.getPlayerUpgrading();
+        boolean localPlayersTurn = gameController.getLocalPlayer().equals(playerUpgrading);
 
-        for (int i = 0; i < NO_OF_PLAYERS; i++) {
-            CardField cardField = upgradeShop.getAvailableCardsField(i);
-            CardFieldView cardFieldView = new CardFieldView(gameController, cardField, 1 * 1.5, 1.6 * 1.5);
-            boolean localPlayersTurn = gameController.getLocalPlayer().equals(playerUpgrading);
-            upgradeShopCardsHBox.getChildren().add(cardFieldView);
-            cardFieldView.setAlignment(Pos.CENTER);
+        upgradeShopCardsHBox.setDisable(!localPlayersTurn);
+        otherPlayerTurnText.setVisible(!localPlayersTurn);
+        if (!localPlayersTurn && playerUpgrading != null) {
+            otherPlayerTurnText.setText(gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
+            otherPlayerTurnText.setFill(Color.GOLD);
+        }
+
+        finishUpgradingButton.setVisible(!gameController.getIsLocalPlayerReadyForNextPhase());
+        finishUpgradingButton.setDisable(!localPlayersTurn || gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty());
+        finishUpgradingButton.setMouseTransparent(!localPlayersTurn);
+
+        for (int i = 0; i < board.getUpgradeShop().getAvailableCardsFields().length; i++) {
+            CardField cardField = board.getUpgradeShop().getAvailableCardsFields()[i];
             switch (cardField.getCard()) {
-                case UpgradeCardPermanent a -> { }
-                case UpgradeCardTemporary b -> { }
+                case UpgradeCardPermanent ignored1 -> { }
+                case UpgradeCardTemporary ignored2 -> { }
                 case null -> { }
                 default -> System.out.println("ERROR: Wrong parent class type of upgrade shop card: " + cardField.getCard().getDisplayName() + ". Check card and GameView.setUpgradeShop().");
             }
-            cardFieldView.setStyle(
-                    "-fx-background-color: transparent; "
-            );
-
-            if (!localPlayersTurn && playerUpgrading != null) {
-                otherPlayerTurnText.setText(gameController.getPlayerUpgrading().getName() + " is buying upgrades.");
-            }
-            otherPlayerTurnText.setVisible(!localPlayersTurn);
-
-            cardFieldView.setDisable(!localPlayersTurn);
-            upgradeShopCardsHBox.setDisable(!localPlayersTurn);
-            cardFieldView.getCardImageView().setDisable(!localPlayersTurn);
-            cardFieldView.getCardForegroundImageView().setDisable(!localPlayersTurn);
-
-            finishUpgradingButton.setVisible(localPlayersTurn && !gameController.getIsLocalPlayerReadyForNextPhase());
-            finishUpgradingButton.setDisable(!localPlayersTurn || gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty());
-            finishUpgradingButton.setMouseTransparent(!localPlayersTurn);
-
-            GridPane.setHalignment(cardFieldView, HPos.CENTER);
-            GridPane.setMargin(cardFieldView, new Insets(0, 2, 0, 2));
-
-            // Hovering the card
-            cardFieldView.setOnMouseEntered(a -> {
-                cardShowcaseImageView.setImage(cardFieldView.getCardImageView().getImage());
-                cardShowcaseImageView.setVisible(true);
-            });
-            cardFieldView.setOnMouseExited(a -> cardShowcaseImageView.setVisible(false));
+            cardField.setDisabled(!localPlayersTurn);
         }
+
+        Platform.runLater(() -> {
+            upgradeShopParentPane.setMouseTransparent(false);
+            upgradeShopParentPane.setVisible(true);
+        });
     }
 
-    private @NotNull Text getOtherPlayerTurnText(Font textFont) {
+    private @NotNull Text getStyledText(Font textFont) {
         Text otherPlayerTurnText = new Text();
         otherPlayerTurnText.setFont(textFont);
         otherPlayerTurnText.setFill(Color.WHITE);
@@ -443,8 +471,14 @@ public class GameView extends AnchorPane implements ViewObserver {
             for (Player player : board.getPlayers()) {
                 Space playerSpace = player.getSpace();
                 if (playerSpace != null) {
-                    boolean playerIsReady = gameController.getIsPlayerReadyForNextPhase(player);
-                    spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady && isPhaseWithReadyCheck);
+                    // Ready check
+                    boolean playerIsReady = gameController.getIsPlayerReadyForNextPhase(player) && isPhaseWithReadyCheck;
+                    spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady);
+
+                    // Player interaction
+                    PlayerInteraction currentPlayerInteraction = gameController.getCurrentPlayerInteraction();
+                    boolean playerHasInteraction = currentPlayerInteraction != null && currentPlayerInteraction.getPlayer().equals(player);
+                    spaceViews[playerSpace.x][playerSpace.y].setInteractionLoadingVisible(playerHasInteraction);
                 }
             }
 
@@ -454,9 +488,6 @@ public class GameView extends AnchorPane implements ViewObserver {
             countdownLabel.setTextFill(Color.GOLD);
 
             if (board.getCurrentPhase().equals(GamePhase.UPGRADE) && !gameController.isHandlingPrePhase() && gameController.getLatestUpgradeShopData() != null) {
-                upgradeShopParentPane.setVisible(true);
-                upgradeShopParentPane.setMouseTransparent(false);
-                finishUpgradingButton.setVisible(gameController.getPlayerUpgrading() != null && !gameController.getIsLocalPlayerReadyForNextPhase());
                 updateUpgradeShop();
             } else {
                 if (upgradeShopParentPane != null) {
@@ -481,24 +512,27 @@ public class GameView extends AnchorPane implements ViewObserver {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private class SpaceEventHandler implements EventHandler<MouseEvent> {
-        final public GameController gameController;
+        private final GameController gameController;
+        private final GameView gameView;
 
-        public SpaceEventHandler(@NotNull GameController gameController) {
+        public SpaceEventHandler(@NotNull GameView gameView, @NotNull GameController gameController) {
+            this.gameView = gameView;
             this.gameController = gameController;
         }
 
         @Override
         public void handle(MouseEvent event) {
-            if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                // Object source = event.getSource();
-                List<SpaceView> spaceViews = getSpaceViewsAtMouse(event);
-                if (!spaceViews.isEmpty()) {
-                    SpaceView spaceView = spaceViews.getFirst();
-                    //SpaceView spaceView = (SpaceView) source;
-                    Space space = spaceView.space;
-                    Board board = space.board;
+            // Object source = event.getSource();
+            List<SpaceView> spaceViewsAtMouse = getSpaceViewsAtMouse(event);
+            if (!spaceViewsAtMouse.isEmpty()) {
+                SpaceView spaceView = spaceViewsAtMouse.getFirst();
+                //SpaceView spaceView = (SpaceView) source;
+                Space space = spaceView.space;
+                Board board = space.board;
+                Player player = space.getPlayer();
 
-                    if (board == gameController.board) {
+                if (board == gameController.board) {
+                    if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
                         if (event.isAltDown()) {
                             // Debugging
                             /*if (DEBUG_ALLOW_MANUAL_PLAYER_POSITION) {
@@ -511,9 +545,27 @@ public class GameView extends AnchorPane implements ViewObserver {
                             // Game input
                             gameController.spacePressed(space);
                         }
-
-                        event.consume();
                     }
+
+                    if (event.getEventType().equals(MouseEvent.MOUSE_MOVED)) {
+                        if (player != null) {
+                            hoveredPlayerName.setText(player.getName());
+                            hoveredPlayerName.setVisible(false);
+
+                            double labelWidth = hoveredPlayerName.getWidth();
+                            double labelHeight = hoveredPlayerName.getHeight();
+                            hoveredPlayerName.setLayoutX(spaceView.getLayoutX() + spaceView.getWidth() / 2 - labelWidth / 2);
+                            hoveredPlayerName.setLayoutY(spaceView.getLayoutY() + spaceView.getHeight() / 2 - labelHeight / 2);
+
+                            gameView.applyCss();
+                            gameView.layout();
+
+                            hoveredPlayerName.setVisible(true);
+                        } else {
+                            hoveredPlayerName.setVisible(false);
+                        }
+                    }
+                    //event.consume();
                 }
             }
         }

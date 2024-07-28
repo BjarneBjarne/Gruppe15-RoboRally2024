@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
+import static com.group15.roborally.client.LobbySettings.NO_OF_PLAYERS;
 
 /**
  * The UpgradeShop handles transactions of Types for EnergyCubes.
@@ -26,7 +26,7 @@ import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
  * If the main deck "upgradeCardsDeck" runs out of cards, the discarded cards in "upgradeCardsDiscardDeck" are shuffled and added back-
        into "upgradeCardsDeck".
  */
-public class UpgradeShop implements Observer {
+public class UpgradeShop extends Subject {
     private final LinkedList<UpgradeCard> upgradeCardsDeck = new LinkedList<>();
     private final LinkedList<UpgradeCard> upgradeCardsDiscardDeck = new LinkedList<>();
     @Getter
@@ -40,8 +40,6 @@ public class UpgradeShop implements Observer {
         for (int i = 0; i < NO_OF_PLAYERS; i++) {
             availableCardsFields[i] = new CardField(this);
         }
-
-        board.attach(this);
     }
 
     /**
@@ -59,6 +57,7 @@ public class UpgradeShop implements Observer {
             }
             availableCardsFields[i].setCard(upgradeCard);
         }
+        notifyChange();
     }
 
     /**
@@ -221,10 +220,5 @@ public class UpgradeShop implements Observer {
             upgradeCardsDeck.add(UpgradeCard.getUpgradeCardFromClass(upgradeCard.upgradeCardClass));
         }
         Collections.shuffle(upgradeCardsDeck);
-    }
-
-    @Override
-    public void update(Subject subject) {
-
     }
 }

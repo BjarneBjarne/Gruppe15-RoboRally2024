@@ -35,14 +35,14 @@ public class PlayerRepositoryTest {
         testPlayer1.setPlayerName("Player Name");
         testPlayer1.setRobotName("Robot Name");
         testPlayer1.setReadyForPhase(GamePhase.LOBBY);
-        testPlayer1.setGameId(1L);
+        testPlayer1.setGameId("1");
         playerRepository.save(testPlayer1);
 
         testPlayer2 = new Player();
         testPlayer2.setPlayerName("Player Name 2");
         testPlayer2.setRobotName("Robot Name 2");
         testPlayer2.setReadyForPhase(GamePhase.LOBBY);
-        testPlayer2.setGameId(1L);
+        testPlayer2.setGameId("1");
         playerRepository.save(testPlayer2);
     }
 
@@ -59,7 +59,7 @@ public class PlayerRepositoryTest {
 
         assert (playerRepository.existsByPlayerNameAndGameId(testPlayer2.getPlayerName(), testPlayer2.getGameId()));
 
-        assert (playerRepository.existsByPlayerNameAndGameId("Nonexistent Player Name", 0L) == false);
+        assert (!playerRepository.existsByPlayerNameAndGameId("Nonexistent Player Name", ""));
     }
 
     /**
@@ -79,7 +79,7 @@ public class PlayerRepositoryTest {
                 .findByPlayerNameAndGameId(testPlayer2.getPlayerName(), testPlayer2.getGameId()).orElse(null);
         assert (testPlayer2 == returnedPlayer2);
 
-        assert (playerRepository.findByPlayerNameAndGameId("Nonexistent Player Name", 0L).orElse(null) == null);
+        assert (playerRepository.findByPlayerNameAndGameId("Nonexistent Player Name", "").orElse(null) == null);
     }
 
     /**

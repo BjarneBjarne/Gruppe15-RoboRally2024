@@ -32,6 +32,8 @@ import com.group15.roborally.client.model.boardelements.BE_ConveyorBelt;
 import com.group15.roborally.client.model.boardelements.BE_EnergySpace;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 import com.group15.roborally.client.utils.ImageUtils;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,6 +41,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -53,25 +56,25 @@ import static com.group15.roborally.client.ApplicationSettings.*;
  *
  */
 public class SpaceView extends StackPane implements ViewObserver {
-
     public final Space space;
     private final ImageView backgroundImageView = new ImageView();
     private final ImageView boardElementImageView = new ImageView();
     private final ImageView energyCubeImageView = new ImageView();
-    private final List<ImageView> laserImageViews = new ArrayList<>();
     private final List<ImageView> wallImageViews = new ArrayList<>();
     private final ImageView playerImageView = new ImageView();
     private final ImageView readyCheckImageView = new ImageView();
     private final ImageView checkpointImageView = new ImageView();
     private boolean usingPlayerRebootImage = false;
     private Image playerRebootImage;
-    private Text spaceCoords = new Text();
-    private Text debugText = new Text();
+    private final Text spaceCoords = new Text();
+    private final Text debugText = new Text();
+
+    private final ImageView interactionImageView = new ImageView();
+    private Timeline rotationTimeline;
 
     public SpaceView(@NotNull Space space) {
         this.space = space;
 
-        // XXX the following styling should better be done with styles
         this.setPrefWidth(ApplicationSettings.SPACE_SIZE);
         this.setMinWidth(ApplicationSettings.SPACE_SIZE);
         this.setMaxWidth(ApplicationSettings.SPACE_SIZE);
@@ -124,6 +127,16 @@ public class SpaceView extends StackPane implements ViewObserver {
         readyCheckImageView.setImage(ImageUtils.getImageFromName("ReadyCheck.png"));
         readyCheckImageView.setVisible(false);
         this.getChildren().add(readyCheckImageView);
+
+        interactionImageView.setFitWidth(ApplicationSettings.SPACE_SIZE / 2);
+        interactionImageView.setFitHeight(SPACE_SIZE / 2);
+        interactionImageView.setImage(ImageUtils.getImageFromName("InteractionLoading.png"));
+        interactionImageView.setVisible(false);
+        this.getChildren().add(interactionImageView);
+        rotationTimeline = new Timeline(new KeyFrame(Duration.seconds(0.125), e -> { // 0.125 seconds * 8 ticks = 1 second for 1 full rotation.
+            interactionImageView.setRotate(interactionImageView.getRotate() + 45); // 360 degrees / 8 ticks = 45 degrees per tick
+        }));
+        rotationTimeline.setCycleCount(Timeline.INDEFINITE); // Repeat indefinitely
 
         if (DEBUG_SHOW_COORDINATES) {
             spaceCoords.setTextAlignment(TextAlignment.CENTER);
@@ -184,6 +197,7 @@ public class SpaceView extends StackPane implements ViewObserver {
             }
             this.getChildren().add(playerImageView);
             this.getChildren().add(readyCheckImageView);
+            this.getChildren().add(interactionImageView);
         }
 
         // Walls imageView
@@ -192,10 +206,8 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
 
         // Lasers imageView
-        this.laserImageViews.clear();
         for (Laser.LaserOnSpace laserOnSpace : space.getLasersOnSpace()) {
             ImageView laserImageView = newLaserImageView(laserOnSpace);
-            this.laserImageViews.add(laserImageView);
             this.getChildren().add(laserImageView);
         }
 
@@ -235,5 +247,18 @@ public class SpaceView extends StackPane implements ViewObserver {
             readyCheckImageView.setEffect(null);
         }
         readyCheckImageView.setVisible(visible);
+    }
+
+    public void setInteractionLoadingVisible(boolean visible) {
+        if (visible) {
+            DropShadow dropShadow = new DropShadow(2, 0, 1, Color.BLACK);
+            interactionImageView.setEffect(dropShadow);
+            rotationTimeline.play();
+        } else {
+            interactionImageView.setEffect(null);
+            rotationTimeline.stop(); // Stop rotation
+            interactionImageView.setRotate(0);
+        }
+        interactionImageView.setVisible(visible);
     }
 }

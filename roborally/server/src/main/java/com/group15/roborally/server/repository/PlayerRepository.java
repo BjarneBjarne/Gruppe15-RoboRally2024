@@ -12,11 +12,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PlayerRepository extends JpaRepository<Player, Long> {
-    Optional<List<Player>> findAllByGameId(Long gameId);
+    Optional<List<Player>> findAllByGameId(String gameId);
 
     Optional<Player> findByPlayerId(Long playerId);
 
-    Optional<Player> findByPlayerNameAndGameId(String playerName, Long gameId);
+    Optional<Player> findByPlayerNameAndGameId(String playerName, String gameId);
 
-    boolean existsByPlayerNameAndGameId(String playerName, Long gameId);
+    boolean existsByPlayerNameAndGameId(String playerName, String gameId);
 }

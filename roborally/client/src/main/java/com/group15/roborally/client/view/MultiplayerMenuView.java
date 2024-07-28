@@ -14,6 +14,8 @@ import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.model.GamePhase;
 import com.group15.roborally.common.model.Player;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -31,7 +33,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.List;
 
-import static com.group15.roborally.client.BoardOptions.*;
+import static com.group15.roborally.client.LobbySettings.*;
 
 /**
  * @author Maximillian Bjørn Mortensen
@@ -220,7 +222,7 @@ public class MultiplayerMenuView implements Observer {
             }
         }
 
-        // BoardOptions
+        // LobbySettings
         // Keep hand
         lobbySettingsKeepHand.getItems().addAll(OPTIONS_KEEP_HAND);
         lobbySettingsKeepHand.getSelectionModel().select(1);
@@ -362,13 +364,15 @@ public class MultiplayerMenuView implements Observer {
         // Join button
         multiplayerMenuButtonJoin.setOnMouseClicked(a -> {
             if(!multiplayerMenuTextFieldGameID.getText().isBlank() && !multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
-                serverDataManager.tryJoinGameWithGameID(multiplayerMenuTextFieldServerURL.getText(), Long.parseLong(multiplayerMenuTextFieldGameID.getText()), multiplayerMenuTextFieldPlayerName.getText());
+                onJoinOrHost();
+                serverDataManager.tryJoinGameWithGameID(multiplayerMenuTextFieldServerURL.getText(), multiplayerMenuTextFieldGameID.getText(), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
 
         // Host button
         multiplayerMenuButtonHost.setOnMouseClicked(a -> {
             if (!multiplayerMenuTextFieldPlayerName.getText().isBlank()) {
+                onJoinOrHost();
                 serverDataManager.tryCreateAndJoinGame(multiplayerMenuTextFieldServerURL.getText(), multiplayerMenuTextFieldPlayerName.getText());
             }
         });
@@ -387,6 +391,28 @@ public class MultiplayerMenuView implements Observer {
                 }
             }
         });
+
+        // Ensuring the input for game id only contains letters and numbers, to prevent bugs.
+        multiplayerMenuTextFieldGameID.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("[a-zA-Z0-9]*")) {
+                multiplayerMenuTextFieldGameID.setText(newValue.replaceAll("[^a-zA-Z0-9]", ""));
+            }
+        });
+
+        // Ensuring player names only contain letters, numbers, and single spaces, to prevent bugs.
+        multiplayerMenuTextFieldPlayerName.textProperty().addListener((observable, oldValue, newValue) -> {
+            String sanitizedText = newValue.replaceAll("[^a-zA-Z0-9 ]", "");
+            sanitizedText = sanitizedText.replaceAll("\\s{2,}", " ");
+            if (!newValue.equals(sanitizedText)) {
+                multiplayerMenuTextFieldPlayerName.setText(sanitizedText);
+            }
+        });
+    }
+
+    private void onJoinOrHost() {
+        String playerName = multiplayerMenuTextFieldPlayerName.getText();
+        playerName = playerName.trim();
+        multiplayerMenuTextFieldPlayerName.setText(playerName);
     }
 
     /**
@@ -498,6 +524,10 @@ public class MultiplayerMenuView implements Observer {
             } else {
                 hasBeenSetup = false;
                 showLobby(false);
+                this.players = null;
+                this.game = null;
+                hasStartedGameLocally = false;
+                selectedCourse = null;
             }
         }
     }

@@ -7,13 +7,12 @@ import com.group15.roborally.client.model.damage.Damage;
 import com.group15.roborally.client.model.damage.DamageTypeAmount;
 import com.group15.roborally.client.model.events.EventListener;
 import com.group15.roborally.client.model.events.*;
-import com.group15.roborally.client.model.Player;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.group15.roborally.client.BoardOptions.STANDARD_DAMAGE;
+import static com.group15.roborally.client.LobbySettings.STANDARD_DAMAGE;
 
 /**
  * This static class is for handling whenever an event takes place. Each "event" is defined as an extension of the EventListener.

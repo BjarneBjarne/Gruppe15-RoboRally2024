@@ -29,6 +29,7 @@ public class Register {
     @JsonIgnore
     private Player player;
 
+    @JsonIgnore
     @Override
     public boolean equals(Object o) {
         if (!o.getClass().equals(this.getClass())) return false;
@@ -38,6 +39,7 @@ public class Register {
                 && movesEqual(other.moves);
     }
 
+    @JsonIgnore
     private boolean movesEqual(String[] otherMoves) {
         if (moves.length != otherMoves.length)
             return false;
@@ -47,19 +49,22 @@ public class Register {
         return true;
     }
 
+    @JsonIgnore
     public boolean hasNull() {
         if (moves == null) return true;
-        for (String move : moves) {
+        /*for (String move : moves) {
             if (move == null || move.isBlank()) {
                 return true;
             }
-        }
+        }*/
         return false;
     }
 
+    @JsonIgnore
     public boolean hasChanges(Register otherRegisterState) {
         return otherRegisterState == null ||
                 this.playerId != otherRegisterState.playerId ||
-                ((this.moves != null || otherRegisterState.moves != null) && !Arrays.equals(this.moves, otherRegisterState.moves));
+                this.turn != otherRegisterState.turn ||
+                !Arrays.equals(this.moves, otherRegisterState.moves);
     }
 }

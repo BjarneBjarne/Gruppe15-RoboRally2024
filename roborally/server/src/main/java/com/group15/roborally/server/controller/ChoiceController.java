@@ -25,14 +25,14 @@ public class ChoiceController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateChoice(@RequestBody ChoiceDTO choiceDTO) {
-        Choice choice = new Choice(choiceDTO.gameId(), choiceDTO.playerId(), choiceDTO.code(), choiceDTO.phaseCount(), choiceDTO.resolveStatus());
+        Choice choice = new Choice(choiceDTO.gameId(), choiceDTO.playerId(), choiceDTO.code(), choiceDTO.waitCount(), choiceDTO.resolveStatus());
         choiceRepository.save(choice);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/{gameId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Choice>> getChoices(@PathVariable("gameId") long gameId, @RequestParam("phaseCount") int phaseCount) {
-        List<Choice> choices = choiceRepository.findAllByGameIdAndPhaseCount(gameId, phaseCount, Sort.by(Sort.Direction.ASC, "choiceId"));
+    public ResponseEntity<List<Choice>> getChoices(@PathVariable("gameId") String gameId, @RequestParam("waitCount") int waitCount) {
+        List<Choice> choices = choiceRepository.findAllByGameIdAndWaitCount(gameId, waitCount, Sort.by(Sort.Direction.ASC, "choiceId"));
         if (choices.isEmpty()) {
             return ResponseEntity.ok().build();
         } else{

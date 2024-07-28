@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
+import static com.group15.roborally.client.LobbySettings.NO_OF_PLAYERS;
 
 /**
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
@@ -48,7 +48,7 @@ public class ServerDataManager extends Subject implements Observer {
     @Getter
     private Interaction interaction;
     @Setter
-    private int currentTurnCount, currentPhaseCount, currentMovementCount = 0;
+    private int currentTurnCount, currentWaitCount, currentMovementCount = 0;
     @Setter
     private GamePhase currentPhase = GamePhase.LOBBY;
 
@@ -71,9 +71,9 @@ public class ServerDataManager extends Subject implements Observer {
      */
     public void tryCreateAndJoinGame(String serverURL, String playerName) {
         AppController.setInfoText("Creating new game...");
-        AtomicLong gameId = new AtomicLong();
-        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(50, 250)), () -> {
-            if (gameId.get() != -1) {
+        AtomicReference<String> gameId = new AtomicReference<>("");
+        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100)), () -> {
+            if (!gameId.get().isBlank()) {
                 runActionAndCallback(new ActionWithDelay(
                         () -> AppController.setInfoText("Successfully created new game!"), 250),
                         () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
@@ -93,10 +93,10 @@ public class ServerDataManager extends Subject implements Observer {
      * @param playerName The name that the player wants.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryJoinGameWithGameID(String serverURL, long gameId, String playerName) {
+    public void tryJoinGameWithGameID(String serverURL, String gameId, String playerName) {
         AppController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
-        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(50, 250)), () -> {
+        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100)), () -> {
             if (player.get() != null) {
                 runActionAndCallback(new ActionWithDelay(() -> {
                     AppController.setInfoText("Successfully joined game!");
@@ -116,19 +116,21 @@ public class ServerDataManager extends Subject implements Observer {
      * @param gameId The game's gameId received from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void connectedToGame(long gameId, Player localPlayer) {
+    private void connectedToGame(String gameId, Player localPlayer) {
         this.playerMap = new HashMap<>();
         this.upgradeShop = null;
         this.registers = null;
-        updateGameData(serverCommunication.getGame(gameId));
         this.localPlayer = localPlayer;
-        this.isHost = localPlayer.getPlayerId() == game.getHostId();
-        updatePlayerData(serverCommunication.getPlayers(gameId));
-        serverCommunication.attach(this);
-        setReadyForPhase(GamePhase.LOBBY);
-        startUpdateGameLoop();
-        notifyChange();
-        System.out.println("Player name: " + localPlayer.getPlayerName());
+        Platform.runLater(() -> {
+            updateGameData(serverCommunication.getGame(gameId));
+            updatePlayerData(serverCommunication.getPlayers(gameId));
+            serverCommunication.attach(this);
+            this.isHost = localPlayer.getPlayerId() == game.getHostId();
+            setReadyForPhase(GamePhase.LOBBY);
+            startUpdateGameLoop();
+            notifyChange();
+            System.out.println("Player name: " + localPlayer.getPlayerName());
+        });
     }
 
     /**
@@ -191,12 +193,12 @@ public class ServerDataManager extends Subject implements Observer {
             updatedUpgradeShop = null;
         }
         List<Register> updatedRegisters;
-        if (currentPhase.equals(GamePhase.PROGRAMMING)) {
+        if (currentPhase.equals(GamePhase.PROGRAMMING) || currentPhase.equals(GamePhase.PLAYER_ACTIVATION)) {
             updatedRegisters = serverCommunication.getRegisters(game.getGameId());
         } else {
             updatedRegisters = null;
         }
-        List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentPhaseCount);
+        List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentWaitCount);
 
         // Check if the host has disconnected
         boolean hostHasDisconnected = updatedPlayers.values().stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
@@ -226,16 +228,24 @@ public class ServerDataManager extends Subject implements Observer {
             hasChanges = true;
         }
         if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
+            if (updatedUpgradeShop != null) {
+                if (Arrays.stream(updatedUpgradeShop).allMatch(Objects::isNull)) {
+                    updatedUpgradeShop = null;
+                }
+            }
             updateUpgradeShopData(updatedUpgradeShop);
             hasChanges = true;
         }
         if (updatedRegisters != null) {
+            RoboRally.setDebugText(7, "updatedRegisters.size: " + updatedRegisters.size());
             if (this.registers == null ||
                     this.registers.size() != updatedRegisters.size() ||
                     IntStream.range(0, updatedRegisters.size()).anyMatch(i -> updatedRegisters.get(i).hasChanges(this.registers.get(i)))) {
                 updateRegisterData(updatedRegisters);
                 hasChanges = true;
             }
+        } else {
+            RoboRally.setDebugText(7, "updatedRegisters are null");
         }
         if (updatedChoices != null) {
             if (!Choice.areListsEqual(this.choices, updatedChoices)) {
@@ -253,22 +263,18 @@ public class ServerDataManager extends Subject implements Observer {
         NO_OF_PLAYERS = updatedGameData.getNrOfPlayers();
         changedData.add(NetworkedDataTypes.GAME);
     }
-
     private void updatePlayerData(@NotNull Map<Long, Player> updatedPlayerData) {
         this.playerMap = updatedPlayerData;
         changedData.add(NetworkedDataTypes.PLAYERS);
     }
-
     private void updateUpgradeShopData(@NotNull String[] updatedUpgradeShop) {
         this.upgradeShop = updatedUpgradeShop;
         changedData.add(NetworkedDataTypes.UPGRADE_SHOP);
     }
-
     private void updateRegisterData(@NotNull List<Register> updatedRegisters) {
         this.registers = updatedRegisters;
         changedData.add(NetworkedDataTypes.REGISTERS);
     }
-
     private void updateChoiceData(@NotNull List<Choice> updatedChoices) {
         this.choices = updatedChoices;
         changedData.add(NetworkedDataTypes.CHOICES);
@@ -304,19 +310,22 @@ public class ServerDataManager extends Subject implements Observer {
     }
     public void changeCourse(@NotNull CC_CourseData selectedCourse) {
         if (!selectedCourse.getCourseName().equals(game.getCourseName())) {
-            game.setCourseName(selectedCourse.getCourseName());
-            serverCommunication.putGame(game);
+            Game gameTemp = game.getGameCopy();
+            gameTemp.setCourseName(selectedCourse.getCourseName());
+            serverCommunication.putGame(gameTemp);
         }
     }
     public void setGamePhase(@NotNull GamePhase gamePhase) {
         if (isHost && !gamePhase.equals(game.getPhase())) {
-            game.setPhase(gamePhase);
-            serverCommunication.putGame(game);
+            Game gameTemp = game.getGameCopy();
+            gameTemp.setPhase(gamePhase);
+            serverCommunication.putGame(gameTemp);
         }
     }
     // In game
     public void setPlayerRegister(@NotNull String[] programFieldNames) {
         serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), currentTurnCount);
+        System.out.println("Posting registers for turn: " + currentTurnCount);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
@@ -344,12 +353,12 @@ public class ServerDataManager extends Subject implements Observer {
         notifyChange();
     }
     public void setReadyChoice() {
-        ChoiceDTO emptyChoiceDTO = new ChoiceDTO(game.getGameId(), localPlayer.getPlayerId(), Choice.READY_CHOICE, currentPhaseCount, Choice.ResolveStatus.NONE.name());
+        ChoiceDTO emptyChoiceDTO = new ChoiceDTO(game.getGameId(), localPlayer.getPlayerId(), Choice.READY_CHOICE, currentWaitCount, Choice.ResolveStatus.NONE.name());
         serverCommunication.putChoice(emptyChoiceDTO);
     }
     public void waitForChoicesAndCallback(Runnable callback) {
         Runnable poll = () -> {
-            List<Choice> choices = serverCommunication.getChoices(game.getGameId(), currentPhaseCount);
+            List<Choice> choices = serverCommunication.getChoices(game.getGameId(), currentWaitCount);
             Set<Long> choicePlayerIds = choices.stream()
                     .filter(c -> c.getCode().equals(Choice.READY_CHOICE))
                     .map(Choice::getPlayerId)
@@ -424,9 +433,8 @@ public class ServerDataManager extends Subject implements Observer {
             infoMessage = "Disconnected from server.";
         }
         AppController.setInfoText(infoMessage);
-        if (serverCommunication.isConnectedToServer()) {
-            serverCommunication.deletePlayer(localPlayer);
-        }
+        serverCommunication.deletePlayer(localPlayer);
+        serverCommunication.detach(this);
         stopGameUpdateLoop();
         notifyChange();
         runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
@@ -454,7 +462,7 @@ public class ServerDataManager extends Subject implements Observer {
     public void update(Subject subject) {
         if (subject.equals(serverCommunication)) {
             // If the player was disconnected from the server.
-            if (serverCommunication.getHasTimedOut()) {
+            if (isConnectedToServer() && serverCommunication.getHasTimedOut()) {
                 connectionToServerTimedOut();
             }
         }

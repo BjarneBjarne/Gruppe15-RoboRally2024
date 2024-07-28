@@ -73,7 +73,7 @@ public class ProgController {
     }
 
     /**
-     * Endpoint to get all registers for a game that has been posted this phaseCount
+     * Endpoint to get all registers for a game that has been posted this turn
      *
      * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
      *
@@ -81,7 +81,7 @@ public class ProgController {
      * @return ResponseEntity<List<Register>>
      */
     @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") long gameId) {
+    public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") String gameId) {
         //System.out.println("Finding registers for game " + gameId);
         if (!gameRepository.existsById(gameId)) return ResponseEntity.status(404).build();
 

@@ -20,10 +20,10 @@ public class Choice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long choiceId;
-    private long gameId;
+    private String gameId;
     private long playerId;
     private String code;
-    private int phaseCount;
+    private int waitCount;
     private String resolveStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,11 +31,11 @@ public class Choice {
     @JsonIgnore
     private Player player;
 
-    public Choice(long gameId, long playerId, String code, int phaseCount, String resolveStatus) {
+    public Choice(String gameId, long playerId, String code, int waitCount, String resolveStatus) {
         this.gameId = gameId;
         this.playerId = playerId;
         this.code = code;
-        this.phaseCount = phaseCount;
+        this.waitCount = waitCount;
         this.resolveStatus = resolveStatus;
     }
 

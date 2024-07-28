@@ -14,7 +14,7 @@ import java.util.Objects;
  * This class represents a gear on the board and when
  * a player reaches a gear, the player's heading is updated
  * according to the direction of the gear.
- * The gear can phaseCount the player either left or right.
+ * The gear can turn the player either left or right.
  * 
  * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
  */
@@ -37,7 +37,7 @@ public class BE_Gear extends BoardElement {
 
     /**
      * When a player reaches a gear, the player's heading is updated
-     * according to the direction of the gear. The gear can phaseCount the player
+     * according to the direction of the gear. The gear can turn the player
      * either left or right.
      * @param space the space where the player is located
      * @param gameController the game controller

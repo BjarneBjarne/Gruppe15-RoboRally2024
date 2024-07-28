@@ -42,7 +42,7 @@ import com.group15.roborally.common.model.GamePhase;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.group15.roborally.client.BoardOptions.DRAW_ON_EMPTY_REGISTER;
+import static com.group15.roborally.client.LobbySettings.DRAW_ON_EMPTY_REGISTER;
 import static com.group15.roborally.client.model.EventHandler.getPlayerCardEventListeners;
 import static com.group15.roborally.client.model.Heading.SOUTH;
 
@@ -253,7 +253,9 @@ public class Player extends Subject {
         space.updateSpace();
     }
     public void stopRebooting() {
-        System.out.println(name + " stopped rebooting.");
+        if (this.rebooting) {
+            System.out.println(name + " stopped rebooting.");
+        }
         this.rebooting = false;
         space.updateSpace();
     }
@@ -265,10 +267,10 @@ public class Player extends Subject {
         return programFields[i];
     }
 
-    public String[] getProgramFieldNames() {
+    public String[] getProgramFieldCardNames() {
         String[] names = new String[programFields.length];
         for (int i = 0; i < programFields.length; i++) {
-            names[i] = ((CommandCard) programFields[i].getCard()).getCommand().name();
+            names[i] = programFields[i].getCard() != null ? ((CommandCard) programFields[i].getCard()).getCommand().name() : "";
         }
         return names;
     }
@@ -593,7 +595,9 @@ public class Player extends Subject {
     public void fillRestOfRegisters() {
         for (int i = 0; i < programFields.length; i++) {
             CardField programField = programFields[i];
-            boolean drawCard = (DRAW_ON_EMPTY_REGISTER && programField.getCard() == null) || (((CommandCard)programField.getCard()).getCommand().drawsTopCard());
+            boolean drawCard =
+                    (programField.getCard() == null && DRAW_ON_EMPTY_REGISTER) ||
+                    (programField.getCard() != null && ((CommandCard)programField.getCard()).getCommand().drawsTopCard());
             if (!drawCard) continue;
 
             if (i == 0) {
@@ -827,7 +831,12 @@ public class Player extends Subject {
 
     public void setRegisters(String[] registers) {
         for (int i = 0; i < programFields.length; i++) {
-            programFields[i].setCard(new CommandCard(Command.valueOf(registers[i])));
+            String cardName = registers[i];
+            if (cardName == null || cardName.isBlank()) {
+                programFields[i].setCard(null);
+            } else {
+                programFields[i].setCard(new CommandCard(Command.valueOf(cardName)));
+            }
         }
     }
 }

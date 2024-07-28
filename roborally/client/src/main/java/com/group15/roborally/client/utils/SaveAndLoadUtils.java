@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 
-import com.group15.roborally.client.BoardOptions;
+import com.group15.roborally.client.LobbySettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
@@ -153,7 +153,7 @@ public class SaveAndLoadUtils {
     public static void saveBoard(Board board, File file) {
         BoardTemplate template = new BoardTemplate();
         template.setCourseName(board.getCourseName());
-        PlayerTemplate[] playerTemplates = new PlayerTemplate[BoardOptions.NO_OF_PLAYERS];
+        PlayerTemplate[] playerTemplates = new PlayerTemplate[LobbySettings.NO_OF_PLAYERS];
         for(int i = 0; i < board.getPlayers().size(); i++) {
             playerTemplates[i] = savePlayer(board.getPlayers().get(i));
         }

@@ -17,10 +17,7 @@ import javafx.application.Platform;
 import lombok.Getter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 import static com.group15.roborally.client.ApplicationSettings.TIME_BEFORE_TIMEOUT_SECONDS;
 
@@ -51,9 +48,9 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @return gameId - id of the created game
      */
-    public long createGame(String baseUrl) {
+    public String createGame(String baseUrl) {
         this.baseUrl = baseUrl;
-        Long gameId = null;
+        String gameId = "";
         try {
             gameId = sendRequest(
                     "/games",
@@ -64,7 +61,8 @@ public class ServerCommunication extends Subject {
         } catch (HttpClientErrorException e) {
             //System.out.println(e.getStatusCode());
         }
-        return gameId != null ? gameId : -1;
+        System.out.println("Created game with id: \"" + gameId + "\".");
+        return gameId;
     }
 
     /**
@@ -74,7 +72,8 @@ public class ServerCommunication extends Subject {
      * @param playerName - name of the player joining
      * @return Player object of the player joining
      */
-    public Player joinGame(String baseUrl, long gameId, String playerName) {
+    public Player joinGame(String baseUrl, String gameId, String playerName) {
+        System.out.println("Joining game: \"" + gameId + "\", with name: \"" + playerName + "\".");
         this.baseUrl = baseUrl;
         Player player = null;
         try {
@@ -129,7 +128,7 @@ public class ServerCommunication extends Subject {
      * @param upgradeShopCards - array of upgradeShop cards
      * @param gameId - id of the game
      */
-    public void putUpgradeShop(String[] upgradeShopCards, long gameId) {
+    public void putUpgradeShop(String[] upgradeShopCards, String gameId) {
         sendRequest(
                 "/upgradeShop/" + gameId,
                 HttpMethod.PUT,
@@ -174,7 +173,7 @@ public class ServerCommunication extends Subject {
      * @return The game object from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public Game getGame(long gameId) {
+    public Game getGame(String gameId) {
         return sendRequest(
                 "/games/" + gameId,
                 HttpMethod.GET,
@@ -189,7 +188,7 @@ public class ServerCommunication extends Subject {
      * @param gameId - id of the game
      * @return List of players in the game
      */
-    public Map<Long, Player> getPlayers(long gameId) {
+    public Map<Long, Player> getPlayers(String gameId) {
         return sendRequest(
                 "/games/" + gameId + "/players",
                 HttpMethod.GET,
@@ -198,7 +197,7 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public List<Register> getRegisters(long gameId) {
+    public List<Register> getRegisters(String gameId) {
         return sendRequest(
                 "/games/" + gameId + "/registers",
                 HttpMethod.GET,
@@ -207,9 +206,9 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public List<Choice> getChoices(long gameId, int phaseCount) {
+    public List<Choice> getChoices(String gameId, int waitCount) {
         return sendRequest(
-                "/choices/" + gameId + "?phaseCount=" + phaseCount,
+                "/choices/" + gameId + "?waitCount=" + waitCount,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -231,7 +230,7 @@ public class ServerCommunication extends Subject {
      * @param gameId - id of the game
      * @return upgradeShopCards - array of upgradeShop cards
      */
-    public String[] getUpgradeShop(long gameId) {
+    public String[] getUpgradeShop(String gameId) {
         return sendRequest(
                 "/upgradeShop/" + gameId,
                 HttpMethod.GET,
@@ -241,14 +240,14 @@ public class ServerCommunication extends Subject {
     }
 
     /**
-     * Get the current phaseCount of the game during the upgrade phase.
+     * Get the current player turn of the upgrade phase.
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @param gameId - id of the game
-     * @return phaseCount - current phaseCount of the game
+     * @return The current player turn
      */
-    public Integer getUpgradeTurn(long gameId) {
+    public Integer getUpgradeTurn(String gameId) {
         return sendRequest(
-                "/upgradeShop/" + gameId + "/phaseCount",
+                "/upgradeShop/" + gameId + "/turnCount",
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -291,12 +290,34 @@ public class ServerCommunication extends Subject {
         try {
             ResponseEntity<R> response = new RestTemplate().exchange(request, responseType);
             evaluateTimeout(true);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                String bodyType = body.getClass().getTypeName();
+                System.err.println("Error with response from server:\n" +
+                        "* URI: " + uriSt + ".\n" +
+                        "* Method: " + method.name() + ".\n" +
+                        "* Response type: " + responseType.getType().getTypeName() + ".\n" +
+                        "* Body type: " + bodyType + ".\n" +
+                        "* Body: " + body +  ".\n");
+            }
             return response.getBody();
         } catch (ResourceAccessException e1) {
             evaluateTimeout(false);
             return null;
-        } catch (HttpClientErrorException | HttpServerErrorException e2) {
-            System.err.println("Server communication error:\nURI: " + uriSt + ". Method: " + method.name() + ". Response type: " + responseType.getType() + ". Body: " + body +  ". \n" + e2.getMessage());
+        } catch (RestClientException e2) {
+            String bodyType = "NULL";
+            if (body != null) {
+                bodyType = body.getClass().getTypeName();
+            }
+            System.out.println();
+            System.err.println("Server communication error:\n" +
+                    "* URI: \"" + uriSt + "\".\n" +
+                    "* Method: \"" + method.name() + "\".\n" +
+                    "* Response type: \"" + responseType.getType().getTypeName() + "\".\n" +
+                    "* Body type: \"" + bodyType + "\".\n" +
+                    "* Body: \"" + body +  "\".\n" +
+                    "\n" +
+                    "Exception message:\n" +
+                    e2.getMessage());
             e2.printStackTrace();
             return null;
         }

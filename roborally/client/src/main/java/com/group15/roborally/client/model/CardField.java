@@ -24,6 +24,7 @@ package com.group15.roborally.client.model;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.upgrade_cards.UpgradeCard;
 import lombok.Getter;
+import lombok.Setter;
 
 import static com.group15.roborally.client.model.CardField.CardFieldTypes.*;
 
@@ -48,6 +49,8 @@ public class CardField extends Subject {
     private Card card;
     @Getter
     private boolean visible;
+    @Getter
+    private boolean disabled = false;
 
     /**
      * Method for making an UpgradeShop field.
@@ -97,7 +100,7 @@ public class CardField extends Subject {
     }
 
     public void setVisible(boolean visible) {
-        if (visible != this.visible) {
+        if (this.visible != visible) {
             this.visible = visible;
             notifyChange();
         }
@@ -113,14 +116,19 @@ public class CardField extends Subject {
         return false;
     }
 
-    public boolean getCanBeActivated() {
-        if (card == null) {
-            return false;
-        }
-        if (card instanceof UpgradeCard upgradeCard) {
-            return upgradeCard.canBeActivated();
-        }
-        return false;
+    public boolean canBeActivated() {
+        return switch (cardFieldType) {
+            case PERMANENT_UPGRADE_CARD_FIELD, TEMPORARY_UPGRADE_CARD_FIELD -> {
+                if (card == null) {
+                    yield false;
+                }
+                if (card instanceof UpgradeCard upgradeCard) {
+                    yield upgradeCard.canBeActivated();
+                }
+                yield false;
+            }
+            default -> false;
+        };
     }
 
     public void activateCard() {
@@ -129,6 +137,13 @@ public class CardField extends Subject {
         }
         if (card instanceof UpgradeCard upgradeCard) {
             upgradeCard.tryActivate();
+        }
+    }
+
+    public void setDisabled(boolean disabled) {
+        if (this.disabled != disabled) {
+            this.disabled = disabled;
+            notifyChange();
         }
     }
 

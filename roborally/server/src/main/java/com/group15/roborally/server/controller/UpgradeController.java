@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/upgradeShop")
 
@@ -37,8 +39,11 @@ public class UpgradeController {
      * @return ResponseEntity<Integer> - the priority number of who will upgrade next
      */
     @GetMapping(value = "/{gameId}/turn", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Integer> getTurn(@PathVariable("gameId") long gameId) {
-        return ResponseEntity.ok().body(upgradeShopRepository.findById(gameId).orElse(null).getTurn());
+    public ResponseEntity<Integer> getTurn(@PathVariable("gameId") String gameId) {
+        UpgradeShop upgradeShop = upgradeShopRepository.findByGameId(gameId);
+        if (upgradeShop == null) return ResponseEntity.status(422).build();
+
+        return ResponseEntity.ok().body(upgradeShop.getTurn());
     }
 
     /**
@@ -51,8 +56,8 @@ public class UpgradeController {
      * @return ResponseEntity<UpgradeShop> - the upgradeShop of the game
      */
     @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String[]> getUpgradeShop(@PathVariable("gameId") long gameId) {
-        UpgradeShop upgradeShop = upgradeShopRepository.findById(gameId).orElse(null);
+    public ResponseEntity<String[]> getUpgradeShop(@PathVariable("gameId") String gameId) {
+        UpgradeShop upgradeShop = upgradeShopRepository.findByGameId(gameId);
         if (upgradeShop == null) return ResponseEntity.status(422).build();
 
         String[] upgradeShopCards = upgradeShop.getCards();
@@ -69,8 +74,8 @@ public class UpgradeController {
      * @return ResponseEntity<String> - a message indicating the success of the operation
      */
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postUpgradeShop(@RequestBody String[] upgradeShopCards, @PathVariable("gameId") long gameId) {
-        UpgradeShop upgradeShop = upgradeShopRepository.findById(gameId).orElse(null);
+    public ResponseEntity<String> postUpgradeShop(@RequestBody String[] upgradeShopCards, @PathVariable("gameId") String gameId) {
+        UpgradeShop upgradeShop = upgradeShopRepository.findByGameId(gameId);
         if (upgradeShop == null) return ResponseEntity.notFound().build();
 
         upgradeShop.setCards(upgradeShopCards); 

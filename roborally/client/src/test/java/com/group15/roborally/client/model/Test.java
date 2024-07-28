@@ -20,7 +20,7 @@ public class Test {
 
         // Host game
         System.out.println("Creating game");
-        long gameId = sc.createGame("http://localhost:8080");
+        String gameId = sc.createGame("http://localhost:8080");
         System.out.println("Game created with ID " + gameId);
         System.out.println();
 
@@ -60,17 +60,17 @@ public class Test {
 
         // // Update choices
         // System.out.println("Updating choices");
-        // int phaseCount = 5;
+        // int waitCount = 5;
         // int movement = 2;
         // List<Choice> p1Choices = new ArrayList<>();
         // for (int i = 0; i < 4; i++) {
-        //     p1Choices.add(new Choice(p1.getPlayerId(), "p1Move" + (i + 1), phaseCount, movement));
+        //     p1Choices.add(new Choice(p1.getPlayerId(), "p1Move" + (i + 1), waitCount, movement));
         // }
         // sc.updateChoice(p1Choices, p1.getPlayerId());
 
         // List<Choice> p2Choices = new ArrayList<>();
         // for (int i = 0; i < 3; i++) {
-        //     p2Choices.add(new Choice(p2.getPlayerId(), "p2Move" + (i + 1), phaseCount, movement));
+        //     p2Choices.add(new Choice(p2.getPlayerId(), "p2Move" + (i + 1), waitCount, movement));
         // }
         // sc.updateChoice(p2Choices, p2.getPlayerId());
 
@@ -87,13 +87,13 @@ public class Test {
 
         // List<Choice> p3Choices = new ArrayList<>();
         // for (int i = 0; i < 5; i++) {
-        //     p3Choices.add(new Choice(p3.getPlayerId(), "p3Move" + (i + 1), phaseCount, movement));
+        //     p3Choices.add(new Choice(p3.getPlayerId(), "p3Move" + (i + 1), waitCount, movement));
         // }
         // sc.updateChoice(p3Choices, p3.getPlayerId());
 
         // List<Choice> p4Choices = new ArrayList<>();
         // for (int i = 0; i < 2; i++) {
-        //     p4Choices.add(new Choice(p4.getPlayerId(), "p4Move" + (i + 1), phaseCount, movement));
+        //     p4Choices.add(new Choice(p4.getPlayerId(), "p4Move" + (i + 1), waitCount, movement));
         // }
         // sc.updateChoice(p4Choices, p4.getPlayerId());
         // System.out.println("Choices updated");

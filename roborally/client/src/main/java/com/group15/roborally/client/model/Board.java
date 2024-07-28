@@ -22,7 +22,6 @@
 package com.group15.roborally.client.model;
 
 import com.group15.roborally.client.RoboRally;
-import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.boardelements.*;
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.group15.roborally.client.BoardOptions.NO_OF_PLAYERS;
+import static com.group15.roborally.client.LobbySettings.NO_OF_PLAYERS;
 import com.group15.roborally.common.model.GamePhase;
 import static com.group15.roborally.common.model.GamePhase.*;
 

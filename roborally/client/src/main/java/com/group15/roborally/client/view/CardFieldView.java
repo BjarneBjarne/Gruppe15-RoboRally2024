@@ -50,7 +50,7 @@ import javafx.util.Pair;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import static com.group15.roborally.client.BoardOptions.NO_OF_CARDS_IN_HAND;
+import static com.group15.roborally.client.LobbySettings.NO_OF_CARDS_IN_HAND;
 import static com.group15.roborally.client.ApplicationSettings.*;
 
 /**
@@ -63,6 +63,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
     //final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
     final public static Background BG_DEFAULT = new Background(new BackgroundFill(Color.TRANSPARENT, null, null));
+    final public static Background BG_DISABLED = new Background(new BackgroundFill(new Color(0.35, 0.35, 0.35, .75), null, null));
     final public static Background BG_DRAG = new Background(new BackgroundFill(new Color(122 / 255.0, 119 / 255.0, 110 / 255.0, 1), null, null));
     final public static Background BG_DROP = new Background(new BackgroundFill(new Color(198 / 255.0, 194 / 255.0, 179 / 255.0, .5), null, null));
 
@@ -151,7 +152,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
         });
     }
 
-    public String cardFieldRepresentation(CardField cardField) {
+    public String cardFieldToRepresentation(CardField cardField) {
         if (cardField.player != null) {
             for (int i = 0; i < Player.NO_OF_REGISTERS; i++) {
                 CardField other = cardField.player.getProgramField(i);
@@ -241,7 +242,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
             useButton.setDisable(true);
             useButton.setVisible(false);
             if (card != null && cardField.isVisible()) {
-                useButton.setDisable(!cardField.getCanBeActivated());
+                useButton.setDisable(!cardField.canBeActivated());
                 useButton.setVisible(cardField.getHasActivateButton());
 
                 String cardName = card.getDisplayName();
@@ -255,7 +256,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                         if (cardForegroundImage != null && cardField.player != null) {
                             Color playerColor = Color.valueOf(cardField.player.getRobot().name());
                             Image playerColoredImage = ImageUtils.getImageColored(cardForegroundImage, playerColor, .75);
-                            Color backgroundColor = (Color)(currentBackground.getFills().getFirst().getFill());
+                            Color backgroundColor = (Color)(getCurrentBackground().getFills().getFirst().getFill());
                             if (backgroundColor.equals(Color.TRANSPARENT)) backgroundColor = Color.WHITE;
                             Image imageWithBackgroundColor = ImageUtils.getImageColored(playerColoredImage, backgroundColor, 1);
                             cardForegroundImageView.setImage(imageWithBackgroundColor);
@@ -269,7 +270,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
                 }
                 Image currentImage = ImageUtils.getImageFromName(cardFolderPath + cardImageName);
                 if (currentImage != null) {
-                    Color backgroundColor = (Color)(currentBackground.getFills().getFirst().getFill());
+                    Color backgroundColor = (Color)(getCurrentBackground().getFills().getFirst().getFill());
                     if (backgroundColor.equals(Color.TRANSPARENT)) backgroundColor = Color.WHITE;
                     Image imageWithBackgroundColor = ImageUtils.getImageColored(currentImage, backgroundColor, 1);
                     cardImageView.setImage(imageWithBackgroundColor);
@@ -341,7 +342,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
 
                     // Saving representation from card in the Dragboard
                     ClipboardContent content = new ClipboardContent();
-                    String representation = cardFieldRepresentation(sourceField);
+                    String representation = cardFieldToRepresentation(sourceField);
                     content.put(ROBO_RALLY_CARD, representation);
                     //System.out.println("Made representation: \"" + representation + "\" for cardField with card " + sourceField.getCard().getName());
 
@@ -452,5 +453,9 @@ public class CardFieldView extends StackPane implements ViewObserver {
         this.setBackground(background);
         currentBackground = background;
         cardField.updateCardField();
+    }
+
+    private Background getCurrentBackground() {
+        return cardField.isDisabled() ? BG_DISABLED : currentBackground;
     }
 }

@@ -22,7 +22,7 @@
 
 //         // Host game
 //         System.out.println("Creating game");
-//         Long gameId = sc.createGame("http://localhost:8080");
+//         String gameId = sc.createGame("http://localhost:8080");
 //         System.out.println("Game created with ID " + gameId);
 //         System.out.println();
 

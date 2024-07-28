@@ -399,7 +399,7 @@ public class RoboRally extends Application {
 
             // Creating and adding view for new board
             GameView gameView = new GameView(gameController, directionOptionsPane);
-            gameView.setUpgradeShopFXML(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
+            gameView.initializeUpgradeShopUI(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
             gameView.getStyleClass().add("transparent-scroll-pane");
             setMainPane(gameView);
 

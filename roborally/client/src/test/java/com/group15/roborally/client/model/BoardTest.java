@@ -1,16 +1,14 @@
 package com.group15.roborally.client.model;
 
-import com.group15.roborally.client.BoardOptions;
+import com.group15.roborally.client.LobbySettings;
 import com.group15.roborally.client.model.boardelements.BE_Antenna;
 import com.group15.roborally.client.model.boardelements.BE_Checkpoint;
-import com.group15.roborally.client.model.boardelements.BE_Hole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class BoardTest {
@@ -71,7 +69,7 @@ public class BoardTest {
         board.addPlayer(p2);
         p1.setSpace(spaces[7][5]);
         p2.setSpace(spaces[3][1]);
-        BoardOptions.NO_OF_PLAYERS = 2;
+        LobbySettings.NO_OF_PLAYERS = 2;
         board.updatePriorityList();
         Assertions.assertEquals(0, p1.getPriority());
         Assertions.assertEquals(1, p2.getPriority());
@@ -82,7 +80,7 @@ public class BoardTest {
         Player p1 = new Player(0, "p1", board, Robots.getRobotByName("SPIN BOT"));
         board.addPlayer(p1);
         p1.setSpace(spaces[1][1]);
-        BoardOptions.NO_OF_PLAYERS = 1;
+        LobbySettings.NO_OF_PLAYERS = 1;
         int d = board.getPlayerDistance(p1, spaces[9][9]);
         Assertions.assertEquals(16, d);
     }
