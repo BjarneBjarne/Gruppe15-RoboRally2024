@@ -3,7 +3,7 @@ package com.group15.roborally.client.coursecreator;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
 import com.group15.roborally.client.utils.AlertUtils;
-import com.group15.roborally.client.utils.ImageUtils;
+import com.group15.roborally.client.utils.ButtonUtils;
 import com.group15.roborally.client.view.ZoomableScrollPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -17,7 +17,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -158,15 +157,14 @@ public class CC_Controller extends BorderPane {
             itemButtonImageView.setImage(item.image);
 
             Button itemButton = new Button();
-            itemButton.setPrefSize(100, 100);
-            HBox.setMargin(itemButton, new Insets(25, 12.5, 25, 12.5));
-            itemButton.setGraphic(itemButtonImageView);
-
-            CC_elementButtonsHBox.getChildren().add(itemButton);
-            itemButton.setOnMouseClicked(event -> {
+            ButtonUtils.setupDefaultButton(itemButton, () -> {
                 selectedItem = item;
                 spaceEventHandler.removeSubBoardHighlight();
             });
+            itemButton.setPrefSize(100, 100);
+            HBox.setMargin(itemButton, new Insets(25, 12.5, 25, 12.5));
+            itemButton.setGraphic(itemButtonImageView);
+            CC_elementButtonsHBox.getChildren().add(itemButton);
             CC_elementButtonsHBox.setOnMouseClicked(event -> deselectItem());
 
             CC_saveCourse.setOnAction( e -> saveCourse());

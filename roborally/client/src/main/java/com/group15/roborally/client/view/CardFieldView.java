@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.utils.ButtonUtils;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
@@ -77,7 +78,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
     private final ImageView cardImageView = new ImageView();
     @Getter
     private final ImageView cardForegroundImageView = new ImageView();
-    private final Button useButton = new Button();
+    private final Button useButton;
     private double cardWidthMultiplier;
     private double cardHeightMultiplier;
     private Background currentBackground;
@@ -93,7 +94,8 @@ public class CardFieldView extends StackPane implements ViewObserver {
         this.setCardBackground(BG_DEFAULT);
         updateCardSize();
 
-        useButton.setOnAction(a -> cardField.activateCard());
+        useButton = new Button();
+        ButtonUtils.setupDefaultButton(useButton, cardField::activateCard);
         useButton.setDisable(true);
         useButton.setVisible(false);
         Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 28);

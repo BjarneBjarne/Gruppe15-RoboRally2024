@@ -24,10 +24,10 @@ package com.group15.roborally.client.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.group15.roborally.client.utils.*;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.networking.ServerDataManager;
-import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.view.InfoPaneView;
 import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.model.*;
@@ -37,8 +37,6 @@ import com.group15.roborally.client.coursecreator.CC_JsonUtil;
 import com.group15.roborally.client.exceptions.EmptyCourseException;
 import com.group15.roborally.client.exceptions.GameLoadingException;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.utils.Adapter;
-import com.group15.roborally.client.utils.SaveAndLoadUtils;
 import com.group15.roborally.client.templates.BoardTemplate;
 import com.group15.roborally.client.model.boardelements.BoardElement;
 
@@ -72,15 +70,15 @@ public class AppController implements Observer {
     @Getter
     private static List<CC_CourseData> courses = new ArrayList<>();
 
-    private static final ServerDataManager serverDataManager = new ServerDataManager();
+    private final ServerDataManager serverDataManager;
 
-    private MultiplayerMenuView multiplayerMenuView;
     private static InfoPaneView infoPane;
 
-    public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane) {
+    public AppController(@NotNull RoboRally roboRally, InfoPaneView infoPane, ServerDataManager serverDataManager) {
         AppController.roboRally = roboRally;
         AppController.infoPane = infoPane;
-        serverDataManager.attach(this);
+        this.serverDataManager = serverDataManager;
+        this.serverDataManager.attach(this);
     }
 
     public static void setInfoText(String text) {
@@ -88,26 +86,9 @@ public class AppController implements Observer {
     }
 
     /**
-     * Method for going to the join/host multiplayer menu.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeMultiplayerMenu() {
-        infoPane.setInfoText("Setting up multiplayer...");
-        Platform.runLater(() -> {
-            multiplayerMenuView = new MultiplayerMenuView();
-            multiplayerMenuView.setControllers(this, serverDataManager);
-            roboRally.createMultiplayerMenu(multiplayerMenuView);
-            multiplayerMenuView.setupMenuUI();
-            multiplayerMenuView.setupBackButton(roboRally::goToMainMenu);
-            infoPane.setInfoText("");
-            multiplayerMenuView.setServerURLInput("http://localhost:8080");
-        });
-    }
-
-    /**
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public static void startGame(CC_CourseData courseData, Map<Long, Player> players, long localPlayerId) {
+    public void startGame(CC_CourseData courseData, Map<Long, Player> players, long localPlayerId) {
         System.out.println("Starting game...");
         Pair<List<Space[][]>, Space[][]> courseSpaces = courseData.getGameSubBoards();
         Board board = new Board(courseSpaces.getKey(), courseSpaces.getValue(), courseData.getCourseName(), courseData.getNoOfCheckpoints());
@@ -142,7 +123,7 @@ public class AppController implements Observer {
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void loadGame(File loadedFile) throws GameLoadingException {
+    /*public void loadGame(File loadedFile) throws GameLoadingException {
         // Loading file
         GsonBuilder simpleBuilder = new GsonBuilder().
                 registerTypeAdapter(BoardElement.class, new Adapter<BoardElement>()).
@@ -196,8 +177,7 @@ public class AppController implements Observer {
         newBoard.setCurrentPlayer(newBoard.getPlayer(0));
 
         roboRally.createBoardView(gameController);
-    }
-
+    }*/
 
     /**
      * Save the current game to a file with the given file name. If the
@@ -244,11 +224,15 @@ public class AppController implements Observer {
         return gameController != null;
     }
 
+    public void goToMultiplayerMenu() {
+        roboRally.goToMultiplayerMenu();
+    }
+
     /**
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void createCourseCreator(Scene primaryScene) {
-        roboRally.createCourseCreator(primaryScene);
+    public void createCourseCreator() {
+        roboRally.createCourseCreator();
         isCourseCreatorOpen = true;
     }
 
@@ -263,10 +247,6 @@ public class AppController implements Observer {
         if (courses.isEmpty()) {
             throw new NoCoursesException();
         }
-    }
-
-    public void resetMultiplayerMenuView() {
-        multiplayerMenuView = null;
     }
 
     public void disconnectFromServer(String s, int i) {

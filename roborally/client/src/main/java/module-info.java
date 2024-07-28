@@ -20,4 +20,5 @@ module com.group15.roborally.client {
     opens com.group15.roborally.client to javafx.fxml;
     opens com.group15.roborally.client.view to javafx.fxml;
     opens com.group15.roborally.client.coursecreator to javafx.fxml;
+    exports com.group15.roborally.client.model.audio;
 }

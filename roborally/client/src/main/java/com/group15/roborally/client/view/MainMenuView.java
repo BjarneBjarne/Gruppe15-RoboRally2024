@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.controller.AppController;
+import com.group15.roborally.client.utils.ButtonUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -17,6 +18,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class MainMenuView {
+    AppController appController;
+
     @FXML
     AnchorPane mainMenu;
     @FXML
@@ -25,9 +28,6 @@ public class MainMenuView {
     Button mainMenuButtonCourseCreator;
     @FXML
     Button mainMenuButtonQuit;
-
-    Button[] buttons = new Button[3];
-    AppController appController;
 
     /**
      * Returns the main menu view.
@@ -56,10 +56,8 @@ public class MainMenuView {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("MainMenu.fxml"));
             mainMenu = loader.load();
             createMultiplayerButton();
-            //createJoinGameButton();
             createCourseCreatorButton();
             createExitButton();
-            setButtonEffect();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -68,50 +66,16 @@ public class MainMenuView {
 
     private void createMultiplayerButton() {
         mainMenuButtonMultiplayer = (Button) mainMenu.lookup("#mainMenuButtonMultiplayer");
-        mainMenuButtonMultiplayer.setOnAction(a -> appController.initializeMultiplayerMenu());
-        buttons[0] = mainMenuButtonMultiplayer;
-
-        //newGame.setGraphic(createButtonTextPane(newGame.getText()));
+        ButtonUtils.setupDefaultButton(mainMenuButtonMultiplayer, () -> appController.goToMultiplayerMenu());
     }
 
     private void createCourseCreatorButton() {
         mainMenuButtonCourseCreator = (Button) mainMenu.lookup("#mainMenuButtonCourseCreator");
-        mainMenuButtonCourseCreator.setOnMouseClicked(e -> appController.createCourseCreator(mainMenu.getScene()));
-        buttons[1] = mainMenuButtonCourseCreator;
-
-        //courseCreator.setGraphic(createButtonTextPane(courseCreator.getText()));
+        ButtonUtils.setupDefaultButton(mainMenuButtonCourseCreator, () -> appController.createCourseCreator());
     }
 
     private void createExitButton() {
         mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
-        mainMenuButtonQuit.setOnAction(a -> appController.quitGame(false));
-        buttons[2] = mainMenuButtonQuit;
-
-        //exit.setGraphic(createButtonTextPane(exit.getText()));
-    }
-
-    private StackPane createButtonTextPane(String text) {
-        // Button text graphics
-        Label buttonLabelBackground = new Label(text);
-        buttonLabelBackground.setTextFill(Color.BLACK);
-        buttonLabelBackground.setStyle(
-                "-fx-font-size: 48;"
-        );
-        Text buttonLabelForeground = new Text(text);
-        buttonLabelForeground.setFill(Color.WHITE);
-        buttonLabelForeground.setStyle(
-                "-fx-font-size: 42;"
-        );
-        StackPane textPane = new StackPane(buttonLabelBackground, buttonLabelForeground);
-        textPane.setAlignment(Pos.CENTER);
-        return textPane;
-    }
-
-    private void setButtonEffect(){
-        Effect hover = new InnerShadow(20, Color.STEELBLUE);
-        for (Button button : buttons) {
-            button.setOnMouseEntered(e -> button.setEffect(hover));
-            button.setOnMouseExited(e -> button.setEffect(null));
-        }
+        ButtonUtils.setupDefaultButton(mainMenuButtonQuit, () -> appController.quitGame(false));
     }
 }

@@ -1,5 +1,7 @@
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.model.audio.AudioMixer;
+import com.group15.roborally.client.utils.ButtonUtils;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.AppController;
@@ -14,8 +16,6 @@ import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.model.GamePhase;
 import com.group15.roborally.common.model.Player;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -40,8 +40,8 @@ import static com.group15.roborally.client.LobbySettings.*;
  * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
  */
 public class MultiplayerMenuView implements Observer {
-    private AppController appController;
-    private ServerDataManager serverDataManager;
+    private final AppController appController;
+    private final ServerDataManager serverDataManager;
 
     @FXML
     Button multiplayerMenuButtonBack;
@@ -96,7 +96,7 @@ public class MultiplayerMenuView implements Observer {
 
     private boolean hasBeenSetup = false;
 
-    public void setControllers(AppController appController, ServerDataManager serverDataManager) {
+    public MultiplayerMenuView(AppController appController, ServerDataManager serverDataManager) {
         this.appController = appController;
         this.serverDataManager = serverDataManager;
         this.serverDataManager.attach(this);
@@ -305,22 +305,7 @@ public class MultiplayerMenuView implements Observer {
 
                     // Button
                     Button courseButton = new Button();
-                    ImageView courseImageView = new ImageView(course.getImage());
-                    courseButton.setMinSize(courseButtonSize, courseButtonSize);
-                    courseButton.setPrefSize(courseButtonSize, courseButtonSize);
-                    courseButton.setMaxSize(courseButtonSize, courseButtonSize);
-                    courseImageView.setFitWidth(courseButtonSize);
-                    courseImageView.setFitHeight(courseButtonSize);
-                    courseButton.setGraphic(courseImageView);
-                    courseButton.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-
-                    // VBox
-                    VBox newCourseVBox = new VBox(courseNameText, courseButton);
-                    newCourseVBox.setSpacing(5);
-                    newCourseVBox.setAlignment(Pos.CENTER);
-
-                    // Course buttons OnMouseClicked
-                    courseButton.setOnMouseClicked(a -> {
+                    ButtonUtils.setupDefaultButton(courseButton, () -> {
                         if (serverDataManager.isHost()) {
                             serverDataManager.changeCourse(course);
                             this.selectedCourse = course;
@@ -329,7 +314,21 @@ public class MultiplayerMenuView implements Observer {
                             updateUI();
                         }
                     });
+                    ImageView courseImageView = new ImageView(course.getImage());
+                    courseButton.setMinSize(courseButtonSize, courseButtonSize);
+                    courseButton.setPrefSize(courseButtonSize, courseButtonSize);
+                    courseButton.setMaxSize(courseButtonSize, courseButtonSize);
+                    courseImageView.setFitWidth(courseButtonSize);
+                    courseImageView.setFitHeight(courseButtonSize);
+                    courseButton.setGraphic(courseImageView);
+                    courseButton.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
                     courseButton.setDisable(!serverDataManager.isHost());
+
+                    // VBox
+                    VBox newCourseVBox = new VBox(courseNameText, courseButton);
+                    newCourseVBox.setSpacing(5);
+                    newCourseVBox.setAlignment(Pos.CENTER);
+
                     lobbyCoursesVBox.getChildren().add(newCourseVBox);
                 }
             } else {
@@ -536,7 +535,7 @@ public class MultiplayerMenuView implements Observer {
         Platform.runLater(() -> {
             if (!hasStartedGameLocally) {
                 hasStartedGameLocally = true;
-                AppController.startGame(selectedCourse, this.players, serverDataManager.getLocalPlayer().getPlayerId());
+                appController.startGame(selectedCourse, this.players, serverDataManager.getLocalPlayer().getPlayerId());
             }
         });
     }

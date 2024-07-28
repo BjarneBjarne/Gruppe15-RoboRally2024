@@ -61,7 +61,6 @@ public class ServerCommunication extends Subject {
         } catch (HttpClientErrorException e) {
             //System.out.println(e.getStatusCode());
         }
-        System.out.println("Created game with id: \"" + gameId + "\".");
         return gameId;
     }
 
@@ -73,7 +72,6 @@ public class ServerCommunication extends Subject {
      * @return Player object of the player joining
      */
     public Player joinGame(String baseUrl, String gameId, String playerName) {
-        System.out.println("Joining game: \"" + gameId + "\", with name: \"" + playerName + "\".");
         this.baseUrl = baseUrl;
         Player player = null;
         try {

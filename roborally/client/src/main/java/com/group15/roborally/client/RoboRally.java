@@ -26,7 +26,9 @@ import com.group15.roborally.client.coursecreator.CC_Controller;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.NoCoursesException;
 import com.group15.roborally.client.model.Player;
+import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.utils.AlertUtils;
+import com.group15.roborally.client.model.audio.AudioMixer;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.*;
@@ -61,14 +63,18 @@ import java.util.Optional;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class RoboRally extends Application {
-    private GridPane directionOptionsPane;
-    private StackPane upgradeShopPane;
     private Stage stage;
+
     private AnchorPane mainMenuPane;
     private AnchorPane multiplayerMenuPane;
+    private MultiplayerMenuView multiplayerMenuView;
+    private GridPane directionOptionsPane;
+    private StackPane upgradeShopPane;
 
     private static CC_Controller courseCreator;
     private static AppController appController;
+
+    private static final ServerDataManager serverDataManager = new ServerDataManager();
 
     @FXML
     StackPane upgradeShopTitelPane;
@@ -88,6 +94,8 @@ public class RoboRally extends Application {
     private final InfoPaneView infoPane = new InfoPaneView();
     private final Label debugLabel = new Label();
     private static final String[] debugTextArray = new String[16];
+
+    public static final AudioMixer audioMixer = new AudioMixer();
 
     @Override
     public void init() throws Exception {
@@ -142,7 +150,7 @@ public class RoboRally extends Application {
                         "-fx-border-radius: 5;"
         );
 
-        appController = new AppController(this, infoPane);
+        appController = new AppController(this, infoPane, serverDataManager);
         try {
             appController.loadCourses();
         } catch (NoCoursesException e) {
@@ -191,6 +199,8 @@ public class RoboRally extends Application {
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 
         createMainMenu();
+        createMultiplayerMenu();
+        goToMainMenu();
 
         stage.setOnShown(a -> scaleUI());
         stage.show();
@@ -205,6 +215,9 @@ public class RoboRally extends Application {
             }
         };
         timer.start();
+
+        audioMixer.setMasterVolumePercent(100);
+        audioMixer.getChannel(AudioMixer.ChannelType.UI).setChannelVolumePercent(100);
     }
 
     private void setBackgroundImage(String imageString) {
@@ -255,15 +268,12 @@ public class RoboRally extends Application {
     }
 
     private void updateDebugText() {
-        StringBuilder debugText = new StringBuilder();
-        for (int i = 0; i < debugTextArray.length; i++) {
-            if (i > 0 && !ApplicationSettings.DEBUG_SHOW_DEBUG_UI) continue;
+        if (!ApplicationSettings.DEBUG_SHOW_DEBUG_UI) return;
 
-            String s = debugTextArray[i];
+        StringBuilder debugText = new StringBuilder();
+        for (String s : debugTextArray) {
             if (s != null) {
                 debugText.append(s);
-            } else {
-                //debugText.append(i);
             }
             debugText.append("\n");
         }
@@ -322,7 +332,6 @@ public class RoboRally extends Application {
     public void createMainMenu() {
         // create and add view for new board
         mainMenuPane = new MainMenuView().initialize(appController).getMainMenu();
-        goToMainMenu();
     }
 
     /**
@@ -333,7 +342,6 @@ public class RoboRally extends Application {
      */
     public void goToMainMenu() {
         appController.disconnectFromServer("", 1000);
-        resetMultiplayerMenu();
         appController.resetGameController();
         setBackgroundImage("Background_MainMenu2.png");
         setMainPane(mainMenuPane);
@@ -341,24 +349,26 @@ public class RoboRally extends Application {
     }
 
     /**
-     * Sets multiplayer menu and pane to null.
-     * @author Maximillian Bjørn Mortensen
+     * Method for going to the join/host multiplayer menu.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void resetMultiplayerMenu() {
-        appController.resetMultiplayerMenuView();
-        multiplayerMenuPane = null;
-    }
-
-    public void createMultiplayerMenu(MultiplayerMenuView multiplayerMenuView) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MultiplayerMenu.fxml"));
-            loader.setController(multiplayerMenuView);
-            multiplayerMenuPane = loader.load();
-            goToMultiplayerMenu();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+    public void createMultiplayerMenu() {
+        infoPane.setInfoText("Setting up multiplayer...");
+        Platform.runLater(() -> {
+            multiplayerMenuView = new MultiplayerMenuView(appController, serverDataManager);
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("MultiplayerMenu.fxml"));
+                loader.setController(multiplayerMenuView);
+                multiplayerMenuPane = loader.load();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+            multiplayerMenuView.setupMenuUI();
+            multiplayerMenuView.setupBackButton(this::goToMainMenu);
+            infoPane.setInfoText("");
+            multiplayerMenuView.setServerURLInput("http://localhost:8080");
+        });
     }
 
     public void goToMultiplayerMenu() {
@@ -421,7 +431,7 @@ public class RoboRally extends Application {
         }
     }
 
-    public void createCourseCreator(Scene primaryScene) {
+    public void createCourseCreator() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("CourseCreator.fxml"));
 
         try {

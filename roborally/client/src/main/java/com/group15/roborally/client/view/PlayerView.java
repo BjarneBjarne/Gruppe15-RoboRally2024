@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.utils.ButtonUtils;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.common.observer.ViewObserver;
 import com.group15.roborally.client.controller.GameController;
@@ -202,6 +203,7 @@ public class PlayerView extends StackPane implements ViewObserver {
 
         // Buttons
         readyButton = new Button();
+        ButtonUtils.setupDefaultButton(readyButton, gameController::finishedProgramming);
         Font readyFont = TextUtils.loadFont("OCRAEXT.TTF", 64);
         Text buttonText = new Text();
         buttonText.setFont(readyFont);
@@ -209,11 +211,10 @@ public class PlayerView extends StackPane implements ViewObserver {
         buttonText.setTextAlignment(TextAlignment.CENTER);
         buttonText.setText("Ready");
         readyButton.setGraphic(buttonText);
-        readyButton.setOnAction(a -> gameController.finishedProgramming());
         readyPanel = new HBox(readyButton);
         readyPanel.setAlignment(Pos.CENTER);
         readyPanel.setSpacing(3.0);
-        readyButton.setEffect(new DropShadow(3, 0, 0, Color.BLACK));
+        //readyButton.setEffect(new DropShadow(3, 0, 0, Color.BLACK));
         readyButton.setStyle(
                 "-fx-background-color: transparent;" +
                 "-fx-background-radius: 10; " +
@@ -371,7 +372,7 @@ public class PlayerView extends StackPane implements ViewObserver {
                     List<Command> options = commandOptionsInteraction.getOptions();
                     for (Command command : options) {
                         Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(a -> gameController.chooseCommandOption(command));
+                        ButtonUtils.setupDefaultButton(optionButton, () -> gameController.chooseCommandOption(command));
                         optionButton.setDisable(false);
                         playerOptionsPanel.getChildren().add(optionButton);
                     }
@@ -382,5 +383,4 @@ public class PlayerView extends StackPane implements ViewObserver {
             checkpointTokenImageView.setImage(checkpointTokenImages[player.getCheckpoints()]);
         }
     }
-
 }
