@@ -13,7 +13,7 @@ public class LobbySettings {
     public static int NO_OF_PLAYERS = 0;
     public static int NO_OF_CARDS_IN_HAND = 10;
     public static boolean KEEP_HAND = false;
-    public static boolean DRAW_ON_EMPTY_REGISTER = false;
+    public static boolean DRAW_ON_EMPTY_REGISTER = true;
     public static UpgradeCard[] STARTING_UPGRADE_CARDS = new UpgradeCard[]{};
     public static Damage STANDARD_DAMAGE = new Damage(1, 0, 0, 0);
 }

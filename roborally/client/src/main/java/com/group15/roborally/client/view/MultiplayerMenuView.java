@@ -106,21 +106,32 @@ public class MultiplayerMenuView implements Observer {
      * Initializes the multiplayer menu.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    @FXML
     public void initialize() {
         showLobby(false);
-
         hasStartedGameLocally = false;
         selectedCourse = null;
+        game = null;
+        players = null;
+
+        lobbyCoursesScrollPane.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        lobbyCoursesVBox.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        lobbyCoursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        lobbyCoursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
     }
 
     private void setupLobby() {
         this.game = serverDataManager.getUpdatedGame();
         this.players = serverDataManager.getUpdatedPlayerMap();
 
-        hasBeenSetup =  true;
+
+
+
+
         initializeCourses();
         initializeLobby();
+        hasBeenSetup =  true;
         updateLobby(this.game, this.players);
     }
 
@@ -187,13 +198,6 @@ public class MultiplayerMenuView implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void initializeLobby() {
-        lobbyCoursesScrollPane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        lobbyCoursesVBox.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        lobbyCoursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        lobbyCoursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
-
         // Start/ready button
         if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
             if (stackPane.getChildren().getFirst() instanceof Text text) {

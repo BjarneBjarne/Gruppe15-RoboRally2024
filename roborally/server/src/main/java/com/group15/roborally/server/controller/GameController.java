@@ -80,12 +80,9 @@ public class GameController {
     @PostMapping(value = "/{gameId}/join", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Player> joinGame(@RequestBody String playerName, @PathVariable("gameId") String gameId){
         Game game = gameRepository.findById(gameId).orElse(null);
-        if (game == null) {
-            return ResponseEntity.notFound().build();
-        }
-        if(playerRepository.existsByPlayerNameAndGameId(playerName, gameId)){
-            return ResponseEntity.status(409).build();
-        }
+        if (game == null) return ResponseEntity.notFound().build();
+        if (game.getNrOfPlayers() >= 6) return ResponseEntity.noContent().build();
+        if (playerRepository.existsByPlayerNameAndGameId(playerName, gameId)) return ResponseEntity.status(409).build();
 
         Player player = new Player();
         player.setPlayerName(playerName);

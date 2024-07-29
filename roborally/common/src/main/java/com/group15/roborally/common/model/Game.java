@@ -36,7 +36,7 @@ public class Game {
 
     public static class GameIdGenerator {
         @JsonIgnore
-        final static String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        final static String CHARACTERS = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
         @JsonIgnore
         final static int ID_LENGTH = 4;
         @JsonIgnore

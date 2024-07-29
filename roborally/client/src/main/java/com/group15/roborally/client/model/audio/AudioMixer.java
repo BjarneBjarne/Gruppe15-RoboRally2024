@@ -25,15 +25,25 @@ public class AudioMixer {
     private final AudioPlayer uiClick;
     private final AudioPlayer uiHover;
 
+    private final AudioPlayer laserShoot;
+    private final AudioPlayer laserHit;
+
     // Initializing
     public AudioMixer() {
         // Channels
         Channel uiChannel = new Channel(ChannelType.UI, masterVolume);
+        Channel boardChannel = new Channel(ChannelType.UI, masterVolume);
         channels.put(uiChannel.getChannelType(), uiChannel);
+        channels.put(boardChannel.getChannelType(), boardChannel);
         // Audio players
         uiClick = uiChannel.newAudioPlayer("ui_click");
-        uiClick.setAudioVolumePercent(75);
+        uiClick.setAudioVolumePercent(65);
         uiHover = uiChannel.newAudioPlayer("ui_hover");
+        uiHover.setAudioVolumePercent(85);
+        laserShoot = uiChannel.newAudioPlayer("laser_shoot");
+        laserShoot.setAudioVolumePercent(60);
+        laserHit = uiChannel.newAudioPlayer("laser_hit");
+        laserHit.setAudioVolumePercent(60);
     }
 
     // AudioPlayer playback methods
@@ -42,6 +52,12 @@ public class AudioMixer {
     }
     public void playUIHover() {
         uiHover.rewindAndPlayAudio();
+    }
+    public void playLaserShoot() {
+        laserShoot.rewindAndPlayAudio();
+    }
+    public void playLaserHit() {
+        laserHit.rewindAndPlayAudio();
     }
 
     /**

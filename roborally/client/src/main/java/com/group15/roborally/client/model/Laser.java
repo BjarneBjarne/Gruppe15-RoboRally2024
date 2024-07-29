@@ -1,5 +1,6 @@
 package com.group15.roborally.client.model;
 
+import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.model.boardelements.BE_Antenna;
 import com.group15.roborally.client.model.boardelements.BE_PushPanel;
 import com.group15.roborally.client.model.Player;
@@ -61,6 +62,8 @@ public class Laser {
         int y = origin.y;
         Space nextSpace = origin.getSpaceNextTo(direction, boardSpaces);
 
+        RoboRally.audioMixer.playLaserShoot();
+
         boolean thisHasWall = origin.getWalls().contains(direction);
         boolean otherHasWall = (nextSpace != null &&
                 (nextSpace.getWalls().contains(direction.opposite()) ||
@@ -91,6 +94,7 @@ public class Laser {
                 if (playerOnSpace != null && playerOnSpace != owner && objectTypesToCollideWith.contains(Player.class)) { // Player hit
                     hitSomething = true;
                     laserName += "PlayerHit";
+                    RoboRally.audioMixer.playLaserHit();
                 } else if (x == origin.x && y == origin.y) {
                     laserName += "Start";
                     if (owner != null) { // If there is an owner, a player shot the laser.
