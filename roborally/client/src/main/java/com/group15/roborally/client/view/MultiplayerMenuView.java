@@ -429,7 +429,8 @@ public class MultiplayerMenuView implements Observer {
         for (int i = 0; i < 6; i++) {
             playerSlots[i].setVisible(i < NO_OF_PLAYERS);
         }
-        if (canReadyOrStart()) {
+        boolean canReadyOrStart = canReadyOrStart();
+        if (canReadyOrStart) {
             lobbyButtonStart.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
             lobbyButtonStart.setStyle("-fx-background-color:  #3a993c60;" +
                     "-fx-background-radius:  15;" +
@@ -443,6 +444,7 @@ public class MultiplayerMenuView implements Observer {
                     "-fx-border-color:  ffffff;" +
                     "-fx-border-width: 1");
         }
+        lobbyButtonStart.setDisable(!canReadyOrStart);
     }
 
     /**

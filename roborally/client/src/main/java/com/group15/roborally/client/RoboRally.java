@@ -29,6 +29,7 @@ import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.utils.AlertUtils;
 import com.group15.roborally.client.model.audio.AudioMixer;
+import com.group15.roborally.client.utils.ButtonUtils;
 import com.group15.roborally.client.utils.ImageUtils;
 import com.group15.roborally.client.utils.TextUtils;
 import com.group15.roborally.client.view.*;
@@ -283,8 +284,9 @@ public class RoboRally extends Application {
 
     private void setMainPane(Pane mainPane) {
         if (mainPane == null) return;
-        scalePane.getChildren().clear();
 
+        scalePane.getChildren().clear();
+        ButtonUtils.setupAllFXMLButtons(mainPane);
         scalePane.getChildren().setAll(mainPane, infoPane);
     }
 

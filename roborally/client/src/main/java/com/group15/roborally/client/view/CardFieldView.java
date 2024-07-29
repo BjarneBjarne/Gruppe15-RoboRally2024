@@ -108,7 +108,7 @@ public class CardFieldView extends StackPane implements ViewObserver {
         StackPane.setAlignment(useButton, Pos.BOTTOM_CENTER);
         StackPane.setMargin(useButton, new Insets(0, 0, 7, 0));
         useButton.setPadding(new Insets(3, 20, 3, 20));
-        useButton.setEffect(new DropShadow(2, 0, 0, Color.BLACK));
+        //useButton.setEffect(new DropShadow(2, 0, 0, Color.BLACK));
         useButton.setStyle("-fx-background-color: transparent;" +
                 "-fx-background-radius: 5; " +
                 "-fx-border-radius: 5; " +
