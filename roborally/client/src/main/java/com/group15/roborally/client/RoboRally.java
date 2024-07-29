@@ -286,7 +286,6 @@ public class RoboRally extends Application {
         if (mainPane == null) return;
 
         scalePane.getChildren().clear();
-        ButtonUtils.setupAllFXMLButtons(mainPane);
         scalePane.getChildren().setAll(mainPane, infoPane);
     }
 
@@ -334,6 +333,7 @@ public class RoboRally extends Application {
     public void createMainMenu() {
         // create and add view for new board
         mainMenuPane = new MainMenuView().initialize(appController).getMainMenu();
+        ButtonUtils.setupAllFXMLButtons(mainMenuPane);
     }
 
     /**
@@ -362,6 +362,7 @@ public class RoboRally extends Application {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("MultiplayerMenu.fxml"));
                 loader.setController(multiplayerMenuView);
                 multiplayerMenuPane = loader.load();
+                ButtonUtils.setupAllFXMLButtons(multiplayerMenuPane);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
@@ -385,7 +386,7 @@ public class RoboRally extends Application {
      */
     public void goToWinScreen(GameController gameController, Player winner) {
         AnchorPane w = new WinScreenView().initialize(gameController, appController, this, winner).getWinScreen();
-
+        ButtonUtils.setupAllFXMLButtons(w);
         setMainPane(w);
     }
 
@@ -413,6 +414,7 @@ public class RoboRally extends Application {
             GameView gameView = new GameView(gameController, directionOptionsPane);
             gameView.initializeUpgradeShopUI(upgradeShopPane, upgradeShopTitelPane, upgradeShopMainPane, upgradeShopCardsHBox, finishUpgradingButton);
             gameView.getStyleClass().add("transparent-scroll-pane");
+            ButtonUtils.setupAllFXMLButtons(gameView);
             setMainPane(gameView);
 
             setBackgroundImage("Background_SelectionMenu3.png");
@@ -443,6 +445,7 @@ public class RoboRally extends Application {
             courseCreator.setScene(primaryScene);
 
             setBackgroundImage("Background_CourseCreatorUncropped.png");
+            ButtonUtils.setupAllFXMLButtons(courseCreator);
             setMainPane(courseCreator);
         } catch (IOException e) {
             e.printStackTrace();
