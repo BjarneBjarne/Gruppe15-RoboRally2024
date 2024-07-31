@@ -12,26 +12,26 @@ public class ActionWithDelay {
     private final Runnable action;
     private final String actionName;
 
-    private static int actionInitCounter = 0;
-    private static int actionExecCounter = 0;
+    private static int initCounter = 0;
+    private static int execCounter = 0;
 
     public ActionWithDelay(Runnable action, int delayInMillis, String actionName) {
         this.action = action;
         this.delayInMillis = delayInMillis;
         this.actionName = actionName;
-        actionInitCounter++;
+        initCounter++;
     }
     public ActionWithDelay(Runnable action, int delayInMillis) {
         this(action, delayInMillis, "NO_ACTION_NAME");
     }
 
     public void runAndCallback(Runnable callback) {
-        actionExecCounter++;
+        execCounter++;
         if (DEBUG_WITH_ACTION_MESSAGE) {
             System.out.println(
-                    "\t-> Executing action: {\n" +
+                    "\tExecuting action -> {\n" +
                             "\t\t" + actionName + "\n" +
-                            "\t}"
+                            "\t}, " + "initCounter: " + initCounter + ", execCounter: " + execCounter
             );
         }
         action.run();

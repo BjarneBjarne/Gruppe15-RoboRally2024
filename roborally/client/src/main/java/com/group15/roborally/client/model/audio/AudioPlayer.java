@@ -4,69 +4,41 @@ import com.group15.roborally.client.utils.AudioUtils;
 import javafx.beans.property.IntegerProperty;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AudioPlayer {
-    private String latestFileName = "NO_FILE";
-    private Clip clip = null;
-    private int audioVolume = 100; // Default volume (100%)
+    private final String fileName;
     private final IntegerProperty finalChannelVolume;
+    private final ExecutorService executorService;
+
+    // Settings
+    private int audioVolume = 100; // Default volume (100%)
 
     public AudioPlayer(String fileName, IntegerProperty finalChannelVolume) {
         this.finalChannelVolume = finalChannelVolume;
-        this.finalChannelVolume.addListener((observable, oldValue, newValue) -> updateVolume());
-        setAudio(fileName);
-    }
-
-    public void setAudio(String fileName) {
-        if (clip != null) {
-            clip.close();
-            clip = null;
-        }
-        if (fileName != null && !fileName.isBlank()) {
-            clip = AudioUtils.getAudioFromName(fileName);
-            latestFileName = fileName;
-            updateAudioSettings();
-        } else {
-            latestFileName = "NO_FILE";
-        }
+        this.fileName = fileName;
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     // Playback
     public void playAudio() {
-        if (clip != null) {
-            clip.start();
-        } else {
-            printNoClipError("Can't play audio.");
-        }
-    }
-    public void pauseAudio() {
-        if (clip != null) {
-            clip.stop();
-        } else {
-            printNoClipError("Can't pause audio.");
-        }
-    }
-    public void rewindAudio() {
-        if (clip != null) {
-            clip.setMicrosecondPosition(0);
-        } else {
-            printNoClipError("Can't rewind audio.");
-        }
-    }
-    public void rewindAndPlayAudio() {
-        if (clip != null) {
-            //System.out.println("Playing: " + latestFileName);
-            clip.stop();
-            clip.setMicrosecondPosition(0);
-            clip.start();
-        } else {
-            printNoClipError("Can't rewind and play audio.");
-        }
+        executorService.submit(() -> {
+            Clip clip = AudioUtils.getAudioFromName(fileName);
+            if (clip != null) {
+                synchronized (clip) {
+                    updateAudioSettings(clip);  // Apply the current volume settings to the new clip
+                    clip.start();
+                }
+            } else {
+                printNoClipError("Can't play audio with filename: " + fileName);
+            }
+        });
     }
 
     // Settings
-    public void updateAudioSettings() {
-        updateVolume();
+    private void updateAudioSettings(Clip clip) {
+        updateVolume(clip);
     }
 
     /**
@@ -80,20 +52,17 @@ public class AudioPlayer {
             volume = 100;
         }
         this.audioVolume = volume;
-        updateVolume();
     }
 
-    private void updateVolume() {
-        if (clip != null) {
-            FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float min = volumeControl.getMinimum();
-            float max = volumeControl.getMaximum();
-            float adjustedVolume = min + ((audioVolume / 100.0f) * (finalChannelVolume.get() / 100.0f) * (max - min));
-            volumeControl.setValue(adjustedVolume);
-        }
+    private void updateVolume(Clip clip) {
+        FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        float min = volumeControl.getMinimum();
+        float max = volumeControl.getMaximum();
+        float adjustedVolume = min + ((audioVolume / 100.0f) * (finalChannelVolume.get() / 100.0f) * (max - min));
+        volumeControl.setValue(adjustedVolume);
     }
 
     private void printNoClipError(String msg) {
-        System.err.println(msg + " Clip is null. Latest file name: \"" + latestFileName + "\".");
+        System.err.println(msg + " Clip is null. Latest file name: \"" + fileName + "\".");
     }
 }

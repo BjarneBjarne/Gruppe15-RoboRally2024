@@ -48,16 +48,16 @@ public class AudioMixer {
 
     // AudioPlayer playback methods
     public void playUIClick() {
-        uiClick.rewindAndPlayAudio();
+        uiClick.playAudio();
     }
     public void playUIHover() {
-        uiHover.rewindAndPlayAudio();
+        uiHover.playAudio();
     }
     public void playLaserShoot() {
-        laserShoot.rewindAndPlayAudio();
+        laserShoot.playAudio();
     }
     public void playLaserHit() {
-        laserHit.rewindAndPlayAudio();
+        laserHit.playAudio();
     }
 
     /**
