@@ -76,19 +76,21 @@ public class ServerDataManager extends Subject implements Observer {
         System.out.println();
         AppController.setInfoText("Creating new game...");
         AtomicReference<String> gameId = new AtomicReference<>("");
-        runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100)), () -> {
-            if (gameId.get() != null && !gameId.get().isBlank()) {
-                runActionAndCallback(new ActionWithDelay(
-                        () -> {
-                            AppController.setInfoText("Successfully created new game!");
-                            System.out.println("Game ID: " + gameId.get());
-                        }, 250),
-                        () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
-            } else {
-                runActionAndCallback(new ActionWithDelay(
-                        () -> AppController.setInfoText("Failed to create new game."),1500),
-                        () -> AppController.setInfoText(""));
-            }
+        runActionAndCallback(new ActionWithDelay(
+                () -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100), "Creating new game"),
+                () -> {
+                    if (gameId.get() != null && !gameId.get().isBlank()) {
+                        runActionAndCallback(new ActionWithDelay(
+                                () -> {
+                                    AppController.setInfoText("Successfully created new game!");
+                                    System.out.println("Game ID: " + gameId.get());
+                                }, 250, "Successfully created new game"),
+                                () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
+                    } else {
+                        runActionAndCallback(new ActionWithDelay(
+                                () -> AppController.setInfoText("Failed to create new game."),1500, "Failed to create new game"),
+                                () -> AppController.setInfoText(""));
+                    }
         });
     }
 
@@ -104,17 +106,21 @@ public class ServerDataManager extends Subject implements Observer {
         System.out.println();
         AppController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
-        runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100)), () -> {
-            if (player.get() != null) {
-                runActionAndCallback(new ActionWithDelay(() -> {
-                    AppController.setInfoText("Successfully joined game!");
-                    connectedToGame(gameId, player.get());
-                }, 250), () -> AppController.setInfoText(""));
-            } else {
-                runActionAndCallback(new ActionWithDelay(
-                        () -> AppController.setInfoText("Failed to join game."), 1500),
-                        () -> AppController.setInfoText(""));
-            }
+        runActionAndCallback(new ActionWithDelay(
+                () -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100), "Joining game with gameId: \"" + gameId + "\" with playerName: \"" + playerName + "\"."),
+                () -> {
+                    if (player.get() != null) {
+                        runActionAndCallback(new ActionWithDelay(
+                                () -> {
+                                      AppController.setInfoText("Successfully joined game!");
+                                      connectedToGame(gameId, player.get());
+                                }, 250, "Successfully joined game"),
+                                () -> AppController.setInfoText(""));
+                    } else {
+                        runActionAndCallback(new ActionWithDelay(
+                                () -> AppController.setInfoText("Failed to join game."), 1500, "Failed to join game"),
+                                () -> AppController.setInfoText(""));
+                    }
         });
     }
 
@@ -309,10 +315,7 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void runActionAndCallback(ActionWithDelay actionWithDelay, Runnable callback) {
-        actionWithDelay.getAction(false).run();
-        PauseTransition pause = new PauseTransition(Duration.millis(actionWithDelay.getDelayInMillis()));
-        pause.setOnFinished(a -> callback.run());
-        pause.play();
+        actionWithDelay.runAndCallback(callback);
     }
 
 
@@ -455,7 +458,7 @@ public class ServerDataManager extends Subject implements Observer {
             serverCommunication.deletePlayer(localPlayer);
             if (infoMessage == null || infoMessage.isEmpty()) infoMessage = "Disconnected from server.";
             AppController.setInfoText(infoMessage);
-            runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
+            runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis, infoMessage), () -> AppController.setInfoText(""));
         }
         notifyChange();
     }

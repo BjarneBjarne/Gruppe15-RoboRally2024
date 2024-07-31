@@ -120,11 +120,11 @@ public abstract class UpgradeCard extends Card implements Observer {
                 }
             }
             // Check if the card should be enabled.
-            RoboRally.setDebugText(8, "Should enable?: " + activatableOn.contains(currentPhase) + " && " +
+            /*RoboRally.setDebugText(8, "Should enable?: " + activatableOn.contains(currentPhase) + " && " +
                     "(" + !currentPhase.isPhaseToWaitBefore() + " || " + !onlyActivatableOnPlayerTurn + " || " + owner.equals(currentPlayer) + "(current player: " + currentPlayer.getName() + ")" + ") && " +
                     !isOnCooldown() + " && " +
                     (owner.getEnergyCubes() >= useCost)
-            );
+            );*/
             setEnabled(
                     activatableOn.contains(currentPhase) &&
                     (!currentPhase.isPhaseToWaitBefore() || !onlyActivatableOnPlayerTurn || owner.equals(currentPlayer)) &&
@@ -206,8 +206,7 @@ public abstract class UpgradeCard extends Card implements Observer {
         }
     }
     public boolean canBeActivated() {
-        RoboRally.setDebugText(9, "Can activate?: " + enabled + " && " + gameController.canUseUpgradeCards() + " && " + !queuedForActivation);
-
+        //RoboRally.setDebugText(9, "Can activate?: " + enabled + " && " + gameController.canUseUpgradeCards() + " && " + !queuedForActivation);
         return enabled && gameController.canUseUpgradeCards() && !queuedForActivation;
     }
 

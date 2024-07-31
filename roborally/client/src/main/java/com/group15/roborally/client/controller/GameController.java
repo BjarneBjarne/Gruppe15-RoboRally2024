@@ -72,6 +72,7 @@ public class GameController {
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
     @Getter
     private PlayerInteraction currentPlayerInteraction = null;
+    private Runnable interactionCallback = null;
 
     // Choices
     private final List<Choice> executedChoices = new ArrayList<>();
@@ -259,31 +260,27 @@ public class GameController {
      */
     private void nextPlayerRegister() {
         board.setCurrentPlayer(board.getPriorityList().poll());
-
+        Runnable nextMethod = this::setAndUpdateChoices;
         if (shouldDelayForPossibleCardUse()) {
             // Delay before assessing card usages.
-            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.NEXT_PLAYER_REGISTER_DELAY));
+            new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.NEXT_PLAYER_REGISTER_DELAY, "Waiting for card use.").runAndCallback(nextMethod);
+        } else {
+            nextMethod.run();
         }
-        runActionsAndCallback(() -> setAndUpdateChoices(this::handlePlayerRegister));
     }
 
     private void setWaitingForCardUse(boolean waitingForCardUse) {
         this.waitingForCardUse = waitingForCardUse;
-        if (waitingForCardUse) {
-            RoboRally.setDebugText(1, "Waiting for card use: true");
-            System.out.println("Waiting for card use for player: " + board.getCurrentPlayer().getName());
-        } else {
-            RoboRally.setDebugText(1, "Waiting for card use: false");
-        }
-
+        RoboRally.setDebugText(1, "Waiting for card use: " + waitingForCardUse);
+        System.out.println((waitingForCardUse ? "Waiting" : "Stopped waiting") + " for card use for player: " + board.getCurrentPlayer().getName());
         board.updateBoard();
     }
 
-    private void setAndUpdateChoices(Runnable callback) {
+    private void setAndUpdateChoices() {
         incrementWaitCounter();
         setWaitingForCardUse(false);
         serverDataManager.setReadyChoice();
-        serverDataManager.waitForChoicesAndCallback(callback);
+        serverDataManager.waitForChoicesAndCallback(this::handlePlayerRegister);
     }
 
     /**
@@ -322,7 +319,8 @@ public class GameController {
             // There are more players in the priorityList. Continue to next player.
             nextPlayerRegister();
         } else {
-            setReadyForNextPhase(); // PriorityList is empty, therefore we are ready to end the register.
+            // PriorityList is empty, therefore we are ready to end the register.
+            setReadyForNextPhase();
         }
     }
 
@@ -391,23 +389,21 @@ public class GameController {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void runActionsAndCallback(Runnable callback) {
+        interactionCallback = null;
         if (playerInteractionQueue.isEmpty()) {
             LinkedList<ActionWithDelay> actionQueue = board.getBoardActionQueue();
             if (!actionQueue.isEmpty()) { // As long as there are more actions.
                 // Handle the next action
                 ActionWithDelay nextAction = actionQueue.removeFirst();
-                nextAction.getAction(DEBUG_WITH_ACTION_MESSAGE).run();
-                int delayInMillis = WITH_ACTION_DELAY ? nextAction.getDelayInMillis() : 0;
-                PauseTransition pause = new PauseTransition(Duration.millis(delayInMillis));
-                pause.setOnFinished(a -> {
+                nextAction.runAndCallback(() -> {
                     EventHandler.event_EndOfAction(this);
                     runActionsAndCallback(callback);
                 });
-                pause.play();
             } else { // When we have exhausted the actions, call the callback method.
                 callback.run();
             }
         } else {
+            interactionCallback = callback;
             handleNextInteraction();
         }
     }
@@ -439,37 +435,18 @@ public class GameController {
      */
     public void handleNextInteraction() {
         // Check if there are more interactions.
-        if (playerInteractionQueue.isEmpty()) {
-            // If not, continue
-            try {
-                continueCurrentPhase();
-            } catch (UnhandledPhaseInteractionException e) {
-                System.err.println(e.getMessage());
-            }
-        } else {
+        if (!playerInteractionQueue.isEmpty()) {
             currentPlayerInteraction = playerInteractionQueue.poll();
             incrementInteractionCounter();
             RoboRally.setDebugText(9, currentPlayerInteraction.toString());
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
-        }
-    }
-
-    /**
-     * Handles what method to go to, if the phase was interrupted.
-     * @throws UnhandledPhaseInteractionException If it is not specified what method to go to after player interactions at the current phase.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void continueCurrentPhase() throws UnhandledPhaseInteractionException {
-        PlayerInteraction finalInteraction = currentPlayerInteraction;
-        currentPlayerInteraction = null;
-        RoboRally.setDebugText(9, "");
-        board.updateBoard();
-        switch (board.getCurrentPhase()) {
-            case GamePhase.PLAYER_ACTIVATION -> handlePlayerActivation();
-            case GamePhase.BOARD_ACTIVATION -> handleBoardActivation();
-            case GamePhase.PROGRAMMING -> board.getCurrentPlayer().stopRebooting();
-            default -> throw new UnhandledPhaseInteractionException(board.getCurrentPhase(), finalInteraction);
+        } else {
+            // If not, callback and continue
+            currentPlayerInteraction = null;
+            RoboRally.setDebugText(9, "");
+            board.updateBoard();
+            runActionsAndCallback(interactionCallback);
         }
     }
 

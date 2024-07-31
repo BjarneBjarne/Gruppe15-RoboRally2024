@@ -64,8 +64,7 @@ public class BE_BoardLaser extends BoardElement {
                 damage.add(STANDARD_DAMAGE);
                 actionQueue.addFirst(new ActionWithDelay(() -> {
                     damage.applyDamage(playerHit, null);
-                    System.out.println(playerHit.getName() + " hit by board laser!");
-                }, 500));
+                }, 500, "Board laser hit on player: \"" + playerHit.getName() + "\"."));
             }
         } catch (InterruptedException e) {
             // Handle InterruptedException

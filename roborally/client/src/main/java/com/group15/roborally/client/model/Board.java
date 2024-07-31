@@ -329,7 +329,7 @@ public class Board extends Subject {
                     value.clearLasersOnSpace();
                 }
             }
-        }, 0));
+        }, 0, "Clear lasers"));
     }
 
     /**

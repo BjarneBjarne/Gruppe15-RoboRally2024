@@ -96,4 +96,26 @@ public class Damage {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder damageString = new StringBuilder("Damage{");
+
+        for (int i = 0; i < damageTypeAmountList.size(); i++) {
+            DamageTypeAmount damageTypeAmount = damageTypeAmountList.get(i);
+            if (i != 0) {
+                damageString.append(", ");
+            }
+            damageString
+                    .append("[")
+                    .append(damageTypeAmount.type)
+                    .append(": ")
+                    .append(damageTypeAmount.getAmount())
+                    .append("]");
+        }
+
+        damageString.append("}");
+
+        return damageString.toString();
+    }
 }

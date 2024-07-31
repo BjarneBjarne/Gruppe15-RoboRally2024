@@ -289,17 +289,6 @@ public class RoboRally extends Application {
         scalePane.getChildren().setAll(mainPane, infoPane);
     }
 
-    private void setViewableWindowSize(double width, double height) {
-        // Calculate the height of the window decorations (title bar)
-        double windowDecorationHeight = stage.getHeight() - stage.getScene().getHeight();
-        stage.setWidth(width);
-        stage.setHeight(height + windowDecorationHeight);
-        System.out.println("Setting stage size: " + width + "x" + height);
-        System.out.println("Size with title bar: " + width + "x" + height);
-        // Perform layout updates after setting the stage size
-        primaryScene.getWindow().sizeToScene();
-    }
-
     /**
      * Method to close the game. Will first ask the user if they are sure they want to exit the game.
      * If the user chooses to exit the game, they will be asked if they want to save the game.

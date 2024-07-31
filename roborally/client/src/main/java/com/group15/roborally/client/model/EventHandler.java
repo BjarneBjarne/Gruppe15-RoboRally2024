@@ -154,11 +154,11 @@ public class EventHandler {
     /**
      * Method for when a player takes damage.
      * @param playerTakingDamage The player that takes the damage.
-     * @param playerInflictingTheDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
+     * @param playerInflictingDamage If any, the player dealing the damage. If set to null, the source will be interpreted as a board laser.
      * @param damage The damage to deal to the playerTakingDamage.
      */
-    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingTheDamage, Damage damage) {
-        LinkedList<ActionWithDelay> actionQueue = playerInflictingTheDamage.board.getBoardActionQueue();
+    public static void event_PlayerDamage(@NotNull Player playerTakingDamage, Player playerInflictingDamage, Damage damage) {
+        LinkedList<ActionWithDelay> actionQueue = playerInflictingDamage.board.getBoardActionQueue();
         List<PlayerLaserHitListener> playerLaserHitListeners = getPlayerCardEventListeners(playerTakingDamage, PlayerLaserHitListener.class);
         for (PlayerLaserHitListener listener : playerLaserHitListeners) {
             damage = listener.onPlayerDamage(damage, playerTakingDamage);
@@ -175,8 +175,8 @@ public class EventHandler {
         if (anyDamage) {
             Damage finalDamage = damage;
             actionQueue.addFirst(new ActionWithDelay(() -> {
-                finalDamage.applyDamage(playerTakingDamage, playerInflictingTheDamage);
-            }, 250));
+                finalDamage.applyDamage(playerTakingDamage, playerInflictingDamage);
+            }, 250, "Player: \"" + playerInflictingDamage.getName() + "\" dealt " + finalDamage + " to player: \"" + playerTakingDamage.getName() + "\"."));
         }
     }
 

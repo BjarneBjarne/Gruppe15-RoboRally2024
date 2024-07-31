@@ -29,9 +29,9 @@ public class ApplicationSettings {
     public static double MAX_ZOOM = 10;
 
     // Debug
-    public static final boolean DEBUG_SHOW_DEBUG_UI = false;
+    public static final boolean DEBUG_SHOW_DEBUG_UI = true;
     public static final boolean DEBUG_SHOW_COORDINATES = false;
-    public static final boolean DEBUG_WITH_ACTION_MESSAGE = false;
+    public static final boolean DEBUG_WITH_ACTION_MESSAGE = true;
     public static final boolean DEBUG_SHOW_UPGRADE_CARD_USAGE = true;
     //public static final boolean DEBUG_ALLOW_MANUAL_PLAYER_POSITION = false;
 
