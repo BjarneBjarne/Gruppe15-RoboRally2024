@@ -52,7 +52,7 @@ public class UpgradeShop extends Subject {
     public void setAvailableCards(String[] upgradeCards) {
         for (int i = 0; i < availableCardsFields.length; i++) {
             UpgradeCard upgradeCard = null;
-            if (upgradeCards != null && upgradeCards[i] != null) {
+            if (upgradeCards != null && upgradeCards[i] != null && !upgradeCards[i].isBlank()) {
                 upgradeCard = UpgradeCard.getUpgradeCardFromClass(UpgradeCard.Types.valueOf(upgradeCards[i]).upgradeCardClass);
             }
             availableCardsFields[i].setCard(upgradeCard);
@@ -92,6 +92,7 @@ public class UpgradeShop extends Subject {
             if (cardfield.getCard() != null) {
                 if (cardfield.getCard().getClass().equals(cardToSell.getClass())) {
                     cardfield.setCard(null);
+                    break;
                 }
             }
         }
@@ -117,7 +118,7 @@ public class UpgradeShop extends Subject {
         // Discard card deck
         for (UpgradeCard cardInDiscardDeck : upgradeCardsDiscardDeck) {
             if (cardInDiscardDeck.getClass().equals(upgradeCardClass)) {
-                upgradeCardsDeck.remove(cardInDiscardDeck);
+                upgradeCardsDiscardDeck.remove(cardInDiscardDeck);
                 return cardInDiscardDeck; // SUCCESSFUL PURCHASE - Upgrade card in shop discard deck. Sending UpgradeCard to receiver method.
             }
         }
@@ -203,7 +204,7 @@ public class UpgradeShop extends Subject {
      * Used for shuffling the DiscardDeck back into the main deck, when the main deck runs our of cards.
      */
     private void shuffleDiscardDeckToDeck() {
-        //System.out.println("Shuffling shop discard deck");
+        System.out.println("Shuffling deck...");
         Collections.shuffle(upgradeCardsDiscardDeck);
         for (int i = 0; i < upgradeCardsDiscardDeck.size(); i++) {
             upgradeCardsDeck.offerLast(upgradeCardsDiscardDeck.pollFirst());

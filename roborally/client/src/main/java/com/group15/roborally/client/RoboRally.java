@@ -116,7 +116,7 @@ public class RoboRally extends Application {
 
         backgroundImageView.setPreserveRatio(true);
 
-        Font debugTextFont = TextUtils.loadFont("OCRAEXT.TTF", 30);
+        Font debugTextFont = TextUtils.loadFont("OCRAEXT.TTF", 20);
         debugLabel.setFont(debugTextFont);
         debugLabel.setTextAlignment(TextAlignment.LEFT);
         StackPane.setAlignment(debugLabel, Pos.TOP_LEFT);
@@ -264,7 +264,7 @@ public class RoboRally extends Application {
     }
 
     public static void setDebugText(int row, String text) {
-        if (row >= 16) return;
+        if (row > 15) return;
         debugTextArray[row] = text;
     }
 
@@ -343,8 +343,8 @@ public class RoboRally extends Application {
      * @Author Marcus Rémi Lemser Eychenne, s230985
      */
     public void goToMainMenu() {
-        appController.disconnectFromServer("", 1000);
         appController.resetGameController();
+        appController.disconnectFromServer("", 1000);
         setBackgroundImage("Background_MainMenu2.png");
         setMainPane(mainMenuPane);
         courseCreator = null;
@@ -355,7 +355,6 @@ public class RoboRally extends Application {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void createMultiplayerMenu() {
-        infoPane.setInfoText("Setting up multiplayer...");
         Platform.runLater(() -> {
             multiplayerMenuView = new MultiplayerMenuView(appController, serverDataManager);
             try {
@@ -363,6 +362,7 @@ public class RoboRally extends Application {
                 loader.setController(multiplayerMenuView);
                 multiplayerMenuPane = loader.load();
                 ButtonUtils.setupAllFXMLButtons(multiplayerMenuPane);
+                multiplayerMenuView.initializeLobbyNodes();
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
@@ -430,7 +430,7 @@ public class RoboRally extends Application {
         try {
             launch(args);
         } catch (Exception e) {
-            System.err.println("Unchecked exception: " + e.getMessage());
+            System.err.println("Unchecked exception: \n" + e.getMessage());
             e.printStackTrace();
         }
     }

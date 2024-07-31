@@ -123,15 +123,15 @@ public class ServerCommunication extends Subject {
     /**
      * Update the upgradeShop cards of the game.
      * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param upgradeShopCards - array of upgradeShop cards
+     * @param upgradeShop - the updated upgradeShop.
      * @param gameId - id of the game
      */
-    public void putUpgradeShop(String[] upgradeShopCards, String gameId) {
+    public void putUpgradeShop(UpgradeShop upgradeShop, String gameId, int turn) {
         sendRequest(
-                "/upgradeShop/" + gameId,
+                "/upgradeShop/" + gameId + "/" + turn,
                 HttpMethod.PUT,
                 new ParameterizedTypeReference<>() {},
-                upgradeShopCards
+                upgradeShop
         );
     }
 
@@ -195,9 +195,9 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public List<Register> getRegisters(String gameId) {
+    public List<Register> getRegisters(String gameId, int turn) {
         return sendRequest(
-                "/games/" + gameId + "/registers",
+                "/games/" + gameId + "/registers/" + turn,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -213,9 +213,9 @@ public class ServerCommunication extends Subject {
         );
     }
 
-    public Interaction getInteraction(long playerId, int turn, int movement) {
+    public Interaction getInteraction(long playerId, int interactionNo) {
         return sendRequest(
-                "/interactions/" + playerId + "?turn=" + turn + "&movement=" + movement,
+                "/interactions/" + playerId + "?interactionNo=" + interactionNo,
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -228,24 +228,9 @@ public class ServerCommunication extends Subject {
      * @param gameId - id of the game
      * @return upgradeShopCards - array of upgradeShop cards
      */
-    public String[] getUpgradeShop(String gameId) {
+    public UpgradeShop getUpgradeShop(String gameId) {
         return sendRequest(
                 "/upgradeShop/" + gameId,
-                HttpMethod.GET,
-                new ParameterizedTypeReference<>() {},
-                null
-        );
-    }
-
-    /**
-     * Get the current player turn of the upgrade phase.
-     * @author Marcus Rémi Lemser Eychenne, s230985
-     * @param gameId - id of the game
-     * @return The current player turn
-     */
-    public Integer getUpgradeTurn(String gameId) {
-        return sendRequest(
-                "/upgradeShop/" + gameId + "/turnCount",
                 HttpMethod.GET,
                 new ParameterizedTypeReference<>() {},
                 null
@@ -261,6 +246,8 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      */
     public void deletePlayer(Player player) {
+        if (!isConnectedToServer) return;
+
         setIsConnectedToServer(false);
         sendRequest(
                 "/players/" + player.getPlayerId(),

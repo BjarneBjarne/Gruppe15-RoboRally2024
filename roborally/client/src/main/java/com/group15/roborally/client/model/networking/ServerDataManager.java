@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -41,26 +40,30 @@ public class ServerDataManager extends Subject implements Observer {
     private final Random random = new Random();
 
     @Getter
-    private Player localPlayer;
+    private Player localPlayer = null;
     @Getter
     private boolean isHost = false;
 
     @Getter
-    private Interaction interaction;
+    private Interaction interaction = null;
     @Setter
-    private int currentTurnCount, currentWaitCount, currentMovementCount = 0;
+    private int currentTurnCount, currentPhaseCount, currentWaitCount, currentInteractionCount = -1;
     @Setter
     private GamePhase currentPhase = GamePhase.LOBBY;
 
     // Updated Game data
-    private Game game;
-    private Map<Long, Player> playerMap;
-    private String[] upgradeShop;
-    private List<Register> registers;
+    private Game game = null;
+    private Map<Long, Player> playerMap = new HashMap<>();
+    private UpgradeShop upgradeShop = null;
+    private List<Register> registers = null;
     @Getter
-    private List<Choice> choices;
+    private List<Choice> choices = null;
     @Getter
     private final static List<NetworkedDataTypes> changedData = new ArrayList<>();
+
+    public ServerDataManager() {
+        serverCommunication.attach(this);
+    }
 
     // Server queries.
     /**
@@ -70,12 +73,16 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryCreateAndJoinGame(String serverURL, String playerName) {
+        System.out.println();
         AppController.setInfoText("Creating new game...");
         AtomicReference<String> gameId = new AtomicReference<>("");
         runActionAndCallback(new ActionWithDelay(() -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100)), () -> {
-            if (!gameId.get().isBlank()) {
+            if (gameId.get() != null && !gameId.get().isBlank()) {
                 runActionAndCallback(new ActionWithDelay(
-                        () -> AppController.setInfoText("Successfully created new game!"), 250),
+                        () -> {
+                            AppController.setInfoText("Successfully created new game!");
+                            System.out.println("Game ID: " + gameId.get());
+                        }, 250),
                         () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
             } else {
                 runActionAndCallback(new ActionWithDelay(
@@ -94,6 +101,7 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void tryJoinGameWithGameID(String serverURL, String gameId, String playerName) {
+        System.out.println();
         AppController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
         runActionAndCallback(new ActionWithDelay(() -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100)), () -> {
@@ -117,19 +125,35 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private void connectedToGame(String gameId, Player localPlayer) {
+        // Resetting variables
+        this.localPlayer = localPlayer;
+        this.isHost = false;
+        this.interaction = null;
+        this.currentTurnCount = 0;
+        this.currentWaitCount = 0;
+        this.currentInteractionCount = 0;
+        this.currentPhaseCount = -1;
+        this.currentPhase = GamePhase.LOBBY;
+        // Resetting game data
+        this.game = null;
         this.playerMap = new HashMap<>();
         this.upgradeShop = null;
         this.registers = null;
-        this.localPlayer = localPlayer;
+        this.choices = null;
+        changedData.clear();
+
+        updateGameData(serverCommunication.getGame(gameId));
+        updatePlayerData(serverCommunication.getPlayers(gameId));
+        updateUpgradeShopData(serverCommunication.getUpgradeShop(gameId));
+
+        // Setting up data
         Platform.runLater(() -> {
-            updateGameData(serverCommunication.getGame(gameId));
-            updatePlayerData(serverCommunication.getPlayers(gameId));
-            serverCommunication.attach(this);
             this.isHost = localPlayer.getPlayerId() == game.getHostId();
             setReadyForPhase(GamePhase.LOBBY);
             startUpdateGameLoop();
             notifyChange();
             System.out.println("Player name: " + localPlayer.getPlayerName());
+            System.out.println("Is host? " + this.isHost);
         });
     }
 
@@ -139,7 +163,7 @@ public class ServerDataManager extends Subject implements Observer {
      */
     private void startUpdateGameLoop() {
         Runnable lobbyUpdate = () -> {
-            if (serverCommunication.isConnectedToServer()) {
+            if (isConnectedToServer()) {
                 if (this.game == null) {
                     System.err.println("THIS.GAME IS NULL");
                     return;
@@ -147,11 +171,11 @@ public class ServerDataManager extends Subject implements Observer {
                 try {
                     updateGameFromServerData();
                 } catch (Exception e) {
-                    System.err.println("Error in updateGameFromServerData loop. Exception message: " + e.getMessage());
+                    System.err.println("Error in update game loop. Exception message: " + e.getMessage());
                 }
             }
         };
-        gameUpdateScheduler = Executors.newScheduledThreadPool(1);
+        gameUpdateScheduler = Executors.newScheduledThreadPool(10);
         gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
     }
 
@@ -159,7 +183,7 @@ public class ServerDataManager extends Subject implements Observer {
      * Stops the loop of updating the client with data from the server.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void stopGameUpdateLoop() {
+    private void stopUpdateLoops() {
         if (gameUpdateScheduler != null) {
             gameUpdateScheduler.shutdownNow();
             gameUpdateScheduler = null;
@@ -186,7 +210,7 @@ public class ServerDataManager extends Subject implements Observer {
             System.err.println("PLAYER LIST IS NULL");
             return;
         }
-        String[] updatedUpgradeShop;
+        UpgradeShop updatedUpgradeShop;
         if (currentPhase.equals(GamePhase.UPGRADE)) {
             updatedUpgradeShop = serverCommunication.getUpgradeShop(game.getGameId());
         } else {
@@ -194,28 +218,31 @@ public class ServerDataManager extends Subject implements Observer {
         }
         List<Register> updatedRegisters;
         if (currentPhase.equals(GamePhase.PROGRAMMING) || currentPhase.equals(GamePhase.PLAYER_ACTIVATION)) {
-            updatedRegisters = serverCommunication.getRegisters(game.getGameId());
+            updatedRegisters = serverCommunication.getRegisters(game.getGameId(), currentTurnCount);
         } else {
             updatedRegisters = null;
         }
         List<Choice> updatedChoices = serverCommunication.getChoices(game.getGameId(), currentWaitCount);
 
         // Check if the host has disconnected
-        boolean hostHasDisconnected = updatedPlayers.values().stream().noneMatch(player -> updatedGame.getHostId() == player.getPlayerId());
+        boolean hostHasDisconnected = updatedPlayers.get(updatedGame.getHostId()) == null;
         if (hostHasDisconnected) {
+            System.out.println("updatedGame.getHostId(): " + updatedGame.getHostId());
+            for (Player player : updatedPlayers.values()) {
+                System.out.println("player: " + player.getPlayerName() + ", playerId: " + player.getPlayerId());
+            }
             disconnectFromServer("The host left the game.", 3000);
             return;
         }
 
-        // Update the game in the JavaFX application thread.
-        Platform.runLater(() -> loadServerDataAndNotify(updatedGame, updatedPlayers, updatedUpgradeShop, updatedRegisters, updatedChoices));
+        loadServerDataAndNotify(updatedGame, updatedPlayers, updatedUpgradeShop, updatedRegisters, updatedChoices);
     }
 
     /**
      * Loads the data received from the server and notifies listeners if any data has changed.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    private void loadServerDataAndNotify(Game updatedGame, Map<Long, Player> updatedPlayers, String[] updatedUpgradeShop, List<Register> updatedRegisters, List<Choice> updatedChoices) {
+    private void loadServerDataAndNotify(Game updatedGame, Map<Long, Player> updatedPlayers, UpgradeShop updatedUpgradeShop, List<Register> updatedRegisters, List<Choice> updatedChoices) {
         boolean hasChanges = false;
         // Update any data that has changed.
         if (this.game.getNrOfPlayers() != updatedGame.getNrOfPlayers() ||
@@ -227,14 +254,11 @@ public class ServerDataManager extends Subject implements Observer {
             updateGameData(updatedGame);
             hasChanges = true;
         }
-        if (!Arrays.equals(updatedUpgradeShop, this.upgradeShop)) {
-            if (updatedUpgradeShop != null) {
-                if (Arrays.stream(updatedUpgradeShop).allMatch(Objects::isNull)) {
-                    updatedUpgradeShop = null;
-                }
+        if (updatedUpgradeShop != null) {
+            if (updatedUpgradeShop.hasChanges(this.upgradeShop) && updatedUpgradeShop.getTurn() >= this.upgradeShop.getTurn()) {
+                updateUpgradeShopData(updatedUpgradeShop);
+                hasChanges = true;
             }
-            updateUpgradeShopData(updatedUpgradeShop);
-            hasChanges = true;
         }
         if (updatedRegisters != null) {
             RoboRally.setDebugText(7, "updatedRegisters.size: " + updatedRegisters.size());
@@ -253,7 +277,7 @@ public class ServerDataManager extends Subject implements Observer {
                 hasChanges = true;
             }
         }
-        if (hasChanges) {
+        if (hasChanges && isConnectedToServer()) {
             notifyChange();
         }
     }
@@ -267,7 +291,7 @@ public class ServerDataManager extends Subject implements Observer {
         this.playerMap = updatedPlayerData;
         changedData.add(NetworkedDataTypes.PLAYERS);
     }
-    private void updateUpgradeShopData(@NotNull String[] updatedUpgradeShop) {
+    private void updateUpgradeShopData(@NotNull UpgradeShop updatedUpgradeShop) {
         this.upgradeShop = updatedUpgradeShop;
         changedData.add(NetworkedDataTypes.UPGRADE_SHOP);
     }
@@ -305,6 +329,7 @@ public class ServerDataManager extends Subject implements Observer {
     public void setReadyForPhase(@NotNull GamePhase nextPhase) {
         if (!nextPhase.equals(localPlayer.getReadyForPhase())) {
             localPlayer.setReadyForPhase(nextPhase);
+            localPlayer.setPhaseCount(currentPhaseCount);
             serverCommunication.putPlayer(localPlayer);
         }
     }
@@ -325,7 +350,6 @@ public class ServerDataManager extends Subject implements Observer {
     // In game
     public void setPlayerRegister(@NotNull String[] programFieldNames) {
         serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), currentTurnCount);
-        System.out.println("Posting registers for turn: " + currentTurnCount);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {
@@ -334,10 +358,8 @@ public class ServerDataManager extends Subject implements Observer {
             serverCommunication.putPlayer(localPlayer);
         }
     }
-    public void setUpgradeShop(@NotNull String[] availableCards) {
-        if (!Arrays.equals(upgradeShop, availableCards)) {
-            serverCommunication.putUpgradeShop(availableCards, game.getGameId());
-        }
+    public void setUpgradeShop(@NotNull UpgradeShop newUpgradeShop) {
+        serverCommunication.putUpgradeShop(newUpgradeShop, game.getGameId(), currentTurnCount);
     }
     public void setPlayerUpgradeCards(@NotNull String[] permCards, @NotNull String[] tempCards) {
         localPlayer.setPermCards(permCards);
@@ -379,15 +401,17 @@ public class ServerDataManager extends Subject implements Observer {
     // Player interactions
     public void setInteraction(PlayerInteraction currentPlayerInteraction, String interaction) {
         if (currentPlayerInteraction.getPlayer().getPlayerId() != localPlayer.getPlayerId()) return;
-        InteractionDTO interactionDTO = new InteractionDTO(localPlayer.getPlayerId(), interaction, currentTurnCount, currentMovementCount);
+        InteractionDTO interactionDTO = new InteractionDTO(localPlayer.getPlayerId(), interaction, currentInteractionCount);
         serverCommunication.putInteraction(interactionDTO);
     }
-    public void waitForInteractionAndCallback(Runnable callback, long playerId, int turn, int movement) {
+    public void waitForInteractionAndCallback(Runnable callback, long playerId, int interactionNo) {
         interaction = null;
+        RoboRally.setDebugText(12, "Waiting for interaction");
         Runnable poll = () -> {
-            interaction = serverCommunication.getInteraction(playerId, turn, movement);
+            interaction = serverCommunication.getInteraction(playerId, interactionNo);
             if (interaction != null) {
                 serverPoller.shutdownNow();
+                RoboRally.setDebugText(12, "");
                 Platform.runLater(callback);
             }
         };
@@ -406,7 +430,7 @@ public class ServerDataManager extends Subject implements Observer {
         changedData.remove(NetworkedDataTypes.PLAYERS);
         return playerMap;
     }
-    public String[] getUpdatedUpgradeShop() {
+    public UpgradeShop getUpdatedUpgradeShop() {
         changedData.remove(NetworkedDataTypes.UPGRADE_SHOP);
         return upgradeShop;
     }
@@ -426,34 +450,14 @@ public class ServerDataManager extends Subject implements Observer {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
-        if (!serverCommunication.isConnectedToServer()) {
-            return;
+        if (isConnectedToServer()) {
+            stopUpdateLoops();
+            serverCommunication.deletePlayer(localPlayer);
+            if (infoMessage == null || infoMessage.isEmpty()) infoMessage = "Disconnected from server.";
+            AppController.setInfoText(infoMessage);
+            runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
         }
-        if (infoMessage == null || infoMessage.isEmpty()) {
-            infoMessage = "Disconnected from server.";
-        }
-        AppController.setInfoText(infoMessage);
-        serverCommunication.deletePlayer(localPlayer);
-        serverCommunication.detach(this);
-        stopGameUpdateLoop();
         notifyChange();
-        runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis), () -> AppController.setInfoText(""));
-    }
-
-    /**
-     * Method for when the connection to the server was lost, and the reconnection timed out.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void connectionToServerTimedOut() {
-        runActionAndCallback(new ActionWithDelay(() -> {
-            serverCommunication.detach(this);
-            AppController.setInfoText("Connection to server timed out.");
-            stopGameUpdateLoop();
-            notifyChange();
-        }, 2000), () -> {
-            AppController.setInfoText("");
-            //RoboRally.setDebugText("", 0);
-        });
     }
 
 
@@ -461,9 +465,9 @@ public class ServerDataManager extends Subject implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject.equals(serverCommunication)) {
-            // If the player was disconnected from the server.
-            if (isConnectedToServer() && serverCommunication.getHasTimedOut()) {
-                connectionToServerTimedOut();
+            // If the connection to the server has timed out.
+            if (serverCommunication.getHasTimedOut()) {
+                disconnectFromServer("Connection to server timed out.", 2000);
             }
         }
     }

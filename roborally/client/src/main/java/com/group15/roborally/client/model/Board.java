@@ -149,6 +149,7 @@ public class Board extends Subject {
         if (player != this.currentPlayer && players.contains(player)) {
             this.currentPlayer = player;
         }
+        RoboRally.setDebugText(11, "Current player: " + this.currentPlayer.getName());
         notifyChange();
     }
 
@@ -317,7 +318,7 @@ public class Board extends Subject {
                 Player player = getPlayer(i);
                 player.goToTemporarySpace();
             }
-        }, 100, debugBoardElementName));
+        }, 200, debugBoardElementName));
     }
 
     public void queueClearLasers() {

@@ -1,6 +1,7 @@
 package com.group15.roborally.client.model.upgrade_cards;
 
 import com.group15.roborally.client.ApplicationSettings;
+import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.Player;
@@ -36,6 +37,7 @@ public abstract class UpgradeCard extends Card implements Observer {
     @Getter
     protected final List<GamePhase> activatableOn;
     protected final boolean onlyActivatableOnPlayerTurn;
+    @Getter
     private boolean enabled = false;
     private boolean queuedForActivation = false;
 
@@ -96,6 +98,9 @@ public abstract class UpgradeCard extends Card implements Observer {
         SPEED_ROUTINE(Card_SpeedRoutine.class),
         WEASEL_ROUTINE(Card_WeaselRoutine.class);
 
+        /*HACK(Card_Hack.class),
+        REBOOT(Card_Reboot.class);*/
+
         public final Class<? extends UpgradeCard> upgradeCardClass;
         Types(Class<? extends UpgradeCard> upgradeCardClass) {
             this.upgradeCardClass = upgradeCardClass;
@@ -107,15 +112,26 @@ public abstract class UpgradeCard extends Card implements Observer {
     public void update(Subject subject) {
         if (subject.equals(owner.board)) {
             GamePhase currentPhase = owner.board.getCurrentPhase();
+            Player currentPlayer = owner.board.getCurrentPlayer();
             if (currentPhase != lastPhase) {
                 lastPhase = currentPhase;
                 if (currentPhase.equals(refreshedOn)) {
                     refresh();
                 }
-                // Enables and disables on corresponding phases
-                setEnabled(activatableOn.contains(currentPhase));
-                //System.out.println("GamePhase: " + owner.board.getCurrentPhase() + ". Handling pre phase?: " + gameController.isHandlingPrePhase() + ". Enabled?: " + enabled + ". Activatable?: " + canBeActivated() + ". gameController.canUseUpgradeCards?:" + gameController.canUseUpgradeCards());
             }
+            // Check if the card should be enabled.
+            RoboRally.setDebugText(8, "Should enable?: " + activatableOn.contains(currentPhase) + " && " +
+                    "(" + !currentPhase.isPhaseToWaitBefore() + " || " + !onlyActivatableOnPlayerTurn + " || " + owner.equals(currentPlayer) + "(current player: " + currentPlayer.getName() + ")" + ") && " +
+                    !isOnCooldown() + " && " +
+                    (owner.getEnergyCubes() >= useCost)
+            );
+            setEnabled(
+                    activatableOn.contains(currentPhase) &&
+                    (!currentPhase.isPhaseToWaitBefore() || !onlyActivatableOnPlayerTurn || owner.equals(currentPlayer)) &&
+                    !isOnCooldown() &&
+                    (owner.getEnergyCubes() >= useCost)
+            );
+            //System.out.println("GamePhase: " + owner.board.getCurrentPhase() + ". Handling pre phase?: " + gameController.isHandlingPrePhase() + ". Enabled?: " + enabled + ". Activatable?: " + canBeActivated() + ". gameController.canUseUpgradeCards?:" + gameController.canUseUpgradeCards());
         }
     }
 
@@ -190,7 +206,9 @@ public abstract class UpgradeCard extends Card implements Observer {
         }
     }
     public boolean canBeActivated() {
-        return enabled && !isOnCooldown() && owner.getEnergyCubes() >= useCost && gameController.canUseUpgradeCards() && !queuedForActivation && owner.equals(owner.board.getCurrentPlayer());
+        RoboRally.setDebugText(9, "Can activate?: " + enabled + " && " + gameController.canUseUpgradeCards() + " && " + !queuedForActivation);
+
+        return enabled && gameController.canUseUpgradeCards() && !queuedForActivation;
     }
 
     public boolean getHasActive() {

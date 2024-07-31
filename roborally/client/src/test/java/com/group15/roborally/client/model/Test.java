@@ -40,9 +40,9 @@ public class Test {
         System.out.println();
 
         // Update interaction
-        InteractionDTO interactionDTO = new InteractionDTO(p1.getPlayerId(), "RebootInteraction", 5, 2);
+        InteractionDTO interactionDTO = new InteractionDTO(p1.getPlayerId(), "RebootInteraction", 5);
 
-        Interaction received = sc.getInteraction(p1.getPlayerId(),5,2);
+        Interaction received = sc.getInteraction(p1.getPlayerId(),5);
         if(received == null) {
             System.out.println("No interaction found");
         } else {
@@ -51,7 +51,7 @@ public class Test {
 
         sc.putInteraction(interactionDTO);
         
-        received = sc.getInteraction(p1.getPlayerId(),5,2);
+        received = sc.getInteraction(p1.getPlayerId(),5);
         if(received == null) {
             System.out.println("No interaction found");
         } else {

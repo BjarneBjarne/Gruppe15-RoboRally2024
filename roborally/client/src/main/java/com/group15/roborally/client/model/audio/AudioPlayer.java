@@ -55,6 +55,7 @@ public class AudioPlayer {
     }
     public void rewindAndPlayAudio() {
         if (clip != null) {
+            //System.out.println("Playing: " + latestFileName);
             clip.stop();
             clip.setMicrosecondPosition(0);
             clip.start();

@@ -51,6 +51,7 @@ import static com.group15.roborally.client.ApplicationSettings.*;
 import com.group15.roborally.common.model.GamePhase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -348,6 +349,12 @@ public class GameView extends AnchorPane implements ViewObserver {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void updateUpgradeShop() {
+        CardField[] availableCardsFields = board.getUpgradeShop().getAvailableCardsFields();
+
+        if (Arrays.stream(availableCardsFields).allMatch(cardField -> cardField.getCard() == null)) return;
+        if (gameController.getLatestUpgradeShopData().getTurn() < gameController.getTurnCounter()) return;
+        if (!gameController.board.getCurrentPhase().equals(GamePhase.UPGRADE)) return;
+
         Player playerUpgrading = gameController.getPlayerUpgrading();
         boolean localPlayersTurn = gameController.getLocalPlayer().equals(playerUpgrading);
 
@@ -362,8 +369,7 @@ public class GameView extends AnchorPane implements ViewObserver {
         finishUpgradingButton.setDisable(!localPlayersTurn || gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty());
         finishUpgradingButton.setMouseTransparent(!localPlayersTurn);
 
-        for (int i = 0; i < board.getUpgradeShop().getAvailableCardsFields().length; i++) {
-            CardField cardField = board.getUpgradeShop().getAvailableCardsFields()[i];
+        for (CardField cardField : availableCardsFields) {
             switch (cardField.getCard()) {
                 case UpgradeCardPermanent ignored1 -> { }
                 case UpgradeCardTemporary ignored2 -> { }
@@ -467,7 +473,7 @@ public class GameView extends AnchorPane implements ViewObserver {
                 }
             }
 
-            boolean isPhaseWithReadyCheck = board.getCurrentPhase().equals(GamePhase.PROGRAMMING) || board.getCurrentPhase().equals(GamePhase.INITIALIZATION);
+            boolean isPhaseWithReadyCheck = board.getCurrentPhase().equals(GamePhase.PROGRAMMING) || board.getCurrentPhase().equals(GamePhase.INITIALIZATION) || board.getCurrentPhase().equals(GamePhase.UPGRADE);
             for (Player player : board.getPlayers()) {
                 Space playerSpace = player.getSpace();
                 if (playerSpace != null) {

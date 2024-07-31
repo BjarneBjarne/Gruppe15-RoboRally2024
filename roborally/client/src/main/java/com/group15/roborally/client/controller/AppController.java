@@ -253,11 +253,21 @@ public class AppController implements Observer {
         serverDataManager.disconnectFromServer(s, i);
     }
 
+    /**
+     * Updates when data received from the server has changed.
+     * @param subject the subject who is notifying.
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
     @Override
     public void update(Subject subject) {
         if (subject.equals(serverDataManager)) {
-            if (!serverDataManager.isConnectedToServer() && isGameRunning()) {
-                roboRally.goToMainMenu();
+            if (isGameRunning()) {
+                if (!serverDataManager.isConnectedToServer()) {
+                    roboRally.goToMainMenu();
+                    return;
+                }
+
+                gameController.updateGameWithLatestData();
             }
         }
     }

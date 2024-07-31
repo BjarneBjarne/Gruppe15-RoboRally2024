@@ -20,18 +20,16 @@ public class Interaction {
     private long interactionId;
     private long playerId;
     private String code;
-    private int turn;
-    private int movement;
+    private int interactionNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playerId", referencedColumnName = "playerId", insertable = false, updatable = false)
     @JsonIgnore
     private Player player;
 
-    public Interaction(long playerId, String code, int turn, int movement) {
+    public Interaction(long playerId, String code, int interactionNo) {
         this.playerId = playerId;
         this.code = code;
-        this.turn = turn;
-        this.movement = movement;
+        this.interactionNo = interactionNo;
     }
 }

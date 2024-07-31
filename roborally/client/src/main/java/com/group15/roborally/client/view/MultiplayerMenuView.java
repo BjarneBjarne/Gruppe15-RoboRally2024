@@ -1,6 +1,5 @@
 package com.group15.roborally.client.view;
 
-import com.group15.roborally.client.model.audio.AudioMixer;
 import com.group15.roborally.client.utils.ButtonUtils;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
@@ -103,120 +102,38 @@ public class MultiplayerMenuView implements Observer {
     }
 
     /**
-     * Initializes the multiplayer menu.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void initialize() {
-        showLobby(false);
-        hasStartedGameLocally = false;
-        selectedCourse = null;
-        game = null;
-        players = null;
-
-        lobbyCoursesScrollPane.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        lobbyCoursesVBox.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
-        lobbyCoursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        lobbyCoursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
-    }
-
-    private void setupLobby() {
-        this.game = serverDataManager.getUpdatedGame();
-        this.players = serverDataManager.getUpdatedPlayerMap();
-
-
-
-
-
-        initializeCourses();
-        initializeLobby();
-        hasBeenSetup =  true;
-        updateLobby(this.game, this.players);
-    }
-
-    /**
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    public void updateLobby(Game updatedGame, Map<Long, Player> updatedPlayers) {
-        // Game
-        if (updatedGame != null) {
-            // GameId
-            lobbyTextGameID.setText("Game ID: " + updatedGame.getGameId());
-            // If the game had changes, the player gets set to not ready.
-            if (updatedGame.hasChanges(this.game)) {
-                serverDataManager.setReadyForPhase(GamePhase.LOBBY);
-            }
-            // Update selected course if it changed
-            if (updatedGame.getCourseName() != null && !updatedGame.getCourseName().isBlank() && (this.selectedCourse == null || !updatedGame.getCourseName().equals(this.selectedCourse.getCourseName()))) {
-                this.selectedCourse = AppController.getCourses().stream()
-                        .filter(course -> course.getCourseName().equals(updatedGame.getCourseName()))
-                        .findFirst()
-                        .orElse(null);
-            }
-            // Course
-            CC_CourseData updatedSelectedCourse = selectedCourse;
-            if (updatedSelectedCourse != null) {
-                lobbySelectedCourseImageView.setImage(updatedSelectedCourse.getImage());
-                lobbySelectedCourseText.setText(updatedSelectedCourse.getCourseName().toUpperCase());
-            } else {
-                lobbySelectedCourseImageView.setImage(null);
-                lobbySelectedCourseText.setText("Selected course");
-            }
-            this.game = updatedGame;
-        }
-
-        // Players
-        if (updatedPlayers != null) {
-            int slotIndex = 1;
-            for (Player player : updatedPlayers.values()) {
-                LobbyPlayerSlot playerSlot = playerSlots[slotIndex];
-                boolean isLocalPlayer = player.getPlayerId() == serverDataManager.getLocalPlayer().getPlayerId();
-                if (isLocalPlayer) {
-                    playerSlot = playerSlots[0];
-                }
-                playerSlot.setName(player.getPlayerName());
-                playerSlot.setRobotByRobotName(player.getRobotName());
-                boolean playerIsHost = player.getPlayerId() == this.game.getHostId();
-                playerSlot.setHostStarVisible(playerIsHost);
-                playerSlot.setReadyCheckVisible(player.getReadyForPhase() == GamePhase.INITIALIZATION);
-                if (!isLocalPlayer) {
-                    slotIndex++;
-                }
-            }
-            this.players = updatedPlayers;
-        }
-
-        if (updatedGame != null || updatedPlayers != null) {
-            updateUI();
-        }
-    }
-
-    /**
-     * Initializes the lobbyData nodes to make it ready to process lobbyData data from the server.
+     * Initializes the multiplayer menu, as well as the lobby nodes, to make it ready to process lobbyData data from the server.
      * @author Maximillian Bjørn Mortensen
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeLobby() {
-        // Start/ready button
-        if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
-            if (stackPane.getChildren().getFirst() instanceof Text text) {
-                text.setText(serverDataManager.isHost() ? "Start" : "Ready");
-            }
-        }
+    public void initializeLobbyNodes() {
+        showLobby(false);
 
         // Local player
         playerSlots[0] = getNewPlayerSlotFromParentNode(lobbyVBoxLocalPlayer);
-        ComboBox<String> localPlayerRobotComboBox = playerSlots[0].getRobotComboBox();
+        ComboBox<String> characterComboBox = playerSlots[0].getRobotComboBox();
+        characterComboBox.setPromptText("Select a character");
         List<String> robotNames = Arrays.stream(Robots.values())
                 .map(Robots::getRobotName)
                 .toList();
-        localPlayerRobotComboBox.getItems().addAll(robotNames);
-        localPlayerRobotComboBox.valueProperty().addListener((a, b, c) -> {
-            String localRobotName = localPlayerRobotComboBox.getSelectionModel().getSelectedItem();
+        characterComboBox.getItems().addAll(robotNames);
+        characterComboBox.valueProperty().addListener((a, b, c) -> {
+            String localRobotName = characterComboBox.getSelectionModel().getSelectedItem();
+            if (localRobotName == null) return;
             playerSlots[0].setRobotByRobotName(localRobotName);
             serverDataManager.changeRobot(localRobotName);
             updateUI();
+        });
+        characterComboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(characterComboBox.getPromptText());
+                } else {
+                    setText(item);
+                }
+            }
         });
 
         // Proxy players
@@ -244,6 +161,100 @@ public class MultiplayerMenuView implements Observer {
             DRAW_ON_EMPTY_REGISTER = keepHandString.equals("Yes");
             updateUI();
         });
+
+        // Courses
+        lobbyCoursesScrollPane.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        lobbyCoursesVBox.setBackground(new Background(new BackgroundFill(
+                Color.rgb(0, 0, 0, 0), CornerRadii.EMPTY, null)));
+        lobbyCoursesScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        lobbyCoursesVBox.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 2; -fx-border-radius: 5;");
+    }
+
+    private void connectedToLobby() {
+        ComboBox<String> characterComboBox = playerSlots[0].getRobotComboBox();
+        characterComboBox.setValue(null);
+        setupCourses();
+
+        // Start/ready button
+        if (lobbyButtonStart.getChildrenUnmodifiable().getFirst() instanceof StackPane stackPane) {
+            if (stackPane.getChildren().getFirst() instanceof Text text) {
+                text.setText(serverDataManager.isHost() ? "Start" : "Ready");
+            }
+        }
+
+        showLobby(true);
+    }
+
+    /**
+     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
+     */
+    public void updateLobby() {
+        // Setting up the lobby
+        if (!hasBeenSetup) {
+            hasBeenSetup = true;
+            connectedToLobby();
+        }
+
+        // Updating game
+        if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.GAME)) {
+            game = serverDataManager.getUpdatedGame();
+            // GameId
+            lobbyTextGameID.setText("Game ID: " + game.getGameId());
+            // If the game had changes, the player gets set to not ready.
+            if (game.hasChanges(game)) {
+                serverDataManager.setReadyForPhase(GamePhase.LOBBY);
+            }
+            // Update selected course if it changed
+            if (game.getCourseName() != null && !game.getCourseName().isBlank() && (this.selectedCourse == null || !game.getCourseName().equals(this.selectedCourse.getCourseName()))) {
+                String courseName = game.getCourseName();
+                this.selectedCourse = courses.stream()
+                        .filter(course -> course.getCourseName().equals(courseName))
+                        .findFirst()
+                        .orElse(null);
+            }
+            // Course
+            CC_CourseData updatedSelectedCourse = selectedCourse;
+            if (updatedSelectedCourse != null) {
+                lobbySelectedCourseImageView.setImage(updatedSelectedCourse.getImage());
+                lobbySelectedCourseText.setText(updatedSelectedCourse.getCourseName().toUpperCase());
+            } else {
+                lobbySelectedCourseImageView.setImage(null);
+                lobbySelectedCourseText.setText("Selected course");
+            }
+            updateUI();
+        }
+
+        // Updating players
+        if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.PLAYERS)) {
+            players = serverDataManager.getUpdatedPlayerMap();
+            int slotIndex = 1;
+            for (Player player : players.values()) {
+                LobbyPlayerSlot playerSlot = playerSlots[slotIndex];
+                boolean isLocalPlayer = player.getPlayerId() == serverDataManager.getLocalPlayer().getPlayerId();
+                if (isLocalPlayer) {
+                    playerSlot = playerSlots[0];
+                }
+                playerSlot.setName(player.getPlayerName());
+                playerSlot.setRobotByRobotName(player.getRobotName());
+                boolean playerIsHost = player.getPlayerId() == game.getHostId();
+                playerSlot.setHostStarVisible(playerIsHost);
+                playerSlot.setReadyCheckVisible(player.getReadyForPhase() == GamePhase.INITIALIZATION);
+                if (!isLocalPlayer) {
+                    slotIndex++;
+                }
+            }
+            updateUI();
+        }
+
+        // Check if game started
+        if (game != null) {
+            if (game.getPhase() != GamePhase.LOBBY) {
+                if (players != null) {
+                    startGame();
+                }
+            }
+        }
     }
 
     /**
@@ -292,53 +303,50 @@ public class MultiplayerMenuView implements Observer {
      * @author Maximillian Bjørn Mortensen
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void initializeCourses() {
+    public void setupCourses() {
         // Courses
-        Platform.runLater(() -> {
-            List<CC_CourseData> loadedCourses = AppController.getCourses();
-            courses.addAll(loadedCourses);
+        lobbyCoursesVBox.getChildren().clear();
+        courses.addAll(AppController.getCourses());
+        int courseButtonSize = (int)(lobbyCoursesVBox.getWidth() - lobbyCoursesVBox.getPadding().getLeft() - lobbyCoursesVBox.getPadding().getRight());
+        Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
 
-            int courseButtonSize = (int)(lobbyCoursesVBox.getWidth() - lobbyCoursesVBox.getPadding().getLeft() - lobbyCoursesVBox.getPadding().getRight());
-            Font textFont = TextUtils.loadFont("OCRAEXT.TTF", 32);
+        // Making course button
+        if (!courses.isEmpty()) {
+            for (CC_CourseData course : courses) {
+                // Course name text
+                Text courseNameText = getCourseButtonText(textFont, course, courseButtonSize);
 
-            // Making course button
-            if (!courses.isEmpty()) {
-                for (CC_CourseData course : courses) {
-                    // Course name text
-                    Text courseNameText = getCourseButtonText(textFont, course, courseButtonSize);
+                // Button
+                Button courseButton = new Button();
+                ButtonUtils.setupDefaultButton(courseButton, () -> {
+                    if (serverDataManager.isHost()) {
+                        serverDataManager.changeCourse(course);
+                        this.selectedCourse = course;
+                        lobbySelectedCourseImageView.setImage(course.getImage());
+                        lobbySelectedCourseText.setText(course.getCourseName().toUpperCase());
+                        updateUI();
+                    }
+                });
+                ImageView courseImageView = new ImageView(course.getImage());
+                courseButton.setMinSize(courseButtonSize, courseButtonSize);
+                courseButton.setPrefSize(courseButtonSize, courseButtonSize);
+                courseButton.setMaxSize(courseButtonSize, courseButtonSize);
+                courseImageView.setFitWidth(courseButtonSize);
+                courseImageView.setFitHeight(courseButtonSize);
+                courseButton.setGraphic(courseImageView);
+                courseButton.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+                courseButton.setDisable(!serverDataManager.isHost());
 
-                    // Button
-                    Button courseButton = new Button();
-                    ButtonUtils.setupDefaultButton(courseButton, () -> {
-                        if (serverDataManager.isHost()) {
-                            serverDataManager.changeCourse(course);
-                            this.selectedCourse = course;
-                            lobbySelectedCourseImageView.setImage(course.getImage());
-                            lobbySelectedCourseText.setText(course.getCourseName().toUpperCase());
-                            updateUI();
-                        }
-                    });
-                    ImageView courseImageView = new ImageView(course.getImage());
-                    courseButton.setMinSize(courseButtonSize, courseButtonSize);
-                    courseButton.setPrefSize(courseButtonSize, courseButtonSize);
-                    courseButton.setMaxSize(courseButtonSize, courseButtonSize);
-                    courseImageView.setFitWidth(courseButtonSize);
-                    courseImageView.setFitHeight(courseButtonSize);
-                    courseButton.setGraphic(courseImageView);
-                    courseButton.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-                    courseButton.setDisable(!serverDataManager.isHost());
+                // VBox
+                VBox newCourseVBox = new VBox(courseNameText, courseButton);
+                newCourseVBox.setSpacing(5);
+                newCourseVBox.setAlignment(Pos.CENTER);
 
-                    // VBox
-                    VBox newCourseVBox = new VBox(courseNameText, courseButton);
-                    newCourseVBox.setSpacing(5);
-                    newCourseVBox.setAlignment(Pos.CENTER);
-
-                    lobbyCoursesVBox.getChildren().add(newCourseVBox);
-                }
-            } else {
-                System.out.println(new NoCoursesException().getMessage());
+                lobbyCoursesVBox.getChildren().add(newCourseVBox);
             }
-        });
+        } else {
+            System.out.println(new NoCoursesException().getMessage());
+        }
     }
 
     /**
@@ -459,14 +467,14 @@ public class MultiplayerMenuView implements Observer {
     private boolean canReadyOrStart() {
         if (serverDataManager.getLocalPlayer().getPlayerName() == null || serverDataManager.getLocalPlayer().getRobotName() == null || serverDataManager.getLocalPlayer().getPlayerName().isBlank() || serverDataManager.getLocalPlayer().getRobotName().isBlank() || Robots.getRobotByName(serverDataManager.getLocalPlayer().getRobotName()) == null) return false;
         if (selectedCourse == null) return false;
-        for (Player player : this.players.values()) {
+        for (Player player : players.values()) {
             if (player.getPlayerId() != serverDataManager.getLocalPlayer().getPlayerId()) {
                 if (serverDataManager.getLocalPlayer().getPlayerName().equals(player.getPlayerName())) return false;
                 if (serverDataManager.getLocalPlayer().getRobotName().equals(player.getRobotName())) return false;
             }
         }
         if (serverDataManager.isHost()) {
-            for (Player player : this.players.values()) {
+            for (Player player : players.values()) {
                 if (player.getPlayerId() != serverDataManager.getLocalPlayer().getPlayerId()) {
                     if (player.getReadyForPhase() != GamePhase.INITIALIZATION) {
                         return false;
@@ -498,42 +506,23 @@ public class MultiplayerMenuView implements Observer {
     @Override
     public void update(Subject subject) {
         if (subject == serverDataManager) {
-            if (appController.isGameRunning()) return;
             if (serverDataManager.isConnectedToServer()) {
-                // Setting up the lobby
-                if (!hasBeenSetup) {
-                    setupLobby();
-                }
-                // Updating data
-                Game updatedGame = null;
-                Map<Long, Player> updatedPlayers = null;
-                if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.GAME)) {
-                    updatedGame = serverDataManager.getUpdatedGame();
-                }
-                if (ServerDataManager.getChangedData().contains(NetworkedDataTypes.PLAYERS)) {
-                    updatedPlayers = serverDataManager.getUpdatedPlayerMap();
-                }
-
-                // Updating lobby
-                updateLobby(updatedGame, updatedPlayers);
-                showLobby(true);
-
-                // Check if game started
-                if (this.game != null) {
-                    if (this.game.getPhase() != GamePhase.LOBBY) {
-                        if (this.players != null) {
-                            startGame();
-                        }
-                    }
-                }
+                if (appController.isGameRunning()) return;
+                updateLobby();
             } else {
-                hasBeenSetup = false;
-                showLobby(false);
-                this.players = null;
-                this.game = null;
-                hasStartedGameLocally = false;
-                selectedCourse = null;
+                resetLobby();
             }
+        }
+    }
+
+    private void resetLobby() {
+        if (hasBeenSetup) {
+            hasBeenSetup = false;
+            showLobby(false);
+            players = null;
+            game = null;
+            hasStartedGameLocally = false;
+            selectedCourse = null;
         }
     }
 
@@ -541,7 +530,7 @@ public class MultiplayerMenuView implements Observer {
         Platform.runLater(() -> {
             if (!hasStartedGameLocally) {
                 hasStartedGameLocally = true;
-                appController.startGame(selectedCourse, this.players, serverDataManager.getLocalPlayer().getPlayerId());
+                appController.startGame(selectedCourse, players, serverDataManager.getLocalPlayer().getPlayerId());
             }
         });
     }

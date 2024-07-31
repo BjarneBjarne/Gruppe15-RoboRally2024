@@ -24,17 +24,17 @@ public class InteractionController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addInteraction(@RequestBody InteractionDTO interactionDTO) {
-        Interaction interaction = new Interaction(interactionDTO.playerId(), interactionDTO.interaction(), interactionDTO.turn(), interactionDTO.movement());
+        Interaction interaction = new Interaction(interactionDTO.playerId(), interactionDTO.interaction(), interactionDTO.interactionNo());
         interactionRepository.save(interaction);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/{playerId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Interaction> getInteraction(@PathVariable("playerId") long playerId, @RequestParam("turn") int turn, @RequestParam("movement") int movement) {
-        if (!interactionRepository.existsByPlayerIdAndTurnAndMovement(playerId, turn, movement)) {
+    public ResponseEntity<Interaction> getInteraction(@PathVariable("playerId") long playerId, @RequestParam("interactionNo") int interactionNo) {
+        if (!interactionRepository.existsByPlayerIdAndInteractionNo(playerId, interactionNo)) {
             return ResponseEntity.ok(null);
         }
-        Interaction interaction = interactionRepository.findByPlayerIdAndTurnAndMovement(playerId, turn, movement);
+        Interaction interaction = interactionRepository.findByPlayerIdAndInteractionNo(playerId, interactionNo);
         return ResponseEntity.ok(interaction);
     }
 

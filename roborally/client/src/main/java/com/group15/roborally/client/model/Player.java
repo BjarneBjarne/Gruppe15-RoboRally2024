@@ -295,42 +295,34 @@ public class Player extends Subject {
 
     public void updateUpgradeCards(String[] permCardsStr, String[] tempCardsStr, GameController gameController) {
         // Remove cards that are no longer present
-        upgradeCards.forEach(upgradeCard -> {
-            if (upgradeCard instanceof UpgradeCardPermanent) {
-                if (permCardsStr != null) {
-                    if (Arrays.stream(permCardsStr).noneMatch(cardStr -> cardStr != null && cardStr.equals(upgradeCard.getEnum().name()))) {
-                        removeUpgradeCard(upgradeCard);
-                        System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
-                    }
+        Iterator<UpgradeCard> iterator = upgradeCards.iterator();
+        while (iterator.hasNext()) {
+            UpgradeCard upgradeCard = iterator.next();
+            if (permCardsStr != null && upgradeCard instanceof UpgradeCardPermanent) {
+                if (Arrays.stream(permCardsStr).allMatch(cardStr -> cardStr == null || cardStr.equals(upgradeCard.getEnum().name()))) {
+                    iterator.remove();
+                    System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
                 }
-            } else if (upgradeCard instanceof UpgradeCardTemporary) {
-                if (tempCardsStr != null) {
-                    if (Arrays.stream(tempCardsStr).noneMatch(cardStr -> cardStr != null && cardStr.equals(upgradeCard.getEnum().name()))) {
-                        removeUpgradeCard(upgradeCard);
-                        System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
-                    }
+            } else if (tempCardsStr != null && upgradeCard instanceof UpgradeCardTemporary) {
+                if (Arrays.stream(tempCardsStr).noneMatch(cardStr -> cardStr != null && cardStr.equals(upgradeCard.getEnum().name()))) {
+                    iterator.remove();
+                    System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
                 }
             }
-        });
+        }
 
         // Ensure that present cards are added and initialized
-        if (permCardsStr != null) {
-            addAndInitializeNewCards(permCardsStr, gameController);
-        }
-        if (tempCardsStr != null) {
-            addAndInitializeNewCards(tempCardsStr, gameController);
-        }
+        addAndInitializeNewCards(permCardsStr, gameController);
+        addAndInitializeNewCards(tempCardsStr, gameController);
 
         // Ensure that present cards are set at the correct position.
-        if (permCardsStr != null) {
-            updateUpgradeCardPositions(permCardsStr, NO_OF_PERMANENT_UPGRADE_CARDS, permanentUpgradeCardFields);
-        }
-        if (tempCardsStr != null) {
-            updateUpgradeCardPositions(tempCardsStr, NO_OF_TEMPORARY_UPGRADE_CARDS, temporaryUpgradeCardFields);
-        }
+        updateUpgradeCardPositions(permCardsStr, NO_OF_PERMANENT_UPGRADE_CARDS, permanentUpgradeCardFields);
+        updateUpgradeCardPositions(tempCardsStr, NO_OF_TEMPORARY_UPGRADE_CARDS, temporaryUpgradeCardFields);
     }
 
     private void addAndInitializeNewCards(String[] cardsStr, GameController gameController) {
+        if (cardsStr == null) return;
+
         for (String cardStr : cardsStr) {
             if (cardStr == null) continue;
             if (upgradeCards.stream().noneMatch(upgradeCard -> upgradeCard.getEnum().name().equals(cardStr))) {
@@ -343,6 +335,8 @@ public class Player extends Subject {
     }
 
     private void updateUpgradeCardPositions(String[] cardsStr, int noOfUpgradeCards, CardField[] upgradeCardFields) {
+        if (cardsStr == null) return;
+
         for (int i = 0; i < noOfUpgradeCards; i++) {
             UpgradeCard upgradeCardAtPosition = null;
             if (cardsStr[i] != null) {
@@ -375,7 +369,6 @@ public class Player extends Subject {
         } catch (Exception e) {
             System.out.println("ERROR - Attempt to buy upgrade card from shopField failed.");
             System.out.println(e.getMessage());
-
         }
 
         return boughtCard != null;
@@ -424,13 +417,9 @@ public class Player extends Subject {
     }
 
     public void removeUpgradeCard(UpgradeCard upgradeCard) {
-        try {
-            if (!upgradeCards.contains(upgradeCard)) {
-                throw new IllegalPlayerPropertyAccess("ERROR - Attempted to remove upgradeCard: \"" + upgradeCard.getDisplayName() + "\" that player: \"" + name + "\" doesn't own.");
-            }
-            // Removing player as owner of card and removes card events from EventHandler.
-            upgradeCard.unInitialize();
+        if (!upgradeCards.contains(upgradeCard)) return;
 
+        try {
             // Return to shop
             board.getUpgradeShop().returnCardToShop(upgradeCard);
             System.out.println("Player: \"" + name + "\" returned: \"" + upgradeCard.getDisplayName() + "\" to the shop.");
@@ -439,21 +428,22 @@ public class Player extends Subject {
             upgradeCards.remove(upgradeCard);
             if (upgradeCard instanceof UpgradeCardPermanent) {
                 for (CardField cardField : permanentUpgradeCardFields) {
-                    if (cardField.getCard().equals(upgradeCard)) {
+                    if (upgradeCard.equals(cardField.getCard())) {
                         cardField.setCard(null);
                     }
                 }
             } else if (upgradeCard instanceof UpgradeCardTemporary) {
                 for (CardField cardField : temporaryUpgradeCardFields) {
-                    if (cardField.getCard().equals(upgradeCard)) {
+                    if (upgradeCard.equals(cardField.getCard())) {
                         cardField.setCard(null);
                     }
                 }
             }
+            // Removes the player as owner of the card and removes card events from EventHandler.
+            upgradeCard.unInitialize();
         } catch (NullPointerException e) {
             System.out.println("ERROR - Attempted to remove upgradeCard of value NULL from player: \"" + name + "\".");
-        } catch (IllegalPlayerPropertyAccess e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -28,6 +28,7 @@ public class Player {
     private int[] spawnPoint;
     private String spawnDirection;
     private GamePhase readyForPhase = GamePhase.LOBBY;
+    private int phaseCount = 0;
 
     private String[] permCards;
     private String[] tempCards;
@@ -57,7 +58,8 @@ public class Player {
                 this.playerId != otherPlayerState.playerId ||
                 !Objects.equals(this.robotName, otherPlayerState.robotName) ||
                 !Objects.equals(this.playerName, otherPlayerState.playerName) ||
-                this.readyForPhase != otherPlayerState.readyForPhase ||
+                !this.readyForPhase.equals(otherPlayerState.readyForPhase) ||
+                this.phaseCount != otherPlayerState.phaseCount ||
                 !Arrays.equals(this.spawnPoint, otherPlayerState.spawnPoint) ||
                 !Objects.equals(this.spawnDirection, otherPlayerState.spawnDirection);
     }

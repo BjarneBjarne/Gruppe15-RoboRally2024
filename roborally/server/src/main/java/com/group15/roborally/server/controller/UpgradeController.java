@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -29,22 +30,6 @@ public class UpgradeController {
         this.upgradeShopRepository = upgradeShopRepository;
     }
 
-    /**
-     * Endpoint to get the priority of who will upgrade next, in a game
-     * 
-     * @author  Marcus Rémi Lemser Eychenne, s230985
-     * 
-     * @param gameId - the id of the game
-     * 
-     * @return ResponseEntity<Integer> - the priority number of who will upgrade next
-     */
-    @GetMapping(value = "/{gameId}/turn", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Integer> getTurn(@PathVariable("gameId") String gameId) {
-        UpgradeShop upgradeShop = upgradeShopRepository.findByGameId(gameId);
-        if (upgradeShop == null) return ResponseEntity.status(422).build();
-
-        return ResponseEntity.ok().body(upgradeShop.getTurn());
-    }
 
     /**
      * Endpoint to get the upgradeShop of a game
@@ -56,29 +41,33 @@ public class UpgradeController {
      * @return ResponseEntity<UpgradeShop> - the upgradeShop of the game
      */
     @GetMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String[]> getUpgradeShop(@PathVariable("gameId") String gameId) {
+    public ResponseEntity<UpgradeShop> getUpgradeShop(@PathVariable("gameId") String gameId) {
         UpgradeShop upgradeShop = upgradeShopRepository.findByGameId(gameId);
-        if (upgradeShop == null) return ResponseEntity.status(422).build();
+        if (upgradeShop == null) return ResponseEntity.status(404).build();
 
-        String[] upgradeShopCards = upgradeShop.getCards();
-        return ResponseEntity.ok().body(upgradeShopCards);
+        return ResponseEntity.ok().body(upgradeShop);
     }
 
     /**
      * Endpoint to update the upgradeShop of a game
      * 
-     * @param upgradeShopCards - the cards to be updated in the upgradeShop
+     * @param upgradeShop - the updated upgradeShop
      * 
      * @param gameId - the id of the game
      * 
      * @return ResponseEntity<String> - a message indicating the success of the operation
      */
-    @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postUpgradeShop(@RequestBody String[] upgradeShopCards, @PathVariable("gameId") String gameId) {
-        UpgradeShop upgradeShop = upgradeShopRepository.findByGameId(gameId);
+    @PutMapping(value = "/{gameId}/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> postUpgradeShop(@RequestBody UpgradeShop upgradeShop, @PathVariable("gameId") String gameId, @PathVariable("turn") int turn) {
         if (upgradeShop == null) return ResponseEntity.notFound().build();
+        if (!gameRepository.existsById(gameId)) return ResponseEntity.notFound().build();
+        if (!Objects.equals(upgradeShop.getGameId(), gameId)) return ResponseEntity.status(422).build();
+        if (upgradeShopRepository.findByGameId(gameId) == null) return ResponseEntity.notFound().build();
 
-        upgradeShop.setCards(upgradeShopCards); 
+        if (upgradeShop.getTurn() < turn) {
+            upgradeShop.setTurn(turn);
+        }
+
         upgradeShopRepository.save(upgradeShop);
         return ResponseEntity.ok().build();
     }

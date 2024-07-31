@@ -59,7 +59,7 @@ public class GameController {
 
         UpgradeShop upgradeShop = new UpgradeShop();
         upgradeShop.setGameId(game.getGameId());
-        upgradeShop.setTurn(0);
+        upgradeShop.setTurn(-1);
         upgradeShopRepository.save(upgradeShop);
 
         return ResponseEntity.ok(game.getGameId());
@@ -92,6 +92,7 @@ public class GameController {
         boolean isHost = game.getNrOfPlayers() == 0;
         if (isHost) {
             game.setHostId(player.getPlayerId());
+            gameRepository.save(game);
         }
         gameRepository.findById(gameId).ifPresent(this::updateNoOfPlayersByGame);
 

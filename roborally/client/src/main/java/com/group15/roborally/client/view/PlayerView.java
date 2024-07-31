@@ -356,7 +356,7 @@ public class PlayerView extends StackPane implements ViewObserver {
                     interactionPane.getChildren().add(readyPanel);
                 }
                 if (board.getCurrentPhase() == PROGRAMMING) {
-                    boolean disableReadyButton = gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty();
+                    boolean disableReadyButton = gameController.getIsLocalPlayerReadyForNextPhase() || !gameController.getUnresolvedLocalChoices().isEmpty() && !gameController.isHandlingPrePhase();
                     readyButton.setDisable(disableReadyButton);
                 } else {
                     readyButton.setDisable(true);

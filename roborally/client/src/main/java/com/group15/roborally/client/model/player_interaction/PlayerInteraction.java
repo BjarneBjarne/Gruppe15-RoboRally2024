@@ -20,8 +20,7 @@ public abstract class PlayerInteraction {
         gameController.getServerDataManager().waitForInteractionAndCallback(
                 gameController::continueFromInteraction,
                 gameController.getCurrentPlayerInteraction().getPlayer().getPlayerId(),
-                gameController.getTurnCounter(),
-                gameController.getMovementCounter()
+                gameController.getInteractionCounter()
         );
     }
     public void interactionFinished() {

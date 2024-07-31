@@ -66,8 +66,6 @@ public class ProgController {
             gameRepository.save(game);
         }
 
-        //System.out.println("Inserted register " + register);
-
         registerRepository.save(register);
         return ResponseEntity.ok().build();
     }
@@ -80,16 +78,14 @@ public class ProgController {
      * @param gameId
      * @return ResponseEntity<List<Register>>
      */
-    @GetMapping(value = "/games/{gameId}/registers", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") String gameId) {
+    @GetMapping(value = "/games/{gameId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") String gameId, @PathVariable("turn") int turn) {
         //System.out.println("Finding registers for game " + gameId);
         if (!gameRepository.existsById(gameId)) return ResponseEntity.status(404).build();
 
-        int currentTurn = gameRepository.findByGameId(gameId).getTurnId();
-        List<Register> registers = registerRepository.findAllByGameIdAndTurn(gameId, currentTurn);
+        List<Register> registers = registerRepository.findAllByGameIdAndTurn(gameId, turn);
 
         //System.out.println("Found " + registers.size() + " registers");
-
         return ResponseEntity.ok(registers);
     }
 }
