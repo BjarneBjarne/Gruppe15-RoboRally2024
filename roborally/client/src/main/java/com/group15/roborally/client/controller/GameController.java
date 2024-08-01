@@ -129,10 +129,32 @@ public class GameController {
         serverDataManager.setCurrentInteractionCount(interactionCounter);
         updateDebuggingOfCounters();
     }
-
-
     private void updateDebuggingOfCounters() {
         RoboRally.setDebugText(4, "Turn counter: " + turnCounter + ", wait counter: " + waitCounter + ", interaction counter: " + interactionCounter + ", phase counter: " + phaseCounter);
+    }
+
+
+
+    private void startNextPhase() {
+        System.out.println();
+
+        incrementPhaseCounter();
+        handlingPrePhase = true;
+        GamePhase newPhase = board.getNextPhase();
+        if (serverDataManager.isHost()) {
+            serverDataManager.setGamePhase(newPhase);
+        }
+        board.setCurrentPhase(newPhase);
+        serverDataManager.setCurrentPhase(newPhase);
+        RoboRally.setDebugText(2, "GamePhase: " + board.getCurrentPhase());
+        handlingPrePhase = false;
+
+        switch (board.getCurrentPhase()) {
+            case GamePhase.PROGRAMMING -> startProgrammingPhase();
+            case GamePhase.PLAYER_ACTIVATION -> startPlayerActivationPhase();
+            case GamePhase.BOARD_ACTIVATION -> startBoardActivationPhase();
+            case GamePhase.UPGRADE -> startUpgradingPhase();
+        }
     }
 
     /**
@@ -488,7 +510,7 @@ public class GameController {
         board.queueBoardElementsWithIndex(this, 1, "Green conveyor belts");
         board.queueBoardElementsWithIndex(this, 2, "Push panels");
         board.queueBoardElementsWithIndex(this, 3, "Gears");
-        board.queueBoardElementsWithIndex(this, 4, "Board lasers");
+        board.queueBoardLasers(this);
         board.queueClearLasers();
         board.queuePlayerLasers();
         board.queueClearLasers();
@@ -762,6 +784,7 @@ public class GameController {
                 Choice.ResolveStatus.NONE.name() : Choice.ResolveStatus.UNRESOLVED.name();
         ChoiceDTO choiceDTO = new ChoiceDTO(latestGameData.getGameId(), localPlayer.getPlayerId(), upgradeCard.getEnum().name(), waitCounter, resolveStatus);
         unresolvedLocalChoices.add(choiceDTO);
+        RoboRally.setDebugText(6, "unresolvedLocalChoices: " + unresolvedLocalChoices.size());
         board.updateBoard();
         serverDataManager.setChoice(choiceDTO);
     }
@@ -820,6 +843,12 @@ public class GameController {
             removeResolvedChoices();
         }
 
+        List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
+        unhandledChoices.removeAll(executedChoices);
+        RoboRally.setDebugText(5, "Unhandled choices: " + unhandledChoices.size() + ", executed choices: " + executedChoices.size());
+
+        RoboRally.setDebugText(6, "unresolvedLocalChoices: " + unresolvedLocalChoices.size());
+
         // Update the current local phase.
         updateCurrentGamePhase();
     }
@@ -859,7 +888,7 @@ public class GameController {
 
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
         if (canStartNextPhase()) {
-            handlePrePhase();
+            startNextPhase();
         }
     }
 
@@ -985,35 +1014,6 @@ public class GameController {
         }
         RoboRally.setDebugText(0, "allAreReady: " + allAreReady);
         return allAreReady;
-    }
-
-    private void handlePrePhase() {
-        System.out.println();
-
-        incrementPhaseCounter();
-        handlingPrePhase = true;
-        RoboRally.setDebugText(6, "handlingPrePhase: " + true);
-        GamePhase newPhase = board.getNextPhase();
-        if (serverDataManager.isHost()) {
-            serverDataManager.setGamePhase(newPhase);
-        }
-        board.setCurrentPhase(newPhase);
-        serverDataManager.setCurrentPhase(newPhase);
-        RoboRally.setDebugText(2, "GamePhase: " + newPhase);
-
-        startNextPhase();
-    }
-
-    private void startNextPhase() {
-        handlingPrePhase = false;
-        RoboRally.setDebugText(6, "handlingPrePhase: " + false);
-
-        switch (board.getCurrentPhase()) {
-            case GamePhase.PROGRAMMING -> startProgrammingPhase();
-            case GamePhase.PLAYER_ACTIVATION -> startPlayerActivationPhase();
-            case GamePhase.BOARD_ACTIVATION -> startBoardActivationPhase();
-            case GamePhase.UPGRADE -> startUpgradingPhase();
-        }
     }
 
     private void executeUnhandledUpgradeCards() {

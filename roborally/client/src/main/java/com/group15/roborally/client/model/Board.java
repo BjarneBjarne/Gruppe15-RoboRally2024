@@ -321,6 +321,14 @@ public class Board extends Subject {
         }, 200, debugBoardElementName));
     }
 
+    public void queueBoardLasers(GameController gameController) {
+        for (Space space : boardElementsSpaces[4]) {
+            boardActionQueue.addLast(new ActionWithDelay(() -> {
+                space.getBoardElement().doAction(space, gameController, boardActionQueue);
+            }, 200, "Board laser"));
+        }
+    }
+
     public void queueClearLasers() {
         boardActionQueue.addLast(new ActionWithDelay(() -> {
             for (Space[] space : spaces) {
