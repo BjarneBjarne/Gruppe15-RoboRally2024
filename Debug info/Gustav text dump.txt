@@ -1,0 +1,3644 @@
+Creating new game...
+	Executing action -> {
+		Creating new game
+	}, initCounter: 1, execCounter: 1
+	Executing action -> {
+		Successfully created new game
+	}, initCounter: 2, execCounter: 2
+Successfully created new game!
+Game ID: BMPS
+
+Joining game...
+	Executing action -> {
+		Joining game with gameId: "BMPS" with playerName: "Gustav".
+	}, initCounter: 3, execCounter: 3
+	Executing action -> {
+		Successfully joined game
+	}, initCounter: 4, execCounter: 4
+Successfully joined game!
+Player name: Gustav
+Is host? true
+Starting game...
+
+
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 5, execCounter: 5
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 6, execCounter: 6
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 22, execCounter: 7
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 22, execCounter: 8
+	Executing action -> {
+		Push panels
+	}, initCounter: 22, execCounter: 9
+	Executing action -> {
+		Gears
+	}, initCounter: 22, execCounter: 10
+	Executing action -> {
+		Board laser
+	}, initCounter: 22, execCounter: 11
+	Executing action -> {
+		Board laser
+	}, initCounter: 22, execCounter: 12
+	Executing action -> {
+		Board laser
+	}, initCounter: 22, execCounter: 13
+	Executing action -> {
+		Board laser
+	}, initCounter: 22, execCounter: 14
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 22, execCounter: 15
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 22, execCounter: 16
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 22, execCounter: 17
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 22, execCounter: 18
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 22, execCounter: 19
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 22, execCounter: 20
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 22, execCounter: 21
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 22, execCounter: 22
+
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 23, execCounter: 23
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 25, execCounter: 24
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 25, execCounter: 25
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 41, execCounter: 26
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 41, execCounter: 27
+	Executing action -> {
+		Push panels
+	}, initCounter: 41, execCounter: 28
+	Executing action -> {
+		Gears
+	}, initCounter: 41, execCounter: 29
+	Executing action -> {
+		Board laser
+	}, initCounter: 41, execCounter: 30
+	Executing action -> {
+		Board laser
+	}, initCounter: 41, execCounter: 31
+	Executing action -> {
+		Board laser
+	}, initCounter: 41, execCounter: 32
+	Executing action -> {
+		Board laser
+	}, initCounter: 41, execCounter: 33
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 41, execCounter: 34
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 41, execCounter: 35
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 41, execCounter: 36
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 41, execCounter: 37
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 41, execCounter: 38
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 41, execCounter: 39
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 41, execCounter: 40
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 41, execCounter: 41
+
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 43, execCounter: 42
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 43, execCounter: 43
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 44, execCounter: 44
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 60, execCounter: 45
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 60, execCounter: 46
+	Executing action -> {
+		Push panels
+	}, initCounter: 60, execCounter: 47
+	Executing action -> {
+		Gears
+	}, initCounter: 60, execCounter: 48
+	Executing action -> {
+		Board laser
+	}, initCounter: 60, execCounter: 49
+	Executing action -> {
+		Board laser
+	}, initCounter: 60, execCounter: 50
+	Executing action -> {
+		Board laser
+	}, initCounter: 60, execCounter: 51
+	Executing action -> {
+		Board laser
+	}, initCounter: 60, execCounter: 52
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 60, execCounter: 53
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 60, execCounter: 54
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 60, execCounter: 55
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 60, execCounter: 56
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 60, execCounter: 57
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 60, execCounter: 58
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 60, execCounter: 59
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 60, execCounter: 60
+
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 63, execCounter: 61
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 63, execCounter: 62
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 63, execCounter: 63
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 64, execCounter: 64
+Gustav rebooting.
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 80, execCounter: 65
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 80, execCounter: 66
+	Executing action -> {
+		Push panels
+	}, initCounter: 80, execCounter: 67
+	Executing action -> {
+		Gears
+	}, initCounter: 80, execCounter: 68
+	Executing action -> {
+		Board laser
+	}, initCounter: 80, execCounter: 69
+	Executing action -> {
+		Board laser
+	}, initCounter: 80, execCounter: 70
+	Executing action -> {
+		Board laser
+	}, initCounter: 80, execCounter: 71
+	Executing action -> {
+		Board laser
+	}, initCounter: 80, execCounter: 72
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 80, execCounter: 73
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 80, execCounter: 74
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 80, execCounter: 75
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 80, execCounter: 76
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 80, execCounter: 77
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 80, execCounter: 78
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 80, execCounter: 79
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 80, execCounter: 80
+
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 82, execCounter: 81
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 82, execCounter: 82
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 98, execCounter: 83
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 98, execCounter: 84
+	Executing action -> {
+		Push panels
+	}, initCounter: 98, execCounter: 85
+	Executing action -> {
+		Gears
+	}, initCounter: 98, execCounter: 86
+	Executing action -> {
+		Board laser
+	}, initCounter: 98, execCounter: 87
+	Executing action -> {
+		Board laser
+	}, initCounter: 98, execCounter: 88
+	Executing action -> {
+		Board laser
+	}, initCounter: 98, execCounter: 89
+	Executing action -> {
+		Board laser
+	}, initCounter: 98, execCounter: 90
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 98, execCounter: 91
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 98, execCounter: 92
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 98, execCounter: 93
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 98, execCounter: 94
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 98, execCounter: 95
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 98, execCounter: 96
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 98, execCounter: 97
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 98, execCounter: 98
+Gustav stopped rebooting.
+
+Player: "Gustav" bought: "Spam Folder Routine".
+Added Manual Sort to player: "aaaa".
+Shop is empty. Readying up for next phase.
+
+Player: "Gustav" used UpgradeCard: "Spam Folder Routine".
+Player: "Gustav" returned: "Spam Folder Routine" to the shop.
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 99, execCounter: 99
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 100, execCounter: 100
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 101, execCounter: 101
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 103, execCounter: 102
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 103, execCounter: 103
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 119, execCounter: 104
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 119, execCounter: 105
+	Executing action -> {
+		Push panels
+	}, initCounter: 119, execCounter: 106
+	Executing action -> {
+		Gears
+	}, initCounter: 119, execCounter: 107
+	Executing action -> {
+		Board laser
+	}, initCounter: 119, execCounter: 108
+	Executing action -> {
+		Board laser
+	}, initCounter: 119, execCounter: 109
+	Executing action -> {
+		Board laser
+	}, initCounter: 119, execCounter: 110
+	Executing action -> {
+		Board laser
+	}, initCounter: 119, execCounter: 111
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 119, execCounter: 112
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 119, execCounter: 113
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 119, execCounter: 114
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 119, execCounter: 115
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 119, execCounter: 116
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 119, execCounter: 117
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 119, execCounter: 118
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 119, execCounter: 119
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 120, execCounter: 120
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 122, execCounter: 121
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 122, execCounter: 122
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 123, execCounter: 123
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 125, execCounter: 124
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 125, execCounter: 125
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 141, execCounter: 126
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 141, execCounter: 127
+	Executing action -> {
+		Push panels
+	}, initCounter: 141, execCounter: 128
+	Executing action -> {
+		Gears
+	}, initCounter: 141, execCounter: 129
+	Executing action -> {
+		Board laser
+	}, initCounter: 141, execCounter: 130
+	Executing action -> {
+		Board laser
+	}, initCounter: 141, execCounter: 131
+	Executing action -> {
+		Board laser
+	}, initCounter: 141, execCounter: 132
+	Executing action -> {
+		Board laser
+	}, initCounter: 141, execCounter: 133
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 141, execCounter: 134
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 141, execCounter: 135
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 141, execCounter: 136
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 141, execCounter: 137
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 141, execCounter: 138
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 141, execCounter: 139
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 141, execCounter: 140
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 141, execCounter: 141
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 142, execCounter: 142
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 143, execCounter: 143
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 144, execCounter: 144
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 145, execCounter: 145
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 161, execCounter: 146
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 161, execCounter: 147
+	Executing action -> {
+		Push panels
+	}, initCounter: 161, execCounter: 148
+	Executing action -> {
+		Gears
+	}, initCounter: 161, execCounter: 149
+	Executing action -> {
+		Board laser
+	}, initCounter: 161, execCounter: 150
+	Executing action -> {
+		Board laser
+	}, initCounter: 161, execCounter: 151
+	Executing action -> {
+		Board laser
+	}, initCounter: 161, execCounter: 152
+	Executing action -> {
+		Board laser
+	}, initCounter: 161, execCounter: 153
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 161, execCounter: 154
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 161, execCounter: 155
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 161, execCounter: 156
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 161, execCounter: 157
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 161, execCounter: 158
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 161, execCounter: 159
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 161, execCounter: 160
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 161, execCounter: 161
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 162, execCounter: 162
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 163, execCounter: 163
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 164, execCounter: 164
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 165, execCounter: 165
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 181, execCounter: 166
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 181, execCounter: 167
+	Executing action -> {
+		Push panels
+	}, initCounter: 181, execCounter: 168
+	Executing action -> {
+		Gears
+	}, initCounter: 181, execCounter: 169
+	Executing action -> {
+		Board laser
+	}, initCounter: 181, execCounter: 170
+	Executing action -> {
+		Board laser
+	}, initCounter: 181, execCounter: 171
+	Executing action -> {
+		Board laser
+	}, initCounter: 181, execCounter: 172
+	Executing action -> {
+		Board laser
+	}, initCounter: 181, execCounter: 173
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 181, execCounter: 174
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 181, execCounter: 175
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 181, execCounter: 176
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 181, execCounter: 177
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 181, execCounter: 178
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 181, execCounter: 179
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 181, execCounter: 180
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 181, execCounter: 181
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 182, execCounter: 182
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 183, execCounter: 183
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 184, execCounter: 184
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 185, execCounter: 185
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 201, execCounter: 186
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 201, execCounter: 187
+	Executing action -> {
+		Push panels
+	}, initCounter: 201, execCounter: 188
+	Executing action -> {
+		Gears
+	}, initCounter: 201, execCounter: 189
+	Executing action -> {
+		Board laser
+	}, initCounter: 201, execCounter: 190
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 202, execCounter: 191
+	Executing action -> {
+		Board laser
+	}, initCounter: 202, execCounter: 192
+	Executing action -> {
+		Board laser
+	}, initCounter: 202, execCounter: 193
+	Executing action -> {
+		Board laser
+	}, initCounter: 202, execCounter: 194
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 202, execCounter: 195
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 202, execCounter: 196
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 202, execCounter: 197
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 202, execCounter: 198
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 202, execCounter: 199
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 202, execCounter: 200
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 202, execCounter: 201
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 202, execCounter: 202
+
+Added Firewall to player: "aaaa".
+Player: "Gustav" bought: "Mini Howitzer".
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Shop is empty. Readying up for next phase.
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 203, execCounter: 203
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 204, execCounter: 204
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 205, execCounter: 205
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 206, execCounter: 206
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 222, execCounter: 207
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 222, execCounter: 208
+	Executing action -> {
+		Push panels
+	}, initCounter: 222, execCounter: 209
+	Executing action -> {
+		Gears
+	}, initCounter: 222, execCounter: 210
+	Executing action -> {
+		Board laser
+	}, initCounter: 222, execCounter: 211
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 223, execCounter: 212
+	Executing action -> {
+		Board laser
+	}, initCounter: 223, execCounter: 213
+	Executing action -> {
+		Board laser
+	}, initCounter: 223, execCounter: 214
+	Executing action -> {
+		Board laser
+	}, initCounter: 223, execCounter: 215
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 223, execCounter: 216
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 223, execCounter: 217
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 223, execCounter: 218
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 223, execCounter: 219
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 223, execCounter: 220
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 223, execCounter: 221
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 223, execCounter: 222
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 223, execCounter: 223
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 224, execCounter: 224
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 226, execCounter: 225
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 226, execCounter: 226
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 227, execCounter: 227
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 228, execCounter: 228
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 244, execCounter: 229
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 244, execCounter: 230
+	Executing action -> {
+		Push panels
+	}, initCounter: 244, execCounter: 231
+	Executing action -> {
+		Gears
+	}, initCounter: 244, execCounter: 232
+	Executing action -> {
+		Board laser
+	}, initCounter: 244, execCounter: 233
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 245, execCounter: 234
+	Executing action -> {
+		Board laser
+	}, initCounter: 245, execCounter: 235
+	Executing action -> {
+		Board laser
+	}, initCounter: 245, execCounter: 236
+	Executing action -> {
+		Board laser
+	}, initCounter: 245, execCounter: 237
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 245, execCounter: 238
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 245, execCounter: 239
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 245, execCounter: 240
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 245, execCounter: 241
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 245, execCounter: 242
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 245, execCounter: 243
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 245, execCounter: 244
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 245, execCounter: 245
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 246, execCounter: 246
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 248, execCounter: 247
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 248, execCounter: 248
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 249, execCounter: 249
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 252, execCounter: 250
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 252, execCounter: 251
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 252, execCounter: 252
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 268, execCounter: 253
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 268, execCounter: 254
+	Executing action -> {
+		Push panels
+	}, initCounter: 268, execCounter: 255
+	Executing action -> {
+		Gears
+	}, initCounter: 268, execCounter: 256
+	Executing action -> {
+		Board laser
+	}, initCounter: 268, execCounter: 257
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 269, execCounter: 258
+	Executing action -> {
+		Board laser
+	}, initCounter: 269, execCounter: 259
+	Executing action -> {
+		Board laser
+	}, initCounter: 269, execCounter: 260
+	Executing action -> {
+		Board laser
+	}, initCounter: 269, execCounter: 261
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 270, execCounter: 262
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 270, execCounter: 263
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 270, execCounter: 264
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 270, execCounter: 265
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 270, execCounter: 266
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 270, execCounter: 267
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 270, execCounter: 268
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 270, execCounter: 269
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 270, execCounter: 270
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 271, execCounter: 271
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 272, execCounter: 272
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 273, execCounter: 273
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 274, execCounter: 274
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 290, execCounter: 275
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 290, execCounter: 276
+	Executing action -> {
+		Push panels
+	}, initCounter: 290, execCounter: 277
+	Executing action -> {
+		Gears
+	}, initCounter: 290, execCounter: 278
+	Executing action -> {
+		Board laser
+	}, initCounter: 290, execCounter: 279
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 291, execCounter: 280
+	Executing action -> {
+		Board laser
+	}, initCounter: 291, execCounter: 281
+	Executing action -> {
+		Board laser
+	}, initCounter: 291, execCounter: 282
+	Executing action -> {
+		Board laser
+	}, initCounter: 291, execCounter: 283
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 291, execCounter: 284
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 291, execCounter: 285
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 291, execCounter: 286
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 291, execCounter: 287
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 291, execCounter: 288
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 291, execCounter: 289
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 291, execCounter: 290
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 291, execCounter: 291
+aaaa has reached checkpoint 1
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 292, execCounter: 292
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 293, execCounter: 293
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 294, execCounter: 294
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 295, execCounter: 295
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 311, execCounter: 296
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 311, execCounter: 297
+	Executing action -> {
+		Push panels
+	}, initCounter: 311, execCounter: 298
+	Executing action -> {
+		Gears
+	}, initCounter: 311, execCounter: 299
+	Executing action -> {
+		Board laser
+	}, initCounter: 311, execCounter: 300
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 312, execCounter: 301
+	Executing action -> {
+		Board laser
+	}, initCounter: 312, execCounter: 302
+	Executing action -> {
+		Board laser
+	}, initCounter: 312, execCounter: 303
+	Executing action -> {
+		Board laser
+	}, initCounter: 312, execCounter: 304
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 312, execCounter: 305
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 312, execCounter: 306
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 312, execCounter: 307
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 312, execCounter: 308
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 312, execCounter: 309
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 312, execCounter: 310
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 312, execCounter: 311
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 312, execCounter: 312
+
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Player: "Gustav" bought: "Recompile".
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+
+Player: "Gustav" used UpgradeCard: "Recompile".
+Player: "Gustav" returned: "Recompile" to the shop.
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 313, execCounter: 313
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 314, execCounter: 314
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 315, execCounter: 315
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 316, execCounter: 316
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 332, execCounter: 317
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 332, execCounter: 318
+	Executing action -> {
+		Push panels
+	}, initCounter: 332, execCounter: 319
+	Executing action -> {
+		Gears
+	}, initCounter: 332, execCounter: 320
+	Executing action -> {
+		Board laser
+	}, initCounter: 332, execCounter: 321
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 333, execCounter: 322
+	Executing action -> {
+		Board laser
+	}, initCounter: 333, execCounter: 323
+	Executing action -> {
+		Board laser
+	}, initCounter: 333, execCounter: 324
+	Executing action -> {
+		Board laser
+	}, initCounter: 333, execCounter: 325
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 333, execCounter: 326
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 333, execCounter: 327
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 333, execCounter: 328
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 333, execCounter: 329
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 333, execCounter: 330
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 333, execCounter: 331
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 333, execCounter: 332
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 333, execCounter: 333
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 334, execCounter: 334
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 335, execCounter: 335
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 336, execCounter: 336
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 337, execCounter: 337
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 353, execCounter: 338
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 353, execCounter: 339
+	Executing action -> {
+		Push panels
+	}, initCounter: 353, execCounter: 340
+	Executing action -> {
+		Gears
+	}, initCounter: 353, execCounter: 341
+	Executing action -> {
+		Board laser
+	}, initCounter: 353, execCounter: 342
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 354, execCounter: 343
+	Executing action -> {
+		Board laser
+	}, initCounter: 354, execCounter: 344
+	Executing action -> {
+		Board laser
+	}, initCounter: 354, execCounter: 345
+	Executing action -> {
+		Board laser
+	}, initCounter: 354, execCounter: 346
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 355, execCounter: 347
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 355, execCounter: 348
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 355, execCounter: 349
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 355, execCounter: 350
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 355, execCounter: 351
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 355, execCounter: 352
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 355, execCounter: 353
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 355, execCounter: 354
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 355, execCounter: 355
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 356, execCounter: 356
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 357, execCounter: 357
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 358, execCounter: 358
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 360, execCounter: 359
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 360, execCounter: 360
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 376, execCounter: 361
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 376, execCounter: 362
+	Executing action -> {
+		Push panels
+	}, initCounter: 376, execCounter: 363
+	Executing action -> {
+		Gears
+	}, initCounter: 376, execCounter: 364
+	Executing action -> {
+		Board laser
+	}, initCounter: 376, execCounter: 365
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 377, execCounter: 366
+	Executing action -> {
+		Board laser
+	}, initCounter: 377, execCounter: 367
+	Executing action -> {
+		Board laser
+	}, initCounter: 377, execCounter: 368
+	Executing action -> {
+		Board laser
+	}, initCounter: 377, execCounter: 369
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 377, execCounter: 370
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 377, execCounter: 371
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 377, execCounter: 372
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 377, execCounter: 373
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 377, execCounter: 374
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 377, execCounter: 375
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 377, execCounter: 376
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 377, execCounter: 377
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 378, execCounter: 378
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 379, execCounter: 379
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 380, execCounter: 380
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 381, execCounter: 381
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 397, execCounter: 382
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 397, execCounter: 383
+	Executing action -> {
+		Push panels
+	}, initCounter: 397, execCounter: 384
+	Executing action -> {
+		Gears
+	}, initCounter: 397, execCounter: 385
+	Executing action -> {
+		Board laser
+	}, initCounter: 397, execCounter: 386
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 398, execCounter: 387
+	Executing action -> {
+		Board laser
+	}, initCounter: 398, execCounter: 388
+	Executing action -> {
+		Board laser
+	}, initCounter: 398, execCounter: 389
+	Executing action -> {
+		Board laser
+	}, initCounter: 398, execCounter: 390
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 398, execCounter: 391
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 398, execCounter: 392
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 398, execCounter: 393
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 398, execCounter: 394
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 398, execCounter: 395
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 398, execCounter: 396
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 398, execCounter: 397
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 398, execCounter: 398
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 399, execCounter: 399
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 400, execCounter: 400
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 401, execCounter: 401
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 403, execCounter: 402
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 403, execCounter: 403
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 419, execCounter: 404
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 419, execCounter: 405
+	Executing action -> {
+		Push panels
+	}, initCounter: 419, execCounter: 406
+	Executing action -> {
+		Gears
+	}, initCounter: 419, execCounter: 407
+	Executing action -> {
+		Board laser
+	}, initCounter: 419, execCounter: 408
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 420, execCounter: 409
+	Executing action -> {
+		Board laser
+	}, initCounter: 420, execCounter: 410
+	Executing action -> {
+		Board laser
+	}, initCounter: 420, execCounter: 411
+	Executing action -> {
+		Board laser
+	}, initCounter: 420, execCounter: 412
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 420, execCounter: 413
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 420, execCounter: 414
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 420, execCounter: 415
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 420, execCounter: 416
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 420, execCounter: 417
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 420, execCounter: 418
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 420, execCounter: 419
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 420, execCounter: 420
+
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Removed Firewall from player: "aaaa".
+Added Firewall to player: "aaaa".
+Added Rail Gun to player: "aaaa".
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 421, execCounter: 421
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 422, execCounter: 422
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 423, execCounter: 423
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 424, execCounter: 424
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 440, execCounter: 425
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 440, execCounter: 426
+	Executing action -> {
+		Push panels
+	}, initCounter: 440, execCounter: 427
+	Executing action -> {
+		Gears
+	}, initCounter: 440, execCounter: 428
+	Executing action -> {
+		Board laser
+	}, initCounter: 440, execCounter: 429
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 441, execCounter: 430
+	Executing action -> {
+		Board laser
+	}, initCounter: 441, execCounter: 431
+	Executing action -> {
+		Board laser
+	}, initCounter: 441, execCounter: 432
+	Executing action -> {
+		Board laser
+	}, initCounter: 441, execCounter: 433
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 441, execCounter: 434
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 441, execCounter: 435
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 441, execCounter: 436
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Player: "aaaa" dealt Damage{[SPAM: 1], [TROJAN_HORSE: 0], [WORM: 0], [VIRUS: 0]} to player: "Gustav".
+	}, initCounter: 442, execCounter: 437
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 442, execCounter: 438
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 442, execCounter: 439
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 442, execCounter: 440
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 442, execCounter: 441
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 442, execCounter: 442
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 443, execCounter: 443
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 445, execCounter: 444
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 445, execCounter: 445
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 446, execCounter: 446
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 447, execCounter: 447
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 463, execCounter: 448
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 463, execCounter: 449
+	Executing action -> {
+		Push panels
+	}, initCounter: 463, execCounter: 450
+	Executing action -> {
+		Gears
+	}, initCounter: 463, execCounter: 451
+	Executing action -> {
+		Board laser
+	}, initCounter: 463, execCounter: 452
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 464, execCounter: 453
+	Executing action -> {
+		Board laser
+	}, initCounter: 464, execCounter: 454
+	Executing action -> {
+		Board laser
+	}, initCounter: 464, execCounter: 455
+	Executing action -> {
+		Board laser
+	}, initCounter: 464, execCounter: 456
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 464, execCounter: 457
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 464, execCounter: 458
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 464, execCounter: 459
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Player: "aaaa" dealt Damage{[SPAM: 1], [TROJAN_HORSE: 0], [WORM: 0], [VIRUS: 0]} to player: "Gustav".
+	}, initCounter: 465, execCounter: 460
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 465, execCounter: 461
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 465, execCounter: 462
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 465, execCounter: 463
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 465, execCounter: 464
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 465, execCounter: 465
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 466, execCounter: 466
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 467, execCounter: 467
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 468, execCounter: 468
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 469, execCounter: 469
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 485, execCounter: 470
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 485, execCounter: 471
+	Executing action -> {
+		Push panels
+	}, initCounter: 485, execCounter: 472
+	Executing action -> {
+		Gears
+	}, initCounter: 485, execCounter: 473
+	Executing action -> {
+		Board laser
+	}, initCounter: 485, execCounter: 474
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 486, execCounter: 475
+	Executing action -> {
+		Board laser
+	}, initCounter: 486, execCounter: 476
+	Executing action -> {
+		Board laser
+	}, initCounter: 486, execCounter: 477
+	Executing action -> {
+		Board laser
+	}, initCounter: 486, execCounter: 478
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 486, execCounter: 479
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 486, execCounter: 480
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 486, execCounter: 481
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 486, execCounter: 482
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 486, execCounter: 483
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 486, execCounter: 484
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 486, execCounter: 485
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 486, execCounter: 486
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 487, execCounter: 487
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 488, execCounter: 488
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 489, execCounter: 489
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 490, execCounter: 490
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 506, execCounter: 491
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 506, execCounter: 492
+	Executing action -> {
+		Push panels
+	}, initCounter: 506, execCounter: 493
+	Executing action -> {
+		Gears
+	}, initCounter: 506, execCounter: 494
+	Executing action -> {
+		Board laser
+	}, initCounter: 506, execCounter: 495
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 507, execCounter: 496
+	Executing action -> {
+		Board laser
+	}, initCounter: 507, execCounter: 497
+	Executing action -> {
+		Board laser
+	}, initCounter: 507, execCounter: 498
+	Executing action -> {
+		Board laser
+	}, initCounter: 507, execCounter: 499
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 507, execCounter: 500
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 507, execCounter: 501
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 507, execCounter: 502
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 507, execCounter: 503
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 507, execCounter: 504
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 507, execCounter: 505
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 507, execCounter: 506
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 507, execCounter: 507
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 508, execCounter: 508
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 509, execCounter: 509
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 510, execCounter: 510
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 511, execCounter: 511
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 527, execCounter: 512
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 527, execCounter: 513
+	Executing action -> {
+		Push panels
+	}, initCounter: 527, execCounter: 514
+	Executing action -> {
+		Gears
+	}, initCounter: 527, execCounter: 515
+	Executing action -> {
+		Board laser
+	}, initCounter: 527, execCounter: 516
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 528, execCounter: 517
+	Executing action -> {
+		Board laser
+	}, initCounter: 528, execCounter: 518
+	Executing action -> {
+		Board laser
+	}, initCounter: 528, execCounter: 519
+	Executing action -> {
+		Board laser
+	}, initCounter: 528, execCounter: 520
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 528, execCounter: 521
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 528, execCounter: 522
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 528, execCounter: 523
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 528, execCounter: 524
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 528, execCounter: 525
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 528, execCounter: 526
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 528, execCounter: 527
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 528, execCounter: 528
+
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 529, execCounter: 529
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 530, execCounter: 530
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 531, execCounter: 531
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 547, execCounter: 532
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 547, execCounter: 533
+	Executing action -> {
+		Push panels
+	}, initCounter: 547, execCounter: 534
+	Executing action -> {
+		Gears
+	}, initCounter: 547, execCounter: 535
+	Executing action -> {
+		Board laser
+	}, initCounter: 547, execCounter: 536
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 548, execCounter: 537
+	Executing action -> {
+		Board laser
+	}, initCounter: 548, execCounter: 538
+	Executing action -> {
+		Board laser
+	}, initCounter: 548, execCounter: 539
+	Executing action -> {
+		Board laser
+	}, initCounter: 548, execCounter: 540
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 548, execCounter: 541
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 548, execCounter: 542
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 548, execCounter: 543
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 548, execCounter: 544
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 548, execCounter: 545
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 548, execCounter: 546
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 548, execCounter: 547
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 548, execCounter: 548
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 549, execCounter: 549
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 552, execCounter: 550
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 552, execCounter: 551
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 552, execCounter: 552
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 553, execCounter: 553
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 554, execCounter: 554
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 570, execCounter: 555
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 570, execCounter: 556
+	Executing action -> {
+		Push panels
+	}, initCounter: 570, execCounter: 557
+	Executing action -> {
+		Gears
+	}, initCounter: 570, execCounter: 558
+	Executing action -> {
+		Board laser
+	}, initCounter: 570, execCounter: 559
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 571, execCounter: 560
+	Executing action -> {
+		Board laser
+	}, initCounter: 571, execCounter: 561
+	Executing action -> {
+		Board laser
+	}, initCounter: 571, execCounter: 562
+	Executing action -> {
+		Board laser
+	}, initCounter: 571, execCounter: 563
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 571, execCounter: 564
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 571, execCounter: 565
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 571, execCounter: 566
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 571, execCounter: 567
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 571, execCounter: 568
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 571, execCounter: 569
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 571, execCounter: 570
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 571, execCounter: 571
+aaaa has reached checkpoint 2
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 572, execCounter: 572
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 573, execCounter: 573
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 574, execCounter: 574
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 575, execCounter: 575
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 591, execCounter: 576
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 591, execCounter: 577
+	Executing action -> {
+		Push panels
+	}, initCounter: 591, execCounter: 578
+	Executing action -> {
+		Gears
+	}, initCounter: 591, execCounter: 579
+	Executing action -> {
+		Board laser
+	}, initCounter: 591, execCounter: 580
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 592, execCounter: 581
+	Executing action -> {
+		Board laser
+	}, initCounter: 592, execCounter: 582
+	Executing action -> {
+		Board laser
+	}, initCounter: 592, execCounter: 583
+	Executing action -> {
+		Board laser
+	}, initCounter: 592, execCounter: 584
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 592, execCounter: 585
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 592, execCounter: 586
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 592, execCounter: 587
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 592, execCounter: 588
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 592, execCounter: 589
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 592, execCounter: 590
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 592, execCounter: 591
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 592, execCounter: 592
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 593, execCounter: 593
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 594, execCounter: 594
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 596, execCounter: 595
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 596, execCounter: 596
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 612, execCounter: 597
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 612, execCounter: 598
+	Executing action -> {
+		Push panels
+	}, initCounter: 612, execCounter: 599
+	Executing action -> {
+		Gears
+	}, initCounter: 612, execCounter: 600
+	Executing action -> {
+		Board laser
+	}, initCounter: 612, execCounter: 601
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 613, execCounter: 602
+	Executing action -> {
+		Board laser
+	}, initCounter: 613, execCounter: 603
+	Executing action -> {
+		Board laser
+	}, initCounter: 613, execCounter: 604
+	Executing action -> {
+		Board laser
+	}, initCounter: 613, execCounter: 605
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 613, execCounter: 606
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 613, execCounter: 607
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 613, execCounter: 608
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 613, execCounter: 609
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 613, execCounter: 610
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 613, execCounter: 611
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 613, execCounter: 612
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 613, execCounter: 613
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 614, execCounter: 614
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 616, execCounter: 615
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 616, execCounter: 616
+aaaa rebooting.
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 617, execCounter: 617
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 618, execCounter: 618
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 634, execCounter: 619
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 634, execCounter: 620
+	Executing action -> {
+		Push panels
+	}, initCounter: 634, execCounter: 621
+	Executing action -> {
+		Gears
+	}, initCounter: 634, execCounter: 622
+	Executing action -> {
+		Board laser
+	}, initCounter: 634, execCounter: 623
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 635, execCounter: 624
+	Executing action -> {
+		Board laser
+	}, initCounter: 635, execCounter: 625
+	Executing action -> {
+		Board laser
+	}, initCounter: 635, execCounter: 626
+	Executing action -> {
+		Board laser
+	}, initCounter: 635, execCounter: 627
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 635, execCounter: 628
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 635, execCounter: 629
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 635, execCounter: 630
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 635, execCounter: 631
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 635, execCounter: 632
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 635, execCounter: 633
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 635, execCounter: 634
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 635, execCounter: 635
+aaaa stopped rebooting.
+
+No cards bought. Refreshing whole shop.
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 636, execCounter: 636
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 639, execCounter: 637
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 639, execCounter: 638
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 639, execCounter: 639
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 640, execCounter: 640
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 641, execCounter: 641
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 657, execCounter: 642
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 657, execCounter: 643
+	Executing action -> {
+		Push panels
+	}, initCounter: 657, execCounter: 644
+	Executing action -> {
+		Gears
+	}, initCounter: 657, execCounter: 645
+	Executing action -> {
+		Board laser
+	}, initCounter: 657, execCounter: 646
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 658, execCounter: 647
+	Executing action -> {
+		Board laser
+	}, initCounter: 658, execCounter: 648
+	Executing action -> {
+		Board laser
+	}, initCounter: 658, execCounter: 649
+	Executing action -> {
+		Board laser
+	}, initCounter: 658, execCounter: 650
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 658, execCounter: 651
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 658, execCounter: 652
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 658, execCounter: 653
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 658, execCounter: 654
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 658, execCounter: 655
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 658, execCounter: 656
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 658, execCounter: 657
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 658, execCounter: 658
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 659, execCounter: 659
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 660, execCounter: 660
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 661, execCounter: 661
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 663, execCounter: 662
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 663, execCounter: 663
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 679, execCounter: 664
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 679, execCounter: 665
+	Executing action -> {
+		Push panels
+	}, initCounter: 679, execCounter: 666
+	Executing action -> {
+		Gears
+	}, initCounter: 679, execCounter: 667
+	Executing action -> {
+		Board laser
+	}, initCounter: 679, execCounter: 668
+	Executing action -> {
+		Board laser
+	}, initCounter: 679, execCounter: 669
+	Executing action -> {
+		Board laser
+	}, initCounter: 679, execCounter: 670
+	Executing action -> {
+		Board laser
+	}, initCounter: 679, execCounter: 671
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 679, execCounter: 672
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 679, execCounter: 673
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 679, execCounter: 674
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 679, execCounter: 675
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 679, execCounter: 676
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 679, execCounter: 677
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 679, execCounter: 678
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 679, execCounter: 679
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 680, execCounter: 680
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 681, execCounter: 681
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 682, execCounter: 682
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 698, execCounter: 683
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 698, execCounter: 684
+	Executing action -> {
+		Push panels
+	}, initCounter: 698, execCounter: 685
+	Executing action -> {
+		Gears
+	}, initCounter: 698, execCounter: 686
+	Executing action -> {
+		Board laser
+	}, initCounter: 698, execCounter: 687
+	Executing action -> {
+		Board laser
+	}, initCounter: 698, execCounter: 688
+	Executing action -> {
+		Board laser
+	}, initCounter: 698, execCounter: 689
+	Executing action -> {
+		Board laser
+	}, initCounter: 698, execCounter: 690
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 698, execCounter: 691
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 698, execCounter: 692
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 698, execCounter: 693
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 698, execCounter: 694
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 698, execCounter: 695
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 698, execCounter: 696
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 698, execCounter: 697
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 698, execCounter: 698
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 699, execCounter: 699
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 700, execCounter: 700
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 701, execCounter: 701
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		{aaaa} activated: (Spam) damage.
+	}, initCounter: 702, execCounter: 702
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 718, execCounter: 703
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 718, execCounter: 704
+	Executing action -> {
+		Push panels
+	}, initCounter: 718, execCounter: 705
+	Executing action -> {
+		Gears
+	}, initCounter: 718, execCounter: 706
+	Executing action -> {
+		Board laser
+	}, initCounter: 718, execCounter: 707
+	Executing action -> {
+		Board laser
+	}, initCounter: 718, execCounter: 708
+	Executing action -> {
+		Board laser
+	}, initCounter: 718, execCounter: 709
+	Executing action -> {
+		Board laser
+	}, initCounter: 718, execCounter: 710
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 718, execCounter: 711
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 718, execCounter: 712
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 718, execCounter: 713
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 718, execCounter: 714
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 718, execCounter: 715
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 718, execCounter: 716
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 718, execCounter: 717
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 718, execCounter: 718
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 719, execCounter: 719
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 720, execCounter: 720
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 721, execCounter: 721
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 737, execCounter: 722
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 737, execCounter: 723
+	Executing action -> {
+		Push panels
+	}, initCounter: 737, execCounter: 724
+	Executing action -> {
+		Gears
+	}, initCounter: 737, execCounter: 725
+	Executing action -> {
+		Board laser
+	}, initCounter: 737, execCounter: 726
+	Executing action -> {
+		Board laser
+	}, initCounter: 737, execCounter: 727
+	Executing action -> {
+		Board laser
+	}, initCounter: 737, execCounter: 728
+	Executing action -> {
+		Board laser
+	}, initCounter: 737, execCounter: 729
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 737, execCounter: 730
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 737, execCounter: 731
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 737, execCounter: 732
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 737, execCounter: 733
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 737, execCounter: 734
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 737, execCounter: 735
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 737, execCounter: 736
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 737, execCounter: 737
+
+No cards bought. Refreshing whole shop.
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 738, execCounter: 738
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 739, execCounter: 739
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 740, execCounter: 740
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 741, execCounter: 741
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 757, execCounter: 742
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 757, execCounter: 743
+	Executing action -> {
+		Push panels
+	}, initCounter: 757, execCounter: 744
+	Executing action -> {
+		Gears
+	}, initCounter: 757, execCounter: 745
+	Executing action -> {
+		Board laser
+	}, initCounter: 757, execCounter: 746
+	Executing action -> {
+		Board laser
+	}, initCounter: 757, execCounter: 747
+	Executing action -> {
+		Board laser
+	}, initCounter: 757, execCounter: 748
+	Executing action -> {
+		Board laser
+	}, initCounter: 757, execCounter: 749
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 757, execCounter: 750
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 757, execCounter: 751
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 757, execCounter: 752
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 757, execCounter: 753
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 757, execCounter: 754
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 757, execCounter: 755
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 757, execCounter: 756
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 757, execCounter: 757
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 758, execCounter: 758
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 759, execCounter: 759
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 761, execCounter: 760
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 761, execCounter: 761
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 777, execCounter: 762
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 777, execCounter: 763
+	Executing action -> {
+		Push panels
+	}, initCounter: 777, execCounter: 764
+	Executing action -> {
+		Gears
+	}, initCounter: 777, execCounter: 765
+	Executing action -> {
+		Board laser
+	}, initCounter: 777, execCounter: 766
+	Executing action -> {
+		Board laser
+	}, initCounter: 777, execCounter: 767
+	Executing action -> {
+		Board laser
+	}, initCounter: 777, execCounter: 768
+	Executing action -> {
+		Board laser
+	}, initCounter: 777, execCounter: 769
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 777, execCounter: 770
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 777, execCounter: 771
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 777, execCounter: 772
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 777, execCounter: 773
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 777, execCounter: 774
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 777, execCounter: 775
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 777, execCounter: 776
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 777, execCounter: 777
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 778, execCounter: 778
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 779, execCounter: 779
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 780, execCounter: 780
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 782, execCounter: 781
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 782, execCounter: 782
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 798, execCounter: 783
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 798, execCounter: 784
+	Executing action -> {
+		Push panels
+	}, initCounter: 798, execCounter: 785
+	Executing action -> {
+		Gears
+	}, initCounter: 798, execCounter: 786
+	Executing action -> {
+		Board laser
+	}, initCounter: 798, execCounter: 787
+	Executing action -> {
+		Board laser
+	}, initCounter: 798, execCounter: 788
+	Executing action -> {
+		Board laser
+	}, initCounter: 798, execCounter: 789
+	Executing action -> {
+		Board laser
+	}, initCounter: 798, execCounter: 790
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 798, execCounter: 791
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 798, execCounter: 792
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 798, execCounter: 793
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 798, execCounter: 794
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 798, execCounter: 795
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 798, execCounter: 796
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 798, execCounter: 797
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 798, execCounter: 798
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 799, execCounter: 799
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 800, execCounter: 800
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 801, execCounter: 801
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 802, execCounter: 802
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 818, execCounter: 803
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 818, execCounter: 804
+	Executing action -> {
+		Push panels
+	}, initCounter: 818, execCounter: 805
+	Executing action -> {
+		Gears
+	}, initCounter: 818, execCounter: 806
+	Executing action -> {
+		Board laser
+	}, initCounter: 818, execCounter: 807
+	Executing action -> {
+		Board laser
+	}, initCounter: 818, execCounter: 808
+	Executing action -> {
+		Board laser
+	}, initCounter: 818, execCounter: 809
+	Executing action -> {
+		Board laser
+	}, initCounter: 818, execCounter: 810
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 818, execCounter: 811
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 818, execCounter: 812
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 818, execCounter: 813
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 818, execCounter: 814
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 818, execCounter: 815
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 818, execCounter: 816
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 818, execCounter: 817
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 818, execCounter: 818
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 819, execCounter: 819
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 820, execCounter: 820
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 821, execCounter: 821
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 823, execCounter: 822
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 823, execCounter: 823
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 839, execCounter: 824
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 839, execCounter: 825
+	Executing action -> {
+		Push panels
+	}, initCounter: 839, execCounter: 826
+	Executing action -> {
+		Gears
+	}, initCounter: 839, execCounter: 827
+	Executing action -> {
+		Board laser
+	}, initCounter: 839, execCounter: 828
+	Executing action -> {
+		Board laser
+	}, initCounter: 839, execCounter: 829
+	Executing action -> {
+		Board laser
+	}, initCounter: 839, execCounter: 830
+	Executing action -> {
+		Board laser
+	}, initCounter: 839, execCounter: 831
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 839, execCounter: 832
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 839, execCounter: 833
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 839, execCounter: 834
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 839, execCounter: 835
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 839, execCounter: 836
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 839, execCounter: 837
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 839, execCounter: 838
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 839, execCounter: 839
+
+No cards bought. Refreshing whole shop.
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 840, execCounter: 840
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 841, execCounter: 841
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 842, execCounter: 842
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 843, execCounter: 843
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 859, execCounter: 844
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 859, execCounter: 845
+	Executing action -> {
+		Push panels
+	}, initCounter: 859, execCounter: 846
+	Executing action -> {
+		Gears
+	}, initCounter: 859, execCounter: 847
+	Executing action -> {
+		Board laser
+	}, initCounter: 859, execCounter: 848
+	Executing action -> {
+		Board laser
+	}, initCounter: 859, execCounter: 849
+	Executing action -> {
+		Board laser
+	}, initCounter: 859, execCounter: 850
+	Executing action -> {
+		Board laser
+	}, initCounter: 859, execCounter: 851
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 859, execCounter: 852
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 859, execCounter: 853
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 859, execCounter: 854
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 859, execCounter: 855
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 859, execCounter: 856
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 859, execCounter: 857
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 859, execCounter: 858
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 859, execCounter: 859
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 860, execCounter: 860
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 861, execCounter: 861
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 862, execCounter: 862
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 864, execCounter: 863
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 864, execCounter: 864
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 880, execCounter: 865
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 880, execCounter: 866
+	Executing action -> {
+		Push panels
+	}, initCounter: 880, execCounter: 867
+	Executing action -> {
+		Gears
+	}, initCounter: 880, execCounter: 868
+	Executing action -> {
+		Board laser
+	}, initCounter: 880, execCounter: 869
+	Executing action -> {
+		Board laser
+	}, initCounter: 880, execCounter: 870
+	Executing action -> {
+		Board laser
+	}, initCounter: 880, execCounter: 871
+	Executing action -> {
+		Board laser
+	}, initCounter: 880, execCounter: 872
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 880, execCounter: 873
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 880, execCounter: 874
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 880, execCounter: 875
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 880, execCounter: 876
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 880, execCounter: 877
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 880, execCounter: 878
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 880, execCounter: 879
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 880, execCounter: 880
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 881, execCounter: 881
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 882, execCounter: 882
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 883, execCounter: 883
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 885, execCounter: 884
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 885, execCounter: 885
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 901, execCounter: 886
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 901, execCounter: 887
+	Executing action -> {
+		Push panels
+	}, initCounter: 901, execCounter: 888
+	Executing action -> {
+		Gears
+	}, initCounter: 901, execCounter: 889
+	Executing action -> {
+		Board laser
+	}, initCounter: 901, execCounter: 890
+	Executing action -> {
+		Board laser
+	}, initCounter: 901, execCounter: 891
+	Executing action -> {
+		Board laser
+	}, initCounter: 901, execCounter: 892
+	Executing action -> {
+		Board laser
+	}, initCounter: 901, execCounter: 893
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 902, execCounter: 894
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 902, execCounter: 895
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 902, execCounter: 896
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 902, execCounter: 897
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 902, execCounter: 898
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 902, execCounter: 899
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 902, execCounter: 900
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 902, execCounter: 901
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 902, execCounter: 902
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 903, execCounter: 903
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 905, execCounter: 904
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 905, execCounter: 905
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 906, execCounter: 906
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 907, execCounter: 907
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 923, execCounter: 908
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 923, execCounter: 909
+	Executing action -> {
+		Push panels
+	}, initCounter: 923, execCounter: 910
+	Executing action -> {
+		Gears
+	}, initCounter: 923, execCounter: 911
+	Executing action -> {
+		Board laser
+	}, initCounter: 923, execCounter: 912
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 924, execCounter: 913
+	Executing action -> {
+		Board laser
+	}, initCounter: 924, execCounter: 914
+	Executing action -> {
+		Board laser
+	}, initCounter: 924, execCounter: 915
+	Executing action -> {
+		Board laser
+	}, initCounter: 924, execCounter: 916
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 925, execCounter: 917
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 925, execCounter: 918
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 925, execCounter: 919
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 925, execCounter: 920
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 925, execCounter: 921
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 925, execCounter: 922
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 925, execCounter: 923
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 925, execCounter: 924
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 925, execCounter: 925
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 926, execCounter: 926
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 928, execCounter: 927
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 928, execCounter: 928
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 929, execCounter: 929
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 931, execCounter: 930
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 931, execCounter: 931
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 947, execCounter: 932
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 947, execCounter: 933
+	Executing action -> {
+		Push panels
+	}, initCounter: 947, execCounter: 934
+	Executing action -> {
+		Gears
+	}, initCounter: 947, execCounter: 935
+	Executing action -> {
+		Board laser
+	}, initCounter: 947, execCounter: 936
+	Executing action -> {
+		Board laser hit on player: "Gustav".
+	}, initCounter: 948, execCounter: 937
+	Executing action -> {
+		Board laser
+	}, initCounter: 948, execCounter: 938
+	Executing action -> {
+		Board laser
+	}, initCounter: 948, execCounter: 939
+	Executing action -> {
+		Board laser
+	}, initCounter: 948, execCounter: 940
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 949, execCounter: 941
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 949, execCounter: 942
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 949, execCounter: 943
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 949, execCounter: 944
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 949, execCounter: 945
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 949, execCounter: 946
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 949, execCounter: 947
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 949, execCounter: 948
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 949, execCounter: 949
+
+No cards bought. Refreshing whole shop.
+Added Hack to player: "aaaa".
+
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 950, execCounter: 950
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 0 for player Gustav
+	Executing action -> {
+		Player movement: Gustav
+	}, initCounter: 951, execCounter: 951
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 952, execCounter: 952
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 0 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 953, execCounter: 953
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 969, execCounter: 954
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 969, execCounter: 955
+	Executing action -> {
+		Push panels
+	}, initCounter: 969, execCounter: 956
+	Executing action -> {
+		Gears
+	}, initCounter: 969, execCounter: 957
+	Executing action -> {
+		Board laser
+	}, initCounter: 969, execCounter: 958
+	Executing action -> {
+		Board laser
+	}, initCounter: 969, execCounter: 959
+	Executing action -> {
+		Board laser
+	}, initCounter: 969, execCounter: 960
+	Executing action -> {
+		Board laser
+	}, initCounter: 969, execCounter: 961
+	Executing action -> {
+		Board laser hit on player: "aaaa".
+	}, initCounter: 970, execCounter: 962
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 970, execCounter: 963
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 970, execCounter: 964
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 970, execCounter: 965
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 970, execCounter: 966
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 970, execCounter: 967
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 970, execCounter: 968
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 970, execCounter: 969
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 970, execCounter: 970
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 971, execCounter: 971
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 1 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 972, execCounter: 972
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 973, execCounter: 973
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 1 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 975, execCounter: 974
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 975, execCounter: 975
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 991, execCounter: 976
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 991, execCounter: 977
+	Executing action -> {
+		Push panels
+	}, initCounter: 991, execCounter: 978
+	Executing action -> {
+		Gears
+	}, initCounter: 991, execCounter: 979
+	Executing action -> {
+		Board laser
+	}, initCounter: 991, execCounter: 980
+	Executing action -> {
+		Board laser
+	}, initCounter: 991, execCounter: 981
+	Executing action -> {
+		Board laser
+	}, initCounter: 991, execCounter: 982
+	Executing action -> {
+		Board laser
+	}, initCounter: 991, execCounter: 983
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 991, execCounter: 984
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 991, execCounter: 985
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 991, execCounter: 986
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 991, execCounter: 987
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 991, execCounter: 988
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 991, execCounter: 989
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 991, execCounter: 990
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 991, execCounter: 991
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 992, execCounter: 992
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 2 for player Gustav
+	Executing action -> {
+		{Gustav} activated: (Spam) damage.
+	}, initCounter: 993, execCounter: 993
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 994, execCounter: 994
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 2 for player aaaa
+	Executing action -> {
+		Player rotation: aaaa
+	}, initCounter: 995, execCounter: 995
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 1011, execCounter: 996
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 1011, execCounter: 997
+	Executing action -> {
+		Push panels
+	}, initCounter: 1011, execCounter: 998
+	Executing action -> {
+		Gears
+	}, initCounter: 1011, execCounter: 999
+	Executing action -> {
+		Board laser
+	}, initCounter: 1011, execCounter: 1000
+	Executing action -> {
+		Board laser
+	}, initCounter: 1011, execCounter: 1001
+	Executing action -> {
+		Board laser
+	}, initCounter: 1011, execCounter: 1002
+	Executing action -> {
+		Board laser
+	}, initCounter: 1011, execCounter: 1003
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1011, execCounter: 1004
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1011, execCounter: 1005
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 1011, execCounter: 1006
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1011, execCounter: 1007
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 1011, execCounter: 1008
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1011, execCounter: 1009
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 1011, execCounter: 1010
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 1011, execCounter: 1011
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 1012, execCounter: 1012
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 3 for player Gustav
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 1013, execCounter: 1013
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 3 for player aaaa
+	Executing action -> {
+		Player movement: aaaa
+	}, initCounter: 1014, execCounter: 1014
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 1030, execCounter: 1015
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 1030, execCounter: 1016
+	Executing action -> {
+		Push panels
+	}, initCounter: 1030, execCounter: 1017
+	Executing action -> {
+		Gears
+	}, initCounter: 1030, execCounter: 1018
+	Executing action -> {
+		Board laser
+	}, initCounter: 1030, execCounter: 1019
+	Executing action -> {
+		Board laser
+	}, initCounter: 1030, execCounter: 1020
+	Executing action -> {
+		Board laser
+	}, initCounter: 1030, execCounter: 1021
+	Executing action -> {
+		Board laser
+	}, initCounter: 1030, execCounter: 1022
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1030, execCounter: 1023
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1030, execCounter: 1024
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 1030, execCounter: 1025
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1030, execCounter: 1026
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 1030, execCounter: 1027
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1030, execCounter: 1028
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 1030, execCounter: 1029
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 1030, execCounter: 1030
+
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 1031, execCounter: 1031
+Waiting for card use for player: Gustav
+Stopped waiting for card use for player: Gustav
+Handling register 4 for player Gustav
+	Executing action -> {
+		Player rotation: Gustav
+	}, initCounter: 1032, execCounter: 1032
+	Executing action -> {
+		Waiting for card use.
+	}, initCounter: 1033, execCounter: 1033
+Waiting for card use for player: aaaa
+Stopped waiting for card use for player: aaaa
+Handling register 4 for player aaaa
+
+	Executing action -> {
+		Blue conveyor belts
+	}, initCounter: 1049, execCounter: 1034
+	Executing action -> {
+		Green conveyor belts
+	}, initCounter: 1049, execCounter: 1035
+	Executing action -> {
+		Push panels
+	}, initCounter: 1049, execCounter: 1036
+	Executing action -> {
+		Gears
+	}, initCounter: 1049, execCounter: 1037
+	Executing action -> {
+		Board laser
+	}, initCounter: 1049, execCounter: 1038
+	Executing action -> {
+		Board laser
+	}, initCounter: 1049, execCounter: 1039
+	Executing action -> {
+		Board laser
+	}, initCounter: 1049, execCounter: 1040
+	Executing action -> {
+		Board laser
+	}, initCounter: 1049, execCounter: 1041
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1049, execCounter: 1042
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1049, execCounter: 1043
+	Executing action -> {
+		Player: "Gustav" laser
+	}, initCounter: 1049, execCounter: 1044
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1049, execCounter: 1045
+	Executing action -> {
+		Player: "aaaa" laser
+	}, initCounter: 1049, execCounter: 1046
+Player: "aaaa" used UpgradeCard: "Rail Gun".
+	Executing action -> {
+		Clear lasers
+	}, initCounter: 1049, execCounter: 1047
+	Executing action -> {
+		Energy spaces
+	}, initCounter: 1049, execCounter: 1048
+	Executing action -> {
+		Checkpoints
+	}, initCounter: 1049, execCounter: 1049
+
+Player: "Gustav" bought: "Speed Routine".
+Added Ramming Gear to player: "aaaa".
+Shop is empty. Readying up for next phase.
+
+Player: "Gustav" used UpgradeCard: "Speed Routine".
+Player: "Gustav" returned: "Speed Routine" to the shop.
+Player: "aaaa" disconnected from the game.
+	Executing action -> {
+		Player: "aaaa" disconnected from the game.
+	}, initCounter: 1050, execCounter: 1050

@@ -5,7 +5,7 @@
     <selectedOptions>
       <option name="environmentVariables" visible="false" />
     </selectedOptions>
-    <option name="VM_PARAMETERS" value="--module-path &quot;${PATH_TO_FX}\lib;${PROJECT_ROOT}\roborally\client\target\classes;${PROJECT_ROOT}\roborally\common\target\classes;${PROJECT_ROOT}\roborally\client\target\dependency&quot; --add-modules javafx.controls,javafx.fxml,com.group15.roborally.client " />
+    <option name="VM_PARAMETERS" value="--module-path &quot;${PATH_TO_FX}\lib;${PROJECT_ROOT}\roborally\client\target\classes;${PROJECT_ROOT}\roborally\common\target\classes;${PROJECT_ROOT}\roborally\client\target\dependency&quot; --add-modules javafx.controls,javafx.fxml,com.group15.roborally.client" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

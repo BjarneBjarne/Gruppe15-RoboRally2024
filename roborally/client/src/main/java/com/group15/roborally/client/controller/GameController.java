@@ -843,11 +843,12 @@ public class GameController {
             removeResolvedChoices();
         }
 
-        List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
-        unhandledChoices.removeAll(executedChoices);
-        RoboRally.setDebugText(5, "Unhandled choices: " + unhandledChoices.size() + ", executed choices: " + executedChoices.size());
-
-        RoboRally.setDebugText(6, "unresolvedLocalChoices: " + unresolvedLocalChoices.size());
+        if (latestChoiceData != null) {
+            List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
+            unhandledChoices.removeAll(executedChoices);
+            RoboRally.setDebugText(5, "Unhandled choices: " + unhandledChoices.size() + ", executed choices: " + executedChoices.size());
+            RoboRally.setDebugText(6, "unresolvedLocalChoices: " + unresolvedLocalChoices.size());
+        }
 
         // Update the current local phase.
         updateCurrentGamePhase();

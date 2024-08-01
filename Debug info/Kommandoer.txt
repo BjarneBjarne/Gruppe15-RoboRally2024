@@ -1,0 +1,26 @@
+89.239.252.179
+
+scp C:\Users\Gusta\Documents\KodeProjekter\Gruppe15-RoboRally2024\roborally\server\target\server-0.1.jar gustav@129.151.221.13:~/roborally/
+
+http://localhost:8080
+http://129.151.221.13:8080
+https://smart-oarfish-likely.ngrok-free.app
+
+
+
+
+*** KOMMANDOER ***
+
+scp C:\Users\Gusta\Documents\KodeProjekter\Gruppe15-RoboRally2024\roborally\server\target\server-0.2.jar gustav@129.151.221.13:~/roborally/
+
+ssh gustav@129.151.221.13
+
+screen -S roborallySession ./startserver.sh
+
+screen -list
+
+screen -r roborallySession
+
+screen -S roborallySession -X quit
+
+
