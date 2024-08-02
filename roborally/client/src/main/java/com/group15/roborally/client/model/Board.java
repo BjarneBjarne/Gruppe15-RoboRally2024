@@ -409,8 +409,8 @@ public class Board extends Subject {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     private double getAngleToPlayerRadians(Player player, BE_Antenna antenna) {
-        double deltaX = player.getSpace().x - antennaSpace.x;
-        double deltaY = player.getSpace().y - antennaSpace.y;
+        int deltaX = player.getSpace().x - antennaSpace.x;
+        int deltaY = player.getSpace().y - antennaSpace.y;
 
         double angleToPlayerRadians = Math.atan2(deltaY, deltaX);
         angleToPlayerRadians += Math.PI / 2; // Relative to Heading.SOUTH which is positive Y and is the first ordinal in the Heading enum.
