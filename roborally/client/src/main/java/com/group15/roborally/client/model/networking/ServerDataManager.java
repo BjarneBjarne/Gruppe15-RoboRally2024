@@ -77,18 +77,18 @@ public class ServerDataManager extends Subject implements Observer {
         AppController.setInfoText("Creating new game...");
         AtomicReference<String> gameId = new AtomicReference<>("");
         runActionAndCallback(new ActionWithDelay(
-                () -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100), "Creating new game"),
+                () -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100), "Creating new game", false),
                 () -> {
                     if (gameId.get() != null && !gameId.get().isBlank()) {
                         runActionAndCallback(new ActionWithDelay(
                                 () -> {
                                     AppController.setInfoText("Successfully created new game!");
                                     System.out.println("Game ID: " + gameId.get());
-                                }, 250, "Successfully created new game"),
+                                }, 250, "Successfully created new game", false),
                                 () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
                     } else {
                         runActionAndCallback(new ActionWithDelay(
-                                () -> AppController.setInfoText("Failed to create new game."),1500, "Failed to create new game"),
+                                () -> AppController.setInfoText("Failed to create new game."),1500, "Failed to create new game", false),
                                 () -> AppController.setInfoText(""));
                     }
         });
@@ -107,18 +107,18 @@ public class ServerDataManager extends Subject implements Observer {
         AppController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
         runActionAndCallback(new ActionWithDelay(
-                () -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100), "Joining game with gameId: \"" + gameId + "\" with playerName: \"" + playerName + "\"."),
+                () -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100), "Joining game with gameId: \"" + gameId + "\" with playerName: \"" + playerName + "\".", false),
                 () -> {
                     if (player.get() != null) {
                         runActionAndCallback(new ActionWithDelay(
                                 () -> {
                                       AppController.setInfoText("Successfully joined game!");
                                       connectedToGame(gameId, player.get());
-                                }, 250, "Successfully joined game"),
+                                }, 250, "Successfully joined game", false),
                                 () -> AppController.setInfoText(""));
                     } else {
                         runActionAndCallback(new ActionWithDelay(
-                                () -> AppController.setInfoText("Failed to join game."), 1500, "Failed to join game"),
+                                () -> AppController.setInfoText("Failed to join game."), 1500, "Failed to join game", false),
                                 () -> AppController.setInfoText(""));
                     }
         });

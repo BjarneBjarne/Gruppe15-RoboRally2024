@@ -13,13 +13,22 @@ public class ActionWithDelay {
     private final String actionName;
 
     private static int initCounter = 0;
+    private final int thisInitCounter;
     private static int execCounter = 0;
 
     public ActionWithDelay(Runnable action, int delayInMillis, String actionName) {
+        this(action, delayInMillis, actionName, true);
+    }
+    public ActionWithDelay(Runnable action, int delayInMillis, String actionName, boolean updateCounters) {
         this.action = action;
         this.delayInMillis = delayInMillis;
         this.actionName = actionName;
-        initCounter++;
+        if (updateCounters) {
+            initCounter++;
+            thisInitCounter = initCounter;
+        } else {
+            thisInitCounter = -1;
+        }
     }
     public ActionWithDelay(Runnable action, int delayInMillis) {
         this(action, delayInMillis, "NO_ACTION_NAME");
@@ -31,7 +40,7 @@ public class ActionWithDelay {
             System.out.println(
                     "\tExecuting action -> {\n" +
                             "\t\t" + actionName + "\n" +
-                            "\t}, " + "initCounter: " + initCounter + ", execCounter: " + execCounter
+                            "\t}, " + "thisInitCounter: " + thisInitCounter + ", execCounter: " + execCounter
             );
         }
         action.run();
