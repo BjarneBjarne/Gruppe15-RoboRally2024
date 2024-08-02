@@ -47,7 +47,7 @@ public class Choice {
     }
 
     public boolean isResolved() {
-        return !(resolveStatus.equals(ResolveStatus.NONE.name()) || resolveStatus.equals(ResolveStatus.UNRESOLVED.name()));
+        return !resolveStatus.equals(ResolveStatus.UNRESOLVED.name());
     }
 
     /**

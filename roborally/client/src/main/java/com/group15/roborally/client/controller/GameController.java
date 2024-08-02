@@ -25,7 +25,6 @@ import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.model.Player;
 import com.group15.roborally.client.view.GameView;
-import com.group15.roborally.client.exceptions.UnhandledPhaseInteractionException;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.boardelements.*;
 import com.group15.roborally.client.model.networking.ServerDataManager;
@@ -138,15 +137,12 @@ public class GameController {
     private void startNextPhase() {
         System.out.println();
 
-        incrementPhaseCounter();
-        handlingPrePhase = true;
         GamePhase newPhase = board.getNextPhase();
-        if (serverDataManager.isHost()) {
-            serverDataManager.setGamePhase(newPhase);
-        }
+        if (serverDataManager.isHost()) serverDataManager.setGamePhase(newPhase);
         board.setCurrentPhase(newPhase);
         serverDataManager.setCurrentPhase(newPhase);
         RoboRally.setDebugText(2, "GamePhase: " + board.getCurrentPhase());
+        incrementPhaseCounter();
         handlingPrePhase = false;
 
         switch (board.getCurrentPhase()) {
@@ -219,9 +215,10 @@ public class GameController {
     public void finishedProgramming() {
         if (getIsLocalPlayerReadyForNextPhase()) return;
         if (!unresolvedLocalChoices.isEmpty()) return;
+        if (!board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) return;
+
         setReadyForNextPhase();
         board.updateBoard();
-
         localPlayer.fillRestOfRegisters();
         serverDataManager.setPlayerRegister(localPlayer.getProgramFieldCardNames());
         board.updateBoard();
@@ -316,15 +313,6 @@ public class GameController {
             // Handle the players command on the current register. This will queue any command on the register.
             queuePlayerCommandFromCommandCard(currentPlayer);
         }
-        // Begin handling the actions.
-        handlePlayerActivation();
-    }
-
-    /**
-     * This method splits up the player activation phase, in order to resume this phase, if it was interrupted.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handlePlayerActivation() {
         // Run through the queue and execute the player command.
         runActionsAndCallback(this::handleEndOfPlayerTurn);
     }
@@ -354,14 +342,6 @@ public class GameController {
     private void startBoardActivationPhase() {
         // Queue board elements and player lasers.
         queueBoardElementsAndRobotLasers();
-        handleBoardActivation();
-    }
-
-    /**
-     * This method splits up the board activation phase, in order to resume this phase, if it was interrupted.
-     * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
-     */
-    private void handleBoardActivation() {
         // Execute board elements and player lasers. When actions have taken place, we go to the next register.
         runActionsAndCallback(this::nextRegister);
     }
@@ -392,7 +372,7 @@ public class GameController {
      */
     private void handleEndOfRound() {
         // If all registers are done
-        PauseTransition pause = new PauseTransition(Duration.millis(NEXT_REGISTER_DELAY));
+        PauseTransition pause = new PauseTransition(Duration.millis(END_OF_ROUND_DELAY));
         pause.setOnFinished(a -> {
             for (Player player : board.getPlayers()) {
                 player.stopRebooting();
@@ -460,13 +440,13 @@ public class GameController {
         if (!playerInteractionQueue.isEmpty()) {
             currentPlayerInteraction = playerInteractionQueue.poll();
             incrementInteractionCounter();
-            RoboRally.setDebugText(9, currentPlayerInteraction.toString());
+            RoboRally.setDebugText(5, currentPlayerInteraction.toString());
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
         } else {
             // If not, callback and continue
             currentPlayerInteraction = null;
-            RoboRally.setDebugText(9, "");
+            RoboRally.setDebugText(5, "");
             board.updateBoard();
             runActionsAndCallback(interactionCallback);
         }
@@ -782,13 +762,47 @@ public class GameController {
     }
 
     public void tryUseUpgradeCard(UpgradeCard upgradeCard) {
-        String resolveStatus = board.getCurrentPhase().equals(GamePhase.PLAYER_ACTIVATION) || board.getCurrentPhase().equals(GamePhase.BOARD_ACTIVATION) ?
+        String resolveStatus = (board.getCurrentPhase().equals(GamePhase.PLAYER_ACTIVATION) || board.getCurrentPhase().equals(GamePhase.BOARD_ACTIVATION)) ?
                 Choice.ResolveStatus.NONE.name() : Choice.ResolveStatus.UNRESOLVED.name();
         ChoiceDTO choiceDTO = new ChoiceDTO(latestGameData.getGameId(), localPlayer.getPlayerId(), upgradeCard.getEnum().name(), waitCounter, resolveStatus);
         unresolvedLocalChoices.add(choiceDTO);
-        RoboRally.setDebugText(6, "unresolvedLocalChoices: " + unresolvedLocalChoices.size());
+        updateChoicesDebug();
         board.updateBoard();
         serverDataManager.setChoice(choiceDTO);
+    }
+
+    private void updateChoicesDebug() {
+        String unresolvedChoicesText = "unresolvedLocalChoices: " + unresolvedLocalChoices.size();
+        if (!unresolvedLocalChoices.isEmpty()) {
+            unresolvedChoicesText += "\n";
+            for (ChoiceDTO choiceDTO : unresolvedLocalChoices) {
+                Set<Long> choicePlayerIds = latestChoiceData.stream()
+                        .filter(c ->
+                                c.isResolved() && // Received choice is resolved.
+                                c.getCode().equals(choiceDTO.code()) && c.getPlayerId() == choiceDTO.playerId()) // Received choice matches the locally unresolved choice.
+                        .map(c -> Long.parseLong(c.getResolveStatus()))
+                        .collect(Collectors.toSet());
+                choicePlayerIds.add(localPlayer.getPlayerId());
+                unresolvedChoicesText += "\t * " + choiceDTO.code() + ". Response from: ";
+                for (Long playerId : choicePlayerIds) {
+                    unresolvedChoicesText += latestPlayerData.get(playerId).getPlayerName() + ", ";
+                }
+            }
+        }
+        RoboRally.setDebugText(8, unresolvedChoicesText);
+
+        if (latestChoiceData != null) {
+            List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
+            unhandledChoices.removeAll(executedChoices);
+            String unhandledChoicesText = "Executed choices: " + executedChoices.size() + ". Unhandled choices: " + unhandledChoices.size();
+            if (!unhandledChoices.isEmpty()) {
+                unhandledChoicesText += "\n";
+                for (Choice choice : unhandledChoices) {
+                    unhandledChoicesText += "\t * " + choice.getCode() + ". From: " + latestPlayerData.get(choice.getPlayerId()).getPlayerName() + ".";
+                }
+            }
+            RoboRally.setDebugText(9, unhandledChoicesText);
+        }
     }
 
 
@@ -809,28 +823,24 @@ public class GameController {
 
         // Updating data
         List<NetworkedDataTypes> changedData = ServerDataManager.getChangedData();
-            /*System.out.println();
-            System.out.println("||| Changed data: " + changedData + " |||");*/
+            System.out.println();
+            System.out.println("||| Changed data: " + changedData + " |||");
         if (changedData.contains(NetworkedDataTypes.GAME)) {
             latestGameData = serverDataManager.getUpdatedGame();
         }
         if (changedData.contains(NetworkedDataTypes.PLAYERS)) {
             latestPlayerData = serverDataManager.getUpdatedPlayerMap();
-        }
-
-        if (latestGameData == null || latestPlayerData == null) return;
-
-        // Check if any player disconnected
-        for (Player client : board.getPlayers()) {
-            com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
-            if (updatedPlayer == null) {
-                // Player disconnected.
-                // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
-                serverDataManager.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
-                return;
+            // Check if any player disconnected
+            for (Player client : board.getPlayers()) {
+                com.group15.roborally.common.model.Player updatedPlayer = latestPlayerData.get(client.getPlayerId());
+                if (updatedPlayer == null) {
+                    // Player disconnected.
+                    // TODO: Instead of disconnecting this player, the disconnected player should be removed from the game.
+                    serverDataManager.disconnectFromServer("Player: \"" + client.getName() + "\" disconnected from the game.", 2000);
+                    return;
+                }
             }
         }
-
         if (changedData.contains(NetworkedDataTypes.UPGRADE_SHOP)) {
             latestUpgradeShopData = serverDataManager.getUpdatedUpgradeShop();
         }
@@ -839,41 +849,17 @@ public class GameController {
         }
         if (changedData.contains(NetworkedDataTypes.CHOICES)) {
             latestChoiceData = serverDataManager.getUpdatedChoices();
-            if (canUseUpgradeCards()) {
-                executeUnhandledUpgradeCards();
-            }
-            removeResolvedChoices();
         }
 
-        if (latestChoiceData != null) {
-            List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
-            unhandledChoices.removeAll(executedChoices);
-            RoboRally.setDebugText(5, "Unhandled choices: " + unhandledChoices.size() + ", executed choices: " + executedChoices.size());
-            RoboRally.setDebugText(6, "unresolvedLocalChoices: " + unresolvedLocalChoices.size());
+        if (canUseUpgradeCards()) {
+            executeUnhandledUpgradeCards();
+            removeLocalResolvedChoices();
         }
+
+        updateChoicesDebug();
 
         // Update the current local phase.
         updateCurrentGamePhase();
-    }
-
-    private void removeResolvedChoices() {
-        if (!unresolvedLocalChoices.isEmpty()) {
-            unresolvedLocalChoices.removeIf(unresolvedChoice -> {
-                try {
-                    Set<Long> choicePlayerIds = latestChoiceData.stream()
-                            .filter(c ->
-                                    c.isResolved() && // Received choice is resolved.
-                                            c.getCode().equals(unresolvedChoice.code()) && c.getPlayerId() == unresolvedChoice.playerId()) // Received choice matches the locally unresolved choice.
-                            .map(c -> Long.parseLong(c.getResolveStatus()))
-                            .collect(Collectors.toSet());
-                    choicePlayerIds.add(localPlayer.getPlayerId());
-                    return choicePlayerIds.containsAll(latestPlayerData.keySet());
-                } catch (NumberFormatException e) {
-                    System.err.println("Error parsing playerId of choice: \n" + unresolvedChoice.toString());
-                    return false;
-                }
-            });
-        }
     }
 
     /**
@@ -890,7 +876,8 @@ public class GameController {
         board.updateBoard();
 
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
-        if (canStartNextPhase()) {
+        if (canStartNextPhase() && !handlingPrePhase) {
+            handlingPrePhase = true;
             startNextPhase();
         }
     }
@@ -1026,6 +1013,8 @@ public class GameController {
 
         for (Choice choice : unhandledChoices) {
             executedChoices.add(choice);
+            System.out.println(" - CHOICE - ");
+            System.out.println("Executing choice: \"" + choice.getCode() + "\".");
             if (choice.getCode().equals(Choice.READY_CHOICE)) continue;
             if (choice.isResolved()) continue;
 
@@ -1056,6 +1045,26 @@ public class GameController {
         }
     }
 
+    private void removeLocalResolvedChoices() {
+        if (!unresolvedLocalChoices.isEmpty()) {
+            unresolvedLocalChoices.removeIf(unresolvedChoice -> {
+                try {
+                    Set<Long> choicePlayerIds = latestChoiceData.stream()
+                            .filter(c ->
+                                    c.isResolved() && // Received choice is resolved.
+                                    c.getCode().equals(unresolvedChoice.code()) && c.getPlayerId() == unresolvedChoice.playerId()) // Received choice matches the locally unresolved choice.
+                            .map(c -> Long.parseLong(c.getResolveStatus()))
+                            .collect(Collectors.toSet());
+                    choicePlayerIds.add(localPlayer.getPlayerId());
+                    return choicePlayerIds.containsAll(latestPlayerData.keySet());
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parsing playerId of choice: \n" + unresolvedChoice.toString());
+                    return false;
+                }
+            });
+        }
+    }
+
     public boolean getIsLocalPlayerReadyForNextPhase() {
         return getIsPlayerReadyForNextPhase(localPlayer);
     }
@@ -1076,7 +1085,7 @@ public class GameController {
     public boolean shouldDelayForPossibleCardUse() {
         boolean phaseToWaitBefore = board.getCurrentPhase().isPhaseToWaitBefore();
         boolean useCardPresent = board.getPlayers().stream().anyMatch(player -> player.getUpgradeCards().stream().anyMatch(UpgradeCard::isEnabled));
-        RoboRally.setDebugText(10, "shouldDelayForPossibleCardUse?: " + phaseToWaitBefore + " && " + useCardPresent);
+        //RoboRally.setDebugText(10, "shouldDelayForPossibleCardUse?: " + phaseToWaitBefore + " && " + useCardPresent);
         return phaseToWaitBefore && useCardPresent;
     }
 

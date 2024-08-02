@@ -25,9 +25,7 @@ public class Card_DeflectorShield extends UpgradeCardPermanent {
             if (owner == playerTakingDamage) {
                 if (activated) {
                     activated = false;
-                    if (ApplicationSettings.DEBUG_SHOW_UPGRADE_CARD_USAGE) {
-                        System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\" to negate laser damage.");
-                    }
+                    printUsage();
                     damage.clear();
                 }
             }
@@ -47,7 +45,6 @@ public class Card_DeflectorShield extends UpgradeCardPermanent {
 
     @Override
     public void onActivated() {
-        
         activated = true;
     }
 }

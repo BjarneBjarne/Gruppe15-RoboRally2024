@@ -19,6 +19,7 @@ public class ApplicationSettings {
 
     // Action delay
     public static final int NEXT_REGISTER_DELAY = 0; // In milliseconds.
+    public static final int END_OF_ROUND_DELAY = 0; // In milliseconds.
     public static final int NEXT_PLAYER_REGISTER_DELAY = 2000;
     public static final int PRE_PHASE_USAGE_DELAY_MILLIS = 2000;
     public static final boolean WITH_ACTION_DELAY = true;

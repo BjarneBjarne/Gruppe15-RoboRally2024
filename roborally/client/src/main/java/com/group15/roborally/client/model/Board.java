@@ -149,7 +149,7 @@ public class Board extends Subject {
         if (player != this.currentPlayer && players.contains(player)) {
             this.currentPlayer = player;
         }
-        RoboRally.setDebugText(11, "Current player: " + this.currentPlayer.getName());
+        RoboRally.setDebugText(3, "Current register: " + currentRegister + ", current player: " + currentPlayer.getName());
         notifyChange();
     }
 
@@ -173,7 +173,7 @@ public class Board extends Subject {
     public void setCurrentRegister(int currentRegister) {
         if (currentRegister != this.currentRegister) {
             this.currentRegister = currentRegister;
-            RoboRally.setDebugText(3, "Current register: " + currentRegister);
+            RoboRally.setDebugText(3, "Current register: " + currentRegister + ", current player: " + currentPlayer.getName());
             notifyChange();
         }
     }

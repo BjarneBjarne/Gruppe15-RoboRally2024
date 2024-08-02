@@ -409,12 +409,12 @@ public class ServerDataManager extends Subject implements Observer {
     }
     public void waitForInteractionAndCallback(Runnable callback, long playerId, int interactionNo) {
         interaction = null;
-        RoboRally.setDebugText(12, "Waiting for interaction");
+        RoboRally.setDebugText(6, "Waiting for interaction");
         Runnable poll = () -> {
             interaction = serverCommunication.getInteraction(playerId, interactionNo);
             if (interaction != null) {
                 serverPoller.shutdownNow();
-                RoboRally.setDebugText(12, "");
+                RoboRally.setDebugText(6, "No interaction");
                 Platform.runLater(callback);
             }
         };

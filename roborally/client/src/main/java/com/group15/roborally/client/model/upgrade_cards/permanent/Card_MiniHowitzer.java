@@ -29,9 +29,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
             if (owner != playerTakingDamage) {
                 if (activated) {
                     activated = false;
-                    if (ApplicationSettings.DEBUG_SHOW_UPGRADE_CARD_USAGE) {
-                        System.out.println("Player: \"" + owner.getName() + "\" used UpgradeCard: \"" + title + "\" to push and deal two more SPAM damage to player: \"" + playerTakingDamage + "\".");
-                    }
+                    printUsage();
                     // pushDirection calculated for compatibility with e.g. "REAR LASER" UpgradeCardPermanent.
                     List<Player> playerToPush = new ArrayList<>();
                     playerToPush.add(playerTakingDamage);
