@@ -577,6 +577,7 @@ public class GameController {
      */
     public boolean canDropCard(CardField sourceField, CardField targetField) {
         if (sourceField == null || targetField == null) return false;
+        if (targetField.player == null) return false;
         if (localPlayer.getPlayerId() != targetField.player.getPlayerId()) return false;
 
         CardField.CardFieldTypes sourceType = sourceField.cardFieldType;
@@ -605,7 +606,8 @@ public class GameController {
 
             // Can't put again command on first register
             if (sourceField.cardFieldType == COMMAND_CARD_FIELD) {
-                return ((CommandCard) (sourceField.getCard())).command != Command.AGAIN || targetField.index != 1;
+                return (((CommandCard) (sourceField.getCard())).command != Command.AGAIN) ||
+                        (Arrays.stream(targetField.player.getProgramFields()).toList().indexOf(targetField) != 0);
             }
         }
 

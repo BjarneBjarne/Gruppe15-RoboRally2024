@@ -44,7 +44,6 @@ public class CardField extends Subject {
     final public CardFieldTypes cardFieldType;
     final public Player player;
     final public UpgradeShop upgradeShop;
-    final public int index;
     @Getter
     private Card card;
     @Getter
@@ -56,7 +55,6 @@ public class CardField extends Subject {
      * Method for making an UpgradeShop field.
      */
     public CardField(UpgradeShop upgradeShop) {
-        index = 0;
         this.player = null;
         this.upgradeShop = upgradeShop;
         this.card = null;
@@ -70,26 +68,11 @@ public class CardField extends Subject {
      * @param cardFieldType The type of cards that can go here.
      */
     public CardField(Player player, CardFieldTypes cardFieldType) {
-        index = 0;
         this.player = player;
         this.upgradeShop = null;
         this.card = null;
         this.visible = true;
         this.cardFieldType = cardFieldType;
-    }
-
-    /**
-     * Method for making a command card field.
-     * @param player
-     * @param i
-     */
-    public CardField(Player player, int i) {
-        index = i;
-        this.player = player;
-        this.upgradeShop = null;
-        this.card = null;
-        this.visible = true;
-        this.cardFieldType = COMMAND_CARD_FIELD;
     }
 
     public void setCard(Card card) {

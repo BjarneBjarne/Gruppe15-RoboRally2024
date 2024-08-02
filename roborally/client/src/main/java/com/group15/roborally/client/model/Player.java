@@ -129,7 +129,7 @@ public class Player extends Subject {
 
         programFields = new CardField[NO_OF_REGISTERS];
         for (int i = 0; i < programFields.length; i++) {
-            programFields[i] = new CardField(this,i+1);
+            programFields[i] = new CardField(this, CardField.CardFieldTypes.COMMAND_CARD_FIELD);
         }
         cardHandFields = new CardField[10];
         for (int i = 0; i < cardHandFields.length; i++) {
