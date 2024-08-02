@@ -129,7 +129,7 @@ public class GameController {
         updateDebuggingOfCounters();
     }
     private void updateDebuggingOfCounters() {
-        RoboRally.setDebugText(4, "Turn counter: " + turnCounter + ", wait counter: " + waitCounter + ", interaction counter: " + interactionCounter + ", phase counter: " + phaseCounter);
+        RoboRally.setDebugText(3, "Turn counter: " + turnCounter + ", wait counter: " + waitCounter + ", interaction counter: " + interactionCounter + ", phase counter: " + phaseCounter);
     }
 
 
@@ -141,7 +141,6 @@ public class GameController {
         if (serverDataManager.isHost()) serverDataManager.setGamePhase(newPhase);
         board.setCurrentPhase(newPhase);
         serverDataManager.setCurrentPhase(newPhase);
-        RoboRally.setDebugText(2, "GamePhase: " + board.getCurrentPhase());
         incrementPhaseCounter();
         handlingPrePhase = false;
 
@@ -440,13 +439,13 @@ public class GameController {
         if (!playerInteractionQueue.isEmpty()) {
             currentPlayerInteraction = playerInteractionQueue.poll();
             incrementInteractionCounter();
-            RoboRally.setDebugText(5, currentPlayerInteraction.toString());
+            RoboRally.setDebugText(4, currentPlayerInteraction.toString());
             currentPlayerInteraction.initializeInteraction();
             board.updateBoard();
         } else {
             // If not, callback and continue
             currentPlayerInteraction = null;
-            RoboRally.setDebugText(5, "");
+            RoboRally.setDebugText(4, "");
             board.updateBoard();
             runActionsAndCallback(interactionCallback);
         }
@@ -772,25 +771,6 @@ public class GameController {
     }
 
     private void updateChoicesDebug() {
-        String unresolvedChoicesText = "unresolvedLocalChoices: " + unresolvedLocalChoices.size();
-        if (!unresolvedLocalChoices.isEmpty()) {
-            unresolvedChoicesText += "\n";
-            for (ChoiceDTO choiceDTO : unresolvedLocalChoices) {
-                Set<Long> choicePlayerIds = latestChoiceData.stream()
-                        .filter(c ->
-                                c.isResolved() && // Received choice is resolved.
-                                c.getCode().equals(choiceDTO.code()) && c.getPlayerId() == choiceDTO.playerId()) // Received choice matches the locally unresolved choice.
-                        .map(c -> Long.parseLong(c.getResolveStatus()))
-                        .collect(Collectors.toSet());
-                choicePlayerIds.add(localPlayer.getPlayerId());
-                unresolvedChoicesText += "\t * " + choiceDTO.code() + ". Response from: ";
-                for (Long playerId : choicePlayerIds) {
-                    unresolvedChoicesText += latestPlayerData.get(playerId).getPlayerName() + ", ";
-                }
-            }
-        }
-        RoboRally.setDebugText(8, unresolvedChoicesText);
-
         if (latestChoiceData != null) {
             List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
             unhandledChoices.removeAll(executedChoices);
@@ -798,11 +778,31 @@ public class GameController {
             if (!unhandledChoices.isEmpty()) {
                 unhandledChoicesText += "\n";
                 for (Choice choice : unhandledChoices) {
-                    unhandledChoicesText += "\t * " + choice.getCode() + ". From: " + latestPlayerData.get(choice.getPlayerId()).getPlayerName() + ".";
+                    unhandledChoicesText += "\t * " + choice.getCode() + ", " + choice.getWaitCount() + ". From: " + latestPlayerData.get(choice.getPlayerId()).getPlayerName() + ".\n";
                 }
             }
-            RoboRally.setDebugText(9, unhandledChoicesText);
+            RoboRally.setDebugText(8, unhandledChoicesText);
         }
+
+        String unresolvedChoicesText = "unresolvedLocalChoices: " + unresolvedLocalChoices.size();
+        if (!unresolvedLocalChoices.isEmpty()) {
+            unresolvedChoicesText += "\n";
+            for (ChoiceDTO choiceDTO : unresolvedLocalChoices) {
+                Set<Long> choicePlayerIds = latestChoiceData.stream()
+                        .filter(c ->
+                                c.isResolved() && // Received choice is resolved.
+                                        c.getCode().equals(choiceDTO.code()) && c.getPlayerId() == choiceDTO.playerId()) // Received choice matches the locally unresolved choice.
+                        .map(c -> Long.parseLong(c.getResolveStatus()))
+                        .collect(Collectors.toSet());
+                choicePlayerIds.add(localPlayer.getPlayerId());
+                unresolvedChoicesText += "\t * " + choiceDTO.code() + ", " + choiceDTO.waitCount() + ". Response from: ";
+                for (Long playerId : choicePlayerIds) {
+                    unresolvedChoicesText += latestPlayerData.get(playerId).getPlayerName() + ", ";
+                }
+                unresolvedChoicesText += "\n";
+            }
+        }
+        RoboRally.setDebugText(7, unresolvedChoicesText);
     }
 
 
@@ -1008,6 +1008,8 @@ public class GameController {
 
     private void executeUnhandledUpgradeCards() {
         latestChoiceData = serverDataManager.getUpdatedChoices();
+        if (latestChoiceData == null) return;
+
         List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
         unhandledChoices.removeAll(executedChoices);
 

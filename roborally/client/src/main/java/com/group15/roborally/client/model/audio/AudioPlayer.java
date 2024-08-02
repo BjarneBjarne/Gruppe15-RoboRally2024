@@ -18,7 +18,11 @@ public class AudioPlayer {
     public AudioPlayer(String fileName, IntegerProperty finalChannelVolume) {
         this.finalChannelVolume = finalChannelVolume;
         this.fileName = fileName;
-        executorService = Executors.newSingleThreadExecutor();
+        executorService = Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable);
+            thread.setDaemon(true);
+            return thread;
+        });
     }
 
     // Playback
@@ -31,7 +35,7 @@ public class AudioPlayer {
                     clip.start();
                 }
             } else {
-                printNoClipError("Can't play audio with filename: " + fileName);
+                clipError("Can't play audio with filename: " + fileName);
             }
         });
     }
@@ -62,7 +66,7 @@ public class AudioPlayer {
         volumeControl.setValue(adjustedVolume);
     }
 
-    private void printNoClipError(String msg) {
+    private void clipError(String msg) {
         System.err.println(msg + " Clip is null. Latest file name: \"" + fileName + "\".");
     }
 }

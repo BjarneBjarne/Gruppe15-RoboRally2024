@@ -20,9 +20,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,6 +48,12 @@ public class ServerDataManager extends Subject implements Observer {
     private int currentTurnCount, currentPhaseCount, currentWaitCount, currentInteractionCount = -1;
     @Setter
     private GamePhase currentPhase = GamePhase.LOBBY;
+
+    private final ThreadFactory daemonThreadFactory = task -> {
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        return thread;
+    };
 
     // Updated Game data
     private Game game = null;
@@ -181,8 +185,9 @@ public class ServerDataManager extends Subject implements Observer {
                 }
             }
         };
-        gameUpdateScheduler = Executors.newScheduledThreadPool(10);
-        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
+        try (ScheduledThreadPoolExecutor gameUpdateScheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(10, daemonThreadFactory)) {
+            gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
+        }
     }
 
     /**
@@ -267,7 +272,7 @@ public class ServerDataManager extends Subject implements Observer {
             }
         }
         if (updatedRegisters != null) {
-            RoboRally.setDebugText(7, "updatedRegisters.size: " + updatedRegisters.size());
+            RoboRally.setDebugText(6, "updatedRegisters.size: " + updatedRegisters.size());
             if (this.registers == null ||
                     this.registers.size() != updatedRegisters.size() ||
                     IntStream.range(0, updatedRegisters.size()).anyMatch(i -> updatedRegisters.get(i).hasChanges(this.registers.get(i)))) {
@@ -275,7 +280,7 @@ public class ServerDataManager extends Subject implements Observer {
                 hasChanges = true;
             }
         } else {
-            RoboRally.setDebugText(7, "updatedRegisters are null");
+            RoboRally.setDebugText(6, "updatedRegisters are null");
         }
         if (updatedChoices != null) {
             if (!Choice.areListsEqual(this.choices, updatedChoices)) {
@@ -375,6 +380,13 @@ public class ServerDataManager extends Subject implements Observer {
     // Upgrade cards
     public void setChoice(ChoiceDTO choiceDTO) {
         serverCommunication.putChoice(choiceDTO);
+        System.out.println();
+        System.out.println("Send choice to server:");
+        System.out.println("Code: " + choiceDTO.code());
+        System.out.println("Wait count: " + choiceDTO.waitCount());
+        System.out.println("PlayerId: " + choiceDTO.playerId());
+        System.out.println("Resolve status: " + choiceDTO.resolveStatus());
+        System.out.println();
         notifyChange();
     }
     public void setReadyChoice() {
@@ -397,8 +409,9 @@ public class ServerDataManager extends Subject implements Observer {
                 Platform.runLater(callback);
             }
         };
-        serverPoller = Executors.newScheduledThreadPool(1);
-        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+        try (ScheduledThreadPoolExecutor serverPoller = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2, daemonThreadFactory)) {
+            serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+        }
     }
 
     // Player interactions
@@ -409,17 +422,18 @@ public class ServerDataManager extends Subject implements Observer {
     }
     public void waitForInteractionAndCallback(Runnable callback, long playerId, int interactionNo) {
         interaction = null;
-        RoboRally.setDebugText(6, "Waiting for interaction");
+        RoboRally.setDebugText(5, "Waiting for interaction");
         Runnable poll = () -> {
             interaction = serverCommunication.getInteraction(playerId, interactionNo);
             if (interaction != null) {
                 serverPoller.shutdownNow();
-                RoboRally.setDebugText(6, "No interaction");
+                RoboRally.setDebugText(5, "No interaction");
                 Platform.runLater(callback);
             }
         };
-        serverPoller = Executors.newScheduledThreadPool(1);
-        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+        try (ScheduledThreadPoolExecutor serverPoller = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2, daemonThreadFactory)) {
+            serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
+        }
     }
 
 

@@ -149,7 +149,7 @@ public class Board extends Subject {
         if (player != this.currentPlayer && players.contains(player)) {
             this.currentPlayer = player;
         }
-        RoboRally.setDebugText(3, "Current register: " + currentRegister + ", current player: " + currentPlayer.getName());
+        updateDebug();
         notifyChange();
     }
 
@@ -162,10 +162,10 @@ public class Board extends Subject {
         if (phase != this.currentPhase) {
             this.currentPhase = phase;
             switch (phase) {
-                case PROGRAMMING -> this.currentRegister = 0;
                 case PLAYER_ACTIVATION, BOARD_ACTIVATION -> {}
                 default -> this.currentRegister = -1;
             }
+            updateDebug();
             notifyChange();
         }
     }
@@ -173,9 +173,16 @@ public class Board extends Subject {
     public void setCurrentRegister(int currentRegister) {
         if (currentRegister != this.currentRegister) {
             this.currentRegister = currentRegister;
-            RoboRally.setDebugText(3, "Current register: " + currentRegister + ", current player: " + currentPlayer.getName());
+            updateDebug();
             notifyChange();
         }
+    }
+
+    private void updateDebug() {
+        String debugText = "Register: " + currentRegister;
+        debugText +=  ". Current player: " + (currentPlayer != null ? currentPlayer.getName() : "none");
+        debugText += ". GamePhase: " + (currentPhase != null ? currentPhase : "none");
+        RoboRally.setDebugText(2, debugText);
     }
 
     public void setStepMode(boolean stepMode) {
