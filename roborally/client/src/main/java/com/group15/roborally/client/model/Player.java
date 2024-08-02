@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.model;
 
+import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.IllegalPlayerPropertyAccess;
 import com.group15.roborally.client.model.boardelements.BE_SpawnPoint;
@@ -785,10 +786,10 @@ public class Player extends Subject {
         boolean rotateClockwise = quarterRotationClockwise > 0;
         for (int i = 0; i < Math.abs(quarterRotationClockwise); i++) {
             board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                Heading prevOrientation = heading;
-                Heading newOrientation = rotateClockwise ? prevOrientation.next() : prevOrientation.prev();
                 if (!getIsRebooting()) {
-                    setHeading(newOrientation);
+                    Heading newHeading = rotateClockwise ? heading.next() : heading.prev();
+                    RoboRally.audioMixer.playPlayerTurn();
+                    setHeading(newHeading);
                 }
             }, 150, "Player rotation: " + getName()));
         }

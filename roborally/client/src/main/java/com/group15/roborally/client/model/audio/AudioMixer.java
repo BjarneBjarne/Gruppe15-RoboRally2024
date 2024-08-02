@@ -28,6 +28,15 @@ public class AudioMixer {
     private final AudioPlayer laserShoot;
     private final AudioPlayer laserHit;
 
+    private final AudioPlayer playerMove;
+    private final AudioPlayer playerTurn;
+    private final AudioPlayer playerShutDown;
+    private final AudioPlayer playerBootUp;
+    private final AudioPlayer playerWin;
+
+    private final AudioPlayer[] clockTicks = new AudioPlayer[10];
+    private final AudioPlayer clockAlarm;
+
     // Initializing
     public AudioMixer() {
         // Channels
@@ -35,15 +44,23 @@ public class AudioMixer {
         Channel boardChannel = new Channel(ChannelType.UI, masterVolume);
         channels.put(uiChannel.getChannelType(), uiChannel);
         channels.put(boardChannel.getChannelType(), boardChannel);
+
         // Audio players
         uiClick = uiChannel.newAudioPlayer("ui_click");
-        uiClick.setAudioVolumePercent(65);
+        //uiClick.setAudioVolumePercent(85);
         uiHover = uiChannel.newAudioPlayer("ui_hover");
-        uiHover.setAudioVolumePercent(85);
-        laserShoot = uiChannel.newAudioPlayer("laser_shoot");
-        laserShoot.setAudioVolumePercent(60);
-        laserHit = uiChannel.newAudioPlayer("laser_hit");
-        laserHit.setAudioVolumePercent(60);
+        clockAlarm = uiChannel.newAudioPlayer("clock_alarm");
+        for (int i = 0; i < clockTicks.length; i++) {
+            clockTicks[i] = uiChannel.newAudioPlayer("clock_tick_" + i);
+        }
+
+        laserShoot = boardChannel.newAudioPlayer("laser_shoot");
+        laserHit = boardChannel.newAudioPlayer("laser_hit");
+        playerMove = boardChannel.newAudioPlayer("player_move");
+        playerTurn = boardChannel.newAudioPlayer("player_turn");
+        playerShutDown = boardChannel.newAudioPlayer("player_shutDown");
+        playerBootUp = boardChannel.newAudioPlayer("player_bootUp");
+        playerWin = boardChannel.newAudioPlayer("player_win");
     }
 
     // AudioPlayer playback methods
@@ -53,11 +70,35 @@ public class AudioMixer {
     public void playUIHover() {
         uiHover.playAudio();
     }
+
     public void playLaserShoot() {
         laserShoot.playAudio();
     }
     public void playLaserHit() {
         laserHit.playAudio();
+    }
+
+    public void playPlayerMove() {
+        playerMove.playAudio();
+    }
+    public void playPlayerTurn() {
+        playerTurn.playAudio();
+    }
+    public void playPlayerShutDown() {
+        playerShutDown.playAudio();
+    }
+    public void playPlayerBootUp() {
+        playerBootUp.playAudio();
+    }
+    public void playPlayerWin() {
+        playerWin.playAudio();
+    }
+
+    public void playClockTick(int second) {
+        clockTicks[second % 10].playAudio();
+    }
+    public void playClockAlarm() {
+        clockAlarm.playAudio();
     }
 
     /**

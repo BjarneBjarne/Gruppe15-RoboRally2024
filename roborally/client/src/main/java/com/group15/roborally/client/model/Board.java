@@ -557,6 +557,8 @@ public class Board extends Subject {
 
         if (!couldMove) {
             nextSpace = currentSpace;
+        } else {
+            RoboRally.audioMixer.playPlayerMove();
         }
 
         // Setting the players position to nextSpace in the EventHandler

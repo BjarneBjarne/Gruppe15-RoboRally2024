@@ -79,7 +79,7 @@ public class Damage {
         return damageTypeAmountList;
     }
 
-    public void applyDamage(Player playerTakingDamage, Player playerInflictingTheDamage) {
+    public void applyDamage(Player playerTakingDamage) {
         for (DamageTypeAmount damageTypeAmount : damageTypeAmountList) {
             Command cmdType = damageTypeAmount.type.getCommandCardType();
             if (damageTypeAmount.getAmount() > 0) {
