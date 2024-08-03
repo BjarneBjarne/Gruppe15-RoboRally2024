@@ -241,24 +241,28 @@ public class Player extends Subject {
     }
 
     public void startRebooting(GameController gameController, boolean takeDamage) {
-        System.out.println(name + " rebooting.");
-        if (takeDamage) {
-            for (int i = 0; i < 2; i++) {
-                discard(new CommandCard(Command.SPAM));
+        if (!rebooting) {
+            RoboRally.audioMixer.playPlayerShutDown();
+            System.out.println(name + " rebooting.");
+            if (takeDamage) {
+                for (int i = 0; i < 2; i++) {
+                    discard(new CommandCard(Command.SPAM));
+                }
             }
+            if (board.getCurrentPhase() != GamePhase.INITIALIZATION) {
+                gameController.addPlayerInteraction(new RebootInteraction(gameController, this));
+            }
+            rebooting = true;
+            space.updateSpace();
         }
-        if (board.getCurrentPhase() != GamePhase.INITIALIZATION) {
-            gameController.addPlayerInteraction(new RebootInteraction(gameController, this));
-        }
-        this.rebooting = true;
-        space.updateSpace();
     }
     public void stopRebooting() {
-        if (this.rebooting) {
+        if (rebooting) {
+            RoboRally.audioMixer.playPlayerBootUp();
             System.out.println(name + " stopped rebooting.");
+            rebooting = false;
+            space.updateSpace();
         }
-        this.rebooting = false;
-        space.updateSpace();
     }
     public boolean getIsRebooting() {
         return this.rebooting;

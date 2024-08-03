@@ -8,36 +8,92 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AudioPlayer {
+    public enum PlayMode {
+        OVERLAP,
+        SINGLE
+    }
+
     private final String fileName;
     private final IntegerProperty finalChannelVolume;
     private final ExecutorService executorService;
+    private final PlayMode playMode;
 
     // Settings
     private int audioVolume = 100; // Default volume (100%)
+    private Clip clip; // For SINGLE mode
 
-    public AudioPlayer(String fileName, IntegerProperty finalChannelVolume) {
-        this.finalChannelVolume = finalChannelVolume;
+    public AudioPlayer(String fileName, IntegerProperty finalChannelVolume, PlayMode playMode) {
         this.fileName = fileName;
-        executorService = Executors.newSingleThreadExecutor(runnable -> {
+        this.finalChannelVolume = finalChannelVolume;
+        this.playMode = playMode;
+        this.executorService = Executors.newSingleThreadExecutor(runnable -> {
             Thread thread = new Thread(runnable);
             thread.setDaemon(true);
             return thread;
+        });
+
+        if (playMode == PlayMode.SINGLE) {
+            initializeClip();
+        }
+    }
+
+    private void initializeClip() {
+        executorService.submit(() -> {
+            clip = AudioUtils.getAudioFromName(fileName);
+            if (clip != null) {
+                updateAudioSettings(clip);
+            } else {
+                clipError("Can't load audio with filename: " + fileName);
+            }
         });
     }
 
     // Playback
     public void playAudio() {
-        executorService.submit(() -> {
-            Clip clip = AudioUtils.getAudioFromName(fileName);
-            if (clip != null) {
-                synchronized (clip) {
-                    updateAudioSettings(clip);  // Apply the current volume settings to the new clip
+        if (playMode == PlayMode.OVERLAP) {
+            executorService.submit(() -> {
+                Clip newClip = AudioUtils.getAudioFromName(fileName);
+                if (newClip != null) {
+                    synchronized (newClip) {
+                        updateAudioSettings(newClip);
+                        newClip.start();
+                    }
+                } else {
+                    clipError("Can't play audio with filename: " + fileName);
+                }
+            });
+        } else {
+            executorService.submit(() -> {
+                if (clip != null) {
+                    synchronized (clip) {
+                        clip.setMicrosecondPosition(0); // Start from the beginning
+                        clip.start();
+                    }
+                } else {
+                    clipError("Can't play audio with filename: " + fileName);
+                }
+            });
+        }
+    }
+
+    public void pauseAudio() {
+        if (playMode == PlayMode.SINGLE) {
+            executorService.submit(() -> {
+                if (clip != null && clip.isRunning()) {
+                    clip.stop();
+                }
+            });
+        }
+    }
+
+    public void resumeAudio() {
+        if (playMode == PlayMode.SINGLE) {
+            executorService.submit(() -> {
+                if (clip != null && !clip.isRunning()) {
                     clip.start();
                 }
-            } else {
-                clipError("Can't play audio with filename: " + fileName);
-            }
-        });
+            });
+        }
     }
 
     // Settings
@@ -56,14 +112,31 @@ public class AudioPlayer {
             volume = 100;
         }
         this.audioVolume = volume;
+        if (playMode == PlayMode.SINGLE) {
+            updateAudioSettings(clip);
+        }
     }
 
     private void updateVolume(Clip clip) {
-        FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        float min = volumeControl.getMinimum();
-        float max = volumeControl.getMaximum();
-        float adjustedVolume = min + ((audioVolume / 100.0f) * (finalChannelVolume.get() / 100.0f) * (max - min));
-        volumeControl.setValue(adjustedVolume);
+        if (clip != null) {
+            FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float min = volumeControl.getMinimum();
+            float max = volumeControl.getMaximum();
+
+            System.out.println("Playing clip: " + fileName);
+            System.out.println("finalChannelVolume.get(): " + finalChannelVolume.get());
+            // Converting the volume from percentage to decibels
+            float linearVolume = (audioVolume / 100.0f) * (finalChannelVolume.get() / 100.0f);
+            float dBVolume;
+            if (linearVolume == 0) {
+                dBVolume = min;
+            } else {
+                dBVolume = (float) (Math.log10(linearVolume) * 20);
+                dBVolume = Math.max(min, Math.min(max, dBVolume));
+            }
+
+            volumeControl.setValue(dBVolume);
+        }
     }
 
     private void clipError(String msg) {

@@ -217,8 +217,8 @@ public class RoboRally extends Application {
         };
         timer.start();
 
-        audioMixer.setMasterVolumePercent(100);
-        audioMixer.getChannel(AudioMixer.ChannelType.UI).setChannelVolumePercent(100);
+        audioMixer.setMasterVolumePercent(25);
+        //audioMixer.getChannel(AudioMixer.ChannelType.UI).setChannelVolumePercent(100);
     }
 
     private void setBackgroundImage(String imageString) {
@@ -323,6 +323,7 @@ public class RoboRally extends Application {
         // create and add view for new board
         mainMenuPane = new MainMenuView().initialize(appController).getMainMenu();
         ButtonUtils.setupAllFXMLButtons(mainMenuPane);
+        audioMixer.playBackgroundMusic();
     }
 
     /**

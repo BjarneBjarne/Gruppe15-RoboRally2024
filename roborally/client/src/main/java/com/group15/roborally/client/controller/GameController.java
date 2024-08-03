@@ -374,10 +374,9 @@ public class GameController {
         PauseTransition pause = new PauseTransition(Duration.millis(END_OF_ROUND_DELAY));
         pause.setOnFinished(a -> {
             for (Player player : board.getPlayers()) {
-                player.stopRebooting();
-                player.getSpace().updateSpace();
+                board.getBoardActionQueue().addFirst(new ActionWithDelay(player::stopRebooting, 0, "Rebooting player: \"" + player.getName() + "\"."));
             }
-            setReadyForNextPhase();
+            runActionsAndCallback(this::setReadyForNextPhase);
         });  // Small delay before ending activation phase for dramatic effect ;-).
         pause.play();
     }
@@ -514,6 +513,7 @@ public class GameController {
      * @author Maximillian Bjørn Mortensen
      */
     public void setGameOver(Player winner) {
+        RoboRally.audioMixer.playPlayerWin();
         AppController.gameOver(winner);
     }
 
@@ -929,10 +929,14 @@ public class GameController {
                 @Override
                 public void handle(long now) {
                     int newCountdownTimeLeft = Math.clamp(30 - (int)java.time.Duration.between(startTimeOfCountdown, Instant.now()).toSeconds(), 0, 30);
-                    if (newCountdownTimeLeft != countdownTimeLeft) {
+                    if (countdownTimeLeft != newCountdownTimeLeft) {
                         countdownTimeLeft = newCountdownTimeLeft;
+                        RoboRally.audioMixer.playClockTick(countdownTimeLeft);
                         board.updateBoard();
-                        if (countdownTimeLeft <= 0) finishedProgramming();
+                        if (countdownTimeLeft <= 0) {
+                            RoboRally.audioMixer.playClockAlarm();
+                            finishedProgramming();
+                        }
                     }
                 }
             };

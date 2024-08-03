@@ -185,9 +185,8 @@ public class ServerDataManager extends Subject implements Observer {
                 }
             }
         };
-        try (ScheduledThreadPoolExecutor gameUpdateScheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(10, daemonThreadFactory)) {
-            gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
-        }
+        gameUpdateScheduler = Executors.newScheduledThreadPool(10, daemonThreadFactory);
+        gameUpdateScheduler.scheduleAtFixedRate(lobbyUpdate, 1, 100, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -409,9 +408,8 @@ public class ServerDataManager extends Subject implements Observer {
                 Platform.runLater(callback);
             }
         };
-        try (ScheduledThreadPoolExecutor serverPoller = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2, daemonThreadFactory)) {
-            serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
-        }
+        serverPoller = Executors.newScheduledThreadPool(2, daemonThreadFactory);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 
     // Player interactions
@@ -431,9 +429,8 @@ public class ServerDataManager extends Subject implements Observer {
                 Platform.runLater(callback);
             }
         };
-        try (ScheduledThreadPoolExecutor serverPoller = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2, daemonThreadFactory)) {
-            serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
-        }
+        serverPoller = Executors.newScheduledThreadPool(2, daemonThreadFactory);
+        serverPoller.scheduleAtFixedRate(poll, 1, 100, TimeUnit.MILLISECONDS);
     }
 
 
@@ -469,7 +466,9 @@ public class ServerDataManager extends Subject implements Observer {
     public void disconnectFromServer(String infoMessage, int showMessageTimeInMillis) {
         if (isConnectedToServer()) {
             stopUpdateLoops();
-            serverCommunication.deletePlayer(localPlayer);
+            if (localPlayer != null) {
+                serverCommunication.deletePlayer(localPlayer);
+            }
             if (infoMessage == null || infoMessage.isEmpty()) infoMessage = "Disconnected from server.";
             AppController.setInfoText(infoMessage);
             runActionAndCallback(new ActionWithDelay(() -> { }, showMessageTimeInMillis, infoMessage), () -> AppController.setInfoText(""));

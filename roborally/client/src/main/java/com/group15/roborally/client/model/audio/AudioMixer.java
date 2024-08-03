@@ -16,12 +16,14 @@ public class AudioMixer {
     @Getter
     private final Map<ChannelType, Channel> channels = new EnumMap<>(ChannelType.class);
     public enum ChannelType {
+        MUSIC,
         UI,
-        BACKGROUND,
-        EFFECTS
+        SOUND_EFFECTS
     }
 
     // AudioPlayers
+    private final AudioPlayer backgroundMusic;
+
     private final AudioPlayer uiClick;
     private final AudioPlayer uiHover;
 
@@ -40,44 +42,59 @@ public class AudioMixer {
     // Initializing
     public AudioMixer() {
         // Channels
+        Channel musicChannel = new Channel(ChannelType.MUSIC, masterVolume);
         Channel uiChannel = new Channel(ChannelType.UI, masterVolume);
-        Channel boardChannel = new Channel(ChannelType.UI, masterVolume);
+        Channel soundEffectsChannel = new Channel(ChannelType.SOUND_EFFECTS, masterVolume);
+        channels.put(musicChannel.getChannelType(), musicChannel);
         channels.put(uiChannel.getChannelType(), uiChannel);
-        channels.put(boardChannel.getChannelType(), boardChannel);
+        channels.put(soundEffectsChannel.getChannelType(), soundEffectsChannel);
 
         // Audio players
-        uiClick = uiChannel.newAudioPlayer("ui_click");
+        // Music
+        backgroundMusic = musicChannel.newAudioPlayer("Ode_To_Oldfield", AudioPlayer.PlayMode.SINGLE);
+        // UI
+        uiClick = uiChannel.newAudioPlayer("ui_click", AudioPlayer.PlayMode.OVERLAP);
         //uiClick.setAudioVolumePercent(85);
-        uiHover = uiChannel.newAudioPlayer("ui_hover");
-        clockAlarm = uiChannel.newAudioPlayer("clock_alarm");
+        uiHover = uiChannel.newAudioPlayer("ui_hover", AudioPlayer.PlayMode.OVERLAP);
+        clockAlarm = uiChannel.newAudioPlayer("clock_alarm", AudioPlayer.PlayMode.OVERLAP);
         for (int i = 0; i < clockTicks.length; i++) {
-            clockTicks[i] = uiChannel.newAudioPlayer("clock_tick_" + i);
+            clockTicks[i] = uiChannel.newAudioPlayer("clock_tick_" + i, AudioPlayer.PlayMode.OVERLAP);
         }
-
-        laserShoot = boardChannel.newAudioPlayer("laser_shoot");
-        laserHit = boardChannel.newAudioPlayer("laser_hit");
-        playerMove = boardChannel.newAudioPlayer("player_move");
-        playerTurn = boardChannel.newAudioPlayer("player_turn");
-        playerShutDown = boardChannel.newAudioPlayer("player_shutDown");
-        playerBootUp = boardChannel.newAudioPlayer("player_bootUp");
-        playerWin = boardChannel.newAudioPlayer("player_win");
+        // Board
+        laserShoot = soundEffectsChannel.newAudioPlayer("laser_shoot", AudioPlayer.PlayMode.OVERLAP);
+        laserHit = soundEffectsChannel.newAudioPlayer("laser_hit", AudioPlayer.PlayMode.OVERLAP);
+        playerMove = soundEffectsChannel.newAudioPlayer("player_move", AudioPlayer.PlayMode.OVERLAP);
+        playerTurn = soundEffectsChannel.newAudioPlayer("player_turn", AudioPlayer.PlayMode.OVERLAP);
+        playerShutDown = soundEffectsChannel.newAudioPlayer("player_shutDown", AudioPlayer.PlayMode.OVERLAP);
+        playerBootUp = soundEffectsChannel.newAudioPlayer("player_bootUp", AudioPlayer.PlayMode.OVERLAP);
+        playerWin = soundEffectsChannel.newAudioPlayer("player_win", AudioPlayer.PlayMode.OVERLAP);
     }
 
     // AudioPlayer playback methods
+    // Music
+    public void playBackgroundMusic() {
+        backgroundMusic.playAudio();
+    }
+    // UI
     public void playUIClick() {
         uiClick.playAudio();
     }
     public void playUIHover() {
         uiHover.playAudio();
     }
-
+    public void playClockTick(int second) {
+        clockTicks[second % 10].playAudio();
+    }
+    public void playClockAlarm() {
+        clockAlarm.playAudio();
+    }
+    // Board
     public void playLaserShoot() {
         laserShoot.playAudio();
     }
     public void playLaserHit() {
         laserHit.playAudio();
     }
-
     public void playPlayerMove() {
         playerMove.playAudio();
     }
@@ -94,12 +111,6 @@ public class AudioMixer {
         playerWin.playAudio();
     }
 
-    public void playClockTick(int second) {
-        clockTicks[second % 10].playAudio();
-    }
-    public void playClockAlarm() {
-        clockAlarm.playAudio();
-    }
 
     /**
      * Sets the master volume for all channels and their audio players.
@@ -121,19 +132,18 @@ public class AudioMixer {
     public static class Channel {
         @Getter
         private final ChannelType channelType;
-        private final IntegerProperty masterVolume;
         private final IntegerProperty channelVolume = new SimpleIntegerProperty(100); // Channel volume in percentage (0-100)
         private final IntegerProperty finalChannelVolume = new SimpleIntegerProperty(100); // Channel volume in percentage (0-100)
 
         public Channel(ChannelType channelType, IntegerProperty masterVolume) {
             this.channelType = channelType;
-            this.masterVolume = masterVolume;
-            this.masterVolume.addListener((observable, oldValue, newValue) -> updateFinalChannelVolume());
-            this.channelVolume.addListener((observable, oldValue, newValue) -> updateFinalChannelVolume());
+            masterVolume.addListener((observable, oldValue, newValue) -> updateFinalChannelVolume(newValue.intValue(), channelVolume.get()));
+            this.channelVolume.addListener((observable, oldValue, newValue) -> updateFinalChannelVolume(masterVolume.get(), newValue.intValue()));
+            updateFinalChannelVolume(masterVolume.get(), channelVolume.get());
         }
 
-        private void updateFinalChannelVolume() {
-            finalChannelVolume.set((int) ((masterVolume.get() / 100.0f) * (channelVolume.get() / 100.0f) * 100));
+        private void updateFinalChannelVolume(int newMasterVolume, int newChannelVolume) {
+            finalChannelVolume.set((int) ((newMasterVolume / 100.0f) * (newChannelVolume / 100.0f) * 100.0));
         }
 
         /**
@@ -148,8 +158,8 @@ public class AudioMixer {
             this.channelVolume.set(channelVolume);
         }
 
-        public AudioPlayer newAudioPlayer(String fileName) {
-            return new AudioPlayer(fileName, finalChannelVolume);
+        public AudioPlayer newAudioPlayer(String fileName, AudioPlayer.PlayMode playMode) {
+            return new AudioPlayer(fileName, finalChannelVolume, playMode);
         }
     }
 }

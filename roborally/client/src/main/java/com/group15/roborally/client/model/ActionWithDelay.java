@@ -12,6 +12,7 @@ public class ActionWithDelay {
     private final Runnable action;
     private final String actionName;
 
+    private final boolean updateCounters;
     private static int initCounter = 0;
     private final int thisInitCounter;
     private static int execCounter = 0;
@@ -23,6 +24,7 @@ public class ActionWithDelay {
         this.action = action;
         this.delayInMillis = delayInMillis;
         this.actionName = actionName;
+        this.updateCounters = updateCounters;
         if (updateCounters) {
             initCounter++;
             thisInitCounter = initCounter;
@@ -35,7 +37,7 @@ public class ActionWithDelay {
     }
 
     public void runAndCallback(Runnable callback) {
-        execCounter++;
+        if (updateCounters) execCounter++;
         if (DEBUG_WITH_ACTION_MESSAGE) {
             System.out.println(
                     "\tExecuting action -> {\n" +

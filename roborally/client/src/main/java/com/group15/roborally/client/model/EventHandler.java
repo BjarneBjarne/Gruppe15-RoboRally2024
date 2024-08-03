@@ -77,6 +77,10 @@ public class EventHandler {
 
 
 
+
+
+
+
     /**
      * Method for letting a player laser start at the EventManager, letting PlayerShootListeners modify the "original" laser.
      * This should ONLY be called from within player.queueLaser().
@@ -97,7 +101,6 @@ public class EventHandler {
 
         event_PlayerShootHandle(playerShooting, laser);
     }
-
     /**
      * Method for whenever a player has begun to shoot. Mainly calculates and distributes damage.
      * @param playerShooting The player who is currently shooting.
@@ -149,8 +152,6 @@ public class EventHandler {
 
 
 
-
-
     /**
      * Method for when a player takes damage.
      * @param playerTakingDamage The player that takes the damage.
@@ -177,11 +178,9 @@ public class EventHandler {
             Damage finalDamage = damage;
             actionQueue.addFirst(new ActionWithDelay(() -> {
                 finalDamage.applyDamage(playerTakingDamage);
-            }, 250, "Player: \"" + playerTakingDamage.getName() + "\" took " + finalDamage + " from " + ((playerInflictingDamage != null) ? ("player: \"" + playerInflictingDamage.getName()) : "board laser.")));
+            }, 250, "Player: \"" + playerTakingDamage.getName() + "\" took " + finalDamage + " from " + (playerInflictingDamage != null ? ("player: \"" + playerInflictingDamage.getName()) : "board laser.")));
         }
     }
-
-
 
 
 
@@ -198,8 +197,6 @@ public class EventHandler {
         }
         return command;
     }
-
-
 
 
 
@@ -255,8 +252,6 @@ public class EventHandler {
 
 
 
-
-
     /**
      * Method for when a player moves. This should only be called when a player moves without being pushed.
      */
@@ -266,8 +261,6 @@ public class EventHandler {
         }
         playerMoving.setSpace(space);
     }
-
-
 
 
 
@@ -329,6 +322,8 @@ public class EventHandler {
             event_PlayerReboot(otherPlayerOnSpawnpoint, true, gameController);
         }
     }
+
+
 
     public static void event_EndOfAction(GameController gameController) {
         for (Player player : gameController.board.getPlayers()) {
