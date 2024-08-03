@@ -199,6 +199,8 @@ public class RoboRally extends Application {
 
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 
+        audioMixer.setMasterVolumePercent(50);
+        audioMixer.getChannel(AudioMixer.ChannelType.MUSIC).setChannelVolumePercent(0);
         createMainMenu();
         createMultiplayerMenu();
         goToMainMenu();
@@ -217,7 +219,6 @@ public class RoboRally extends Application {
         };
         timer.start();
 
-        audioMixer.setMasterVolumePercent(25);
         //audioMixer.getChannel(AudioMixer.ChannelType.UI).setChannelVolumePercent(100);
     }
 

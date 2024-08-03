@@ -66,6 +66,7 @@ public class AudioPlayer {
             executorService.submit(() -> {
                 if (clip != null) {
                     synchronized (clip) {
+                        updateAudioSettings(clip);
                         clip.setMicrosecondPosition(0); // Start from the beginning
                         clip.start();
                     }
