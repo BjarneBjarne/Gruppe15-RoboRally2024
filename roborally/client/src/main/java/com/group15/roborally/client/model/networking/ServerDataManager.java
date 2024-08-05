@@ -227,8 +227,8 @@ public class ServerDataManager extends Subject implements Observer {
             updatedUpgradeShop = null;
         }
         List<Register> updatedRegisters;
-        if (currentPhase.equals(GamePhase.PROGRAMMING) || currentPhase.equals(GamePhase.PLAYER_ACTIVATION)) {
-            updatedRegisters = serverCommunication.getRegisters(game.getGameId(), currentTurnCount);
+        if (currentPhase.equals(GamePhase.PROGRAMMING) || currentPhase.equals(GamePhase.PLAYER_ACTIVATION) || currentPhase.equals(GamePhase.BOARD_ACTIVATION)) {
+            updatedRegisters = serverCommunication.getRegisters(game.getGameId(), currentPhaseCount);
         } else {
             updatedRegisters = null;
         }
@@ -356,7 +356,7 @@ public class ServerDataManager extends Subject implements Observer {
     }
     // In game
     public void setPlayerRegister(@NotNull String[] programFieldNames) {
-        serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), currentTurnCount);
+        serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), currentPhaseCount);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {
         if (localPlayer.getSpawnDirection() == null || localPlayer.getSpawnDirection().isBlank()) {

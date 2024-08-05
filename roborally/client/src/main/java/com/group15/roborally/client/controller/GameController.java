@@ -66,6 +66,7 @@ public class GameController {
     @Getter
     private boolean handlingPrePhase = false;
     private boolean waitingForCardUse = false;
+    private boolean executingChoices = false;
 
     // Player interaction
     private final Queue<PlayerInteraction> playerInteractionQueue = new LinkedList<>();
@@ -87,6 +88,7 @@ public class GameController {
     private List<Choice> latestChoiceData;
     private AnimationTimer countdownTimer = null;
     private int countdownTimeLeft = -1;
+
 
     /**
      * Constructor method for GameController.
@@ -216,10 +218,10 @@ public class GameController {
         if (!unresolvedLocalChoices.isEmpty()) return;
         if (!board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) return;
 
-        setReadyForNextPhase();
         board.updateBoard();
         localPlayer.fillRestOfRegisters();
         serverDataManager.setPlayerRegister(localPlayer.getProgramFieldCardNames());
+        setReadyForNextPhase();
         board.updateBoard();
     }
 
@@ -358,6 +360,7 @@ public class GameController {
         // If there are more registers, set the currentRegister and continue to the next player.
         if (currentRegister < Player.NO_OF_REGISTERS - 1) {
             if (!board.isStepMode()) {
+                serverDataManager.setPlayerRegister(localPlayer.getProgramFieldCardNames());
                 setReadyForNextPhase();
             }
         } else {
@@ -874,7 +877,7 @@ public class GameController {
         board.updateBoard();
 
         // Check if all players are ready to switch to the next GamePhase. If they all are, switch locally and call initial GamePhase method.
-        if (canStartNextPhase() && !handlingPrePhase) {
+        if (canStartNextPhase()) {
             handlingPrePhase = true;
             startNextPhase();
         }
@@ -991,16 +994,18 @@ public class GameController {
     }
 
     private boolean canStartNextPhase() {
-        if (handlingPrePhase) return false;
+        if (handlingPrePhase || executingChoices) return false;
         if (currentPlayerInteraction != null || !playerInteractionQueue.isEmpty()) return false;
 
         boolean allAreReady = latestPlayerData.values().stream().allMatch(this::getIsPlayerReadyForNextPhase);
 
-        if (board.getCurrentPhase().equals(GamePhase.PROGRAMMING)) {
+        GamePhase nextPhase = board.getNextPhase();
+        if (nextPhase.equals(GamePhase.PLAYER_ACTIVATION)) {
             boolean receivedAllRegisters =
                     latestRegisterData != null &&
-                            latestRegisterData.size() == NO_OF_PLAYERS &&
-                            latestRegisterData.stream().noneMatch(Register::hasNull);
+                    latestRegisterData.size() == NO_OF_PLAYERS &&
+                    latestRegisterData.stream().noneMatch(Register::hasNull) &&
+                    latestRegisterData.stream().allMatch(register -> register.getTurn() == phaseCounter);
             RoboRally.setDebugText(0, "allAreReady: " + allAreReady + ". receivedAllRegisters: " + receivedAllRegisters + ". " + (latestRegisterData == null ? "registers are null" : ("No of registers: " + latestRegisterData.size())));
             return allAreReady && receivedAllRegisters;
         }
@@ -1012,6 +1017,7 @@ public class GameController {
         latestChoiceData = serverDataManager.getUpdatedChoices();
         if (latestChoiceData == null) return;
 
+        executingChoices = true;
         List<Choice> unhandledChoices = new ArrayList<>(latestChoiceData);
         unhandledChoices.removeAll(executedChoices);
 
@@ -1047,6 +1053,7 @@ public class GameController {
                 }
             }
         }
+        executingChoices = false;
     }
 
     private void removeLocalResolvedChoices() {

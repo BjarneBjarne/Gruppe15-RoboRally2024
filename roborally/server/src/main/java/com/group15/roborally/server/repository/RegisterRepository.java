@@ -1,6 +1,7 @@
 package com.group15.roborally.server.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,6 @@ public interface RegisterRepository extends JpaRepository<Register, Long> {
     List<Register> findAllByGameIdAndTurn(@Param("gameId") String gameId, @Param("turn") int turn);
 
     boolean existsByPlayerIdAndTurn(Long playerId, int turn);
+
+    Optional<Register> findByPlayerIdAndTurn(long playerId, int turn);
 }

@@ -42,22 +42,21 @@ public class ProgController {
      */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
-        Optional<Register> optionalRegister = registerRepository.findById(playerId);
         Optional<Player> optionalPlayer = playerRepository.findById(playerId);
-
-        if (optionalRegister.isEmpty()) {
-            System.err.println("Register not found");
-        }
 
         if (optionalPlayer.isEmpty()) {
             System.err.println("Player not found");
+            return ResponseEntity.status(404).build();
         }
 
-        if (optionalRegister.isEmpty() || optionalPlayer.isEmpty()) return ResponseEntity.status(404).build();
+        // Find existing register or create a new one
+        Register register = registerRepository.findByPlayerIdAndTurn(playerId, turn)
+                .orElse(new Register());
 
-        Register register = optionalRegister.get();
-        register.setMoves(moves);
+        register.setPlayerId(playerId);
         register.setTurn(turn);
+        register.setMoves(moves);
+
         if (register.hasNull()) return ResponseEntity.status(422).build();
 
         Game game = gameRepository.findByGameId(optionalPlayer.get().getGameId());
@@ -80,12 +79,10 @@ public class ProgController {
      */
     @GetMapping(value = "/games/{gameId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") String gameId, @PathVariable("turn") int turn) {
-        //System.out.println("Finding registers for game " + gameId);
         if (!gameRepository.existsById(gameId)) return ResponseEntity.status(404).build();
 
         List<Register> registers = registerRepository.findAllByGameIdAndTurn(gameId, turn);
 
-        //System.out.println("Found " + registers.size() + " registers");
         return ResponseEntity.ok(registers);
     }
 }

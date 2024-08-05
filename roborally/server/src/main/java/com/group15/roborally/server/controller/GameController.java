@@ -96,11 +96,6 @@ public class GameController {
         }
         gameRepository.findById(gameId).ifPresent(this::updateNoOfPlayersByGame);
 
-        Register register = new Register();
-        register.setPlayerId(player.getPlayerId());
-        register.setTurn(0);
-        registerRepository.save(register);
-
         return ResponseEntity.ok(player);
     }
 
