@@ -1,5 +1,6 @@
 package com.group15.roborally.client.model.upgrade_cards.permanent;
 
+import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.model.events.PlayerLaserHitListener;
@@ -43,7 +44,7 @@ public class Card_TractorBeam extends UpgradeCardPermanent {
                 if (!targetSpace.getIsWallBetween(spaceToPullTo)) {
                     owner.board.getBoardActionQueue().add(new ActionWithDelay(() -> {
                         playerTakingDamage.setSpace(spaceToPullTo);
-                    }, 0, "Pulling with Tractor Beam"));
+                    }, ApplicationSettings.DELAY_INSTANT,"Pulling with Tractor Beam"));
                 }
             }
             return damage;

@@ -281,7 +281,7 @@ public class GameController {
         Runnable nextMethod = this::setAndUpdateChoices;
         if (shouldDelayForPossibleCardUse()) {
             // Delay before assessing card usages.
-            new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.NEXT_PLAYER_REGISTER_DELAY, "Waiting for card use.").runAndCallback(nextMethod);
+            new ActionWithDelay(() -> setWaitingForCardUse(true), ApplicationSettings.DELAY_NEXT_PLAYER_REGISTER, "Waiting for card use.").runAndCallback(nextMethod);
         } else {
             nextMethod.run();
         }
@@ -371,10 +371,10 @@ public class GameController {
      */
     private void handleEndOfRound() {
         // If all registers are done
-        PauseTransition pause = new PauseTransition(Duration.millis(END_OF_ROUND_DELAY));
+        PauseTransition pause = new PauseTransition(Duration.millis(DELAY_END_OF_ROUND));
         pause.setOnFinished(a -> {
             for (Player player : board.getPlayers()) {
-                board.getBoardActionQueue().addFirst(new ActionWithDelay(player::stopRebooting, 0, "Rebooting player: \"" + player.getName() + "\"."));
+                board.getBoardActionQueue().addFirst(new ActionWithDelay(player::stopRebooting, ApplicationSettings.DELAY_NEXT_PLAYER_REBOOT, "Rebooting player: \"" + player.getName() + "\"."));
             }
             runActionsAndCallback(this::setReadyForNextPhase);
         });  // Small delay before ending activation phase for dramatic effect ;-).

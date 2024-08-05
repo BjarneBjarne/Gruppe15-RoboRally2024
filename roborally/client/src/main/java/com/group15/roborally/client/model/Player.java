@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.model;
 
+import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.exceptions.IllegalPlayerPropertyAccess;
@@ -668,19 +669,19 @@ public class Player extends Subject {
             // Damage
             case SPAM:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
-                }, 0, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
             case TROJAN_HORSE:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
                     for (int i = 0; i < 2; i++) {
                         discard(new CommandCard(Command.SPAM));
                     }
-                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
             case WORM:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
                     EventHandler.event_PlayerReboot(this, false, gameController);
-                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
             case VIRUS:
                 board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
@@ -689,7 +690,7 @@ public class Player extends Subject {
                             foundPlayer.discard(new CommandCard(Command.VIRUS));
                         }
                     }
-                }, 150, "{" + getName() + "} activated: (" + command.displayName + ") damage."));
+                }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
 
             // Special programming cards
@@ -765,7 +766,7 @@ public class Player extends Subject {
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction));
                 }}
-            }, 150, "Player movement: " + getName()));
+            }, ApplicationSettings.DELAY_PLAYER_MOVE, "Player movement: " + name));
         }
 
         // For each sideways movement
@@ -778,7 +779,7 @@ public class Player extends Subject {
                 if (!getIsRebooting()) {
                     board.movePlayerToSpace(this, board.getNeighbour(space, direction));
                 }}
-            }, 150, "Player movement: " + getName()));
+            }, ApplicationSettings.DELAY_PLAYER_MOVE, "Player movement: " + name));
         }
     }
 
@@ -795,7 +796,7 @@ public class Player extends Subject {
                     RoboRally.audioMixer.playPlayerTurn();
                     setHeading(newHeading);
                 }
-            }, 150, "Player rotation: " + getName()));
+            }, ApplicationSettings.DELAY_PLAYER_TURN, "Player rotation: " + name));
         }
     }
 

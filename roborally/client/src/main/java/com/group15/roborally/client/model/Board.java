@@ -21,6 +21,7 @@
  */
 package com.group15.roborally.client.model;
 
+import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.controller.GameController;
@@ -325,14 +326,14 @@ public class Board extends Subject {
                 Player player = getPlayer(i);
                 player.goToTemporarySpace();
             }
-        }, 200, debugBoardElementName));
+        }, ApplicationSettings.DELAY_NEXT_BOARD_ELEMENT, debugBoardElementName));
     }
 
     public void queueBoardLasers(GameController gameController) {
         for (Space space : boardElementsSpaces[4]) {
             boardActionQueue.addLast(new ActionWithDelay(() -> {
                 space.getBoardElement().doAction(space, gameController, boardActionQueue);
-            }, 200, "Board laser"));
+            }, ApplicationSettings.DELAY_NEXT_BOARD_ELEMENT, "Board laser"));
         }
     }
 
@@ -344,7 +345,7 @@ public class Board extends Subject {
                     value.clearLasersOnSpace();
                 }
             }
-        }, 0, "Clear lasers"));
+        }, ApplicationSettings.DELAY_INSTANT,"Clear lasers"));
     }
 
     /**
@@ -515,7 +516,7 @@ public class Board extends Subject {
             boardActionQueue.addLast(new ActionWithDelay(() -> {
                 // Tell the EventHandler to make the player shoot.
                 EventHandler.event_PlayerShootStart(player);
-            }, 150, "Player: \"" + player.getName() + "\" laser"));
+            }, ApplicationSettings.DELAY_NEXT_PLAYER_LASER, "Player: \"" + player.getName() + "\" laser"));
         }
     }
 

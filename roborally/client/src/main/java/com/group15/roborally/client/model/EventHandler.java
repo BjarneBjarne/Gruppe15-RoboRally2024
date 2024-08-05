@@ -1,5 +1,6 @@
 package com.group15.roborally.client.model;
 
+import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.boardelements.BE_Hole;
 import com.group15.roborally.client.model.boardelements.BE_Reboot;
@@ -178,7 +179,7 @@ public class EventHandler {
             Damage finalDamage = damage;
             actionQueue.addFirst(new ActionWithDelay(() -> {
                 finalDamage.applyDamage(playerTakingDamage);
-            }, 250, "Player: \"" + playerTakingDamage.getName() + "\" took " + finalDamage + " from " + (playerInflictingDamage != null ? ("player: \"" + playerInflictingDamage.getName()) : "board laser.")));
+            }, ApplicationSettings.DELAY_PLAYER_HIT, "Player: \"" + playerTakingDamage.getName() + "\" took " + finalDamage + " from " + (playerInflictingDamage != null ? ("player: \"" + playerInflictingDamage.getName()) : "board laser.")));
         }
     }
 

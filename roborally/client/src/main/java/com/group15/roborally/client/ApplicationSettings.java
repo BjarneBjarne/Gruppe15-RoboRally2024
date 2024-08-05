@@ -17,12 +17,19 @@ public class ApplicationSettings {
     @Getter @Setter
     public static boolean FULLSCREEN = false;
 
-    // Action delay
-    public static final int NEXT_REGISTER_DELAY = 0; // In milliseconds.
-    public static final int END_OF_ROUND_DELAY = 0; // In milliseconds.
-    public static final int NEXT_PLAYER_REGISTER_DELAY = 2000;
-    public static final int PRE_PHASE_USAGE_DELAY_MILLIS = 2000;
+    // Action delay - All in milliseconds:
     public static final boolean WITH_ACTION_DELAY = true;
+    public static final int DELAY_END_OF_ROUND = 0;
+    public static final int DELAY_NEXT_REGISTER = 0;
+    public static final int DELAY_NEXT_PLAYER_REGISTER = 1000;
+    public static final int DELAY_NEXT_PLAYER_REBOOT = 350;
+    public static final int DELAY_NEXT_BOARD_ELEMENT = 200;
+    public static final int DELAY_NEXT_PLAYER_LASER = 150;
+    public static final int DELAY_PLAYER_HIT = 250;
+    public static final int DELAY_PLAYER_MOVE = 200;
+    public static final int DELAY_PLAYER_TURN = 200;
+    public static final int DELAY_INSTANT = 0;
+
 
     // Controls
     public static double ZOOM_SPEED = 1;
