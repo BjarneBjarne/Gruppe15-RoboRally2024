@@ -124,8 +124,6 @@ public class AudioPlayer {
             float min = volumeControl.getMinimum();
             float max = volumeControl.getMaximum();
 
-            System.out.println("Playing clip: " + fileName);
-            System.out.println("finalChannelVolume.get(): " + finalChannelVolume.get());
             // Converting the volume from percentage to decibels
             float linearVolume = (audioVolume / 100.0f) * (finalChannelVolume.get() / 100.0f);
             float dBVolume;
