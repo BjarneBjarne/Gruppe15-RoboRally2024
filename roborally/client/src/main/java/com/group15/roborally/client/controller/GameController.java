@@ -446,7 +446,9 @@ public class GameController {
             currentPlayerInteraction = null;
             RoboRally.setDebugText(4, "");
             board.updateBoard();
-            runActionsAndCallback(interactionCallback);
+            if (interactionCallback != null) {
+                runActionsAndCallback(interactionCallback);
+            }
         }
     }
 
@@ -849,14 +851,10 @@ public class GameController {
         }
         if (changedData.contains(NetworkedDataTypes.CHOICES)) {
             latestChoiceData = serverDataManager.getUpdatedChoices();
-        }
-
-        if (canUseUpgradeCards()) {
             executeUnhandledUpgradeCards();
             removeLocalResolvedChoices();
+            updateChoicesDebug();
         }
-
-        updateChoicesDebug();
 
         // Update the current local phase.
         updateCurrentGamePhase();
