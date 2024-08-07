@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Git
         run: |
@@ -28,7 +28,7 @@ jobs:
         id: get_latest_tag
         run: |
           branch=$(git rev-parse --abbrev-ref HEAD)
-          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1 --grep="^v[0-9]\+\.[0-9]\+\.[0-9]\+$" --remotes=origin/$branch))
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1 --grep="^v[0-9]\+\.[0-9]\+\.[0-9]\+$" --remotes=origin/$branch) 2>/dev/null || echo "v0.0.0")
           echo "::set-output name=latest_tag::$latest_tag"
 
       - name: Determine increment type
