@@ -36,3 +36,4 @@ Write-Output "Version incremented to $newVersion and updated in version file."
 
 # Add the updated version file to the commit
 git add $versionFile
+
