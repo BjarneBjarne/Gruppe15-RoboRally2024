@@ -14,7 +14,7 @@
   <version>0.2</version>
 
   <name>common</name>
-  <url>https://github.com/BjarneBjarne/Gruppe15-RoboRally2024/tree/main/roborally/common</url>
+  <url>https://github.com/BjarneBjarnes-Organization/Gruppe15-RoboRally2024/tree/main/roborally/common</url>
 
   <dependencies>
     <dependency>

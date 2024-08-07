@@ -14,7 +14,7 @@
   <version>0.2</version>
 
   <name>client</name>
-  <url>https://github.com/BjarneBjarne/Gruppe15-RoboRally2024/tree/main/roborally/client</url>
+  <url>https://github.com/BjarneBjarnes-Organization/Gruppe15-RoboRally2024/tree/main/roborally/client</url>
 
   <properties>
     <start-class>com.group15.roborally.client.StartRoboRally</start-class>

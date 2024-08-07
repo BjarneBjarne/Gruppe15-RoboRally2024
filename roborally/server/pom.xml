@@ -14,7 +14,7 @@
   <version>0.2</version>
 
   <name>server</name>
-  <url>https://github.com/BjarneBjarne/Gruppe15-RoboRally2024/tree/main/roborally/server</url>
+  <url>https://github.com/BjarneBjarnes-Organization/Gruppe15-RoboRally2024/tree/main/roborally/server</url>
 
   <properties>
     <start-class>com.group15.roborally.server.StartServer</start-class>
