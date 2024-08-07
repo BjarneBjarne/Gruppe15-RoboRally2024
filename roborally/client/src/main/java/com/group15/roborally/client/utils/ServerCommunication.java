@@ -48,8 +48,8 @@ public class ServerCommunication extends Subject {
      * @author Marcus Rémi Lemser Eychenne, s230985
      * @return gameId - id of the created game
      */
-    public String createGame(String baseUrl) {
-        this.baseUrl = baseUrl;
+    public String createGame(String serverIP) {
+        setBaseURL(serverIP);
         String gameId = "";
         try {
             gameId = sendRequest(
@@ -71,8 +71,8 @@ public class ServerCommunication extends Subject {
      * @param playerName - name of the player joining
      * @return Player object of the player joining
      */
-    public Player joinGame(String baseUrl, String gameId, String playerName) {
-        this.baseUrl = baseUrl;
+    public Player joinGame(String serverIP, String gameId, String playerName) {
+        setBaseURL(serverIP);
         Player player = null;
         try {
             player = sendRequest(
@@ -86,6 +86,10 @@ public class ServerCommunication extends Subject {
             //System.out.println(e.getStatusCode());
         }
         return player;
+    }
+
+    private void setBaseURL(String serverIP) {
+        this.baseUrl = "http://" + serverIP + ":" + ApplicationSettings.SERVER_PORT;
     }
 
 

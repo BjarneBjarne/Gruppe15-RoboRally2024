@@ -368,7 +368,8 @@ public class RoboRally extends Application {
             multiplayerMenuView.setupMenuUI();
             multiplayerMenuView.setupBackButton(this::goToMainMenu);
             infoPane.setInfoText("");
-            multiplayerMenuView.setServerURLInput("http://localhost:8080");
+            multiplayerMenuView.setServerURLInput("localhost");
+            serverDataManager.setServerIP(8080);
         });
     }
 

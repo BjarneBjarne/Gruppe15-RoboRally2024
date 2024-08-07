@@ -1,13 +1,26 @@
-# Link to demo video
-https://www.youtube.com/watch?v=IkSLw8IZ5Xg
+# Introduction
 
-## Opening the application
+
+# Prerequisites
+If you already have the installer for the game and is not going to host a server, you don't 
+
+# Building the installer
+To build the game, the following programs needs to be downloaded and installed:
+* Java 22.0.1 - As well as having 
+
+While not tested with older version, 
+
+IntelliJ
+
+# Running the project
+## Client
 To open the RoboRally-application, navigate to the folder Gruppe15-RoboRally2024 and double-click the file
 "RoboRally.jar".
 
-## Hosting a server
+## Server
 
 
+# How to play the game
 ## Creating and joining a game
 Once the application has opened, you should see the main menu with the RoboRally titel at the top, as well as three buttons.
 To create or join a game, press the "Multiplayer" button in the Main Menu.
@@ -73,3 +86,8 @@ removing the old card.
 The goal of the game is to be the first player to reach all the different check points on the board. Checkpoints must be
 reach in order, going from checkpoint 1, to 2, etc. You can reach a checkpoint, simply by ending a register on a
 checkpoint space.
+
+# Showcase video 
+The video shows a now outdated version of the game:
+
+https://www.youtube.com/watch?v=IkSLw8IZ5Xg

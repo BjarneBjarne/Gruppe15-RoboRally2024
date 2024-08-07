@@ -47,5 +47,6 @@ public class ApplicationSettings {
     //public static final boolean DEBUG_ALLOW_MANUAL_PLAYER_POSITION = false;
 
     // Network
+    public static final int SERVER_PORT = 8080;
     public static final long TIME_BEFORE_TIMEOUT_SECONDS = 10;
 }

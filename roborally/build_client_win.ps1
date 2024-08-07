@@ -3,9 +3,12 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = Join-Path $scriptDir "client"
 $outputDir = Join-Path $projectRoot "target\output"
 $jlinkImageDir = Join-Path $projectRoot "target\jlink-image"
+$versionFile = Join-Path $scriptDir "version"
+
+# Run the version update script
+& "$scriptDir\update_version.ps1"
 
 # Version
-$versionFile = Join-Path $scriptDir "version"
 if (-not (Test-Path -Path $versionFile)) {
     Write-Output "Version file not found. Please create version file with the version number."
     exit 1
@@ -34,7 +37,7 @@ if (-not $env:PATH_TO_FX) {
 
 # mvn clean package
 Write-Output "Running mvn clean package..."
-$mvnResult = & mvn -f "$scriptDir\pom.xml" clean package
+& mvn -f "$scriptDir\pom.xml" clean package
 if ($LASTEXITCODE -ne 0) {
     Write-Output "Maven build failed. Exiting."
     exit 1

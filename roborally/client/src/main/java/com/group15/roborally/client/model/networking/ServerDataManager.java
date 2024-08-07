@@ -1,5 +1,6 @@
 package com.group15.roborally.client.model.networking;
 
+import com.group15.roborally.client.ApplicationSettings;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.common.model.*;
 import com.group15.roborally.common.observer.Observer;
@@ -74,12 +75,12 @@ public class ServerDataManager extends Subject implements Observer {
      * Adds a random delay after creating the game.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryCreateAndJoinGame(String serverURL, String playerName) {
+    public void tryCreateAndJoinGame(String serverIP, String playerName) {
         System.out.println();
         AppController.setInfoText("Creating new game...");
         AtomicReference<String> gameId = new AtomicReference<>("");
         runActionAndCallback(new ActionWithDelay(
-                () -> gameId.set(serverCommunication.createGame(serverURL)), random.nextInt(0, 100), "Creating new game", false),
+                () -> gameId.set(serverCommunication.createGame(serverIP)), random.nextInt(0, 100), "Creating new game", false),
                 () -> {
                     if (gameId.get() != null && !gameId.get().isBlank()) {
                         runActionAndCallback(new ActionWithDelay(
@@ -87,7 +88,7 @@ public class ServerDataManager extends Subject implements Observer {
                                     AppController.setInfoText("Successfully created new game!");
                                     System.out.println("Game ID: " + gameId.get());
                                 }, 250, "Successfully created new game", false),
-                                () -> tryJoinGameWithGameID(serverURL, gameId.get(), playerName));
+                                () -> tryJoinGameWithGameID(serverIP, gameId.get(), playerName));
                     } else {
                         runActionAndCallback(new ActionWithDelay(
                                 () -> AppController.setInfoText("Failed to create new game."),1500, "Failed to create new game", false),
@@ -104,12 +105,12 @@ public class ServerDataManager extends Subject implements Observer {
      * @param playerName The name that the player wants.
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
-    public void tryJoinGameWithGameID(String serverURL, String gameId, String playerName) {
+    public void tryJoinGameWithGameID(String serverIP, String gameId, String playerName) {
         System.out.println();
         AppController.setInfoText("Joining game...");
         AtomicReference<Player> player = new AtomicReference<>();
         runActionAndCallback(new ActionWithDelay(
-                () -> player.set(serverCommunication.joinGame(serverURL, gameId, playerName)), random.nextInt(0, 100), "Joining game with gameId: \"" + gameId + "\" with playerName: \"" + playerName + "\".", false),
+                () -> player.set(serverCommunication.joinGame(serverIP, gameId, playerName)), random.nextInt(0, 100), "Joining game with gameId: \"" + gameId + "\" with playerName: \"" + playerName + "\".", false),
                 () -> {
                     if (player.get() != null) {
                         runActionAndCallback(new ActionWithDelay(
