@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.group15.roborally.common.model.Register;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface RegisterRepository extends JpaRepository<Register, Long> {
     Register findByPlayerId(Long playerId);
 

@@ -135,7 +135,6 @@ public class GameController {
     }
 
 
-
     private void startNextPhase() {
         System.out.println();
 
@@ -377,7 +376,7 @@ public class GameController {
         PauseTransition pause = new PauseTransition(Duration.millis(DELAY_END_OF_ROUND));
         pause.setOnFinished(a -> {
             for (Player player : board.getPlayers()) {
-                board.getBoardActionQueue().addFirst(new ActionWithDelay(player::stopRebooting, ApplicationSettings.DELAY_NEXT_PLAYER_REBOOT, "Rebooting player: \"" + player.getName() + "\"."));
+                board.getBoardActionQueue().addLast(new ActionWithDelay(player::stopRebooting, ApplicationSettings.DELAY_NEXT_PLAYER_REBOOT, "Player: \"" + player.getName() + "\" stopped rebooting."));
             }
             runActionsAndCallback(this::setReadyForNextPhase);
         });  // Small delay before ending activation phase for dramatic effect ;-).
@@ -393,6 +392,8 @@ public class GameController {
      */
     private void runActionsAndCallback(Runnable callback) {
         interactionCallback = null;
+        if (currentPlayerInteraction != null) return;
+
         if (playerInteractionQueue.isEmpty()) {
             LinkedList<ActionWithDelay> actionQueue = board.getBoardActionQueue();
             if (!actionQueue.isEmpty()) { // As long as there are more actions.
@@ -420,6 +421,7 @@ public class GameController {
      * @author Carl Gustav Bjergaard Aggeboe, s235063@dtu.dk
      */
     public void addPlayerInteraction(PlayerInteraction interaction) {
+        System.out.println("Added interaction: " + interaction);
         playerInteractionQueue.offer(interaction);
         board.updateBoard();
     }
@@ -440,6 +442,7 @@ public class GameController {
         // Check if there are more interactions.
         if (!playerInteractionQueue.isEmpty()) {
             currentPlayerInteraction = playerInteractionQueue.poll();
+            System.out.println("Started handling interaction: " + currentPlayerInteraction);
             incrementInteractionCounter();
             RoboRally.setDebugText(4, currentPlayerInteraction.toString());
             currentPlayerInteraction.initializeInteraction();
@@ -451,6 +454,8 @@ public class GameController {
             board.updateBoard();
             if (interactionCallback != null) {
                 runActionsAndCallback(interactionCallback);
+            } else {
+                updateGameWithLatestData();
             }
         }
     }
@@ -725,7 +730,7 @@ public class GameController {
             }
             default -> {}
         }
-        currentPlayerInteraction.interactionFinished();
+        handleNextInteraction();
     }
 
     /**
@@ -795,8 +800,8 @@ public class GameController {
             for (ChoiceDTO choiceDTO : unresolvedLocalChoices) {
                 Set<Long> choicePlayerIds = latestChoiceData.stream()
                         .filter(c ->
-                                c.isResolved() && // Received choice is resolved.
-                                        c.getCode().equals(choiceDTO.code()) && c.getPlayerId() == choiceDTO.playerId()) // Received choice matches the locally unresolved choice.
+                        !c.isResolved() &&
+                        c.getCode().equals(choiceDTO.code()) && c.getPlayerId() == choiceDTO.playerId()) // Received choice matches the locally unresolved choice.
                         .map(c -> Long.parseLong(c.getResolveStatus()))
                         .collect(Collectors.toSet());
                 choicePlayerIds.add(localPlayer.getPlayerId());
@@ -984,12 +989,19 @@ public class GameController {
         // Update view with the upgrading player
         if (upgradeTurn < NO_OF_PLAYERS) {
             playerUpgrading = board.getPriorityList().stream().toList().get(upgradeTurn);
-        }
-
-        // If the shop is empty
-        if (latestUpgradeShopData == null || Arrays.stream(latestUpgradeShopData.getCards()).allMatch(str -> str == null || str.isBlank())) {
-            System.out.println("Shop is empty. Readying up for next phase.");
-            setReadyForNextPhase();
+            // If the shop is empty
+            if (latestUpgradeShopData == null || Arrays.stream(latestUpgradeShopData.getCards()).allMatch(str -> str == null || str.isBlank())) {
+                System.out.println("Shop is empty. Readying up for next phase.");
+                setReadyForNextPhase();
+            }
+        } else {
+            board.getBoardActionQueue().add(new ActionWithDelay(() -> {}, DELAY_AFTER_UPGRADE, "After shop delay"));
+            runActionsAndCallback(() -> {
+                if (board.getCurrentPhase().equals(GamePhase.UPGRADE)) {
+                    setReadyForNextPhase();
+                    board.updateBoard();
+                }
+            });
         }
     }
 

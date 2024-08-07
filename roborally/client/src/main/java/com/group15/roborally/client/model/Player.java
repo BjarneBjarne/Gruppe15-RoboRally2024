@@ -244,7 +244,7 @@ public class Player extends Subject {
     public void startRebooting(GameController gameController, boolean takeDamage) {
         if (!rebooting) {
             RoboRally.audioMixer.playPlayerShutDown();
-            System.out.println(name + " rebooting.");
+            System.out.println("Player: \"" + name + "\" rebooting.");
             if (takeDamage) {
                 for (int i = 0; i < 2; i++) {
                     discard(new CommandCard(Command.SPAM));
@@ -260,7 +260,7 @@ public class Player extends Subject {
     public void stopRebooting() {
         if (rebooting) {
             RoboRally.audioMixer.playPlayerBootUp();
-            System.out.println(name + " stopped rebooting.");
+            System.out.println("Player: \"" + name + "\" stopped rebooting.");
             rebooting = false;
             space.updateSpace();
         }
@@ -305,12 +305,12 @@ public class Player extends Subject {
         while (iterator.hasNext()) {
             UpgradeCard upgradeCard = iterator.next();
             if (permCardsStr != null && upgradeCard instanceof UpgradeCardPermanent) {
-                if (Arrays.stream(permCardsStr).allMatch(cardStr -> cardStr == null || cardStr.equals(upgradeCard.getEnum().name()))) {
+                if (Arrays.stream(permCardsStr).allMatch(cardStr -> cardStr == null || !cardStr.equals(upgradeCard.getEnum().name()))) {
                     iterator.remove();
                     System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
                 }
             } else if (tempCardsStr != null && upgradeCard instanceof UpgradeCardTemporary) {
-                if (Arrays.stream(tempCardsStr).noneMatch(cardStr -> cardStr != null && cardStr.equals(upgradeCard.getEnum().name()))) {
+                if (Arrays.stream(tempCardsStr).allMatch(cardStr -> cardStr == null || !cardStr.equals(upgradeCard.getEnum().name()))) {
                     iterator.remove();
                     System.out.println("Removed " + upgradeCard.getDisplayName() + " from player: \"" + name + "\".");
                 }
@@ -668,23 +668,23 @@ public class Player extends Subject {
 
             // Damage
             case SPAM:
-                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
                 }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
             case TROJAN_HORSE:
-                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
                     for (int i = 0; i < 2; i++) {
                         discard(new CommandCard(Command.SPAM));
                     }
                 }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
             case WORM:
-                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
                     EventHandler.event_PlayerReboot(this, false, gameController);
                 }, ApplicationSettings.DELAY_INSTANT,"{" + name + "} activated: (" + command.displayName + ") damage."));
                 break;
             case VIRUS:
-                board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+                board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
                     for (Player foundPlayer : board.getPlayers()) {
                         if (space.getDistanceFromOtherSpace(foundPlayer.space) <= 6) {
                             foundPlayer.discard(new CommandCard(Command.VIRUS));
@@ -790,7 +790,7 @@ public class Player extends Subject {
     public void turn(int quarterRotationClockwise) {
         boolean rotateClockwise = quarterRotationClockwise > 0;
         for (int i = 0; i < Math.abs(quarterRotationClockwise); i++) {
-            board.getBoardActionQueue().addFirst(new ActionWithDelay(() -> {
+            board.getBoardActionQueue().addLast(new ActionWithDelay(() -> {
                 if (!getIsRebooting()) {
                     Heading newHeading = rotateClockwise ? heading.next() : heading.prev();
                     RoboRally.audioMixer.playPlayerTurn();

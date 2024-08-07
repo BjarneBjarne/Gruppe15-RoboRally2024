@@ -30,16 +30,6 @@ public class ProgController {
         this.registerRepository = registerRepository;
     }
 
-    /**
-     * Endpoint to post a register for a player in a game
-     *
-     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
-     *
-     * @param moves
-     * @param playerId
-     * @param turn
-     * @return ResponseEntity<String>
-     */
     @PostMapping(value = "/players/{playerId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postRegister(@RequestBody String[] moves, @PathVariable("playerId") long playerId, @PathVariable("turn") int turn) {
         Optional<Player> optionalPlayer = playerRepository.findById(playerId);
@@ -49,6 +39,8 @@ public class ProgController {
             return ResponseEntity.status(404).build();
         }
 
+        Player player = optionalPlayer.get();
+
         // Find existing register or create a new one
         Register register = registerRepository.findByPlayerIdAndTurn(playerId, turn)
                 .orElse(new Register());
@@ -57,27 +49,23 @@ public class ProgController {
         register.setTurn(turn);
         register.setMoves(moves);
 
-        if (register.hasNull()) return ResponseEntity.status(422).build();
+        if (register.hasNull()) {
+            System.err.println("Register is null for player " + player.getPlayerName() + " on turn " + turn);
+            return ResponseEntity.status(422).build();
+        }
 
-        Game game = gameRepository.findByGameId(optionalPlayer.get().getGameId());
+        Game game = gameRepository.findByGameId(player.getGameId());
         if (game.getTurnId() < turn) {
             game.setTurnId(turn);
             gameRepository.save(game);
         }
 
         registerRepository.save(register);
+
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Endpoint to get all registers for a game that has been posted this turn
-     *
-     * @author Tobias Nicolai Frederiksen, s235086@dtu.dk
-     *
-     * @param gameId
-     * @return ResponseEntity<List<Register>>
-     */
-    @GetMapping(value = "/games/{gameId}/registers/{turn}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/games/{gameId}/registers/{turn}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Register>> getRegisters(@PathVariable("gameId") String gameId, @PathVariable("turn") int turn) {
         if (!gameRepository.existsById(gameId)) return ResponseEntity.status(404).build();
 

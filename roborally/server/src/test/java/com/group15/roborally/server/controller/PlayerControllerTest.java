@@ -69,7 +69,7 @@ public class PlayerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/players").contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content("player1"));
 
-        Player player = new Player(1, "1", null, "player1", null, null, GamePhase.LOBBY, 0, null, null, null, null, null, null);
+        Player player = new Player(1, "1", null, "player1", null, null, GamePhase.LOBBY, 0, null, null, null);
         mockMvc.perform(MockMvcRequestBuilders.put("/players/1").contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(gson.toJson(player)))
                 .andExpect(status().isOk());

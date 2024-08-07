@@ -18,7 +18,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/upgradeShop")
-
 public class UpgradeController {
     PlayerRepository playerRepository;
     GameRepository gameRepository;

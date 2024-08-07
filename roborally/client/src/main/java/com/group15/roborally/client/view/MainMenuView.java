@@ -19,6 +19,8 @@ public class MainMenuView {
     @FXML
     Button mainMenuButtonCourseCreator;
     @FXML
+    Button mainMenuButtonSettings;
+    @FXML
     Button mainMenuButtonQuit;
 
     /**
@@ -47,26 +49,32 @@ public class MainMenuView {
         try {
             FXMLLoader loader = new FXMLLoader(RoboRally.class.getResource("MainMenu.fxml"));
             mainMenu = loader.load();
-            createMultiplayerButton();
-            createCourseCreatorButton();
-            createExitButton();
+            initializeMultiplayerButton();
+            initializeCourseCreatorButton();
+            initializeSettingsButton();
+            initializeQuitButton();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
         return this;
     }
 
-    private void createMultiplayerButton() {
+    private void initializeMultiplayerButton() {
         mainMenuButtonMultiplayer = (Button) mainMenu.lookup("#mainMenuButtonMultiplayer");
         ButtonUtils.setupDefaultButton(mainMenuButtonMultiplayer, () -> appController.goToMultiplayerMenu());
     }
 
-    private void createCourseCreatorButton() {
+    private void initializeCourseCreatorButton() {
         mainMenuButtonCourseCreator = (Button) mainMenu.lookup("#mainMenuButtonCourseCreator");
         ButtonUtils.setupDefaultButton(mainMenuButtonCourseCreator, () -> appController.createCourseCreator());
     }
 
-    private void createExitButton() {
+    private void initializeSettingsButton() {
+        mainMenuButtonSettings = (Button) mainMenu.lookup("#mainMenuButtonSettings");
+        ButtonUtils.setupDefaultButton(mainMenuButtonSettings, () -> appController.goToSettings());
+    }
+
+    private void initializeQuitButton() {
         mainMenuButtonQuit = (Button) mainMenu.lookup("#mainMenuButtonQuit");
         ButtonUtils.setupDefaultButton(mainMenuButtonQuit, () -> appController.quitGame(false));
     }

@@ -21,41 +21,31 @@
  */
 package com.group15.roborally.client.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import com.group15.roborally.client.utils.*;
 import com.group15.roborally.common.observer.Observer;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.client.model.networking.ServerDataManager;
 import com.group15.roborally.client.view.InfoPaneView;
-import com.group15.roborally.client.view.MultiplayerMenuView;
 import com.group15.roborally.client.model.*;
 import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.coursecreator.CC_CourseData;
 import com.group15.roborally.client.coursecreator.CC_JsonUtil;
-import com.group15.roborally.client.exceptions.EmptyCourseException;
-import com.group15.roborally.client.exceptions.GameLoadingException;
 import com.group15.roborally.client.exceptions.NoCoursesException;
-import com.group15.roborally.client.templates.BoardTemplate;
-import com.group15.roborally.client.model.boardelements.BoardElement;
 
 import com.group15.roborally.common.model.Player;
 import com.group15.roborally.common.model.GamePhase;
-import javafx.application.Platform;
-import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.GridPane;
 import javafx.util.Pair;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 import java.io.File;
-
-import static com.group15.roborally.client.LobbySettings.*;
 
 /**
  *
@@ -196,6 +186,10 @@ public class AppController implements Observer {
         return true;
     }
 
+    public void goToSettings() {
+        roboRally.goToSettings();
+    }
+
     /**
      * sets ends game
      * @author Maximillian Bjørn Mortensen
@@ -243,7 +237,7 @@ public class AppController implements Observer {
      */
     public void loadCourses() throws NoCoursesException {
         // Loading courses
-        courses = CC_JsonUtil.getCoursesInFolder("courses");
+        courses = CC_JsonUtil.getAllCourses();
         if (courses.isEmpty()) {
             throw new NoCoursesException();
         }

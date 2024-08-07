@@ -1,6 +1,7 @@
 package com.group15.roborally.common.model;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,9 +27,9 @@ public class Game {
     private GamePhase phase = GamePhase.LOBBY;
     private String courseName;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -50,20 +51,6 @@ public class Game {
             }
             return sb.toString();
         }
-    }
-
-    @JsonIgnore
-    public Game getGameCopy() {
-        Game gameTemp = new Game();
-        gameTemp.setGameId(this.getGameId());
-        gameTemp.setPhase(this.getPhase());
-        gameTemp.setUpgradeShop(this.getUpgradeShop());
-        gameTemp.setPlayers(this.getPlayers());
-        gameTemp.setHostId(this.getHostId());
-        gameTemp.setTurnId(this.getTurnId());
-        gameTemp.setNrOfPlayers(this.getNrOfPlayers());
-        gameTemp.setCourseName(this.getCourseName());
-        return gameTemp;
     }
 
     /**

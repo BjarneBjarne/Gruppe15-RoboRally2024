@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.group15.roborally.common.model.*;
 import com.group15.roborally.server.repository.PlayerRepository;
-import com.group15.roborally.server.repository.RegisterRepository;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +22,11 @@ public class GameController {
     private final PlayerRepository playerRepository;
     private final GameRepository gameRepository;
     private final UpgradeShopRepository upgradeShopRepository;
-    private final RegisterRepository registerRepository;
 
-    public GameController(PlayerRepository playerRepository, GameRepository gameRepository,
-                          UpgradeShopRepository upgradeShopRepository, RegisterRepository registerRepository) {
+    public GameController(PlayerRepository playerRepository, GameRepository gameRepository, UpgradeShopRepository upgradeShopRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.upgradeShopRepository = upgradeShopRepository;
-        this.registerRepository = registerRepository;
     }
 
     /**
@@ -142,10 +138,15 @@ public class GameController {
     }
 
     @PutMapping(value = "/{gameId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateGame(@RequestBody Game game, @PathVariable("gameId") String gameId) {
-        if (!Objects.equals(game.getGameId(), gameId) || !gameRepository.existsById(gameId)) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<String> updateGame(@RequestBody Game updatedGame, @PathVariable("gameId") String gameId) {
+        if (!Objects.equals(updatedGame.getGameId(), gameId)) return ResponseEntity.badRequest().build();
+
+        Game game = gameRepository.findById(gameId).orElse(null);
+        if (game == null) return ResponseEntity.notFound().build();
+
+        game.setCourseName(updatedGame.getCourseName());
+        game.setPhase(updatedGame.getPhase());
+
         gameRepository.save(game);
         return ResponseEntity.ok().build();
     }

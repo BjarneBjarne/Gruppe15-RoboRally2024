@@ -93,16 +93,22 @@ public class IOUtil {
         if (dirURL != null) {
             if (dirURL.getProtocol().equals("file")) {
                 // Load resources from the file system
-                Files.walk(Paths.get(dirURL.toURI()))
-                        .filter(Files::isRegularFile)
-                        .filter(path -> path.toString().endsWith(".json"))
-                        .forEach(path -> {
-                            try {
-                                jsonFiles.add(Files.newInputStream(path));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
+                try {
+                    Files.walk(Paths.get(dirURL.toURI()))
+                            .filter(Files::isRegularFile)
+                            .filter(path -> path.toString().endsWith(".json"))
+                            .forEach(path -> {
+                                try {
+                                    jsonFiles.add(Files.newInputStream(path));
+                                } catch (IOException e) {
+                                    System.out.println(e.getMessage());
+                                    e.printStackTrace();
+                                }
+                            });
+                } catch (SecurityException | IOException e) {
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
             } else if (dirURL.getProtocol().equals("jar")) {
                 // Load resources from the JAR file
                 String[] parts = dirURL.toString().split("!");
@@ -132,6 +138,26 @@ public class IOUtil {
             }
         } else {
             System.err.println("Directory not found: " + folderName);
+        }
+        return jsonFiles;
+    }
+
+    public static List<InputStream> loadJsonFilesFromSystemPath(String directoryPath) {
+        List<InputStream> jsonFiles = new ArrayList<>();
+        File directory = new File(directoryPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] jsonFilesArray = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+            if (jsonFilesArray != null) {
+                for (File jsonFile : jsonFilesArray) {
+                    try {
+                        jsonFiles.add(new FileInputStream(jsonFile));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else {
+            System.err.println("Directory does not exist or is not a directory: " + directoryPath);
         }
         return jsonFiles;
     }

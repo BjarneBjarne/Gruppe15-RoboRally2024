@@ -303,7 +303,6 @@ public class ServerCommunication extends Subject {
                     "\n" +
                     "Exception message:\n" +
                     e2.getMessage());
-            e2.printStackTrace();
             return null;
         }
     }

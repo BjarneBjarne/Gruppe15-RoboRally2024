@@ -121,7 +121,7 @@ public class MultiplayerMenuView implements Observer {
             String localRobotName = characterComboBox.getSelectionModel().getSelectedItem();
             if (localRobotName == null) return;
             playerSlots[0].setRobotByRobotName(localRobotName);
-            serverDataManager.changeRobot(localRobotName);
+            serverDataManager.setPlayerRobot(localRobotName);
             updateUI();
         });
         characterComboBox.setButtonCell(new ListCell<>() {
@@ -320,7 +320,7 @@ public class MultiplayerMenuView implements Observer {
                 Button courseButton = new Button();
                 ButtonUtils.setupDefaultButton(courseButton, () -> {
                     if (serverDataManager.isHost()) {
-                        serverDataManager.changeCourse(course);
+                        serverDataManager.setCourse(course);
                         this.selectedCourse = course;
                         lobbySelectedCourseImageView.setImage(course.getImage());
                         lobbySelectedCourseText.setText(course.getCourseName().toUpperCase());

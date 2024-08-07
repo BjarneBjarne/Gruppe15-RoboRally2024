@@ -21,7 +21,6 @@ public class Card_RearLaser extends UpgradeCardPermanent {
         super.initialize(owner, gameController);
 
         // Defining effects on events
-
         eventListeners.add(EventHandler.subscribe((PlayerShootListener) (playerShooting, laser,rear) -> {
             if(!rear) {
                 if (playerShooting == owner) {

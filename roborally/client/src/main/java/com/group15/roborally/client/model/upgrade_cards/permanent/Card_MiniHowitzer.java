@@ -15,7 +15,7 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
     private boolean activated = true;
 
     public Card_MiniHowitzer() {
-        super("Mini Howitzer", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, true, GamePhase.BOARD_ACTIVATION);
+        super("Mini Howitzer", 2, 1, 1, GamePhase.PLAYER_ACTIVATION, false, GamePhase.BOARD_ACTIVATION);
     }
 
     @Override
@@ -66,7 +66,6 @@ public class Card_MiniHowitzer extends UpgradeCardPermanent {
 
     @Override
     public void onActivated() {
-        
         owner.addTemporaryBonusDamage(new Damage(2, 0, 0, 0));
         activated = true;
     }

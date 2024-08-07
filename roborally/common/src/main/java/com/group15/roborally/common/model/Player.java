@@ -38,24 +38,6 @@ public class Player {
     @JsonIgnore
     private Game game;
 
-    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Register registers;
-
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Choice> choices = new ArrayList<>();
-
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Interaction> interactions = new ArrayList<>();
-
-    /**
-     * Compares two player objects.
-     * @param otherPlayerState The player at another point.
-     * @return Whether the player has had any variables changed.
-     */
-    @JsonIgnore
     public boolean hasChanges(Player otherPlayerState) {
         return  otherPlayerState == null ||
                 this.playerId != otherPlayerState.playerId ||

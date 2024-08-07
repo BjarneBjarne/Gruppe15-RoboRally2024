@@ -79,7 +79,7 @@ public abstract class UpgradeCard extends Card implements Observer {
         RAIL_GUN(Card_RailGun.class),
         RAMMING_GEAR(Card_RammingGear.class),
         REAR_LASER(Card_RearLaser.class),
-        //SCRAMBLER(Card_Scrambler.class),
+        SCRAMBLER(Card_Scrambler.class),
         TRACTOR_BEAM(Card_TractorBeam.class),
         TROJAN_NEEDLER(Card_TrojanNeedler.class),
         VIRUS_MODULE(Card_VirusModule.class),

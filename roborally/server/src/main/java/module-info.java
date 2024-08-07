@@ -10,9 +10,12 @@ module com.group15.roborally.server {
     requires spring.core;
     requires spring.beans;
     requires spring.context;
-
-    exports com.group15.roborally.server.controller to spring.beans, spring.web;
-    exports com.group15.roborally.server.repository to spring.beans, spring.web;
+    requires spring.tx;
 
     opens com.group15.roborally.server to spring.core, spring.beans, spring.context;
+    opens com.group15.roborally.server.controller to spring.core, spring.beans, spring.context, spring.web;
+
+    exports com.group15.roborally.server;
+    exports com.group15.roborally.server.controller;
+    exports com.group15.roborally.server.repository;
 }

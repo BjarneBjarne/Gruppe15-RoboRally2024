@@ -41,8 +41,8 @@ public class ActionWithDelay {
         if (DEBUG_WITH_ACTION_MESSAGE) {
             System.out.println(
                     "\n\tExecuting action -> {\n" +
-                            "\t\t" + actionName + (updateCounters ? ("\n" +
-                            "\t}, " + "init: " + thisInitCounter + ", exec: " + execCounter) : "")
+                            "\t\t" + actionName + "\n" +
+                            "\t}" + (updateCounters ? (", " + "init: " + thisInitCounter + ", exec: " + execCounter) : "")
             );
         }
         action.run();

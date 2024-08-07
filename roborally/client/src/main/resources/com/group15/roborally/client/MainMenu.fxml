@@ -71,13 +71,18 @@
                   <Insets />
                </VBox.margin>
             </Button>
-         </children>
-         <padding>
-            <Insets top="650.0" />
-         </padding>
-      </VBox>
-      <StackPane layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" AnchorPane.bottomAnchor="75.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-         <children>
+            <Button fx:id="mainMenuButtonSettings" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="125.0" prefWidth="1450.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
+               <font>
+                  <Font name="OCR A Extended" size="48.0" />
+               </font>
+               <graphic>
+                  <Text fill="WHITE" mouseTransparent="true" text="Settings">
+                     <font>
+                        <Font name="OCR A Extended" size="68.0" />
+                     </font>
+                  </Text>
+               </graphic>
+            </Button>
             <Button fx:id="mainMenuButtonQuit" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="125.0" prefWidth="1450.0" style="-fx-background-color: ffffff20; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: ffffff; -fx-border-width: 1;" textAlignment="CENTER">
                <font>
                   <Font name="OCR A Extended" size="48.0" />
@@ -91,6 +96,9 @@
                </graphic>
             </Button>
          </children>
-      </StackPane>
+         <padding>
+            <Insets top="650.0" />
+         </padding>
+      </VBox>
    </children>
 </AnchorPane>

@@ -11,9 +11,7 @@ import com.group15.roborally.client.model.Space;
 import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 import com.group15.roborally.client.utils.NetworkedDataTypes;
 import com.group15.roborally.client.utils.ServerCommunication;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.util.Duration;
 import lombok.Getter;
 
 import lombok.Setter;
@@ -163,6 +161,7 @@ public class ServerDataManager extends Subject implements Observer {
             startUpdateGameLoop();
             notifyChange();
             System.out.println("Player name: " + localPlayer.getPlayerName());
+            System.out.println("Player id: " + localPlayer.getPlayerId());
             System.out.println("Is host? " + this.isHost);
         });
     }
@@ -238,8 +237,10 @@ public class ServerDataManager extends Subject implements Observer {
         boolean hostHasDisconnected = updatedPlayers.get(updatedGame.getHostId()) == null;
         if (hostHasDisconnected) {
             System.out.println("updatedGame.getHostId(): " + updatedGame.getHostId());
+            System.out.println("No of players: " + updatedPlayers.size());
+            System.out.println("Players:");
             for (Player player : updatedPlayers.values()) {
-                System.out.println("player: " + player.getPlayerName() + ", playerId: " + player.getPlayerId());
+                System.out.println(player.getPlayerId() + ": " + player.getPlayerName());
             }
             disconnectFromServer("The host left the game.", 3000);
             return;
@@ -327,7 +328,7 @@ public class ServerDataManager extends Subject implements Observer {
 
     // Update data and send to server
     // Lobby
-    public void changeRobot(@NotNull String robotName) {
+    public void setPlayerRobot(@NotNull String robotName) {
         if (!robotName.equals(localPlayer.getRobotName())) {
             localPlayer.setRobotName(robotName);
             serverCommunication.putPlayer(localPlayer);
@@ -340,22 +341,21 @@ public class ServerDataManager extends Subject implements Observer {
             serverCommunication.putPlayer(localPlayer);
         }
     }
-    public void changeCourse(@NotNull CC_CourseData selectedCourse) {
+    public void setCourse(@NotNull CC_CourseData selectedCourse) {
         if (!selectedCourse.getCourseName().equals(game.getCourseName())) {
-            Game gameTemp = game.getGameCopy();
-            gameTemp.setCourseName(selectedCourse.getCourseName());
-            serverCommunication.putGame(gameTemp);
+            game.setCourseName(selectedCourse.getCourseName());
+            serverCommunication.putGame(game);
         }
     }
     public void setGamePhase(@NotNull GamePhase gamePhase) {
         if (isHost && !gamePhase.equals(game.getPhase())) {
-            Game gameTemp = game.getGameCopy();
-            gameTemp.setPhase(gamePhase);
-            serverCommunication.putGame(gameTemp);
+            game.setPhase(gamePhase);
+            serverCommunication.putGame(game);
         }
     }
     // In game
     public void setPlayerRegister(@NotNull String[] programFieldNames) {
+        System.out.println("Posting register for phaseCount: " + currentPhaseCount);
         serverCommunication.postRegister(programFieldNames, localPlayer.getPlayerId(), currentPhaseCount);
     }
     public void setPlayerSpawn(@NotNull Space space, String directionName) {

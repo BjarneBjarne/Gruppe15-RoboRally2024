@@ -35,6 +35,13 @@ public class AudioPlayer {
         if (playMode == PlayMode.SINGLE) {
             initializeClip();
         }
+
+        // Add listener to update volume when finalChannelVolume changes
+        finalChannelVolume.addListener((obs, oldVal, newVal) -> {
+            if (playMode == PlayMode.SINGLE && clip != null) {
+                updateAudioSettings(clip);
+            }
+        });
     }
 
     private void initializeClip() {

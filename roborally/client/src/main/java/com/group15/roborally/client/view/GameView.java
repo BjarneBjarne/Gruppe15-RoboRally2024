@@ -20,6 +20,7 @@
  */
 package com.group15.roborally.client.view;
 
+import com.group15.roborally.client.RoboRally;
 import com.group15.roborally.client.model.player_interaction.PlayerInteraction;
 import com.group15.roborally.common.observer.Subject;
 import com.group15.roborally.common.observer.ViewObserver;
@@ -154,13 +155,18 @@ public class GameView extends AnchorPane implements ViewObserver {
         // Upgrade card showcase
         cardShowcaseImageView = new ImageView();
         cardShowcaseImageView.setVisible(false);
-        cardShowcaseImageView.setOpacity(0.85);
+        //cardShowcaseImageView.setOpacity(0.85);
         cardShowcaseImageView.setMouseTransparent(true);
         double cardShowcaseWidth = 500;
+        double cardShowcaseHeight = cardShowcaseWidth * 1.6;
         cardShowcaseImageView.setFitWidth(cardShowcaseWidth);
-        cardShowcaseImageView.setFitHeight(cardShowcaseWidth * 1.6);
+        cardShowcaseImageView.setFitHeight(cardShowcaseHeight);
         StackPane cardShowcaseStackPane = new StackPane(cardShowcaseImageView);
+        cardShowcaseStackPane.setMinSize(cardShowcaseWidth, cardShowcaseHeight);
+        cardShowcaseStackPane.setPrefSize(cardShowcaseWidth, cardShowcaseHeight);
+        cardShowcaseStackPane.setMaxSize(cardShowcaseWidth, cardShowcaseHeight);
         cardShowcaseStackPane.setMouseTransparent(true);
+        StackPane.setAlignment(cardShowcaseStackPane, Pos.TOP_RIGHT);
 
         double playerViewHeight = 550;
         upgradeShopParentPane = new StackPane();
@@ -234,11 +240,6 @@ public class GameView extends AnchorPane implements ViewObserver {
         AnchorPane.setBottomAnchor(playerView, 0.0);
         AnchorPane.setLeftAnchor(playerView, 0.0);
         AnchorPane.setRightAnchor(playerView, 0.0);
-
-        AnchorPane.setTopAnchor(cardShowcaseStackPane, 0.0);
-        AnchorPane.setBottomAnchor(cardShowcaseStackPane, 100.0);
-        AnchorPane.setLeftAnchor(cardShowcaseStackPane, 0.0);
-        AnchorPane.setRightAnchor(cardShowcaseStackPane, 0.0);
 
         this.applyCss();
         this.layout();
@@ -378,11 +379,6 @@ public class GameView extends AnchorPane implements ViewObserver {
             }
             cardField.setDisabled(!localPlayersTurn);
         }
-
-        Platform.runLater(() -> {
-            upgradeShopParentPane.setMouseTransparent(false);
-            upgradeShopParentPane.setVisible(true);
-        });
     }
 
     private @NotNull Text getStyledText(Font textFont) {
@@ -473,6 +469,7 @@ public class GameView extends AnchorPane implements ViewObserver {
                 }
             }
 
+            // Ready check and player interaction
             boolean isPhaseWithReadyCheck = board.getCurrentPhase().equals(GamePhase.PROGRAMMING) || board.getCurrentPhase().equals(GamePhase.INITIALIZATION) || board.getCurrentPhase().equals(GamePhase.UPGRADE);
             for (Player player : board.getPlayers()) {
                 Space playerSpace = player.getSpace();
@@ -480,7 +477,6 @@ public class GameView extends AnchorPane implements ViewObserver {
                     // Ready check
                     boolean playerIsReady = gameController.getIsPlayerReadyForNextPhase(player) && isPhaseWithReadyCheck;
                     spaceViews[playerSpace.x][playerSpace.y].setReadyTickVisible(playerIsReady);
-
                     // Player interaction
                     PlayerInteraction currentPlayerInteraction = gameController.getCurrentPlayerInteraction();
                     boolean playerHasInteraction = currentPlayerInteraction != null && currentPlayerInteraction.getPlayer().equals(player);
@@ -488,19 +484,24 @@ public class GameView extends AnchorPane implements ViewObserver {
                 }
             }
 
+            // Countdown
             int countdownTime = gameController.getCountdownTime();
             String countdownText = countdownTime == -1 ? "" : "Time until activation: " + countdownTime + "...";
             countdownLabel.setText(countdownText);
             countdownLabel.setTextFill(Color.GOLD);
 
-            if (board.getCurrentPhase().equals(GamePhase.UPGRADE) && !gameController.isHandlingPrePhase() && gameController.getLatestUpgradeShopData() != null) {
+            // Upgrade Shop
+            boolean updateUpgradeShop = board.getCurrentPhase().equals(GamePhase.UPGRADE) && !gameController.isHandlingPrePhase() && gameController.getLatestUpgradeShopData() != null;
+            if (updateUpgradeShop) {
                 updateUpgradeShop();
-            } else {
-                if (upgradeShopParentPane != null) {
-                    upgradeShopParentPane.setVisible(false);
-                    upgradeShopParentPane.setMouseTransparent(true);
-                }
             }
+            Platform.runLater(() -> {
+                upgradeShopParentPane.setMouseTransparent(!updateUpgradeShop);
+                if (updateUpgradeShop && !upgradeShopParentPane.isVisible()) {
+                    RoboRally.audioMixer.playShopOpen();
+                }
+                upgradeShopParentPane.setVisible(updateUpgradeShop);
+            });
         }
     }
 

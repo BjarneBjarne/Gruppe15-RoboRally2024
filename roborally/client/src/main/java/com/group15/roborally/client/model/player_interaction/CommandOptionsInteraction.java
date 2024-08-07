@@ -3,10 +3,12 @@ package com.group15.roborally.client.model.player_interaction;
 import com.group15.roborally.client.controller.GameController;
 import com.group15.roborally.client.model.Command;
 import com.group15.roborally.client.model.Player;
+import lombok.Getter;
 
 import java.util.List;
 
 public class CommandOptionsInteraction extends PlayerInteraction {
+    @Getter
     private final List<Command> options;
 
     /**
@@ -16,9 +18,6 @@ public class CommandOptionsInteraction extends PlayerInteraction {
     public CommandOptionsInteraction(GameController gameController, Player player, List<Command> options) {
         super(gameController, player);
         this.options = options;
-    }
-    public List<Command> getOptions() {
-        return options;
     }
 
     @Override

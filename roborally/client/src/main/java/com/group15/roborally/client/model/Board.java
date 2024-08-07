@@ -162,6 +162,7 @@ public class Board extends Subject {
     public void setCurrentPhase(GamePhase phase) {
         if (phase != this.currentPhase) {
             this.currentPhase = phase;
+            System.out.println("Changing phase to " + phase);
             switch (phase) {
                 case PLAYER_ACTIVATION, BOARD_ACTIVATION -> {}
                 default -> this.currentRegister = -1;

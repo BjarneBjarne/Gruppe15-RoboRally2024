@@ -177,9 +177,8 @@ public class EventHandler {
         }
         if (anyDamage) {
             Damage finalDamage = damage;
-            actionQueue.addFirst(new ActionWithDelay(() -> {
-                finalDamage.applyDamage(playerTakingDamage);
-            }, ApplicationSettings.DELAY_PLAYER_HIT, "Player: \"" + playerTakingDamage.getName() + "\" took " + finalDamage + " from " + (playerInflictingDamage != null ? ("player: \"" + playerInflictingDamage.getName()) : "board laser.")));
+            actionQueue.addFirst(new ActionWithDelay(() -> finalDamage.applyDamage(playerTakingDamage), ApplicationSettings.DELAY_PLAYER_HIT,
+                    "Player: \"" + playerTakingDamage.getName() + "\" took " + finalDamage + " from " + (playerInflictingDamage != null ? ("player: \"" + playerInflictingDamage.getName()) : "board laser.")));
         }
     }
 

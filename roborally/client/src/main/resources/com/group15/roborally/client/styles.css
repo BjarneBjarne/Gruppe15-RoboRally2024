@@ -1,3 +1,14 @@
 .transparent-scroll-pane {
     -fx-background-color: rgba(0, 0, 0, 0);
 }
+
+.slider .track {
+    -fx-background-color: linear-gradient(to right, #235d23 100%, #540d0d 0%);
+    -fx-pref-height: 20px;
+}
+
+.slider .thumb {
+    -fx-background-color: #ffffff;
+    -fx-pref-width: 27px;
+    -fx-pref-height: 27px;
+}

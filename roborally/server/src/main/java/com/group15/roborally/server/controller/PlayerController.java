@@ -1,5 +1,6 @@
 package com.group15.roborally.server.controller;
 
+import com.group15.roborally.common.model.Game;
 import com.group15.roborally.common.model.GamePhase;
 import com.group15.roborally.common.model.Player;
 import com.group15.roborally.server.repository.GameRepository;
@@ -22,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RestController
 @RequestMapping("/players")
 public class PlayerController {
-
     private final GameController gameController;
     PlayerRepository playerRepository;
     GameRepository gameRepository;
@@ -43,11 +43,27 @@ public class PlayerController {
      * @return ResponseEntity<Long> - the generated id of the player created
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> createPlayer(@RequestBody String playerName) {
+    public ResponseEntity<Long> createPlayer(@RequestBody String playerName, @PathVariable("gameId") String gameId) {
+        Optional<Game> optionalGame = gameRepository.findById(gameId);
+        if (optionalGame.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        Game game = optionalGame.get();
+        if (game.getNrOfPlayers() >= 6) {
+            return ResponseEntity.status(403).build();
+        }
         Player player = new Player();
         player.setPlayerName(playerName);
         player.setReadyForPhase(GamePhase.LOBBY);
+
+        game.getPlayers().add(player);
+        player.setGame(game);
+        player.setGameId(gameId);
+
         playerRepository.save(player);
+        gameRepository.save(game);
+
         return ResponseEntity.ok(player.getPlayerId());
     }
 
@@ -94,14 +110,13 @@ public class PlayerController {
 
     /**
      * Endpoint to delete a player in the database in 'Players' table
-     * 
+     *
      * @author Marcus Rémi Lemser Eychenne, s230985
-     * 
+     *
      * @param playerId - the id of the player to be deleted
-     * 
+     *
      * @return ResponseEntity<String> - a message indicating the success of the operation
      */
-
     @DeleteMapping(value = "/{playerId}")
     public ResponseEntity<String> deletePlayer(@PathVariable("playerId") Long playerId) {
         Optional<Player> o_player = playerRepository.findByPlayerId(playerId);

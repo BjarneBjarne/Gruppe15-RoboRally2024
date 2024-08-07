@@ -49,15 +49,22 @@ public class CC_JsonUtil {
         return null;
     }
 
-    public static List<CC_CourseData> getCoursesInFolder(String folderName) {
+    public static List<CC_CourseData> getAllCourses() {
+        List<CC_CourseData> courses = new ArrayList<>();
         List<InputStream> courseFiles;
+
         try {
-            courseFiles = IOUtil.loadJsonFilesFromResources(folderName);
+            courseFiles = IOUtil.loadJsonFilesFromResources("courses");
+
+            String userHome = System.getProperty("user.home");
+            String relativePath = "RoboRally/courses";
+            String directoryPath = userHome + File.separator + relativePath;
+            courseFiles.addAll(IOUtil.loadJsonFilesFromSystemPath(directoryPath));
         } catch (IOException | URISyntaxException e) {
             System.out.println("Error loading JSON files from resources. " + e);
             throw new RuntimeException(e);
         }
-        List<CC_CourseData> courses = new ArrayList<>();
+
         for (InputStream courseFile : courseFiles) {
             CC_CourseData courseData = CC_JsonUtil.loadCourseDataFromInputStream(courseFile);
             if (courseData != null) {

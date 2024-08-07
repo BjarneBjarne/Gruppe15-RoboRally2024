@@ -29,12 +29,12 @@ public class AudioMixer {
 
     private final AudioPlayer laserShoot;
     private final AudioPlayer laserHit;
-
     private final AudioPlayer playerMove;
     private final AudioPlayer playerTurn;
     private final AudioPlayer playerShutDown;
     private final AudioPlayer playerBootUp;
     private final AudioPlayer playerWin;
+    private final AudioPlayer shopOpen;
 
     private final AudioPlayer[] clockTicks = new AudioPlayer[10];
     private final AudioPlayer clockAlarm;
@@ -60,7 +60,7 @@ public class AudioMixer {
         for (int i = 0; i < clockTicks.length; i++) {
             clockTicks[i] = uiChannel.newAudioPlayer("clock_tick_" + i, AudioPlayer.PlayMode.OVERLAP);
         }
-        // Board
+        // Sounds effects
         laserShoot = soundEffectsChannel.newAudioPlayer("laser_shoot", AudioPlayer.PlayMode.OVERLAP);
         laserHit = soundEffectsChannel.newAudioPlayer("laser_hit", AudioPlayer.PlayMode.OVERLAP);
         playerMove = soundEffectsChannel.newAudioPlayer("player_move", AudioPlayer.PlayMode.OVERLAP);
@@ -68,6 +68,7 @@ public class AudioMixer {
         playerShutDown = soundEffectsChannel.newAudioPlayer("player_shutDown", AudioPlayer.PlayMode.OVERLAP);
         playerBootUp = soundEffectsChannel.newAudioPlayer("player_bootUp", AudioPlayer.PlayMode.OVERLAP);
         playerWin = soundEffectsChannel.newAudioPlayer("player_win", AudioPlayer.PlayMode.OVERLAP);
+        shopOpen = soundEffectsChannel.newAudioPlayer("shop_open", AudioPlayer.PlayMode.OVERLAP);
     }
 
     // AudioPlayer playback methods
@@ -110,7 +111,9 @@ public class AudioMixer {
     public void playPlayerWin() {
         playerWin.playAudio();
     }
-
+    public void playShopOpen() {
+        shopOpen.playAudio();
+    }
 
     /**
      * Sets the master volume for all channels and their audio players.
@@ -156,6 +159,10 @@ public class AudioMixer {
                 return;
             }
             this.channelVolume.set(channelVolume);
+        }
+
+        public int getChannelVolume() {
+            return this.channelVolume.get();
         }
 
         public AudioPlayer newAudioPlayer(String fileName, AudioPlayer.PlayMode playMode) {

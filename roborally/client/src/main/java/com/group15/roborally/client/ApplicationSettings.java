@@ -1,5 +1,7 @@
 package com.group15.roborally.client;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Rectangle2D;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +16,8 @@ public class ApplicationSettings {
     public static final double CARDFIELD_SIZE = 185;
     public static Rectangle2D APP_BOUNDS;
     public static double APP_SCALE;
-    @Getter @Setter
-    public static boolean FULLSCREEN = false;
+    @Getter
+    public static BooleanProperty FULLSCREEN = new SimpleBooleanProperty(false);
 
     // Action delay - All in milliseconds:
     public static final boolean WITH_ACTION_DELAY = true;
@@ -28,6 +30,7 @@ public class ApplicationSettings {
     public static final int DELAY_PLAYER_HIT = 250;
     public static final int DELAY_PLAYER_MOVE = 200;
     public static final int DELAY_PLAYER_TURN = 200;
+    public static final int DELAY_AFTER_UPGRADE = 1000;
     public static final int DELAY_INSTANT = 0;
 
 

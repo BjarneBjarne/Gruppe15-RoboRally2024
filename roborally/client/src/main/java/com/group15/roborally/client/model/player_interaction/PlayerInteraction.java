@@ -8,11 +8,9 @@ public abstract class PlayerInteraction {
     protected final GameController gameController;
     @Getter
     protected final Player player;
-    private final Runnable callback;
 
     public PlayerInteraction(GameController gameController, Player player) {
         this.gameController = gameController;
-        this.callback = gameController::handleNextInteraction;
         this.player = player;
     }
 
@@ -22,9 +20,6 @@ public abstract class PlayerInteraction {
                 gameController.getCurrentPlayerInteraction().getPlayer().getPlayerId(),
                 gameController.getInteractionCounter()
         );
-    }
-    public void interactionFinished() {
-        callback.run();
     }
 
     @Override

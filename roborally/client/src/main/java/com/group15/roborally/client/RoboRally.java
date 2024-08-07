@@ -37,6 +37,7 @@ import com.group15.roborally.client.view.GameView;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -55,6 +56,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -67,6 +69,7 @@ public class RoboRally extends Application {
     private Stage stage;
 
     private AnchorPane mainMenuPane;
+    private SettingsView settingsPane;
     private AnchorPane multiplayerMenuPane;
     private MultiplayerMenuView multiplayerMenuView;
     private GridPane directionOptionsPane;
@@ -91,6 +94,9 @@ public class RoboRally extends Application {
     private final StackPane scalePane = new StackPane();
     private final ImageView backgroundImageView = new ImageView();
     private final StackPane backgroundStackPane = new StackPane(backgroundImageView);
+
+    @Getter
+    private static String styles;
 
     private final InfoPaneView infoPane = new InfoPaneView();
     private final Label debugLabel = new Label();
@@ -158,26 +164,22 @@ public class RoboRally extends Application {
             System.out.println(e.getMessage());
         }
 
-        if (ApplicationSettings.FULLSCREEN) {
-            stage.setFullScreen(true);
-        }
+        ApplicationSettings.FULLSCREEN.addListener((obs, oldValue, newValue) -> fullscreenChange(newValue));
+        fullscreenChange(ApplicationSettings.FULLSCREEN.get());
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getBounds();
 
         double initialWidth = primaryScreenBounds.getWidth();
-        if (!ApplicationSettings.FULLSCREEN) {
-            initialWidth *= 0.65;
-        }
+        initialWidth *= 0.75;
         double initialHeight = initialWidth * (9.0 / 16.0);
         primaryScene = new Scene(root, initialWidth, initialHeight);
         primaryScene.setFill(Color.BLACK);
-
-        stage.setScene(primaryScene);
-
         URL stylesCSS = getClass().getResource("styles.css");
         if (stylesCSS != null) {
-            primaryScene.getStylesheets().add(stylesCSS.toExternalForm());
+            styles = stylesCSS.toExternalForm();
+            primaryScene.getStylesheets().add(styles);
         }
+        stage.setScene(primaryScene);
 
         stage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ESCAPE && stage.isFullScreen()) {
@@ -199,8 +201,11 @@ public class RoboRally extends Application {
 
         stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 
-        audioMixer.setMasterVolumePercent(50);
-        audioMixer.getChannel(AudioMixer.ChannelType.MUSIC).setChannelVolumePercent(0);
+        audioMixer.setMasterVolumePercent(35);
+        audioMixer.getChannel(AudioMixer.ChannelType.MUSIC).setChannelVolumePercent(15);
+        settingsPane = new SettingsView(audioMixer.getChannels());
+        settingsPane.setBackButton(this::goToMainMenu);
+        ButtonUtils.setupAllFXMLButtons(settingsPane);
         createMainMenu();
         createMultiplayerMenu();
         goToMainMenu();
@@ -229,11 +234,13 @@ public class RoboRally extends Application {
         scaleUI();
     }
 
+    private void fullscreenChange(boolean newValue) {
+        stage.setFullScreen(newValue);
+        scaleUI();
+    }
+
     private void scaleUI() {
         Platform.runLater(() -> {
-            if (ApplicationSettings.FULLSCREEN) {
-                stage.setFullScreen(true);
-            }
             double newWidth = primaryScene.widthProperty().doubleValue();
             double newHeight = primaryScene.heightProperty().doubleValue();
 
@@ -368,6 +375,11 @@ public class RoboRally extends Application {
     public void goToMultiplayerMenu() {
         setBackgroundImage("Background_SelectionMenu3.png");
         setMainPane(multiplayerMenuPane);
+    }
+
+    public void goToSettings() {
+        setBackgroundImage("Background_SelectionMenu3.png");
+        setMainPane(settingsPane);
     }
 
     /**
