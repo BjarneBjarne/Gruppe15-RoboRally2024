@@ -4,12 +4,12 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 # Fetch the latest tag version from Git
 $latestTag = git describe --tags --abbrev=0
 if (-not $latestTag) {
-    Write-Output "No tags found in the repository. Initializing version to 1.0.0."
-    $newVersion = "1.0.0"
+    Write-Output "No tags found in the repository. Initializing version to 1.0.0-alpha."
+    $newVersion = "1.0.0-alpha"
 } else {
     Write-Output "Latest tag found: $latestTag"
 
-    # Increment the patch number
+    # Increment the patch number while keeping the suffix
     if ($latestTag -match "^(\d+)\.(\d+)\.(\d+)(-.+)?$") {
         $major = [int]$matches[1]
         $minor = [int]$matches[2]
