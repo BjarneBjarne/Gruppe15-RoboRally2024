@@ -12,7 +12,7 @@ if (-not (Test-Path -Path $versionFile)) {
 }
 $version = Get-Content -Path $versionFile
 
-Write-Output "`n > Building Windows installer for RoboRally client version $version < `n"
+Write-Output "`n *** Building Windows installer for RoboRally client version $version *** `n"
 
 # Maven check
 $mvnPath = Get-Command mvn -ErrorAction SilentlyContinue
