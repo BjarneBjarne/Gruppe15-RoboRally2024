@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Fetch the latest tags from the remote repository
+git fetch --tags
+
+# Function to get the latest valid tag
+get_latest_tag() {
+    local tag_pattern="^v[0-9]+\.[0-9]+\.[0-9]+(-alpha|-beta)?$"
+    local tags=$(git tag --sort=-v:refname)
+    for tag in $tags; do
+        if [[ $tag =~ $tag_pattern ]]; then
+            echo $tag
+            return
+        fi
+    done
+    echo "v0.0.0"  # Default initial tag if no valid tag is found
+}
+
+# Get the latest valid tag and the current version from the version file
+latest_tag=$(get_latest_tag)
+current_version=$(grep 'version=' roborally/version | cut -d '=' -f 2)
+
+# Function to compare two version strings
+version_greater_equal() {
+    [ "$1" = "$2" ] && return 0
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)); do ver1[i]=0; done
+    for ((i=0; i<${#ver1[@]}; i++)); do
+        [ -z ${ver2[i]} ] && ver2[i]=0
+        ((10#${ver1[i]} > 10#${ver2[i]})) && return 0
+        ((10#${ver1[i]} < 10#${ver2[i]})) && return 1
+    done
+    return 0
+}
+
+# Determine the highest version
+if version_greater_equal "$current_version" "$latest_tag"; then
+    base_version="$current_version"
+else
+    base_version="$latest_tag"
+fi
+
+# Ensure the base version is in the correct format
+if [[ $base_version =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)(-alpha|-beta)?$ ]]; then
+    major=${BASH_REMATCH[1]}
+    minor=${BASH_REMATCH[2]}
+    patch=${BASH_REMATCH[3]}
+    suffix=${BASH_REMATCH[4]}
+
+    # Determine the increment type based on the branch name
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    if [[ "$branch" == "main" ]]; then
+        new_major=$((major + 1))
+        new_minor=0
+        new_patch=0
+        new_version="v$new_major.0.0$suffix"
+    elif [[ "$branch" == "dev" ]]; then
+        new_minor=$((minor + 1))
+        new_patch=0
+        new_version="v$major.$new_minor.0$suffix"
+    else
+        new_patch=$((patch + 1))
+        new_version="v$major.$minor.$new_patch$suffix"
+    fi
+
+    # Update the version file
+    echo "version=$new_version" > roborally/version
+
+    # Stage the updated version file
+    git add roborally/version
+
+    echo "Version updated to $new_version and staged for commit."
+else
+    echo "Invalid version format in version file or latest tag. Expected format: v<major>.<minor>.<patch>[-alpha|-beta]"
+    exit 1
+fi
