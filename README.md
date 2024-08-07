@@ -1,23 +1,68 @@
 # Introduction
 
+This project is a video game adaptation of the RoboRally board game. The instructions below will guide you through the installation steps, as well as how to play the game. I've tried to make the installation guide comprehensive enough for *almost* any user with enough patience, can build and install the game and/or the server themselves.
 
-# Prerequisites
-If you already have the installer for the game and is not going to host a server, you don't 
+# Prerequisites, Build & Installation
 
-# Building the installer
-To build the game, the following programs needs to be downloaded and installed:
-* Java 22.0.1 - As well as having 
+While not tested with other versions, the project may run with some other versions of the prerequisites. If in doubt, you can just install the ones specified.
 
-While not tested with older version, 
+If you want to build the game, it is beneficial to know a bit about environment variables and how to use your system's terminal/console. If you need help with steps involving these, there are plenty of helpful tutorials on YouTube and elsewhere. If this is new to you, note that the process of setting environment variables differs depending on your operating system and the terminal/console/shell/etc you're using.
 
-IntelliJ
+If you already have the installer for the game version you need (check the tags for versions) and do not intend to host a server, you don't need to install the prerequisites.
 
-# Running the project
-## Client
-To open the RoboRally-application, navigate to the folder Gruppe15-RoboRally2024 and double-click the file
-"RoboRally.jar".
+You can run the installer by double-clicking it. After the installation is complete, you can open the installed application from the installed RoboRally directory in your system's default application directory. This is usually located at the following paths:
 
-## Server
+**Common system installation Paths**:
+  - Windows:   `C:\Program Files\RoboRally\`
+  - Mac:       `Applications/RoboRally`
+
+## Building the Client & Server JARs
+
+This section is for those who want to run a server, have the game without taking as much disk space, or already have the prerequisites installed correctly.
+
+### Notice
+
+The `PATH` variable mentioned multiple times can differ in its name, depending on the system you're running. It is sometimes called `Path` instead.
+
+### Building the UBER-JAR
+To build the game as a JAR file, ensure you have the following installed and configured:
+
+- **Java 22.0.1**:
+  - Download the JDK from [Oracle](https://www.oracle.com/java/technologies/downloads/). Unzip the `jdk-22` where you want to keep the JDK installed.
+  - Set the `JAVA_HOME` environment variable to point to the Java JDK 22 directory.
+  - Add the `bin` directory inside the JDK 22 directory to the `PATH` variable.
+
+- **Apache Maven 3.9.8**:
+  - Download Maven from [Apache Maven](https://maven.apache.org/download.cgi).
+  - Add the `bin` directory inside the Apache Maven 3.9.8 directory to the `PATH` variable.
+
+- **JavaFX 22.0.1**:
+  - Download JavaFX from [GluonHQ](https://gluonhq.com/products/javafx/).
+  - Set a custom/unofficial environment variable `PATH_TO_FX` pointing to the `lib` folder inside the downloaded JavaFX SDK directory.
+
+When you have done this, you are ready to build!
+
+1. Open your preferred terminal and navigate to the repo directory `Gruppe15-RoboRally2024/roborally`.
+
+2. If maven is installed correctly, you can enter the command `mvn clean install` in there, which will compile and package the UBER-JAR, as well as install other needed dependencies for you.
+
+### Building the Installer
+
+To build the game installer, ensure you have the same prerequisites as for the UBER-JAR, as it is needed for the installer.
+
+1. Again, in the terminal, you should be at the directory `Gruppe15-RoboRally2024/roborally`.
+
+2. Run one of the following commands to run one of the provided build scripts, depending on what operating system you are on:
+   build_client_win.ps1
+
+**Build scripts**:
+- Windows:   `.\build_client_win.ps1`
+- Mac:       `./build_client_mac.ssh`
+- Linux:     `./build_client_lin.ssh`
+
+The build script will compile the project, create a JLink runtime image, and package the application using jpackage.
+
+
 
 
 # How to play the game
