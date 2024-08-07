@@ -12,25 +12,6 @@ if (-not (Test-Path -Path $propertiesFile)) {
 }
 $version = Select-String -Path $propertiesFile -Pattern "^version=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value }
 
-# Increment the patch number
-if ($version -match "^(\d+)\.(\d+)\.(\d+)(-.+)?$") {
-    $major = [int]$matches[1]
-    $minor = [int]$matches[2]
-    $patch = [int]$matches[3]
-    $suffix = $matches[4]
-
-    $patch++
-    $newVersion = "$major.$minor.$patch$suffix"
-
-    # Update project.properties with the new version
-    (Get-Content $propertiesFile) -replace "^version=.*", "version=$newVersion" | Set-Content $propertiesFile
-
-    $version = $newVersion
-} else {
-    Write-Output "Invalid version format in project.properties. Expected format: major.minor.patch[-suffix]"
-    exit 1
-}
-
 Write-Output "`n* Building Windows installer for RoboRally client version $version *`n"
 
 # Check if Maven is installed

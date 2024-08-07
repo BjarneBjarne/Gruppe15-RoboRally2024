@@ -1,5 +1,8 @@
+# Get the directory of the current script
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
 # Define the version variable from project.properties
-$propertiesFile = "project.properties"
+$propertiesFile = Join-Path $scriptDir "project.properties"
 if (-not (Test-Path -Path $propertiesFile)) {
     Write-Output "project.properties not found. Please create project.properties with the version number."
     exit 1
