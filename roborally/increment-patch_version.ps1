@@ -1,9 +1,11 @@
 # Get the directory of the current script
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-# Fetch the latest tag version from Git
-$latestTag = git describe --tags --abbrev=0
-if (-not $latestTag) {
+# Run the git command to get the latest tag
+$latestTag = git describe --tags --abbrev=0 2>&1
+
+# Check if there are no tags
+if ($latestTag -match "fatal: No names found") {
     Write-Output "No tags found in the repository. Initializing version to 1.0.0-alpha."
     $newVersion = "1.0.0-alpha"
 } else {
