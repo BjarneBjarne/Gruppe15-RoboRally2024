@@ -84,4 +84,5 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+
 Write-Output "`nSuccessfully built and packaged Windows installer for RoboRally client at: $outputDir\RoboRally-$version.exe"
