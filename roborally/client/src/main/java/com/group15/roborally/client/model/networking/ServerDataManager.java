@@ -322,8 +322,7 @@ public class ServerDataManager extends Subject implements Observer {
     private void runActionAndCallback(ActionWithDelay actionWithDelay, Runnable callback) {
         actionWithDelay.runAndCallback(callback);
     }
-
-
+    
 
     // Update data and send to server
     // Lobby
