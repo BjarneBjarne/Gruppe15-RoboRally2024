@@ -4,13 +4,13 @@ $projectRoot = Join-Path $scriptDir "client"
 $outputDir = Join-Path $projectRoot "target\output"
 $jlinkImageDir = Join-Path $projectRoot "target\jlink-image"
 
-# Define the version variable from project.properties
-$propertiesFile = Join-Path $scriptDir "project.properties"
-if (-not (Test-Path -Path $propertiesFile)) {
-    Write-Output "project.properties not found. Please create project.properties with the version number."
+# Define the version variable from version file
+$versionFile = Join-Path $scriptDir "version"
+if (-not (Test-Path -Path $versionFile)) {
+    Write-Output "Version file not found. Please create version file with the version number."
     exit 1
 }
-$version = Select-String -Path $propertiesFile -Pattern "^version=(.*)" | ForEach-Object { $_.Matches.Groups[1].Value }
+$version = Get-Content -Path $versionFile
 
 Write-Output "`n* Building Windows installer for RoboRally client version $version *`n"
 
