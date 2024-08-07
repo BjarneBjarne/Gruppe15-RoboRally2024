@@ -325,7 +325,6 @@ public class ServerDataManager extends Subject implements Observer {
 
 
 
-
     // Update data and send to server
     // Lobby
     public void setPlayerRobot(@NotNull String robotName) {
