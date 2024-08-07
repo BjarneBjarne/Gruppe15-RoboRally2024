@@ -24,9 +24,12 @@ jobs:
       - name: Fetch all tags
         run: git fetch --tags
 
-      - name: Get latest tag
+      - name: Get latest tag within branch context
         id: get_latest_tag
-        run: echo ::set-output name=latest_tag::$(git describe --tags --abbrev=0)
+        run: |
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1 --grep="^v[0-9]\+\.[0-9]\+\.[0-9]\+$" --remotes=origin/$branch))
+          echo "::set-output name=latest_tag::$latest_tag"
 
       - name: Determine increment type
         id: increment_type
@@ -49,7 +52,7 @@ jobs:
             minor=${BASH_REMATCH[2]}
             patch=${BASH_REMATCH[3]}
             suffix=${BASH_REMATCH[4]}
-          
+
             if [[ $increment_type == "major" ]]; then
               new_major=$((major + 1))
               new_version="v$new_major.0.0$suffix"
@@ -60,13 +63,19 @@ jobs:
               new_patch=$((patch + 1))
               new_version="v$major.$minor.$new_patch$suffix"
             fi
-          
+
             echo "New version: $new_version"
             echo "::set-output name=new_version::$new_version"
           else
             echo "Invalid tag format. Expected format: v<major>.<minor>.<patch>[-suffix]"
             exit 1
           fi
+
+      - name: Log debug info
+        run: |
+          echo "Latest tag: ${{ steps.get_latest_tag.outputs.latest_tag }}"
+          echo "Increment type: ${{ steps.increment_type.outputs.increment_type }}"
+          echo "New version: ${{ steps.increment_version.outputs.new_version }}"
 
       - name: Update version file
         run: echo "version=${{ steps.increment_version.outputs.new_version }}" > roborally/version
